@@ -2345,6 +2345,114 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         self.assertNotIn("branch_feature_values", deselected.context["form"].errors)
         self.assertNotContains(deselected, 'data-feature-id="rollout-feature-invalid"')
 
+    def test_post_selecting_feature_drops_the_required_feature_error(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-required",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "feature_configs": [feature_config.id],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+            },
+        )
+
+        self.assertNotIn("feature_configs", response.context["validation_errors"])
+
+    def test_post_without_feature_keeps_the_required_feature_error(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+            },
+        )
+
+        self.assertIn(
+            NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG,
+            response.context["validation_errors"]["feature_configs"],
+        )
+
+    def test_post_deselecting_saved_feature_restores_the_required_feature_error(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-deselected",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature_config
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.features_data(feature_value, feature_configs=[]),
+        )
+
+        self.assertIn(
+            NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG,
+            response.context["validation_errors"]["feature_configs"],
+        )
+
+    @mock.patch.object(
+        NimbusExperiment,
+        "get_invalid_fields_errors",
+        return_value={
+            "feature_configs": [
+                NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG,
+                "Feature Config application does not match experiment application.",
+            ]
+        },
+    )
+    def test_post_selecting_feature_keeps_other_feature_errors(self, _mock_errors):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-other-errors",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "feature_configs": [feature_config.id],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+            },
+        )
+
+        self.assertEqual(
+            response.context["validation_errors"]["feature_configs"],
+            ["Feature Config application does not match experiment application."],
+        )
+
     def test_post_deselecting_feature_and_saving_deletes_the_stored_json(self):
         feature_config = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,

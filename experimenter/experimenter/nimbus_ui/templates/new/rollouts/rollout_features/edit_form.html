@@ -23,95 +23,97 @@
           Feature configuration</span>
         </label>
         {{ form.feature_configs }}
-        {% for error in validation_errors.feature_configs %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
       </div>
-      {% with branch_feature_values=form.branch_feature_values %}
-        <div>
-          {{ branch_feature_values.management_form }}
-          {% for branch_feature_values_form in branch_feature_values %}
-            {{ branch_feature_values_form.id }}
-            {{ branch_feature_values_form.feature_config }}
-            {% if branch_feature_values_form.DELETE.value %}
-              {{ branch_feature_values_form.value.as_hidden }}
-            {% else %}
-              <div class="row mt-2">
-                <div class="col">
-                  <label class="small mb-2 text-secondary">
-                    {{ branch_feature_values_form.instance.feature_config.name }}
-                    {% if branch_feature_values_form.instance.allow_coenrollment %}
-                      <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
-                    {% endif %}
-                  </label>
-                  <div class="feature-value-editor position-relative"
-                       data-nimbus-devtools-feature-editor
-                       data-feature-id="{{ branch_feature_values_form.instance.feature_config.slug }}">
-                    {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
-                    <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
-                      <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
-                        <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
-                                type="button"
-                                title="Preview with about:messagepreview"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                          <span class="fa fa-eye"></span>
+      <div id="rollout-features-config-body">
+        {% for error in validation_errors.feature_configs %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+        {% with branch_feature_values=form.branch_feature_values %}
+          <div>
+            {{ branch_feature_values.management_form }}
+            {% for branch_feature_values_form in branch_feature_values %}
+              {{ branch_feature_values_form.id }}
+              {{ branch_feature_values_form.feature_config }}
+              {% if branch_feature_values_form.DELETE.value %}
+                {{ branch_feature_values_form.value.as_hidden }}
+              {% else %}
+                <div class="row mt-2">
+                  <div class="col">
+                    <label class="small mb-2 text-secondary">
+                      {{ branch_feature_values_form.instance.feature_config.name }}
+                      {% if branch_feature_values_form.instance.allow_coenrollment %}
+                        <div class="form-text">{{ NimbusUIConstants.COENROLLMENT_NOTE }}</div>
+                      {% endif %}
+                    </label>
+                    <div class="feature-value-editor position-relative"
+                         data-nimbus-devtools-feature-editor
+                         data-feature-id="{{ branch_feature_values_form.instance.feature_config.slug }}">
+                      {{ branch_feature_values_form.value|add_error_class:"is-invalid" }}
+                      <div class="position-absolute top-0 end-0 m-1 py-1 px-1">
+                        <div class="dropdown d-none" data-nimbus-devtools-try-preview-dropdown>
+                          <button class="dropdown-toggle btn btn-sm btn-outline-secondary ms-1"
+                                  type="button"
+                                  title="Preview with about:messagepreview"
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false">
+                            <span class="fa fa-eye"></span>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end text-nowrap">
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    {% for error in branch_feature_values_form.value.errors %}
+                      <div class="form-text text-danger">{{ error }}</div>
+                    {% endfor %}
+                    {% with fv_errors=validation_errors.reference_branch.feature_values|get_item:forloop.counter0 %}
+                      {% for error in fv_errors.value %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
+                    {% endwith %}
+                    {% if branch_feature_values_form.instance.unversioned_schema %}
+                      <div class="mt-2">
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn show-schema-btn"
+                                data-target="rollout-schema-{{ forloop.counter0 }}">
+                          <i class="fa-solid fa-chevron-down"></i> Show Schema
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end text-nowrap">
-                        </ul>
+                        <button type="button"
+                                class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn hide-schema-btn d-none"
+                                data-target="rollout-schema-{{ forloop.counter0 }}">
+                          <i class="fa-solid fa-chevron-up"></i> Hide feature schema
+                        </button>
+                        <div id="rollout-schema-{{ forloop.counter0 }}"
+                             class="schema-display d-none mt-2 mw-100 overflow-auto">
+                          <textarea class="readonly-json">{{ branch_feature_values_form.instance.unversioned_schema }}</textarea>
+                        </div>
                       </div>
-                    </div>
+                    {% endif %}
                   </div>
-                  {% for error in branch_feature_values_form.value.errors %}
-                    <div class="form-text text-danger">{{ error }}</div>
-                  {% endfor %}
-                  {% with fv_errors=validation_errors.reference_branch.feature_values|get_item:forloop.counter0 %}
-                    {% for error in fv_errors.value %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-                  {% endwith %}
-                  {% if branch_feature_values_form.instance.unversioned_schema %}
-                    <div class="mt-2">
-                      <button type="button"
-                              class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn show-schema-btn"
-                              data-target="rollout-schema-{{ forloop.counter0 }}">
-                        <i class="fa-solid fa-chevron-down"></i> Show Schema
-                      </button>
-                      <button type="button"
-                              class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-2 toggle-schema-btn hide-schema-btn d-none"
-                              data-target="rollout-schema-{{ forloop.counter0 }}">
-                        <i class="fa-solid fa-chevron-up"></i> Hide feature schema
-                      </button>
-                      <div id="rollout-schema-{{ forloop.counter0 }}"
-                           class="schema-display d-none mt-2 mw-100 overflow-auto">
-                        <textarea class="readonly-json">{{ branch_feature_values_form.instance.unversioned_schema }}</textarea>
-                      </div>
-                    </div>
-                  {% endif %}
                 </div>
-              </div>
-            {% endif %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endwith %}
+        {#  Feature validation and pref conflict options  #}
+        <div class="mt-4">
+          <div class="form-check">
+            {{ form.warn_feature_schema }}
+            <label class="form-check-label small text-body mb-2"
+                   for="{{ form.warn_feature_schema.id_for_label }}">
+              Warn only on feature schema validation failure
+            </label>
+          </div>
+          {% for error in validation_errors.warn_feature_schema %}
+            <div class="form-text text-danger">{{ error }}</div>
+          {% endfor %}
+          <div class="form-check">
+            {{ form.prevent_pref_conflicts }}
+            <label class="form-check-label small text-body"
+                   for="{{ form.prevent_pref_conflicts.id_for_label }}">
+              Prevent enrollment if users have changed any prefs set by this rollout
+            </label>
+          </div>
+          {% for error in validation_errors.prevent_pref_conflicts %}
+            <div class="form-text text-danger">{{ error }}</div>
           {% endfor %}
         </div>
-      {% endwith %}
-      {#  Feature validation and pref conflict options  #}
-      <div class="mt-4">
-        <div class="form-check">
-          {{ form.warn_feature_schema }}
-          <label class="form-check-label small text-body mb-2"
-                 for="{{ form.warn_feature_schema.id_for_label }}">
-            Warn only on feature schema validation failure
-          </label>
-        </div>
-        {% for error in validation_errors.warn_feature_schema %}
-          <div class="form-text text-danger">{{ error }}</div>
-        {% endfor %}
-        <div class="form-check">
-          {{ form.prevent_pref_conflicts }}
-          <label class="form-check-label small text-body"
-                 for="{{ form.prevent_pref_conflicts.id_for_label }}">
-            Prevent enrollment if users have changed any prefs set by this rollout
-          </label>
-        </div>
-        {% for error in validation_errors.prevent_pref_conflicts %}
-          <div class="form-text text-danger">{{ error }}</div>
-        {% endfor %}
       </div>
       {#  Rollout screenshots  #}
       <div>

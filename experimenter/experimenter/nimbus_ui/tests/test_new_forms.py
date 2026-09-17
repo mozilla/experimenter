@@ -888,6 +888,20 @@ class TestNimbusBranchFeatureValueForm(RequestFormTestCase):
 
 
 class TestRolloutFeaturesForm(RequestFormTestCase):
+    def test_feature_configs_swaps_only_the_config_body(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        form = RolloutFeaturesForm(instance=experiment, request=self.request)
+        attrs = form.fields["feature_configs"].widget.attrs
+
+        self.assertEqual(attrs["hx-trigger"], "change")
+        self.assertEqual(attrs["hx-select"], "#rollout-features-config-body")
+        self.assertEqual(attrs["hx-target"], "#rollout-features-config-body")
+        self.assertEqual(attrs["hx-swap"], "outerHTML")
+
     def test_feature_config_choices_use_name_and_description(self):
         feature_config = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
