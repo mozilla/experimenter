@@ -985,6 +985,109 @@ class TestNimbusExperiment(TestCase):
         )
         validate_jexl_expr(experiment.targeting, experiment.application)
 
+    def test_targeting_includes_newtab_addon_min_version_for_desktop(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            newtab_addon_min_version="153.3.20260605.21338",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=False,
+        )
+
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "(version|versionCompare('100.!') >= 0) "
+                "&& (newtabAddonVersion|versionCompare('153.3.20260605.21338') >= 0)"
+            ),
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    def test_targeting_omits_newtab_addon_min_version_when_empty(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            newtab_addon_min_version="",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=False,
+        )
+
+        self.assertEqual(experiment.targeting, "(version|versionCompare('100.!') >= 0)")
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    @parameterized.expand(
+        [
+            (application,)
+            for application in NimbusExperiment.Application
+            if application != NimbusExperiment.Application.DESKTOP
+        ]
+    )
+    def test_targeting_omits_newtab_addon_min_version_for_non_desktop(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            newtab_addon_min_version="153.3.20260605.21338",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=False,
+        )
+
+        self.assertEqual(experiment.targeting, "true")
+
+    def test_targeting_newtab_addon_min_version_is_sticky(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
+            newtab_addon_min_version="153.3.20260605.21338",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_ENTERPRISE_USERS,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=True,
+            is_rollout=False,
+        )
+
+        sticky_expression = (
+            "("
+            "(experiment.slug in activeExperiments) "
+            "|| "
+            "("
+            "(!hasActiveEnterprisePolicies) "
+            "&& (version|versionCompare('100.!') >= 0) "
+            "&& (newtabAddonVersion|versionCompare('153.3.20260605.21338') >= 0)"
+            ")"
+            ")"
+        )
+        self.assertEqual(
+            experiment.targeting,
+            (f"(version|versionCompare('101.*') <= 0) && {sticky_expression}"),
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
     def test_targeting_desktop_single_channel(
         self,
     ):

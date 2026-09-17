@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.utils import timezone
 from parameterized import parameterized
 
+from experimenter.addons import Addons
+from experimenter.addons.tests import mock_valid_addon_versions
 from experimenter.base.tests.factories import (
     CountryFactory,
     LanguageFactory,
@@ -617,6 +619,7 @@ class TestRolloutAudienceForm(RequestFormTestCase):
                 is_sticky=True,
                 languages=[language.id],
                 locales=[locale.id],
+                newtab_addon_min_version="153.3.20260605.21338",
                 required_experiments_branches=[f"{required.slug}:None"],
                 targeting_config_slug=NimbusExperiment.TargetingConfig.FIRST_RUN,
             ),
@@ -647,6 +650,7 @@ class TestRolloutAudienceForm(RequestFormTestCase):
         self.assertTrue(experiment.exclude_languages)
         self.assertTrue(experiment.is_first_run)
         self.assertTrue(experiment.is_sticky)
+        self.assertEqual(experiment.newtab_addon_min_version, "153.3.20260605.21338")
         self.assertTrue(
             NimbusExperimentBranchThroughExcluded.objects.filter(
                 parent_experiment=experiment,
@@ -664,6 +668,48 @@ class TestRolloutAudienceForm(RequestFormTestCase):
         self.assertEqual(
             form.get_changelog_message(), f"{self.request.user} updated audience"
         )
+
+    @mock_valid_addon_versions
+    def test_newtab_addon_min_version_choices_are_newest_first(self):
+        Addons.clear_cache()
+        self.addCleanup(Addons.clear_cache)
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.BETA],
+        )
+
+        form = RolloutAudienceForm(instance=experiment, request=self.request)
+
+        self.assertEqual(
+            form.fields["newtab_addon_min_version"].choices,
+            [
+                (
+                    NimbusExperiment.Version.NO_VERSION.value,
+                    NimbusExperiment.Version.NO_VERSION.label,
+                ),
+                ("158.0.20260913.220257", "158.0.20260913.220257"),
+                ("145.0.20250919.173227", "145.0.20250919.173227"),
+            ],
+        )
+
+    @parameterized.expand([("",), ("158.0.20260913.220257",)])
+    @mock_valid_addon_versions
+    def test_newtab_addon_min_version_accepts_known_version(self, version):
+        Addons.clear_cache()
+        self.addCleanup(Addons.clear_cache)
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.BETA],
+        )
+
+        form = RolloutAudienceForm(
+            instance=experiment,
+            data=self._audience_data(newtab_addon_min_version=version),
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.save().newtab_addon_min_version, version)
 
     def test_saves_localization_fields(self):
         experiment = NimbusExperimentFactory.create(

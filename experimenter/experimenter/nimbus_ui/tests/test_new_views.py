@@ -2061,6 +2061,58 @@ class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
             experiment.targeting_config_slug, NimbusExperiment.TargetingConfig.FIRST_RUN
         )
 
+    def test_get_renders_newtab_addon_min_version_for_desktop(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            newtab_addon_min_version="153.3.20260605.21338",
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "New Tab Addon Minimum Version")
+        self.assertContains(response, 'id="id_newtab_addon_min_version"')
+        self.assertContains(response, "153.3.20260605.21338")
+
+    def test_get_omits_newtab_addon_min_version_for_mobile(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="id_newtab_addon_min_version"')
+
+    def test_post_saves_newtab_addon_min_version_and_renders_card(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            newtab_addon_min_version="",
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.audience_data(
+                newtab_addon_min_version="153.3.20260605.21338",
+                save="True",
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/audience/card.html")
+        self.assertContains(response, 'id="rollout-audience-newtab-addon-min-version"')
+        self.assertContains(response, "New Tab Addon Minimum Version")
+        self.assertContains(response, "153.3.20260605.21338")
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.newtab_addon_min_version, "153.3.20260605.21338")
+
     def test_get_renders_is_localized_checkbox(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
