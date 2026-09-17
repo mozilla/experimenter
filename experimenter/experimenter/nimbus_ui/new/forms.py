@@ -905,11 +905,6 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    rollout_experience = forms.CharField(
-        required=False,
-        label="",
-        widget=forms.widgets.Textarea(attrs={"class": "form-control"}),
-    )
     feature_configs = FeatureConfigModelChoiceField(
         required=False,
         queryset=NimbusFeatureConfig.objects.all(),
@@ -978,9 +973,6 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 "hx-target": "#rollout-rollout-features-body",
             }
         )
-        # We use the takeaways_summary to actually store the rollout experience since it
-        # will remain unused as rollouts donot have results data
-        self.fields["rollout_experience"].initial = self.instance.takeaways_summary
 
     def get_branch_feature_values_data(self):
         # Add temporary formset rows so newly selected, unsaved features get JSON
@@ -1043,7 +1035,6 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def save(self, *args, **kwargs):
         self.branch_feature_values.save()
         self.rollout_screenshots.save()
-        self.instance.takeaways_summary = self.cleaned_data.get("rollout_experience", "")
 
         experiment = super().save(*args, **kwargs)
 

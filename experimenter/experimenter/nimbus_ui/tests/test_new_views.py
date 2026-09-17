@@ -2173,7 +2173,6 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
 
     def features_data(self, feature_value, **kwargs):
         return {
-            "rollout_experience": "Original rollout experience",
             "branch-feature-value-TOTAL_FORMS": "1",
             "branch-feature-value-INITIAL_FORMS": "1",
             "branch-feature-value-0-id": feature_value.id,
@@ -2192,8 +2191,8 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [],
+                "warn_feature_schema": "on",
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
                 "rollout-screenshots-TOTAL_FORMS": "0",
@@ -2205,7 +2204,7 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/rollout_features/card.html")
         experiment.refresh_from_db()
-        self.assertEqual(experiment.takeaways_summary, "Updated rollout experience")
+        self.assertTrue(experiment.warn_feature_schema)
         self.assertTrue(response.context["hx_swap_oob"])
 
     def test_post_change_returns_edit_form(self):
@@ -2217,13 +2216,11 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[],
-            takeaways_summary="Original rollout experience",
         )
 
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [feature_config.id],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -2237,7 +2234,6 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         self.assertContains(response, "rollout-feature")
         self.assertContains(response, "value-editor")
         experiment.refresh_from_db()
-        self.assertEqual(experiment.takeaways_summary, "Original rollout experience")
         self.assertEqual(experiment.feature_configs.count(), 0)
 
     def test_post_selected_feature_renders_schema_toggle(self):
@@ -2388,7 +2384,6 @@ class TestNewRolloutScreenshotCreateView(AuthTestCase):
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_experience": "",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -2414,15 +2409,15 @@ class TestNewRolloutScreenshotCreateView(AuthTestCase):
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             feature_configs=[],
-            takeaways_summary="Original rollout experience",
+            warn_feature_schema=False,
         )
         experiment.reference_branch.screenshots.all().delete()
 
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_experience": "Updated without explicit save",
                 "feature_configs": [],
+                "warn_feature_schema": "on",
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
                 "rollout-screenshots-TOTAL_FORMS": "0",
@@ -2431,7 +2426,7 @@ class TestNewRolloutScreenshotCreateView(AuthTestCase):
         )
 
         experiment.refresh_from_db()
-        self.assertEqual(experiment.takeaways_summary, "Updated without explicit save")
+        self.assertTrue(experiment.warn_feature_schema)
         self.assertContains(response, 'id="rollout-preview-btn"')
         self.assertContains(response, 'id="rollout-launch-btn"')
 
@@ -2470,7 +2465,6 @@ class TestNewRolloutScreenshotUploadView(AuthTestCase):
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_experience": "",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -2505,7 +2499,6 @@ class TestNewRolloutScreenshotDeleteView(AuthTestCase):
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
                 "screenshot_id": screenshot.id,
-                "rollout_experience": "",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
