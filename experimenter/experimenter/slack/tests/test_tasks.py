@@ -3,9 +3,11 @@ from datetime import timedelta
 from unittest import mock
 
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 from parameterized import parameterized
 
+from experimenter.base.models import SiteFlag, SiteFlagNameChoices
 from experimenter.experiments.constants import (
     APPLICATION_CONFIG_DESKTOP,
     APPLICATION_CONFIG_FENIX,
@@ -1604,6 +1606,73 @@ class TestCheckMonitoringAlerts(TestCase):
                 alert_type=NimbusConstants.AlertType.FEATURE_CONFLICT,
             ).exists()
         )
+
+    def test_feature_conflict_alert_links_each_conflict_by_its_own_type(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        conflicting_rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="blocking-recipe-slug",
+            is_rollout=True,
+        )
+        conflicting_experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="other-slug",
+            is_rollout=False,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_FEATURE_CONFLICT_MONITORING_DATA,
+            is_rollout=True,
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            action_text = mock_send_slack.call_args[1]["action_text"]
+
+        self.assertIn(
+            f"<{conflicting_rollout.experiment_url}|{conflicting_rollout.slug}>",
+            action_text,
+        )
+        self.assertIn(
+            reverse(
+                "new-nimbus-ui-rollout-detail",
+                kwargs={"slug": conflicting_rollout.slug},
+            ),
+            action_text,
+        )
+        self.assertIn(
+            f"<{conflicting_experiment.experiment_url}|{conflicting_experiment.slug}>",
+            action_text,
+        )
+        self.assertNotIn(
+            reverse(
+                "new-nimbus-ui-rollout-detail",
+                kwargs={"slug": conflicting_experiment.slug},
+            ),
+            action_text,
+        )
+
+    def test_feature_conflict_alert_leaves_unknown_slugs_unlinked(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data=_FEATURE_CONFLICT_MONITORING_DATA,
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            action_text = mock_send_slack.call_args[1]["action_text"]
+
+        self.assertIn("blocking-recipe-slug", action_text)
+        self.assertNotIn("|blocking-recipe-slug>", action_text)
 
     def test_sends_feature_conflict_alert_with_empty_slug_when_unavailable(self):
         mobile_funnel = [

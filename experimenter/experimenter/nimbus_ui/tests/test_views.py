@@ -1742,6 +1742,47 @@ class TestNimbusExperimentPromoteToRolloutView(AuthTestCase):
             experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_120
         )
 
+    def _promote_to_rollout(self):
+        # The UI posts branch_slug in the body via hx-vals, and clone() only
+        # flips is_rollout when that branch is supplied.
+        source = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="promote-source",
+        )
+        return self.client.post(
+            reverse("nimbus-ui-promote-to-rollout", kwargs={"slug": source.slug}),
+            {
+                "owner": self.user,
+                "name": "Promoted Rollout",
+                "branch_slug": source.reference_branch.slug,
+            },
+        )
+
+    def test_post_redirects_to_the_new_rollout_ui_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+
+        response = self._promote_to_rollout()
+
+        rollout = NimbusExperiment.objects.get(slug="promoted-rollout")
+        self.assertTrue(rollout.is_rollout)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    def test_post_redirects_to_the_legacy_ui_when_flag_is_disabled(self):
+        response = self._promote_to_rollout()
+
+        rollout = NimbusExperiment.objects.get(slug="promoted-rollout")
+        self.assertTrue(rollout.is_rollout)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
+        )
+
     def test_post_passes_experiment(self):
         response = self.client.post(
             reverse("nimbus-ui-clone", kwargs={"slug": self.experiment.slug}),

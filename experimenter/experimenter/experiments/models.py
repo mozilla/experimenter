@@ -718,7 +718,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def experiment_url(self):
-        return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
+        return urljoin(f"https://{settings.HOSTNAME}", self.get_detail_url())
 
     @property
     def results_url(self):

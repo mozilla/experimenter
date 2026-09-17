@@ -4,6 +4,7 @@ from decimal import Decimal
 from itertools import product
 from pathlib import Path
 from unittest import mock
+from urllib.parse import urljoin
 
 import packaging
 from django.conf import settings
@@ -797,6 +798,34 @@ class TestNimbusExperiment(TestCase):
         with self.assertNumQueries(1):
             experiment.get_detail_url()
             experiment.get_detail_url()
+
+    def test_experiment_url_follows_the_new_rollout_ui_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        self.assertEqual(
+            rollout.experiment_url,
+            urljoin(f"https://{settings.HOSTNAME}", rollout.get_detail_url()),
+        )
+        self.assertIn(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+            rollout.experiment_url,
+        )
+
+    def test_experiment_url_stays_legacy_when_flag_is_disabled(self):
+        rollout = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        self.assertIn(
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
+            rollout.experiment_url,
+        )
+        self.assertNotIn(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+            rollout.experiment_url,
+        )
 
     def test_latest_change_returns_most_recent(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
