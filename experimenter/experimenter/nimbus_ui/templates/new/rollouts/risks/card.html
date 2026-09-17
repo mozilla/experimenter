@@ -108,4 +108,8 @@
 
     </div>
   </div>
+  {% if hx_swap_oob %}
+    {% include "new/rollouts/signoff/body.html" with oob=True %}
+
+  {% endif %}
 {% endblock %}
