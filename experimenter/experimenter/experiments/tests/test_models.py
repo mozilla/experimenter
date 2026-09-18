@@ -3016,6 +3016,43 @@ class TestNimbusExperiment(TestCase):
         ):
             self.assertFalse(experiment.can_publish_to_preview)
 
+    def test_uses_secure_collection_returns_false_for_multiple_kinto_collections(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        with mock.patch.object(
+            type(experiment),
+            "kinto_collection",
+            new_callable=mock.PropertyMock,
+            side_effect=TargetingMultipleKintoCollectionsError({"col-a", "col-b"}),
+        ):
+            self.assertFalse(experiment.uses_secure_collection)
+
+    def test_uses_secure_collection_for_secure_feature(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug=NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        self.assertTrue(experiment.uses_secure_collection)
+
+    def test_uses_secure_collection_false_for_default_collection(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug="abouthomecache",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        self.assertFalse(experiment.uses_secure_collection)
+
     @parameterized.expand(
         [
             NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,

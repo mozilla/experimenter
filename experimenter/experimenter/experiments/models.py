@@ -2074,6 +2074,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             except TargetingMultipleKintoCollectionsError:
                 return False
 
+    @property
+    def uses_secure_collection(self):
+        try:
+            return self.kinto_collection == settings.KINTO_COLLECTION_NIMBUS_SECURE
+        except TargetingMultipleKintoCollectionsError:
+            return False
+
     def delete_branches(self):
         self.reference_branch = None
         self.save()
