@@ -2124,8 +2124,26 @@ class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Is this a localized rollout?")
+        self.assertContains(response, NimbusUIConstants.LOCALIZED_ROLLOUT_LABEL)
         self.assertContains(response, 'id="id_is_localized"')
+
+    def test_get_explains_what_a_localized_rollout_is(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, escape(NimbusUIConstants.LOCALIZED_ROLLOUT_DESCRIPTION)
+        )
+        self.assertContains(
+            response, NimbusUIConstants.AUDIENCE_PAGE_LINKS["localization_url"]
+        )
 
     def test_post_toggling_is_localized_saves_and_returns_edit_form(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
