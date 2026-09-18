@@ -969,8 +969,9 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
                     kwargs={"slug": self.instance.slug},
                 ),
                 "hx-trigger": "change",
-                "hx-select": "#rollout-rollout-features-body",
-                "hx-target": "#rollout-rollout-features-body",
+                "hx-select": "#rollout-features-config-body",
+                "hx-target": "#rollout-features-config-body",
+                "hx-swap": "outerHTML",
             }
         )
 
