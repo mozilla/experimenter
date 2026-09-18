@@ -216,7 +216,7 @@
       </div>
       {# Localization #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Is this a localized rollout?</div>
+        <div class="text-secondary mb-1" style="font-size: 12px;">{{ NimbusUIConstants.LOCALIZED_ROLLOUT_LABEL }}</div>
         {% if experiment.is_localized %}
           <i id="rollout-audience-localized" class="fas fa-check text-success"></i>
         {% else %}
