@@ -170,6 +170,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         "treatment_branches": "Feature value warning",
         "targeting_config_slug": "Targeting field unsupported in some versions",
         "proposed_release_date": "Release date set on a non-first-run experiment",
+        "fxms_message_coenrollment": "Deprecated messaging feature ID",
     }
 
     REVIEW_WARNING_LEARN_MORE = {
