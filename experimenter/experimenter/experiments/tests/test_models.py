@@ -4,6 +4,7 @@ from decimal import Decimal
 from itertools import product
 from pathlib import Path
 from unittest import mock
+from urllib.parse import urljoin
 
 import packaging
 from django.conf import settings
@@ -797,6 +798,34 @@ class TestNimbusExperiment(TestCase):
         with self.assertNumQueries(1):
             experiment.get_detail_url()
             experiment.get_detail_url()
+
+    def test_experiment_url_follows_the_new_rollout_ui_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        self.assertEqual(
+            rollout.experiment_url,
+            urljoin(f"https://{settings.HOSTNAME}", rollout.get_detail_url()),
+        )
+        self.assertIn(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+            rollout.experiment_url,
+        )
+
+    def test_experiment_url_stays_legacy_when_flag_is_disabled(self):
+        rollout = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        self.assertIn(
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
+            rollout.experiment_url,
+        )
+        self.assertNotIn(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+            rollout.experiment_url,
+        )
 
     def test_latest_change_returns_most_recent(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -3427,6 +3456,41 @@ class TestNimbusExperiment(TestCase):
                 feature_overlap_live.slug,
                 same_namespace_live.slug,
             ],
+        )
+
+    def test_audience_overlap_warning_entries_link_to_the_new_rollout_ui(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        colliding_rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+
+        entries = draft.audience_overlap_warnings[0]["entries"]
+        entry = next(e for e in entries if e["slug"] == colliding_rollout.slug)
+
+        self.assertEqual(entry["detail_url"], colliding_rollout.get_detail_url())
+        self.assertEqual(
+            entry["detail_url"],
+            reverse(
+                "new-nimbus-ui-rollout-detail",
+                kwargs={"slug": colliding_rollout.slug},
+            ),
         )
 
     def test_audience_overlap_warnings_combines_collisions_and_self_issues(self):
@@ -6655,8 +6719,56 @@ class TestNimbusExperiment(TestCase):
             for s in result["stages"]
             if s["reason"] == NimbusExperiment.FunnelReason.FEATURE_CONFLICT
         )
-        self.assertIn("other-experiment", conflict_stage["conflict_slugs"])
+        self.assertIn(
+            "other-experiment", [c["slug"] for c in conflict_stage["conflicts"]]
+        )
         self.assertFalse(conflict_stage["has_null_conflict"])
+
+    def test_enrollment_funnel_stage_conflicts_link_to_the_new_rollout_ui(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        conflicting_rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="conflicting-rollout",
+            is_rollout=True,
+        )
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            monitoring_data={
+                "enrollment_funnel": [
+                    {
+                        "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
+                        "branch": None,
+                        "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+                        "reason": NimbusExperiment.FunnelReason.FEATURE_CONFLICT,
+                        "conflict_slug": conflicting_rollout.slug,
+                        "client_count": 100,
+                    },
+                ]
+            },
+        )
+
+        conflict_stage = next(
+            s
+            for s in experiment.enrollment_funnel_stages["stages"]
+            if s["reason"] == NimbusExperiment.FunnelReason.FEATURE_CONFLICT
+        )
+
+        self.assertEqual(
+            conflict_stage["conflicts"],
+            [
+                {
+                    "slug": conflicting_rollout.slug,
+                    "detail_url": reverse(
+                        "new-nimbus-ui-rollout-detail",
+                        kwargs={"slug": conflicting_rollout.slug},
+                    ),
+                }
+            ],
+        )
 
     def test_enrollment_funnel_stages_multiple_conflict_slugs(self):
         for i in (0, 1, 2):
@@ -6689,7 +6801,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertEqual(
-            set(conflict_stage["conflict_slugs"]),
+            {c["slug"] for c in conflict_stage["conflicts"]},
             {"conflict-0", "conflict-1", "conflict-2"},
         )
 
@@ -6715,7 +6827,7 @@ class TestNimbusExperiment(TestCase):
             if s["reason"] == NimbusExperiment.FunnelReason.FEATURE_CONFLICT
         )
         self.assertTrue(conflict_stage["has_null_conflict"])
-        self.assertEqual(conflict_stage["conflict_slugs"], [])
+        self.assertEqual(conflict_stage["conflicts"], [])
 
 
 class TestNimbusBranch(TestCase):

@@ -434,9 +434,7 @@ class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, Up
         response = super().post(*args, **kwargs)
         if response.status_code == 302:
             response = HttpResponse()
-            response.headers["HX-Redirect"] = reverse(
-                "nimbus-ui-detail", kwargs={"slug": self.object.slug}
-            )
+            response.headers["HX-Redirect"] = self.object.get_detail_url()
         return response
 
 

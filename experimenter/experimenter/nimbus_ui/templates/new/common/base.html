@@ -63,7 +63,7 @@
               {% if experiment.parent %}
                 <p class="text-secondary small mb-0">
                   Cloned from
-                  <a href="{% url 'nimbus-ui-detail' experiment.parent.slug %}"
+                  <a href="{{ experiment.parent.get_detail_url }}"
                      target="_blank"
                      data-testid="experiment-parent"
                      rel="noopener noreferrer">{{ experiment.parent.name }}</a>

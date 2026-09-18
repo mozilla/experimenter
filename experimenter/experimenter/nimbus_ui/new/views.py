@@ -245,16 +245,14 @@ class UpdateRedirectViewMixin:
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not self.can_edit():
-            return HttpResponseRedirect(
-                reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
-            )
+            return HttpResponseRedirect(self.object.get_detail_url())
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not self.can_edit():
             response = HttpResponse()
-            base_url = reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+            base_url = self.object.get_detail_url()
             response.headers["HX-Redirect"] = f"{base_url}?save_failed=true"
             return response
         return super().post(request, *args, **kwargs)
@@ -569,7 +567,7 @@ class CardMutationMixin:
         self.object = self.get_object()
         if not self.can_edit():
             response = HttpResponse()
-            base_url = reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+            base_url = self.object.get_detail_url()
             response.headers["HX-Redirect"] = f"{base_url}?save_failed=true"
             return response
 

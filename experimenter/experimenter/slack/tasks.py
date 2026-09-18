@@ -409,8 +409,15 @@ def _send_zero_enrollment_alert(experiment, monitoring_data, days):
 
 
 def _send_feature_conflict_alert(experiment, rate, conflict_slugs):
+    # Each conflicting slug is looked up rather than derived from this
+    # experiment's URL, because a conflict may be a different delivery type and
+    # so may live under a different detail route.
+    conflict_urls = {
+        conflict.slug: conflict.experiment_url
+        for conflict in NimbusExperiment.objects.filter(slug__in=list(conflict_slugs))
+    }
     slug_links = ", ".join(
-        f"<{experiment.experiment_url.replace(experiment.slug, slug)}|{slug}>"
+        f"<{conflict_urls[slug]}|{slug}>" if slug in conflict_urls else slug
         for slug in conflict_slugs
     )
     message = SlackConstants.SLACK_FEATURE_CONFLICT_MESSAGE.format(
