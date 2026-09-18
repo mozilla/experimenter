@@ -255,6 +255,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     is_rollout_dirty = models.BooleanField(
         "Approved Changes Flag", blank=False, null=False, default=False
     )
+    rollout_plan_name = models.CharField(
+        "Selected Rollout Plan Name", max_length=255, blank=True, default=""
+    )
     rollout_advance_observations = models.TextField(
         "Advance Rollout Phase Observations", blank=True, default=""
     )

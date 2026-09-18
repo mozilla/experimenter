@@ -18,7 +18,7 @@
     {% csrf_token %}
     {# Choose rollout plan #}
     <div>
-      <label for="id_rollout_plan" class="small text-body mb-1">Choose rollout plan</label>
+      <label for="id_rollout_plan" class="small text-secondary mb-1">Choose rollout plan</label>
       {{ form.rollout_plan|add_error_class:"is-invalid" }}
     </div>
     {{ form.rollout_phases.management_form }}
