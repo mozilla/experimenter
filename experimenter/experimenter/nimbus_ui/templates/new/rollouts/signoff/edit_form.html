@@ -16,12 +16,8 @@
           <label class="form-check-label small text-body"
                  for="{{ form.qa_signoff.id_for_label }}">QA sign-off</label>
         </div>
-        {% if experiment.signoff_recommendations.qa_signoff %}<span class="text-success small">Recommended:</span>{% endif %}
-        <span class="small text-secondary">Please file a QA request.
-          <a target="_blank"
-             rel="noopener noreferrer"
-             href="https://experimenter.info/workflow/risk-mitigation#qa-sign-off">Learn more</a>
-        </span>
+        {% include "new/common/signoff_recommendation.html" with recommended=experiment.signoff_recommendations.qa_signoff description="Please file a QA request." url="https://experimenter.info/workflow/risk-mitigation#qa-sign-off" %}
+
       </div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.qa_signoff %}
 
@@ -32,12 +28,8 @@
           <label class="form-check-label small text-body"
                  for="{{ form.vp_signoff.id_for_label }}">VP sign-off</label>
         </div>
-        {% if experiment.signoff_recommendations.vp_signoff %}<span class="text-success small">Recommended:</span>{% endif %}
-        <span class="small text-secondary">Please email your VP.
-          <a target="_blank"
-             rel="noopener noreferrer"
-             href="https://experimenter.info/workflow/risk-mitigation#vp-sign-off">Learn more</a>
-        </span>
+        {% include "new/common/signoff_recommendation.html" with recommended=experiment.signoff_recommendations.vp_signoff description="Please email your VP." url="https://experimenter.info/workflow/risk-mitigation#vp-sign-off" %}
+
       </div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.vp_signoff %}
 
@@ -48,14 +40,8 @@
           <label class="form-check-label small text-body"
                  for="{{ form.legal_signoff.id_for_label }}">Legal sign-off</label>
         </div>
-        {% if experiment.signoff_recommendations.legal_signoff %}
-          <span class="text-success small">Recommended:</span>
-        {% endif %}
-        <span class="small text-secondary">Please email legal.
-          <a target="_blank"
-             rel="noopener noreferrer"
-             href="https://experimenter.info/workflow/risk-mitigation#legal-sign-off">Learn more</a>
-        </span>
+        {% include "new/common/signoff_recommendation.html" with recommended=experiment.signoff_recommendations.legal_signoff description="Please email legal." url="https://experimenter.info/workflow/risk-mitigation#legal-sign-off" %}
+
       </div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.legal_signoff %}
 

@@ -316,6 +316,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         default=NimbusConstants.Version.NO_VERSION,
         blank=True,
     )
+    newtab_addon_min_version = models.CharField(
+        "Minimum New Tab Addon Version",
+        max_length=255,
+        default="",
+        blank=True,
+    )
     application = models.CharField(
         "Application Type",
         max_length=255,
@@ -770,6 +776,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return expressions
 
+    def _get_targeting_newtab_addon_min_version(self):
+        expressions = []
+
+        if self.is_desktop and (min_version := self.newtab_addon_min_version):
+            expressions.append(f"newtabAddonVersion|versionCompare('{min_version}') >= 0")
+
+        return expressions
+
     def _get_targeting_pref_conflicts(self):
         prefs = []
 
@@ -815,6 +829,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         sticky_expressions.extend(self._get_targeting_min_version())
         expressions.extend(self._get_targeting_max_version())
+        sticky_expressions.extend(self._get_targeting_newtab_addon_min_version())
 
         if locales := self.locales.all():
             locales = [locale.code for locale in sorted(locales, key=lambda l: l.code)]
@@ -2688,22 +2703,40 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def show_rollout_reenable_warning(self):
-        return not self.supports_rollout_reenable and self.status in (
-            NimbusConstants.Status.DRAFT,
-            NimbusConstants.Status.PREVIEW,
-            NimbusConstants.Status.LIVE,
+        return (
+            bool(self.firefox_min_version)
+            and not self.supports_rollout_reenable
+            and self.status
+            in (
+                NimbusConstants.Status.DRAFT,
+                NimbusConstants.Status.PREVIEW,
+                NimbusConstants.Status.LIVE,
+            )
         )
+
+    def _validated_review_serializer(self, serializer_class):
+        serializer = serializer_class(self, data=serializer_class(self).data)
+        serializer.is_valid()
+        return serializer
 
     @cached_property
     def _review_serializer(self):
         from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 
-        serializer = NimbusReviewSerializer(self, data=NimbusReviewSerializer(self).data)
-        serializer.is_valid()
-        return serializer
+        return self._validated_review_serializer(NimbusReviewSerializer)
 
-    @property
-    def review_warnings(self):
+    @cached_property
+    def _rollout_review_serializer(self):
+        from experimenter.experiments.api.v5.serializers import (
+            NimbusRolloutReviewSerializer,
+        )
+
+        if not self.is_rollout:
+            return self._review_serializer
+
+        return self._validated_review_serializer(NimbusRolloutReviewSerializer)
+
+    def _review_warnings(self, serializer):
         if self.status not in [
             NimbusConstants.Status.DRAFT,
             NimbusConstants.Status.PREVIEW,
@@ -2711,7 +2744,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return []
 
         issues = []
-        for field, messages in self._review_serializer.flat_warnings.items():
+        for field, messages in serializer.flat_warnings.items():
             label = NimbusUIConstants.REVIEW_WARNING_LABELS.get(
                 field, field.replace("_", " ").title()
             )
@@ -2727,7 +2760,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return issues
 
     @property
-    def audience_overlap_warnings(self):
+    def review_warnings(self):
+        return self._review_warnings(self._review_serializer)
+
+    @property
+    def rollout_review_warnings(self):
+        return self._review_warnings(self._rollout_review_serializer)
+
+    def _audience_overlap_warnings(self, self_issues):
         if self.status not in [
             NimbusConstants.Status.DRAFT,
             NimbusConstants.Status.PREVIEW,
@@ -2744,8 +2784,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             for d in collisions["deliveries"]
         ]
 
-        self_issues = self.review_warnings
-
         if not entries and not self_issues:
             return []
 
@@ -2760,6 +2798,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 ),
             }
         ]
+
+    @property
+    def audience_overlap_warnings(self):
+        return self._audience_overlap_warnings(self.review_warnings)
+
+    @property
+    def rollout_audience_overlap_warnings(self):
+        return self._audience_overlap_warnings(self.rollout_review_warnings)
 
     def collision_card_header(self, entries, self_issues):
         target = "rollout" if self.is_rollout else "experiment"

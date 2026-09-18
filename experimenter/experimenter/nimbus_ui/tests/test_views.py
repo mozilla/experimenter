@@ -3942,6 +3942,96 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "nimbus_experiments/results-fragment.html")
 
+    def create_experiment_with_kpi_results(self, errors):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+            is_rollout=False,
+        )
+        experiment.delete_branches()
+        experiment.reference_branch = NimbusBranchFactory.create(
+            experiment=experiment, name="Control", slug="control"
+        )
+        NimbusBranchFactory.create(
+            experiment=experiment, name="Treatment A", slug="treatment-a"
+        )
+        empty_metric = {
+            "absolute": {"all": [], "first": {}},
+            "difference": {"control": {"all": [], "first": {}}},
+            "relative_uplift": {"control": {"all": [], "first": {}}},
+        }
+        branch_data = {
+            "branch_data": {
+                "other_metrics": {NimbusConstants.RETENTION_WEEK_2: empty_metric},
+            }
+        }
+        experiment.results_data = {
+            "v3": {
+                "metadata": {
+                    "metrics": {
+                        NimbusConstants.RETENTION_WEEK_2: {
+                            "friendly_name": "Week 2 Retention"
+                        },
+                    }
+                },
+                "errors": errors,
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "control": branch_data,
+                            "treatment-a": branch_data,
+                        }
+                    }
+                },
+            }
+        }
+        experiment.save()
+        return experiment
+
+    def test_results_view_renders_error_state_for_metric_with_errors(self):
+        experiment = self.create_experiment_with_kpi_results(
+            {
+                NimbusConstants.RETENTION_WEEK_2: [
+                    {"analysis_basis": "enrollments", "segment": "all"}
+                ]
+            }
+        )
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-results",
+                kwargs={"slug": experiment.slug},
+                query={"reference_branch": "control"},
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "fa-triangle-exclamation text-warning")
+        self.assertContains(response, NimbusUIConstants.METRIC_ERRORS_TOOLTIP)
+        self.assertContains(response, NimbusUIConstants.METRIC_ERRORS_TITLE)
+        self.assertContains(response, escape(NimbusUIConstants.METRIC_ERRORS_TEXT))
+        self.assertContains(response, "Contact Experimenter Support")
+
+    def test_results_view_renders_no_data_state_for_metric_without_data(self):
+        experiment = self.create_experiment_with_kpi_results({})
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-results",
+                kwargs={"slug": experiment.slug},
+                query={"reference_branch": "control"},
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "fa-circle-info text-info")
+        self.assertContains(response, NimbusUIConstants.METRIC_NO_DATA_TOOLTIP)
+        self.assertContains(response, NimbusUIConstants.METRIC_NO_DATA_TEXT)
+        self.assertNotContains(response, NimbusUIConstants.METRIC_ERRORS_TITLE)
+        self.assertNotContains(response, "Contact Experimenter Support")
+
     @parameterized.expand(
         [
             (
@@ -4610,6 +4700,39 @@ class TestResultsView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["displayed_window"], expected_window)
+
+
+class TestResultsExportView(AuthTestCase):
+    def test_exports_results_data(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            results_data={"v3": {"weekly": {"enrollments": {"all": {}}}}},
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-results-export", kwargs={"slug": experiment.slug}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json")
+        self.assertEqual(
+            response["Content-Disposition"],
+            f'attachment; filename="{experiment.slug}-results.json"',
+        )
+        self.assertEqual(json.loads(response.content), experiment.results_data)
+
+    def test_exports_empty_object_when_no_results(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            results_data=None,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-results-export", kwargs={"slug": experiment.slug}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content), {})
 
 
 class TestBranchScreenshotCreateView(AuthTestCase):

@@ -275,6 +275,15 @@ Optional - We expect this to <describe impact> on <core metric>.
         "All statistically significant changes that have occurred in the experiment"
     )
     NOTABLE_CHANGES_ABSENT_TEXT = "There are no notable changes in this experiment"
+    METRIC_ERRORS_TOOLTIP = "No data available"
+    METRIC_ERRORS_TITLE = "Metric unavailable"
+    METRIC_ERRORS_TEXT = "Other metrics may not be affected."
+    METRIC_NO_DATA_TOOLTIP = "Not available yet"
+    METRIC_NO_DATA_TITLE = "Not available yet"
+    METRIC_NO_DATA_TEXT = (
+        "The analysis window for this metric has not been computed yet. "
+        "Results will appear once it has."
+    )
     FEATURE_MONITORING_CARD_TITLE = "Feature Monitoring"
     FEATURE_MONITORING_OPEN_DASHBOARD_TEXT = "Open in Grafana"
     FEATURE_MONITORING_DASHBOARD_INFO = (
@@ -403,6 +412,9 @@ Optional - We expect this to <describe impact> on <core metric>.
 
     ERROR_ROLLOUT_PLAN_NAME_REQUIRED = "Please name this rollout plan before saving it."
     ERROR_ROLLOUT_PLAN_NAME_DUPLICATE = "A rollout plan with this name already exists."
+    ERROR_ROLLOUT_PLAN_PHASES_DUPLICATE = (
+        "These phases are already saved as the rollout plan '{name}'."
+    )
     ERROR_ROLLOUT_PLAN_FIX_ERRORS = (
         "Resolve the highlighted errors above before saving this plan."
     )
@@ -426,6 +438,10 @@ Optional - We expect this to <describe impact> on <core metric>.
     ROLLOUT_SCHEDULE_DATES_NOTE = (
         "Phase dates are used for planning and reminders only. Phases do not start or "
         "end automatically, so these dates are optional."
+    )
+    ROLLOUT_PLAN_VISIBILITY_NOTE = (
+        "Saved plans are shared, so this plan will be visible to everyone creating a "
+        "rollout."
     )
     ROLLOUT_PREVIEW_MESSAGE = (
         "This rollout is in Preview mode and is live for testing now. It can take up "
@@ -511,7 +527,6 @@ Optional - We expect this to <describe impact> on <core metric>.
         "rollout-features": {
             "section": "Features",
             "rows": (
-                ("Rollout Experience", ("takeaways_summary",)),
                 ("Feature Configuration", ("feature_configs", "reference_branch")),
                 ("Warn On Schema Failure", ("warn_feature_schema",)),
                 ("Prevent Pref Conflicts", ("prevent_pref_conflicts",)),

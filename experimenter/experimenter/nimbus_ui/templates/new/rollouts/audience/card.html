@@ -60,6 +60,15 @@
         {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_max_version %}
 
       </div>
+      {% if experiment.is_desktop %}
+        <div>
+          <div class="text-secondary mb-1" style="font-size: 12px;">New Tab Addon Minimum Version</div>
+          <div id="rollout-audience-newtab-addon-min-version"
+               class="small text-body">{{ experiment.newtab_addon_min_version|default:"—" }}</div>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.newtab_addon_min_version %}
+
+        </div>
+      {% endif %}
       {# Locales / languages #}
       <div>
         <div class="text-secondary mb-1" style="font-size: 12px;">

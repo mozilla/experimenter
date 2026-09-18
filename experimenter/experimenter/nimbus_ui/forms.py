@@ -15,6 +15,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
+from experimenter.addons import NEWTAB_ADDON, Addons
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants import NimbusConstants
@@ -1078,6 +1079,22 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             *NimbusExperiment.Version.choices[1:][::-1],
         ]
 
+    def get_newtab_addon_version_choices():
+        return [
+            (
+                NimbusExperiment.Version.NO_VERSION.value,
+                NimbusExperiment.Version.NO_VERSION.label,
+            ),
+            *(
+                (version.version, version.version)
+                for version in sorted(
+                    Addons.by_addon(NEWTAB_ADDON),
+                    key=lambda version: version.sort_key,
+                    reverse=True,
+                )
+            ),
+        ]
+
     def get_targeting_config_choices(self):
         application_name = NimbusExperiment.Application(self.instance.application).name
         return sorted(
@@ -1119,6 +1136,16 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         required=False,
         label="",
         choices=get_version_choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+    )
+    newtab_addon_min_version = forms.ChoiceField(
+        required=False,
+        label="",
+        choices=get_newtab_addon_version_choices,
         widget=forms.widgets.Select(
             attrs={
                 "class": "form-select",
@@ -1192,6 +1219,7 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "is_sticky",
             "languages",
             "locales",
+            "newtab_addon_min_version",
             "population_percent",
             "proposed_duration",
             "proposed_enrollment",

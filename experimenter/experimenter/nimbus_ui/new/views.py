@@ -8,7 +8,11 @@ from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 
 from experimenter.experiments.api.v5.serializers import NimbusRolloutReviewSerializer
-from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
+from experimenter.experiments.constants import (
+    EXTERNAL_URLS,
+    RISK_QUESTIONS,
+    NimbusConstants,
+)
 from experimenter.experiments.models import NimbusExperiment, Tag
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
@@ -496,6 +500,27 @@ class NewRolloutFeaturesUpdateView(CardMixin, NewCardUpdateView):
             return super().form_valid(form)
 
         return self.render_to_response(self.get_context_data(form=form))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = context.get("form")
+        if form is None or not form.is_bound or "feature_configs" not in form.fields:
+            return context
+
+        validation_errors = context["validation_errors"]
+        feature_errors = [
+            error
+            for error in validation_errors.get("feature_configs", [])
+            if error != NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG
+        ]
+        if not form["feature_configs"].value():
+            feature_errors.insert(0, NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG)
+
+        if feature_errors:
+            validation_errors["feature_configs"] = feature_errors
+        else:
+            validation_errors.pop("feature_configs", None)
+        return context
 
 
 class NewRolloutScreenshotCreateView(

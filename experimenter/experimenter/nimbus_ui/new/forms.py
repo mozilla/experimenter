@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
+from experimenter.addons import NEWTAB_ADDON, Addons
 from experimenter.base.models import Country, Language, Locale
 from experimenter.experiments.changelog_utils import generate_nimbus_changelog
 from experimenter.experiments.constants import NimbusConstants
@@ -380,8 +381,13 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
         model = NimbusBranchFeatureValue
         fields = ("value",)
 
+    def get_feature_config(self):
+        return self.instance.feature_config if self.instance.feature_config_id else None
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        feature_config = self.get_feature_config()
+
         if self.instance._state.adding and (
             self.instance.value is None or self.instance.value == {}
         ):
@@ -398,14 +404,10 @@ class NimbusBranchFeatureValueForm(forms.ModelForm):
                 self.instance.branch.experiment.slug
             )
 
-            if self.instance.feature_config:
+            if feature_config:
                 self.fields["value"].widget.attrs["data-feature-slug"] = (
-                    self.instance.feature_config.slug
+                    feature_config.slug
                 )
-
-        feature_config = (
-            self.instance.feature_config if self.instance.feature_config_id else None
-        )
 
         if (
             feature_config
@@ -433,9 +435,7 @@ class RolloutBranchFeatureValueForm(NimbusBranchFeatureValueForm):
         fields = ("feature_config", "value")
         widgets = {"feature_config": forms.HiddenInput()}
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
+    def get_feature_config(self):
         if (
             self.is_bound
             and not self.instance.feature_config_id
@@ -444,6 +444,7 @@ class RolloutBranchFeatureValueForm(NimbusBranchFeatureValueForm):
             self.instance.feature_config = NimbusFeatureConfig.objects.filter(
                 id=feature_config_id
             ).first()
+        return super().get_feature_config()
 
     def clean_feature_config(self):
         return self.cleaned_data.get("feature_config") or (
@@ -627,6 +628,22 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             *NimbusExperiment.Version.choices[1:][::-1],
         ]
 
+    def get_newtab_addon_version_choices():
+        return [
+            (
+                NimbusExperiment.Version.NO_VERSION.value,
+                NimbusExperiment.Version.NO_VERSION.label,
+            ),
+            *(
+                (version.version, version.version)
+                for version in sorted(
+                    Addons.by_addon(NEWTAB_ADDON),
+                    key=lambda version: version.sort_key,
+                    reverse=True,
+                )
+            ),
+        ]
+
     def get_targeting_config_choices(self):
         application_name = NimbusExperiment.Application(self.instance.application).name
         no_targeting = NimbusExperiment.TargetingConfig.NO_TARGETING
@@ -677,6 +694,16 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         required=False,
         label="",
         choices=get_version_choices,
+        widget=forms.widgets.Select(
+            attrs={
+                "class": "form-select",
+            },
+        ),
+    )
+    newtab_addon_min_version = forms.ChoiceField(
+        required=False,
+        label="",
+        choices=get_newtab_addon_version_choices,
         widget=forms.widgets.Select(
             attrs={
                 "class": "form-select",
@@ -744,6 +771,7 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "is_sticky",
             "languages",
             "locales",
+            "newtab_addon_min_version",
             "required_experiments_branches",
             "targeting_config_slug",
             "is_localized",
@@ -877,11 +905,6 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
 
 class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    rollout_experience = forms.CharField(
-        required=False,
-        label="",
-        widget=forms.widgets.Textarea(attrs={"class": "form-control"}),
-    )
     feature_configs = FeatureConfigModelChoiceField(
         required=False,
         queryset=NimbusFeatureConfig.objects.all(),
@@ -946,13 +969,11 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
                     kwargs={"slug": self.instance.slug},
                 ),
                 "hx-trigger": "change",
-                "hx-select": "#rollout-rollout-features-body",
-                "hx-target": "#rollout-rollout-features-body",
+                "hx-select": "#rollout-features-config-body",
+                "hx-target": "#rollout-features-config-body",
+                "hx-swap": "outerHTML",
             }
         )
-        # We use the takeaways_summary to actually store the rollout experience since it
-        # will remain unused as rollouts donot have results data
-        self.fields["rollout_experience"].initial = self.instance.takeaways_summary
 
     def get_branch_feature_values_data(self):
         # Add temporary formset rows so newly selected, unsaved features get JSON
@@ -1015,7 +1036,6 @@ class RolloutFeaturesForm(NimbusChangeLogFormMixin, forms.ModelForm):
     def save(self, *args, **kwargs):
         self.branch_feature_values.save()
         self.rollout_screenshots.save()
-        self.instance.takeaways_summary = self.cleaned_data.get("rollout_experience", "")
 
         experiment = super().save(*args, **kwargs)
 
@@ -1949,23 +1969,41 @@ class RolloutPlanCreateForm(RolloutScheduleForm):
             )
         return name
 
+    def submitted_phases(self):
+        return [
+            float(phase_form.cleaned_data["population_percent"])
+            for phase_form in self.rollout_phases.forms
+            if phase_form.cleaned_data.get("population_percent") is not None
+            and not phase_form.cleaned_data.get("DELETE")
+        ]
+
+    def duplicate_plan_name(self):
+        phases = self.submitted_phases()
+        for name, plan_phases in self.plans.items():
+            if [float(percent) for percent in plan_phases] == phases:
+                return name
+        return None
+
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get("template_name") and not self.rollout_phases.is_valid():
-            self.add_error(
-                "template_name", NimbusUIConstants.ERROR_ROLLOUT_PLAN_FIX_ERRORS
-            )
+        if cleaned_data.get("template_name"):
+            if not self.rollout_phases.is_valid():
+                self.add_error(
+                    "template_name", NimbusUIConstants.ERROR_ROLLOUT_PLAN_FIX_ERRORS
+                )
+            elif duplicate_name := self.duplicate_plan_name():
+                self.add_error(
+                    "template_name",
+                    NimbusUIConstants.ERROR_ROLLOUT_PLAN_PHASES_DUPLICATE.format(
+                        name=duplicate_name
+                    ),
+                )
         return cleaned_data
 
     def save(self):
         NimbusRolloutPlanTemplate.objects.create(
             name=self.cleaned_data["template_name"],
-            phases=[
-                float(phase_form.cleaned_data["population_percent"])
-                for phase_form in self.rollout_phases.forms
-                if phase_form.cleaned_data.get("population_percent") is not None
-                and not phase_form.cleaned_data.get("DELETE")
-            ],
+            phases=self.submitted_phases(),
         )
         return self.instance
 

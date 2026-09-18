@@ -34,6 +34,14 @@
         <th>Maximum version</th>
         <td>{{ experiment.firefox_max_version|parse_version }}</td>
       </tr>
+      {% if experiment.is_desktop %}
+        <tr>
+          <th>New Tab addon minimum version</th>
+          <td colspan="3" data-testid="experiment-newtab-addon-min-version">
+            {{ experiment.newtab_addon_min_version|default:"No Version" }}
+          </td>
+        </tr>
+      {% endif %}
       <tr>
         {% if experiment.is_mobile %}
           <th>

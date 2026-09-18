@@ -1014,6 +1014,109 @@ class TestNimbusExperiment(TestCase):
         )
         validate_jexl_expr(experiment.targeting, experiment.application)
 
+    def test_targeting_includes_newtab_addon_min_version_for_desktop(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            newtab_addon_min_version="153.3.20260605.21338",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=False,
+        )
+
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "(version|versionCompare('100.!') >= 0) "
+                "&& (newtabAddonVersion|versionCompare('153.3.20260605.21338') >= 0)"
+            ),
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    def test_targeting_omits_newtab_addon_min_version_when_empty(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            newtab_addon_min_version="",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=False,
+        )
+
+        self.assertEqual(experiment.targeting, "(version|versionCompare('100.!') >= 0)")
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    @parameterized.expand(
+        [
+            (application,)
+            for application in NimbusExperiment.Application
+            if application != NimbusExperiment.Application.DESKTOP
+        ]
+    )
+    def test_targeting_omits_newtab_addon_min_version_for_non_desktop(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            newtab_addon_min_version="153.3.20260605.21338",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=False,
+        )
+
+        self.assertEqual(experiment.targeting, "true")
+
+    def test_targeting_newtab_addon_min_version_is_sticky(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
+            newtab_addon_min_version="153.3.20260605.21338",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_ENTERPRISE_USERS,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=True,
+            is_rollout=False,
+        )
+
+        sticky_expression = (
+            "("
+            "(experiment.slug in activeExperiments) "
+            "|| "
+            "("
+            "(!hasActiveEnterprisePolicies) "
+            "&& (version|versionCompare('100.!') >= 0) "
+            "&& (newtabAddonVersion|versionCompare('153.3.20260605.21338') >= 0)"
+            ")"
+            ")"
+        )
+        self.assertEqual(
+            experiment.targeting,
+            (f"(version|versionCompare('101.*') <= 0) && {sticky_expression}"),
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
     def test_targeting_desktop_single_channel(
         self,
     ):
@@ -3664,6 +3767,77 @@ class TestNimbusExperiment(TestCase):
             experiment.review_warnings,
         )
 
+    def test_rollout_review_warnings_survive_blank_branch_description(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10, end_date=None
+        )
+        experiment.reference_branch.description = ""
+        experiment.reference_branch.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertIn("reference_branch", experiment._review_serializer.errors)
+        self.assertEqual(experiment.review_warnings, [])
+        self.assertIn(
+            NimbusUIConstants.REVIEW_WARNING_LABELS["firefox_min_version"],
+            [issue["label"] for issue in experiment.rollout_review_warnings],
+        )
+        self.assertEqual(len(experiment.rollout_audience_overlap_warnings), 1)
+
+    def test_rollout_review_warnings_empty_while_rollout_has_review_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+            is_rollout=True,
+        )
+
+        self.assertIn("rollout_phases", experiment._rollout_review_serializer.errors)
+        self.assertEqual(experiment.rollout_review_warnings, [])
+        self.assertEqual(experiment.rollout_audience_overlap_warnings, [])
+
+    def test_review_warnings_unchanged_for_rollout_without_phases(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+            is_rollout=True,
+        )
+
+        self.assertEqual(experiment.rollout_phases.count(), 0)
+        self.assertIn(
+            NimbusUIConstants.REVIEW_WARNING_LABELS["firefox_min_version"],
+            [issue["label"] for issue in experiment.review_warnings],
+        )
+        self.assertEqual(len(experiment.audience_overlap_warnings), 1)
+
+    def test_rollout_review_warnings_match_review_warnings_for_experiments(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[
+                NimbusExperiment.Channel.NIGHTLY,
+                NimbusExperiment.Channel.RELEASE,
+            ],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            is_rollout=False,
+        )
+
+        self.assertIs(
+            experiment._rollout_review_serializer, experiment._review_serializer
+        )
+        self.assertEqual(experiment.rollout_review_warnings, experiment.review_warnings)
+        self.assertEqual(
+            experiment.rollout_audience_overlap_warnings,
+            experiment.audience_overlap_warnings,
+        )
+
     def test_review_warnings_proposed_release_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -3844,7 +4018,12 @@ class TestNimbusExperiment(TestCase):
             (
                 NimbusExperiment.Version.NO_VERSION,
                 NimbusExperiment.Status.DRAFT,
-                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Status.LIVE,
+                False,
             ),
             (
                 NimbusExperiment.Version.FIREFOX_100,

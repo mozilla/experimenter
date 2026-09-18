@@ -10,6 +10,7 @@ from django.test import TestCase, override_settings
 from django.urls import resolve, reverse
 from django.utils import timezone
 from django.utils.dateformat import format as date_format
+from django.utils.html import escape
 from parameterized import parameterized
 
 from experimenter.base.models import SiteFlag, SiteFlagNameChoices
@@ -2060,6 +2061,58 @@ class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
             experiment.targeting_config_slug, NimbusExperiment.TargetingConfig.FIRST_RUN
         )
 
+    def test_get_renders_newtab_addon_min_version_for_desktop(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            newtab_addon_min_version="153.3.20260605.21338",
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "New Tab Addon Minimum Version")
+        self.assertContains(response, 'id="id_newtab_addon_min_version"')
+        self.assertContains(response, "153.3.20260605.21338")
+
+    def test_get_omits_newtab_addon_min_version_for_mobile(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="id_newtab_addon_min_version"')
+
+    def test_post_saves_newtab_addon_min_version_and_renders_card(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            newtab_addon_min_version="",
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.audience_data(
+                newtab_addon_min_version="153.3.20260605.21338",
+                save="True",
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/audience/card.html")
+        self.assertContains(response, 'id="rollout-audience-newtab-addon-min-version"')
+        self.assertContains(response, "New Tab Addon Minimum Version")
+        self.assertContains(response, "153.3.20260605.21338")
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.newtab_addon_min_version, "153.3.20260605.21338")
+
     def test_get_renders_is_localized_checkbox(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -2120,7 +2173,6 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
 
     def features_data(self, feature_value, **kwargs):
         return {
-            "rollout_experience": "Original rollout experience",
             "branch-feature-value-TOTAL_FORMS": "1",
             "branch-feature-value-INITIAL_FORMS": "1",
             "branch-feature-value-0-id": feature_value.id,
@@ -2139,8 +2191,8 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [],
+                "warn_feature_schema": "on",
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
                 "rollout-screenshots-TOTAL_FORMS": "0",
@@ -2152,7 +2204,7 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/rollout_features/card.html")
         experiment.refresh_from_db()
-        self.assertEqual(experiment.takeaways_summary, "Updated rollout experience")
+        self.assertTrue(experiment.warn_feature_schema)
         self.assertTrue(response.context["hx_swap_oob"])
 
     def test_post_change_returns_edit_form(self):
@@ -2164,13 +2216,11 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[],
-            takeaways_summary="Original rollout experience",
         )
 
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_experience": "Updated rollout experience",
                 "feature_configs": [feature_config.id],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -2184,7 +2234,6 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         self.assertContains(response, "rollout-feature")
         self.assertContains(response, "value-editor")
         experiment.refresh_from_db()
-        self.assertEqual(experiment.takeaways_summary, "Original rollout experience")
         self.assertEqual(experiment.feature_configs.count(), 0)
 
     def test_post_selected_feature_renders_schema_toggle(self):
@@ -2296,6 +2345,114 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         self.assertNotIn("branch_feature_values", deselected.context["form"].errors)
         self.assertNotContains(deselected, 'data-feature-id="rollout-feature-invalid"')
 
+    def test_post_selecting_feature_drops_the_required_feature_error(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-required",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "feature_configs": [feature_config.id],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+            },
+        )
+
+        self.assertNotIn("feature_configs", response.context["validation_errors"])
+
+    def test_post_without_feature_keeps_the_required_feature_error(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "feature_configs": [],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+            },
+        )
+
+        self.assertIn(
+            NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG,
+            response.context["validation_errors"]["feature_configs"],
+        )
+
+    def test_post_deselecting_saved_feature_restores_the_required_feature_error(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-deselected",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=feature_config
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.features_data(feature_value, feature_configs=[]),
+        )
+
+        self.assertIn(
+            NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG,
+            response.context["validation_errors"]["feature_configs"],
+        )
+
+    @mock.patch.object(
+        NimbusExperiment,
+        "get_invalid_fields_errors",
+        return_value={
+            "feature_configs": [
+                NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG,
+                "Feature Config application does not match experiment application.",
+            ]
+        },
+    )
+    def test_post_selecting_feature_keeps_other_feature_errors(self, _mock_errors):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="rollout-feature-other-errors",
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[],
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "feature_configs": [feature_config.id],
+                "branch-feature-value-TOTAL_FORMS": "0",
+                "branch-feature-value-INITIAL_FORMS": "0",
+                "rollout-screenshots-TOTAL_FORMS": "0",
+                "rollout-screenshots-INITIAL_FORMS": "0",
+            },
+        )
+
+        self.assertEqual(
+            response.context["validation_errors"]["feature_configs"],
+            ["Feature Config application does not match experiment application."],
+        )
+
     def test_post_deselecting_feature_and_saving_deletes_the_stored_json(self):
         feature_config = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
@@ -2335,7 +2492,6 @@ class TestNewRolloutScreenshotCreateView(AuthTestCase):
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_experience": "",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -2361,15 +2517,15 @@ class TestNewRolloutScreenshotCreateView(AuthTestCase):
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             feature_configs=[],
-            takeaways_summary="Original rollout experience",
+            warn_feature_schema=False,
         )
         experiment.reference_branch.screenshots.all().delete()
 
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_experience": "Updated without explicit save",
                 "feature_configs": [],
+                "warn_feature_schema": "on",
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
                 "rollout-screenshots-TOTAL_FORMS": "0",
@@ -2378,7 +2534,7 @@ class TestNewRolloutScreenshotCreateView(AuthTestCase):
         )
 
         experiment.refresh_from_db()
-        self.assertEqual(experiment.takeaways_summary, "Updated without explicit save")
+        self.assertTrue(experiment.warn_feature_schema)
         self.assertContains(response, 'id="rollout-preview-btn"')
         self.assertContains(response, 'id="rollout-launch-btn"')
 
@@ -2417,7 +2573,6 @@ class TestNewRolloutScreenshotUploadView(AuthTestCase):
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
-                "rollout_experience": "",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -2452,7 +2607,6 @@ class TestNewRolloutScreenshotDeleteView(AuthTestCase):
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
             {
                 "screenshot_id": screenshot.id,
-                "rollout_experience": "",
                 "feature_configs": [],
                 "branch-feature-value-TOTAL_FORMS": "0",
                 "branch-feature-value-INITIAL_FORMS": "0",
@@ -3677,6 +3831,108 @@ class TestNewRolloutPlanCreateView(AuthTestCase):
         self.assertFalse(
             NimbusRolloutPlanTemplate.objects.filter(name=plan_name).exists()
         )
+
+    def test_post_duplicate_phases_is_rejected(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        plan_name, plan_phases = next(
+            iter(NimbusUIConstants.ROLLOUT_TEMPLATE_PLANS.items())
+        )
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment, population_percent=population_percent
+            )
+            for population_percent in plan_phases
+        ]
+        data = {
+            "rollout_phases-TOTAL_FORMS": str(len(phases)),
+            "rollout_phases-INITIAL_FORMS": str(len(phases)),
+            "template_name": "My duplicate plan",
+        }
+        for index, phase in enumerate(phases):
+            data[f"rollout_phases-{index}-id"] = phase.id
+            data[f"rollout_phases-{index}-population_percent"] = str(plan_phases[index])
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}), data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            escape(
+                NimbusUIConstants.ERROR_ROLLOUT_PLAN_PHASES_DUPLICATE.format(
+                    name=plan_name
+                )
+            ),
+        )
+        self.assertFalse(
+            NimbusRolloutPlanTemplate.objects.filter(name="My duplicate plan").exists()
+        )
+
+    def test_post_reordered_phases_are_allowed(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        phase1 = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=100
+        )
+        phase2 = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=50
+        )
+        NimbusRolloutPlanTemplate.objects.create(name="Ramp up", phases=[50.0, 100.0])
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "2",
+                "rollout_phases-INITIAL_FORMS": "2",
+                "rollout_phases-0-id": phase1.id,
+                "rollout_phases-0-population_percent": "100",
+                "rollout_phases-1-id": phase2.id,
+                "rollout_phases-1-population_percent": "50",
+                "template_name": "Ramp down",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        template = NimbusRolloutPlanTemplate.objects.get(name="Ramp down")
+        self.assertEqual(template.phases, [100.0, 50.0])
+
+    def test_post_excludes_removed_phases_from_duplicate_check(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        plan_name, plan_percentages = next(
+            (name, percentages)
+            for name, percentages in NimbusUIConstants.ROLLOUT_TEMPLATE_PLANS.items()
+            if len(percentages) > 1
+        )
+        data = {
+            "rollout_phases-TOTAL_FORMS": str(len(plan_percentages)),
+            "rollout_phases-INITIAL_FORMS": "0",
+            "rollout_phases-0-DELETE": "on",
+            "template_name": "Trimmed plan",
+        }
+        for index, population_percent in enumerate(plan_percentages):
+            data[f"rollout_phases-{index}-population_percent"] = str(population_percent)
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}), data
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(
+            response,
+            escape(
+                NimbusUIConstants.ERROR_ROLLOUT_PLAN_PHASES_DUPLICATE.format(
+                    name=plan_name
+                )
+            ),
+        )
+        template = NimbusRolloutPlanTemplate.objects.get(name="Trimmed plan")
+        self.assertEqual(template.phases, [float(pct) for pct in plan_percentages[1:]])
 
 
 class TestNewSubscribeView(AuthTestCase):
