@@ -36,7 +36,7 @@ dependencies = [
     "factory_boy==3.3.0",
     "fontawesomefree==6.6.0",
     "glean-parser==18.2.0",
-    "google-cloud-storage>=3.13.0,<4",
+    "google-cloud-storage>=3.14.1,<4",
     "gunicorn==23.0.0",
     "humanize>=4.16.0,<5",
     "inflection>=0.5.1,<0.6",
