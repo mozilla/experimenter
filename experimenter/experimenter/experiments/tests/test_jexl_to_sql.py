@@ -67,6 +67,11 @@ class TestJEXLToSQL(TestCase):
                 "metrics.quantity.nimbus_targeting_context_memory_mb",
             ),
             (
+                "allowed_notification_origins",
+                "allowedNotificationOrigins",
+                "metrics.quantity.nimbus_targeting_context_allowed_notification_origins",
+            ),
+            (
                 "os_is_mac",
                 "os.isMac",
                 f"CAST(JSON_VALUE({_OS}, '$.isMac') AS BOOL)",

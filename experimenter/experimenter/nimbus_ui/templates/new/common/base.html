@@ -63,7 +63,7 @@
               {% if experiment.parent %}
                 <p class="text-secondary small mb-0">
                   Cloned from
-                  <a href="{% url 'nimbus-ui-detail' experiment.parent.slug %}"
+                  <a href="{{ experiment.parent.get_detail_url }}"
                      target="_blank"
                      data-testid="experiment-parent"
                      rel="noopener noreferrer">{{ experiment.parent.name }}</a>
@@ -122,7 +122,7 @@
           </div>
         </div>
         {# Toast container #}
-        <div class="position-fixed bottom-0 end-0 m-3 w-auto z-3">
+        <div class="position-fixed bottom-0 end-0 m-3 w-auto z-3 pe-none">
           <div id="toasts-container" class="d-flex flex-column">
             <div id="slug-toast"
                  class="toast hide text-bg-primary mb-1"

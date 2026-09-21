@@ -38,6 +38,7 @@ PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
         "isNonStubFirstRun",
         "localeLanguageCode",
         "attachedFxAOAuthClients",
+        # TODO #17342
         # Remove once the recorded targeting context manifest includes this
         # attribute (Bug 2069104).
         "allowedNotificationOrigins",
@@ -5259,6 +5260,20 @@ FX_157_TRAINHOP = NimbusTargetingConfig(
         "which includes users of Fx155"
     ),
     targeting="newtabAddonVersion|versionCompare('157.0.20260831.183837') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_158_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx158 Sep-13 Trainhop",
+    slug="newtab-158-0913-trainhop",
+    description=(
+        "Desktop users having the New Tab 158.0.20260913.220257 train hop, "
+        "which includes users of Fx156"
+    ),
+    targeting="newtabAddonVersion|versionCompare('158.0.20260913.220257') >= 0",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

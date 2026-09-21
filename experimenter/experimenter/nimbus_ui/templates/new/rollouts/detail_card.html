@@ -26,7 +26,8 @@
               {% endif %}
             </span>
           </button>
-          <div class="d-flex align-items-center align-self-start gap-3 flex-shrink-0 pt-4">
+          <div class="d-flex align-items-center align-self-start gap-2 flex-shrink-0 pt-4"
+               style="margin-top: -5px">
             {% if show_edit_btn %}
               {% include "new/common/card_actions.html" %}
 
@@ -36,7 +37,12 @@
       </h2>
       <div class="accordion-collapse collapse show" id="collapse-{{ card_id }}">
         <hr class="m-0 text-body-tertiary">
-        <div class="accordion-body">
+        <div class="accordion-body position-relative">
+          <div class="card-body-spinner">
+            <span class="spinner-border text-secondary"
+                  role="status"
+                  aria-hidden="true"></span>
+          </div>
           {% if body_template %}
             {% include body_template %}
 

@@ -34,6 +34,14 @@
         <th>Maximum version</th>
         <td>{{ experiment.firefox_max_version|parse_version }}</td>
       </tr>
+      {% if experiment.is_desktop %}
+        <tr>
+          <th>New Tab addon minimum version</th>
+          <td colspan="3" data-testid="experiment-newtab-addon-min-version">
+            {{ experiment.newtab_addon_min_version|default:"No Version" }}
+          </td>
+        </tr>
+      {% endif %}
       <tr>
         {% if experiment.is_mobile %}
           <th>
@@ -99,7 +107,7 @@
           {% with experiment.required_experiments_branches.all as required_branches %}
             {% if required_branches %}
               {% for branch in required_branches %}
-                <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
+                <a href="{{ branch.child_experiment.get_detail_url }}"
                    target="_blank"
                    rel="noopener noreferrer">
                   {{ branch.child_experiment.name }}
@@ -117,7 +125,7 @@
           {% with experiment.excluded_experiments_branches.all as excluded_branches %}
             {% if excluded_branches %}
               {% for branch in excluded_branches %}
-                <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
+                <a href="{{ branch.child_experiment.get_detail_url }}"
                    target="_blank"
                    rel="noopener noreferrer">
                   {{ branch.child_experiment.name }}

@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     "django_bootstrap5",
     "prose",
     # Experimenter
+    "experimenter.addons",
     "experimenter.base",
     "experimenter.changelog",
     "experimenter.experiments",
@@ -587,6 +588,9 @@ METRIC_HUB_METRICS_PATH_DEFAULT = (
 
 # Feature Manifest path
 FEATURE_MANIFESTS_PATH = BASE_DIR / "features" / "manifests"
+
+# Addon versions path
+ADDON_VERSIONS_PATH = BASE_DIR / "addons" / "versions"
 
 SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
     "SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER", default=False, cast=bool

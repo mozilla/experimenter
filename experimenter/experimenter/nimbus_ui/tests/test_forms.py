@@ -14,6 +14,8 @@ from django.utils import timezone
 from parameterized import parameterized
 from PIL import Image
 
+from experimenter.addons import Addons
+from experimenter.addons.tests import mock_valid_addon_versions
 from experimenter.base.tests.factories import (
     CountryFactory,
     LanguageFactory,
@@ -2744,6 +2746,7 @@ class TestAudienceForm(RequestFormTestCase):
                 "is_sticky": True,
                 "languages": [language.id],
                 "locales": [locale.id],
+                "newtab_addon_min_version": "153.3.20260605.21338",
                 "population_percent": 10,
                 "proposed_duration": 120,
                 "proposed_enrollment": 42,
@@ -2763,6 +2766,7 @@ class TestAudienceForm(RequestFormTestCase):
             set(experiment.channels),
             {NimbusExperiment.Channel.NIGHTLY, NimbusExperiment.Channel.BETA},
         )
+        self.assertEqual(experiment.newtab_addon_min_version, "153.3.20260605.21338")
         self.assertEqual(
             experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_83
         )
@@ -3191,6 +3195,51 @@ class TestAudienceForm(RequestFormTestCase):
         form = AudienceForm(instance=experiment, request=self.request)
 
         self.assertTrue(form.fields["is_first_run"].disabled)
+
+    @mock_valid_addon_versions
+    def test_newtab_addon_min_version_choices_are_newest_first(self):
+        Addons.clear_cache()
+        self.addCleanup(Addons.clear_cache)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        form = AudienceForm(instance=experiment, request=self.request)
+
+        self.assertEqual(
+            form.fields["newtab_addon_min_version"].choices,
+            [
+                (
+                    NimbusExperiment.Version.NO_VERSION.value,
+                    NimbusExperiment.Version.NO_VERSION.label,
+                ),
+                ("158.0.20260913.220257", "158.0.20260913.220257"),
+                ("145.0.20250919.173227", "145.0.20250919.173227"),
+            ],
+        )
+
+    @parameterized.expand([("",), ("158.0.20260913.220257",)])
+    @mock_valid_addon_versions
+    def test_newtab_addon_min_version_accepts_known_version(self, version):
+        Addons.clear_cache()
+        self.addCleanup(Addons.clear_cache)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        form = AudienceForm(
+            instance=experiment,
+            data={
+                "changelog_message": "test changelog message",
+                "newtab_addon_min_version": version,
+            },
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.save().newtab_addon_min_version, version)
 
 
 class TestNimbusBranchesForm(RequestFormTestCase):

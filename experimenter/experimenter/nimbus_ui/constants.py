@@ -189,6 +189,10 @@ Optional - We expect this to <describe impact> on <core metric>.
     STICKY_ENROLLMENT_DESCRIPTION = (
         "Clients remain enrolled even if they no longer meet the targeting."
     )
+    LOCALIZED_ROLLOUT_LABEL = "Does this rollout use off-train localizations?"
+    LOCALIZED_ROLLOUT_DESCRIPTION = (
+        "For rollouts with user-facing text that Firefox doesn't already translate."
+    )
     TIMELINE_TOOLTIPS = {
         "Draft": (
             "The duration from the initial draft of the experiment to its entry "
@@ -225,6 +229,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         "sticky_targeting_url": "https://experimenter.info/advanced/custom-audiences#sticky-targeting",
         "experimentation_office_hours_url": "https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/6849684/Experimentation+Office+Hours",
         "population_sizing_learn_more_url": "https://experimenter.info/advanced/population-sizing#automatic-population-sizing-in-experimenter",
+        "localization_url": "https://experimenter.info/workflow/localization",
     }
     OVERVIEW_PAGE_LINKS = {
         "risk_link": "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
@@ -277,6 +282,15 @@ Optional - We expect this to <describe impact> on <core metric>.
         "All statistically significant changes that have occurred in the experiment"
     )
     NOTABLE_CHANGES_ABSENT_TEXT = "There are no notable changes in this experiment"
+    METRIC_ERRORS_TOOLTIP = "No data available"
+    METRIC_ERRORS_TITLE = "Metric unavailable"
+    METRIC_ERRORS_TEXT = "Other metrics may not be affected."
+    METRIC_NO_DATA_TOOLTIP = "Not available yet"
+    METRIC_NO_DATA_TITLE = "Not available yet"
+    METRIC_NO_DATA_TEXT = (
+        "The analysis window for this metric has not been computed yet. "
+        "Results will appear once it has."
+    )
     FEATURE_MONITORING_CARD_TITLE = "Feature Monitoring"
     FEATURE_MONITORING_OPEN_DASHBOARD_TEXT = "Open in Grafana"
     FEATURE_MONITORING_DASHBOARD_INFO = (
@@ -520,7 +534,6 @@ Optional - We expect this to <describe impact> on <core metric>.
         "rollout-features": {
             "section": "Features",
             "rows": (
-                ("Rollout Experience", ("takeaways_summary",)),
                 ("Feature Configuration", ("feature_configs", "reference_branch")),
                 ("Warn On Schema Failure", ("warn_feature_schema",)),
                 ("Prevent Pref Conflicts", ("prevent_pref_conflicts",)),

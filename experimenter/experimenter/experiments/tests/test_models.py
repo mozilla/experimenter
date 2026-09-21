@@ -4,6 +4,7 @@ from decimal import Decimal
 from itertools import product
 from pathlib import Path
 from unittest import mock
+from urllib.parse import urljoin
 
 import packaging
 from django.conf import settings
@@ -798,6 +799,34 @@ class TestNimbusExperiment(TestCase):
             experiment.get_detail_url()
             experiment.get_detail_url()
 
+    def test_experiment_url_follows_the_new_rollout_ui_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        self.assertEqual(
+            rollout.experiment_url,
+            urljoin(f"https://{settings.HOSTNAME}", rollout.get_detail_url()),
+        )
+        self.assertIn(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+            rollout.experiment_url,
+        )
+
+    def test_experiment_url_stays_legacy_when_flag_is_disabled(self):
+        rollout = NimbusExperimentFactory.create(slug="my-rollout", is_rollout=True)
+
+        self.assertIn(
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
+            rollout.experiment_url,
+        )
+        self.assertNotIn(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+            rollout.experiment_url,
+        )
+
     def test_latest_change_returns_most_recent(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -982,6 +1011,109 @@ class TestNimbusExperiment(TestCase):
                 f"(app_version|versionCompare('{version.replace('!', '*')}') <= 0) "
                 f"&& (app_version|versionCompare('{version}') >= 0)"
             ),
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    def test_targeting_includes_newtab_addon_min_version_for_desktop(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            newtab_addon_min_version="153.3.20260605.21338",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=False,
+        )
+
+        self.assertEqual(
+            experiment.targeting,
+            (
+                "(version|versionCompare('100.!') >= 0) "
+                "&& (newtabAddonVersion|versionCompare('153.3.20260605.21338') >= 0)"
+            ),
+        )
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    def test_targeting_omits_newtab_addon_min_version_when_empty(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            newtab_addon_min_version="",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=False,
+        )
+
+        self.assertEqual(experiment.targeting, "(version|versionCompare('100.!') >= 0)")
+        validate_jexl_expr(experiment.targeting, experiment.application)
+
+    @parameterized.expand(
+        [
+            (application,)
+            for application in NimbusExperiment.Application
+            if application != NimbusExperiment.Application.DESKTOP
+        ]
+    )
+    def test_targeting_omits_newtab_addon_min_version_for_non_desktop(self, application):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=application,
+            firefox_min_version=NimbusExperiment.Version.NO_VERSION,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            newtab_addon_min_version="153.3.20260605.21338",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=False,
+        )
+
+        self.assertEqual(experiment.targeting, "true")
+
+    def test_targeting_newtab_addon_min_version_is_sticky(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_100,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_101,
+            newtab_addon_min_version="153.3.20260605.21338",
+            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_ENTERPRISE_USERS,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[],
+            locales=[],
+            countries=[],
+            languages=[],
+            is_sticky=True,
+            is_rollout=False,
+        )
+
+        sticky_expression = (
+            "("
+            "(experiment.slug in activeExperiments) "
+            "|| "
+            "("
+            "(!hasActiveEnterprisePolicies) "
+            "&& (version|versionCompare('100.!') >= 0) "
+            "&& (newtabAddonVersion|versionCompare('153.3.20260605.21338') >= 0)"
+            ")"
+            ")"
+        )
+        self.assertEqual(
+            experiment.targeting,
+            (f"(version|versionCompare('101.*') <= 0) && {sticky_expression}"),
         )
         validate_jexl_expr(experiment.targeting, experiment.application)
 
@@ -2884,6 +3016,43 @@ class TestNimbusExperiment(TestCase):
         ):
             self.assertFalse(experiment.can_publish_to_preview)
 
+    def test_uses_secure_collection_returns_false_for_multiple_kinto_collections(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        with mock.patch.object(
+            type(experiment),
+            "kinto_collection",
+            new_callable=mock.PropertyMock,
+            side_effect=TargetingMultipleKintoCollectionsError({"col-a", "col-b"}),
+        ):
+            self.assertFalse(experiment.uses_secure_collection)
+
+    def test_uses_secure_collection_for_secure_feature(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug=NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        self.assertTrue(experiment.uses_secure_collection)
+
+    def test_uses_secure_collection_false_for_default_collection(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug="abouthomecache",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        self.assertFalse(experiment.uses_secure_collection)
+
     @parameterized.expand(
         [
             NimbusExperiment.DESKTOP_PREFFLIPS_SLUG,
@@ -3326,6 +3495,41 @@ class TestNimbusExperiment(TestCase):
             ],
         )
 
+    def test_audience_overlap_warning_entries_link_to_the_new_rollout_ui(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        feature = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        colliding_rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+        )
+
+        entries = draft.audience_overlap_warnings[0]["entries"]
+        entry = next(e for e in entries if e["slug"] == colliding_rollout.slug)
+
+        self.assertEqual(entry["detail_url"], colliding_rollout.get_detail_url())
+        self.assertEqual(
+            entry["detail_url"],
+            reverse(
+                "new-nimbus-ui-rollout-detail",
+                kwargs={"slug": colliding_rollout.slug},
+            ),
+        )
+
     def test_audience_overlap_warnings_combines_collisions_and_self_issues(self):
         feature = NimbusFeatureConfigFactory.create(
             slug="combo-feature",
@@ -3600,6 +3804,77 @@ class TestNimbusExperiment(TestCase):
             experiment.review_warnings,
         )
 
+    def test_rollout_review_warnings_survive_blank_branch_description(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=10, end_date=None
+        )
+        experiment.reference_branch.description = ""
+        experiment.reference_branch.save()
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertIn("reference_branch", experiment._review_serializer.errors)
+        self.assertEqual(experiment.review_warnings, [])
+        self.assertIn(
+            NimbusUIConstants.REVIEW_WARNING_LABELS["firefox_min_version"],
+            [issue["label"] for issue in experiment.rollout_review_warnings],
+        )
+        self.assertEqual(len(experiment.rollout_audience_overlap_warnings), 1)
+
+    def test_rollout_review_warnings_empty_while_rollout_has_review_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+            is_rollout=True,
+        )
+
+        self.assertIn("rollout_phases", experiment._rollout_review_serializer.errors)
+        self.assertEqual(experiment.rollout_review_warnings, [])
+        self.assertEqual(experiment.rollout_audience_overlap_warnings, [])
+
+    def test_review_warnings_unchanged_for_rollout_without_phases(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_10503,
+            is_rollout=True,
+        )
+
+        self.assertEqual(experiment.rollout_phases.count(), 0)
+        self.assertIn(
+            NimbusUIConstants.REVIEW_WARNING_LABELS["firefox_min_version"],
+            [issue["label"] for issue in experiment.review_warnings],
+        )
+        self.assertEqual(len(experiment.audience_overlap_warnings), 1)
+
+    def test_rollout_review_warnings_match_review_warnings_for_experiments(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[
+                NimbusExperiment.Channel.NIGHTLY,
+                NimbusExperiment.Channel.RELEASE,
+            ],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            is_rollout=False,
+        )
+
+        self.assertIs(
+            experiment._rollout_review_serializer, experiment._review_serializer
+        )
+        self.assertEqual(experiment.rollout_review_warnings, experiment.review_warnings)
+        self.assertEqual(
+            experiment.rollout_audience_overlap_warnings,
+            experiment.audience_overlap_warnings,
+        )
+
     def test_review_warnings_proposed_release_date(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -3823,7 +4098,12 @@ class TestNimbusExperiment(TestCase):
             (
                 NimbusExperiment.Version.NO_VERSION,
                 NimbusExperiment.Status.DRAFT,
-                True,
+                False,
+            ),
+            (
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Status.LIVE,
+                False,
             ),
             (
                 NimbusExperiment.Version.FIREFOX_100,
@@ -6519,8 +6799,56 @@ class TestNimbusExperiment(TestCase):
             for s in result["stages"]
             if s["reason"] == NimbusExperiment.FunnelReason.FEATURE_CONFLICT
         )
-        self.assertIn("other-experiment", conflict_stage["conflict_slugs"])
+        self.assertIn(
+            "other-experiment", [c["slug"] for c in conflict_stage["conflicts"]]
+        )
         self.assertFalse(conflict_stage["has_null_conflict"])
+
+    def test_enrollment_funnel_stage_conflicts_link_to_the_new_rollout_ui(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        conflicting_rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            slug="conflicting-rollout",
+            is_rollout=True,
+        )
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            monitoring_data={
+                "enrollment_funnel": [
+                    {
+                        "app_name": APPLICATION_CONFIG_DESKTOP.app_name,
+                        "branch": None,
+                        "status": NimbusExperiment.FunnelStatus.NOT_ENROLLED,
+                        "reason": NimbusExperiment.FunnelReason.FEATURE_CONFLICT,
+                        "conflict_slug": conflicting_rollout.slug,
+                        "client_count": 100,
+                    },
+                ]
+            },
+        )
+
+        conflict_stage = next(
+            s
+            for s in experiment.enrollment_funnel_stages["stages"]
+            if s["reason"] == NimbusExperiment.FunnelReason.FEATURE_CONFLICT
+        )
+
+        self.assertEqual(
+            conflict_stage["conflicts"],
+            [
+                {
+                    "slug": conflicting_rollout.slug,
+                    "detail_url": reverse(
+                        "new-nimbus-ui-rollout-detail",
+                        kwargs={"slug": conflicting_rollout.slug},
+                    ),
+                }
+            ],
+        )
 
     def test_enrollment_funnel_stages_multiple_conflict_slugs(self):
         for i in (0, 1, 2):
@@ -6553,7 +6881,7 @@ class TestNimbusExperiment(TestCase):
         )
 
         self.assertEqual(
-            set(conflict_stage["conflict_slugs"]),
+            {c["slug"] for c in conflict_stage["conflicts"]},
             {"conflict-0", "conflict-1", "conflict-2"},
         )
 
@@ -6579,7 +6907,7 @@ class TestNimbusExperiment(TestCase):
             if s["reason"] == NimbusExperiment.FunnelReason.FEATURE_CONFLICT
         )
         self.assertTrue(conflict_stage["has_null_conflict"])
-        self.assertEqual(conflict_stage["conflict_slugs"], [])
+        self.assertEqual(conflict_stage["conflicts"], [])
 
 
 class TestNimbusBranch(TestCase):

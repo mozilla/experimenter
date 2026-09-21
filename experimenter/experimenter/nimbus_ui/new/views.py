@@ -1,14 +1,17 @@
 import json
 
 from django import forms
-from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView
 from django.views.generic.edit import UpdateView
 
 from experimenter.experiments.api.v5.serializers import NimbusRolloutReviewSerializer
-from experimenter.experiments.constants import EXTERNAL_URLS, RISK_QUESTIONS
+from experimenter.experiments.constants import (
+    EXTERNAL_URLS,
+    RISK_QUESTIONS,
+    NimbusConstants,
+)
 from experimenter.experiments.models import NimbusExperiment, Tag
 from experimenter.nimbus_ui.constants import NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
@@ -190,9 +193,7 @@ def build_experiment_context(experiment):
         "primary_outcome_links": primary_outcome_links,
         "secondary_outcome_links": secondary_outcome_links,
         "segment_links": segment_links,
-        "uses_secure_collection": (
-            experiment.kinto_collection == settings.KINTO_COLLECTION_NIMBUS_SECURE
-        ),
+        "uses_secure_collection": experiment.uses_secure_collection,
     }
     return context
 
@@ -241,16 +242,14 @@ class UpdateRedirectViewMixin:
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not self.can_edit():
-            return HttpResponseRedirect(
-                reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
-            )
+            return HttpResponseRedirect(self.object.get_detail_url())
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not self.can_edit():
             response = HttpResponse()
-            base_url = reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+            base_url = self.object.get_detail_url()
             response.headers["HX-Redirect"] = f"{base_url}?save_failed=true"
             return response
         return super().post(request, *args, **kwargs)
@@ -261,16 +260,17 @@ class RolloutSetupProgressMixin:
         # The title select has no blank option so a just-added link always errors
         # until the next save picks up its default
         errors = field_errors.get("documentation_links")
-        if not isinstance(errors, (list, tuple)):
+        if not isinstance(errors, dict):
             return field_errors
 
-        remaining = [
-            {key: value for key, value in link.items() if key != "title"}
-            if isinstance(link, dict)
-            else link
-            for link in errors
-        ]
-        if any(remaining):
+        remaining = {}
+        for index, link in errors.items():
+            if isinstance(link, dict):
+                link = {key: value for key, value in link.items() if key != "title"}
+            if link:
+                remaining[index] = link
+
+        if remaining:
             field_errors["documentation_links"] = remaining
         else:
             field_errors.pop("documentation_links")
@@ -283,7 +283,11 @@ class RolloutSetupProgressMixin:
 
         branch_errors = dict(branch_errors)
         screenshots = branch_errors.pop("screenshots")
-        if any(screenshots):
+        if isinstance(screenshots, dict):
+            has_screenshot_errors = any(screenshots.values())
+        else:
+            has_screenshot_errors = any(screenshots)
+        if has_screenshot_errors:
             field_errors["reference_branch_screenshots"] = screenshots
         if branch_errors:
             field_errors["reference_branch"] = branch_errors
@@ -499,6 +503,27 @@ class NewRolloutFeaturesUpdateView(CardMixin, NewCardUpdateView):
 
         return self.render_to_response(self.get_context_data(form=form))
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = context.get("form")
+        if form is None or not form.is_bound or "feature_configs" not in form.fields:
+            return context
+
+        validation_errors = context["validation_errors"]
+        feature_errors = [
+            error
+            for error in validation_errors.get("feature_configs", [])
+            if error != NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG
+        ]
+        if not form["feature_configs"].value():
+            feature_errors.insert(0, NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG)
+
+        if feature_errors:
+            validation_errors["feature_configs"] = feature_errors
+        else:
+            validation_errors.pop("feature_configs", None)
+        return context
+
 
 class NewRolloutScreenshotCreateView(
     RenderParentDBResponseMixin, NewRolloutFeaturesUpdateView
@@ -544,7 +569,7 @@ class CardMutationMixin:
         self.object = self.get_object()
         if not self.can_edit():
             response = HttpResponse()
-            base_url = reverse("nimbus-ui-detail", kwargs={"slug": self.object.slug})
+            base_url = self.object.get_detail_url()
             response.headers["HX-Redirect"] = f"{base_url}?save_failed=true"
             return response
 

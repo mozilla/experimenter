@@ -50,7 +50,7 @@ jobs:
             git add experimenter/ schemas/
             git commit -m 'chore(nimbus): Update External Configs'
             git fetch origin external-config 2>/dev/null || true
-            if git show-ref --verify --quiet refs/remotes/origin/external-config && [ -z "$(git diff external-config origin/external-config -- experimenter/experimenter/features/manifests/ schemas/ ':(exclude,glob)**/.ref-cache.yaml')" ]; then
+            if git show-ref --verify --quiet refs/remotes/origin/external-config && [ -z "$(git diff external-config origin/external-config -- experimenter/experimenter/features/manifests/ experimenter/experimenter/addons/versions/ schemas/ ':(exclude,glob)**/.ref-cache.yaml')" ]; then
               echo "Content matches existing PR (ignoring ref-cache bumps and main-only advancement), skipping"
             else
               gh pr close external-config --repo mozilla/experimenter 2>/dev/null || true

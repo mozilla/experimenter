@@ -1662,7 +1662,7 @@ class TestNimbusReviewSerializerSingleFeature(
             serializer.errors,
             {
                 "reference_branch": {
-                    "feature_values": [{"value": ["This field may not be blank."]}]
+                    "feature_values": {0: {"value": ["This field may not be blank."]}}
                 }
             },
         )

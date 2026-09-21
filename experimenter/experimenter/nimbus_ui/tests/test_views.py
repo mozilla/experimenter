@@ -1742,6 +1742,47 @@ class TestNimbusExperimentPromoteToRolloutView(AuthTestCase):
             experiment.firefox_min_version, NimbusExperiment.Version.FIREFOX_120
         )
 
+    def _promote_to_rollout(self):
+        # The UI posts branch_slug in the body via hx-vals, and clone() only
+        # flips is_rollout when that branch is supplied.
+        source = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="promote-source",
+        )
+        return self.client.post(
+            reverse("nimbus-ui-promote-to-rollout", kwargs={"slug": source.slug}),
+            {
+                "owner": self.user,
+                "name": "Promoted Rollout",
+                "branch_slug": source.reference_branch.slug,
+            },
+        )
+
+    def test_post_redirects_to_the_new_rollout_ui_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+
+        response = self._promote_to_rollout()
+
+        rollout = NimbusExperiment.objects.get(slug="promoted-rollout")
+        self.assertTrue(rollout.is_rollout)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    def test_post_redirects_to_the_legacy_ui_when_flag_is_disabled(self):
+        response = self._promote_to_rollout()
+
+        rollout = NimbusExperiment.objects.get(slug="promoted-rollout")
+        self.assertTrue(rollout.is_rollout)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
+        )
+
     def test_post_passes_experiment(self):
         response = self.client.post(
             reverse("nimbus-ui-clone", kwargs={"slug": self.experiment.slug}),
@@ -3644,6 +3685,140 @@ class TestSaveAndContinueMixin(AuthTestCase):
         )
 
 
+class TestNewRolloutUIRedirectMixin(AuthTestCase):
+    GET_URL_NAMES = [
+        "nimbus-ui-detail",
+        "nimbus-ui-update-overview",
+        "nimbus-ui-update-branches",
+        "nimbus-ui-update-metrics",
+        "nimbus-ui-update-audience",
+    ]
+
+    POST_URL_NAMES = [
+        *GET_URL_NAMES,
+        "nimbus-ui-update-qa-status",
+        "nimbus-ui-update-signoff",
+        "nimbus-ui-toggle-archive",
+        "nimbus-ui-update-collaborators",
+        "nimbus-ui-subscribe",
+        "nimbus-ui-unsubscribe",
+        "nimbus-ui-toggle-review-slack-notifications",
+        "nimbus-ui-draft-to-preview",
+    ]
+
+    @parameterized.expand(GET_URL_NAMES)
+    def test_get_redirects_rollout_to_new_ui_when_flag_enabled(self, url_name):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": rollout.slug}))
+
+        self.assertRedirects(
+            response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    @parameterized.expand(POST_URL_NAMES)
+    def test_htmx_post_redirects_rollout_to_new_ui_when_flag_enabled(self, url_name):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+
+        response = self.client.post(
+            reverse(url_name, kwargs={"slug": rollout.slug}),
+            {},
+            headers={"Hx-Request": "true"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    def test_non_htmx_post_redirects_rollout_to_new_ui_when_flag_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+
+        response = self.client.post(
+            reverse("nimbus-ui-update-overview", kwargs={"slug": rollout.slug}),
+            {},
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    @parameterized.expand(GET_URL_NAMES)
+    def test_get_does_not_redirect_rollout_when_flag_disabled(self, url_name):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": rollout.slug}))
+
+        self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(GET_URL_NAMES)
+    def test_get_does_not_redirect_experiment_when_flag_enabled(self, url_name):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=False,
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": experiment.slug}))
+
+        self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(GET_URL_NAMES)
+    def test_get_does_not_redirect_firefox_labs_rollout_when_flag_enabled(self, url_name):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        labs = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": labs.slug}))
+
+        self.assertEqual(response.status_code, 200)
+
+
 @mock_valid_outcomes
 class TestResultsEditBranchImagesView(AuthTestCase):
     def test_upload_updates_screenshot(self):
@@ -3900,6 +4075,96 @@ class TestResultsView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "nimbus_experiments/results-fragment.html")
+
+    def create_experiment_with_kpi_results(self, errors):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+            is_rollout=False,
+        )
+        experiment.delete_branches()
+        experiment.reference_branch = NimbusBranchFactory.create(
+            experiment=experiment, name="Control", slug="control"
+        )
+        NimbusBranchFactory.create(
+            experiment=experiment, name="Treatment A", slug="treatment-a"
+        )
+        empty_metric = {
+            "absolute": {"all": [], "first": {}},
+            "difference": {"control": {"all": [], "first": {}}},
+            "relative_uplift": {"control": {"all": [], "first": {}}},
+        }
+        branch_data = {
+            "branch_data": {
+                "other_metrics": {NimbusConstants.RETENTION_WEEK_2: empty_metric},
+            }
+        }
+        experiment.results_data = {
+            "v3": {
+                "metadata": {
+                    "metrics": {
+                        NimbusConstants.RETENTION_WEEK_2: {
+                            "friendly_name": "Week 2 Retention"
+                        },
+                    }
+                },
+                "errors": errors,
+                "overall": {
+                    "enrollments": {
+                        "all": {
+                            "control": branch_data,
+                            "treatment-a": branch_data,
+                        }
+                    }
+                },
+            }
+        }
+        experiment.save()
+        return experiment
+
+    def test_results_view_renders_error_state_for_metric_with_errors(self):
+        experiment = self.create_experiment_with_kpi_results(
+            {
+                NimbusConstants.RETENTION_WEEK_2: [
+                    {"analysis_basis": "enrollments", "segment": "all"}
+                ]
+            }
+        )
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-results",
+                kwargs={"slug": experiment.slug},
+                query={"reference_branch": "control"},
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "fa-triangle-exclamation text-warning")
+        self.assertContains(response, NimbusUIConstants.METRIC_ERRORS_TOOLTIP)
+        self.assertContains(response, NimbusUIConstants.METRIC_ERRORS_TITLE)
+        self.assertContains(response, escape(NimbusUIConstants.METRIC_ERRORS_TEXT))
+        self.assertContains(response, "Contact Experimenter Support")
+
+    def test_results_view_renders_no_data_state_for_metric_without_data(self):
+        experiment = self.create_experiment_with_kpi_results({})
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-results",
+                kwargs={"slug": experiment.slug},
+                query={"reference_branch": "control"},
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "fa-circle-info text-info")
+        self.assertContains(response, NimbusUIConstants.METRIC_NO_DATA_TOOLTIP)
+        self.assertContains(response, NimbusUIConstants.METRIC_NO_DATA_TEXT)
+        self.assertNotContains(response, NimbusUIConstants.METRIC_ERRORS_TITLE)
+        self.assertNotContains(response, "Contact Experimenter Support")
 
     @parameterized.expand(
         [
@@ -4571,6 +4836,39 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.context["displayed_window"], expected_window)
 
 
+class TestResultsExportView(AuthTestCase):
+    def test_exports_results_data(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            results_data={"v3": {"weekly": {"enrollments": {"all": {}}}}},
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-results-export", kwargs={"slug": experiment.slug}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json")
+        self.assertEqual(
+            response["Content-Disposition"],
+            f'attachment; filename="{experiment.slug}-results.json"',
+        )
+        self.assertEqual(json.loads(response.content), experiment.results_data)
+
+    def test_exports_empty_object_when_no_results(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            results_data=None,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-results-export", kwargs={"slug": experiment.slug}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content), {})
+
+
 class TestBranchScreenshotCreateView(AuthTestCase):
     def test_post_creates_screenshot(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -4640,6 +4938,72 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
         draft_or_preview_page = response.context["draft_or_preview_page"].object_list
         self.assertIn(owned_exp, draft_or_preview_page)
         self.assertIn(subscribed_exp, draft_or_preview_page)
+
+    def test_rollout_links_use_new_detail_url_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            slug="home-rollout",
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+
+        self.assertContains(response, f'href="{rollout.get_detail_url()}"')
+        self.assertNotContains(
+            response,
+            f'href="{reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug})}"',
+        )
+
+    def test_rollout_links_use_legacy_detail_url_when_flag_is_disabled(self):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            slug="home-rollout",
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+
+        self.assertContains(
+            response,
+            f'href="{reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug})}"',
+        )
+        self.assertNotContains(
+            response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    def test_labs_links_use_legacy_detail_url_when_flag_is_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        labs = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            slug="home-labs",
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
+        )
+
+        response = self.client.get(reverse("nimbus-ui-home"))
+
+        self.assertContains(
+            response,
+            f'href="{reverse("nimbus-ui-detail", kwargs={"slug": labs.slug})}"',
+        )
+        self.assertNotContains(
+            response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": labs.slug}),
+        )
 
     def test_home_view_filter_archived_experiments(self):
         non_archived_exp = NimbusExperimentFactory.create_with_lifecycle(

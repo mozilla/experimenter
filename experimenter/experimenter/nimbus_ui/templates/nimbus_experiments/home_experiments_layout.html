@@ -24,7 +24,7 @@
         {% for experiment in experiments %}
           <li class="list-group-item px-2 border-0 pb-2">
             <div class="mb-1">
-              <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
+              <a href="{{ experiment.get_detail_url }}"
                  class="fw-semibold text-decoration-none text-primary"
                  style="font-size: 1.05rem">{{ experiment.name }}</a>
               {% include "nimbus_experiments/experiment_tags.html" with hide_no_tags=True %}
