@@ -2699,14 +2699,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         issues = []
         for field, messages in self._review_serializer.flat_warnings.items():
+            message_as_label = field in NimbusUIConstants.REVIEW_WARNING_MESSAGE_AS_LABEL
             label = NimbusUIConstants.REVIEW_WARNING_LABELS.get(
                 field, field.replace("_", " ").title()
             )
             learn_more_url = NimbusUIConstants.REVIEW_WARNING_LEARN_MORE.get(field)
             issues.extend(
                 {
-                    "label": label,
-                    "detail": message,
+                    "label": message if message_as_label else label,
+                    "detail": None if message_as_label else message,
                     "learn_more_url": learn_more_url,
                 }
                 for message in messages

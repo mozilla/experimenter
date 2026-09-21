@@ -3694,13 +3694,11 @@ class TestNimbusExperiment(TestCase):
 
         self.assertIn(
             {
-                "label": NimbusUIConstants.REVIEW_WARNING_LABELS[
-                    "fxms_message_coenrollment"
-                ],
-                "detail": (
+                "label": (
                     "fxms-message-1 is deprecated. Please use fxms-message instead, "
                     "which allows multiple simultaneous enrollments."
                 ),
+                "detail": None,
                 "learn_more_url": None,
             },
             experiment.review_warnings,
