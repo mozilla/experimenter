@@ -456,7 +456,7 @@ features:
             enabled: true
             extra-data:
               marketing-data:
-                body-line-one-text: nova_onboarding_marketing_body_2
+                body-line-one-text: nova_onboarding_marketing_body
                 body-line-one-link-text: nova_onboarding_marketing_body_link_text
             image-res: nova_onboarding_marketing
             ordering: 20

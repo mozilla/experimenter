@@ -456,14 +456,6 @@ marketing-onboarding-card:
     enabled:
       type: boolean
       description: If false, the marketing onboarding card will never be shown.
-merino-client:
-  description: Feature to enable the Merino Client for users on Firefox on Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, Merino Client is enabled.
 messaging:
   description: |
     The in-app messaging system.
