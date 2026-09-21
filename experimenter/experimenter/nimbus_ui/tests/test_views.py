@@ -3685,6 +3685,140 @@ class TestSaveAndContinueMixin(AuthTestCase):
         )
 
 
+class TestNewRolloutUIRedirectMixin(AuthTestCase):
+    GET_URL_NAMES = [
+        "nimbus-ui-detail",
+        "nimbus-ui-update-overview",
+        "nimbus-ui-update-branches",
+        "nimbus-ui-update-metrics",
+        "nimbus-ui-update-audience",
+    ]
+
+    POST_URL_NAMES = [
+        *GET_URL_NAMES,
+        "nimbus-ui-update-qa-status",
+        "nimbus-ui-update-signoff",
+        "nimbus-ui-toggle-archive",
+        "nimbus-ui-update-collaborators",
+        "nimbus-ui-subscribe",
+        "nimbus-ui-unsubscribe",
+        "nimbus-ui-toggle-review-slack-notifications",
+        "nimbus-ui-draft-to-preview",
+    ]
+
+    @parameterized.expand(GET_URL_NAMES)
+    def test_get_redirects_rollout_to_new_ui_when_flag_enabled(self, url_name):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": rollout.slug}))
+
+        self.assertRedirects(
+            response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    @parameterized.expand(POST_URL_NAMES)
+    def test_htmx_post_redirects_rollout_to_new_ui_when_flag_enabled(self, url_name):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+
+        response = self.client.post(
+            reverse(url_name, kwargs={"slug": rollout.slug}),
+            {},
+            headers={"Hx-Request": "true"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    def test_non_htmx_post_redirects_rollout_to_new_ui_when_flag_enabled(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+
+        response = self.client.post(
+            reverse("nimbus-ui-update-overview", kwargs={"slug": rollout.slug}),
+            {},
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    @parameterized.expand(GET_URL_NAMES)
+    def test_get_does_not_redirect_rollout_when_flag_disabled(self, url_name):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": rollout.slug}))
+
+        self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(GET_URL_NAMES)
+    def test_get_does_not_redirect_experiment_when_flag_enabled(self, url_name):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=False,
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": experiment.slug}))
+
+        self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(GET_URL_NAMES)
+    def test_get_does_not_redirect_firefox_labs_rollout_when_flag_enabled(self, url_name):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        labs = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": labs.slug}))
+
+        self.assertEqual(response.status_code, 200)
+
+
 @mock_valid_outcomes
 class TestResultsEditBranchImagesView(AuthTestCase):
     def test_upload_updates_screenshot(self):

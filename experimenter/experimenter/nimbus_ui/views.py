@@ -240,6 +240,28 @@ class UpdateRedirectViewMixin:
         return super().post(request, *args, **kwargs)
 
 
+class NewRolloutUIRedirectMixin:
+    def get_new_rollout_ui_redirect_url(self):
+        experiment = self.get_object()
+        if experiment.uses_new_rollout_ui:
+            return experiment.get_detail_url()
+        return None
+
+    def get(self, request, *args, **kwargs):
+        if redirect_url := self.get_new_rollout_ui_redirect_url():
+            return HttpResponseRedirect(redirect_url)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if redirect_url := self.get_new_rollout_ui_redirect_url():
+            if request.headers.get("HX-Request"):
+                response = HttpResponse()
+                response.headers["HX-Redirect"] = redirect_url
+                return response
+            return HttpResponseRedirect(redirect_url)
+        return super().post(request, *args, **kwargs)
+
+
 class CloneExperimentFormMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -358,6 +380,7 @@ def build_experiment_context(experiment):
 
 
 class NimbusExperimentDetailView(
+    NewRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     ValidationErrorsMixin,
     NimbusExperimentViewMixin,
@@ -383,7 +406,9 @@ class NimbusExperimentDetailView(
         return context
 
 
-class QAStatusUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class QAStatusUpdateView(
+    NewRolloutUIRedirectMixin, NimbusExperimentViewMixin, RequestFormMixin, UpdateView
+):
     form_class = QAStatusForm
     template_name = "nimbus_experiments/qa_edit_form.html"
 
@@ -409,7 +434,7 @@ class TakeawaysUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateVie
         )
 
 
-class SignoffUpdateView(RequestFormMixin, UpdateView):
+class SignoffUpdateView(NewRolloutUIRedirectMixin, RequestFormMixin, UpdateView):
     model = NimbusExperiment
     form_class = SignoffForm
     template_name = "nimbus_experiments/update_signoff.html"
@@ -449,6 +474,7 @@ class NimbusExperimentsPromoteToRolloutView(NimbusExperimentsCloneView):
 
 
 class ToggleArchiveView(
+    NewRolloutUIRedirectMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
     RenderResponseMixin,
@@ -481,6 +507,7 @@ class SaveAndContinueMixin:
 
 
 class OverviewUpdateView(
+    NewRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     SaveAndContinueMixin,
     NimbusExperimentViewMixin,
@@ -508,6 +535,7 @@ class DocumentationLinkDeleteView(RenderParentDBResponseMixin, OverviewUpdateVie
 
 
 class BranchesBaseView(
+    NewRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     IntegrationTestBranchDataMixin,
     NimbusExperimentViewMixin,
@@ -548,6 +576,7 @@ class BranchScreenshotDeleteView(RenderParentDBResponseMixin, BranchesBaseView):
 
 
 class MetricsUpdateView(
+    NewRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     SaveAndContinueMixin,
     NimbusExperimentViewMixin,
@@ -567,6 +596,7 @@ class MetricsUpdateView(
 
 
 class AudienceUpdateView(
+    NewRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     SaveAndContinueMixin,
     NimbusExperimentViewMixin,
@@ -595,6 +625,7 @@ class CollaboratorsContextMixin:
 
 
 class CollaboratorsUpdateView(
+    NewRolloutUIRedirectMixin,
     CollaboratorsContextMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -605,6 +636,7 @@ class CollaboratorsUpdateView(
 
 
 class SubscribeView(
+    NewRolloutUIRedirectMixin,
     CollaboratorsContextMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -615,6 +647,7 @@ class SubscribeView(
 
 
 class UnsubscribeView(
+    NewRolloutUIRedirectMixin,
     CollaboratorsContextMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -625,6 +658,7 @@ class UnsubscribeView(
 
 
 class ToggleReviewSlackNotificationsView(
+    NewRolloutUIRedirectMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
     UpdateView,
