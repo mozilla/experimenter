@@ -1346,7 +1346,7 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         screenshot_errors = response.context["validation_errors"][
             "reference_branch_screenshots"
         ]
-        self.assertEqual(screenshot_errors[0], {})
+        self.assertNotIn(0, screenshot_errors)
         self.assertIn("image", screenshot_errors[1])
         self.assertIn("description", screenshot_errors[1])
         self.assertContains(response, "This field may not be blank.", count=2)
@@ -1360,7 +1360,7 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         with mock.patch.object(
             NimbusExperiment,
             "get_invalid_fields_errors",
-            return_value={"documentation_links": [{"link": ["Enter a valid URL."]}]},
+            return_value={"documentation_links": {0: {"link": ["Enter a valid URL."]}}},
         ):
             response = self.client.get(url)
 

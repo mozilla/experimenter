@@ -260,16 +260,17 @@ class RolloutSetupProgressMixin:
         # The title select has no blank option so a just-added link always errors
         # until the next save picks up its default
         errors = field_errors.get("documentation_links")
-        if not isinstance(errors, (list, tuple)):
+        if not isinstance(errors, dict):
             return field_errors
 
-        remaining = [
-            {key: value for key, value in link.items() if key != "title"}
-            if isinstance(link, dict)
-            else link
-            for link in errors
-        ]
-        if any(remaining):
+        remaining = {}
+        for index, link in errors.items():
+            if isinstance(link, dict):
+                link = {key: value for key, value in link.items() if key != "title"}
+            if link:
+                remaining[index] = link
+
+        if remaining:
             field_errors["documentation_links"] = remaining
         else:
             field_errors.pop("documentation_links")
@@ -282,7 +283,11 @@ class RolloutSetupProgressMixin:
 
         branch_errors = dict(branch_errors)
         screenshots = branch_errors.pop("screenshots")
-        if any(screenshots):
+        if isinstance(screenshots, dict):
+            has_screenshot_errors = any(screenshots.values())
+        else:
+            has_screenshot_errors = any(screenshots)
+        if has_screenshot_errors:
             field_errors["reference_branch_screenshots"] = screenshots
         if branch_errors:
             field_errors["reference_branch"] = branch_errors
