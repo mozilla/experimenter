@@ -2770,6 +2770,20 @@ EXISTING_USER_ONLY_WIN10 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_USER_ONLY_WIN10_UNSTICKY = NimbusTargetingConfig(
+    name="Existing user on Windows 10 only (not sticky)",
+    slug="existing_user_win10_no_sticky",
+    description=(
+        "Users with profiles older than 28 days who are on "
+        "Windows 10, no sticky enrollment"
+    ),
+    targeting=EXISTING_USER_ONLY_WIN10.targeting,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIN10_EXISTING_USER_STORIES_DISABLED = NimbusTargetingConfig(
     name="Windows 10 existing users with HNT stories disabled.",
     slug="win10_existing_user_stories_disabled",
@@ -4670,7 +4684,7 @@ MAC_SIGNED_OUT_USER = NimbusTargetingConfig(
 )
 
 FX_145_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx145 9-19 Trainhop",
+    name="New Tab Fx145 9-19 Trainhop [Deprecated]",
     slug="newtab-145-0919-trainhop",
     description="Desktop users having the New Tab 145.0.20250919 train hop,"
     "which includes users of Fx143",
@@ -4682,7 +4696,7 @@ FX_145_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_145_1_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx145 10-09 Trainhop",
+    name="New Tab Fx145 10-09 Trainhop [Deprecated]",
     slug="newtab-145-1009-trainhop",
     description="Desktop users having the New Tab 145.1.20251009 train hop,"
     "which includes users of Fx144",
@@ -4694,7 +4708,7 @@ FX_145_1_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_146_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx146.0.1 11-24 Trainhop",
+    name="New Tab Fx146.0.1 11-24 Trainhop [Deprecated]",
     slug="newtab-146-1124-trainhop",
     description=(
         "Desktop users having the New Tab 146.0.20251107.60212 train hop, "
@@ -4708,7 +4722,7 @@ FX_146_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_146_1_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx146 11-24 Trainhop",
+    name="New Tab Fx146 11-24 Trainhop [Deprecated]",
     slug="newtab-146-1-1124-trainhop",
     description=(
         "Desktop users having the New Tab 147.0.20251114.194929 train hop, "
@@ -4722,7 +4736,7 @@ FX_146_1_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_148_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx148 12-11 Trainhop",
+    name="New Tab Fx148 12-11 Trainhop [Deprecated]",
     slug="newtab-148-1211-trainhop",
     description=(
         "Desktop users having the New Tab 148.0.20251211.63751 train hop, "
@@ -4736,7 +4750,7 @@ FX_148_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_149_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx149 Feb-09 Trainhop",
+    name="New Tab Fx149 Feb-09 Trainhop [Deprecated]",
     slug="newtab-149-0209-trainhop",
     description=(
         "Desktop users having the New Tab 149.1.20260121.51415 train hop, "
@@ -4750,7 +4764,7 @@ FX_149_TRAINHOP = NimbusTargetingConfig(
 )
 
 ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025_AND_FX_149_TRAINHOP = NimbusTargetingConfig(
-    name="TOU accepted after Dec 9 2025, non-Linux, Fx149 trainhop",
+    name="TOU accepted after Dec 9 2025, non-Linux, Fx149 trainhop [Deprecated]",
     slug="tou_accepted_and_fx149_trainhop",
     description=(
         "Users who have accepted TOU on or after Dec 9 2025, are not on Linux, "
@@ -4775,8 +4789,29 @@ ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025_AND_FX_149_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025_NON_LINUX = NimbusTargetingConfig(
+    name="TOU accepted after Dec 9 2025, non-Linux",
+    slug="accepted_tou_on_or_after_dec_9_2025_non_linux",
+    description=(
+        "Users who have accepted TOU on or after Dec 9 2025 and are not on Linux"
+    ),
+    targeting=f"""
+    (
+        !os.isLinux
+        &&
+        {HAS_TOU_ACCEPTED_DATE}
+        &&
+        ({TOU_ACCEPTED_DATE} >= {DEC_9_2025})
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FX_150_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx150 Mar-04 Trainhop",
+    name="New Tab Fx150 Mar-04 Trainhop [Deprecated]",
     slug="newtab-150-0304-trainhop",
     description=(
         "Desktop users having the New Tab 150.1.20260304.231049 train hop, "
@@ -4790,7 +4825,7 @@ FX_150_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_151_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx151 Mar-27 Trainhop",
+    name="New Tab Fx151 Mar-27 Trainhop [Deprecated]",
     slug="newtab-151-0327-trainhop",
     description=(
         "Desktop users having the New Tab 151.1.20260327.141953 train hop, "
@@ -4804,7 +4839,7 @@ FX_151_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_151_2_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx151 Mar-28 Trainhop",
+    name="New Tab Fx151 Mar-28 Trainhop [Deprecated]",
     slug="newtab-151-0328-trainhop",
     description=(
         "Desktop users having the New Tab 151.2.20260328.211913 train hop, "
@@ -4818,7 +4853,7 @@ FX_151_2_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_151_3_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx151 Apr-19 Trainhop",
+    name="New Tab Fx151 Apr-19 Trainhop [Deprecated]",
     slug="newtab-151-0419-trainhop",
     description=(
         "Desktop users having the New Tab 151.3.20260419.192959 train hop, "
@@ -4832,7 +4867,7 @@ FX_151_3_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_151_3_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
-    name="Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop",
+    name="Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop [Deprecated]",
     slug="newtab-151-0419-trainhop-win10-existing-users",
     description=(
         "Windows 10 existing users with profiles older than 28 days, "
@@ -4849,7 +4884,7 @@ FX_151_3_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
 )
 
 FX_151_2_TRAINHOP_NEW_USERS = NimbusTargetingConfig(
-    name="New users with New Tab Fx151 Mar-28 Trainhop",
+    name="New users with New Tab Fx151 Mar-28 Trainhop [Deprecated]",
     slug="newtab-151-0328-trainhop-new-users",
     description=(
         "Desktop new users with profile age less than 48 hours "
@@ -4866,7 +4901,7 @@ FX_151_2_TRAINHOP_NEW_USERS = NimbusTargetingConfig(
 FX_151_3_TRAINHOP_WIN10_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     name=(
         "Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop, "
-        "having default and needing pin"
+        "having default and needing pin [Deprecated]"
     ),
     slug="newtab-151-0419-trainhop-win10-users-has-default-need-pin",
     description=(
@@ -4888,7 +4923,7 @@ FX_151_3_TRAINHOP_WIN10_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
 FX_151_3_TRAINHOP_WIN10_NEED_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     name=(
         "Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop, "
-        "needing default and pin"
+        "needing default and pin [Deprecated]"
     ),
     slug="newtab-151-0419-trainhop-win10-users-need-default-need-pin",
     description=(
@@ -4907,8 +4942,60 @@ FX_151_3_TRAINHOP_WIN10_NEED_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+PROFILE_UNDER_48_HOURS = NimbusTargetingConfig(
+    name="Profile Newer Than 48 Hours (sticky)",
+    slug="profile_under_48_hours",
+    description=("Desktop new users with profile age less than 48 hours"),
+    targeting=PROFILELESSTHAN2DAYS,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+PROFILE_UNDER_48_HOURS_UNSTICKY = NimbusTargetingConfig(
+    name="Profile Newer Than 48 Hours (not sticky)",
+    slug="profile_under_48_hours_no_sticky",
+    description=(
+        "Desktop new users with profile age less than 48 hours, no sticky enrollment"
+    ),
+    targeting=PROFILE_UNDER_48_HOURS.targeting,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_WIN10_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+    name="Existing Windows 10 users, having default and needing pin",
+    slug="existing_user_win10_has_default_need_pin",
+    description=(
+        "Desktop Windows 10 users having default and needing pin, "
+        "with profiles older than 28 days"
+    ),
+    targeting=(f"{EXISTING_USER_ONLY_WIN10.targeting} && !{NEED_DEFAULT} && !{HAS_PIN}"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_WIN10_NEED_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+    name="Existing Windows 10 users, needing default and pin",
+    slug="existing_user_win10_need_default_need_pin",
+    description=(
+        "Desktop Windows 10 users needing default and pin, "
+        "with profiles older than 28 days"
+    ),
+    targeting=f"{EXISTING_USER_ONLY_WIN10.targeting} && {NEED_DEFAULT} && !{HAS_PIN}",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FX_152_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx152 May-04 Trainhop",
+    name="New Tab Fx152 May-04 Trainhop [Deprecated]",
     slug="newtab-152-0504-trainhop",
     description=(
         "Desktop users having the New Tab 152.0.20260504.33143 train hop, "
@@ -4922,7 +5009,7 @@ FX_152_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_152_2_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx152 May-15 Trainhop",
+    name="New Tab Fx152 May-15 Trainhop [Deprecated]",
     slug="newtab-152-0515-trainhop",
     description=(
         "Desktop users having the New Tab 152.2.20260515.174901 train hop, "
@@ -4936,7 +5023,7 @@ FX_152_2_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_152_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
-    name="Existing Windows 10 users with New Tab Fx152 May-04 Trainhop",
+    name="Existing Windows 10 users with New Tab Fx152 May-04 Trainhop [Deprecated]",
     slug="newtab-152-0504-trainhop-win10-existing-users",
     description=(
         "Windows 10 existing users with profiles older than 28 days, "
@@ -4953,7 +5040,7 @@ FX_152_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
 )
 
 FX_152_2_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
-    name="Existing Windows 10 users with New Tab Fx152 May-15 Trainhop",
+    name="Existing Windows 10 users with New Tab Fx152 May-15 Trainhop [Deprecated]",
     slug="newtab-152-0515-trainhop-win10-existing-users",
     description=(
         "Windows 10 existing users with profiles older than 28 days, "
@@ -4970,7 +5057,7 @@ FX_152_2_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
 )
 
 FX_153_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx153 May-28 Trainhop",
+    name="New Tab Fx153 May-28 Trainhop [Deprecated]",
     slug="newtab-153-0528-trainhop",
     description=(
         "Desktop users having the New Tab 153.1.20260528.133333 train hop, "
@@ -4998,7 +5085,7 @@ FX_153_TRAINHOP_MAX = NimbusTargetingConfig(
 )
 
 FX_153_3_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx153 Jun-05 Trainhop",
+    name="New Tab Fx153 Jun-05 Trainhop [Deprecated]",
     slug="newtab-153-0605-trainhop",
     description=(
         "Desktop users having the New Tab 153.3.20260605.21338 train hop, "
@@ -5012,7 +5099,7 @@ FX_153_3_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_153_4_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx153 Jun-10 Trainhop",
+    name="New Tab Fx153 Jun-10 Trainhop [Deprecated]",
     slug="newtab-153-0610-trainhop",
     description=(
         "Desktop users having the New Tab 153.4.20260610.40323 train hop, "
@@ -5026,7 +5113,7 @@ FX_153_4_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_153_5_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx153 Jun-15 Trainhop",
+    name="New Tab Fx153 Jun-15 Trainhop [Deprecated]",
     slug="newtab-153-0615-trainhop",
     description=(
         "Desktop users having the New Tab 153.5.20260615.213953 train hop, "
@@ -5040,7 +5127,7 @@ FX_153_5_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_154_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx154 Jun-19 Trainhop",
+    name="New Tab Fx154 Jun-19 Trainhop [Deprecated]",
     slug="newtab-154-0619-trainhop",
     description=(
         "Desktop users having the New Tab 154.1.20260619.43329 train hop, "
@@ -5054,7 +5141,7 @@ FX_154_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_154_2_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx154 Jun-24 Trainhop",
+    name="New Tab Fx154 Jun-24 Trainhop [Deprecated]",
     slug="newtab-154-0624-trainhop",
     description=(
         "Desktop users having the New Tab 154.2.20260624.61428 train hop, "
@@ -5068,7 +5155,7 @@ FX_154_2_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_154_3_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx154 Jun-30 Trainhop",
+    name="New Tab Fx154 Jun-30 Trainhop [Deprecated]",
     slug="newtab-154-0630-trainhop",
     description=(
         "Desktop users having the New Tab 154.3.20260630.235510 train hop, "
@@ -5082,7 +5169,7 @@ FX_154_3_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_154_4_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx154 Jul-08 Trainhop",
+    name="New Tab Fx154 Jul-08 Trainhop [Deprecated]",
     slug="newtab-154-0708-trainhop",
     description=(
         "Desktop users having the New Tab 154.4.20260708.42619 train hop, "
@@ -5096,7 +5183,7 @@ FX_154_4_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_154_8_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx154 Jul-16 Trainhop",
+    name="New Tab Fx154 Jul-16 Trainhop [Deprecated]",
     slug="newtab-154-0716-trainhop",
     description=(
         "Desktop users having the New Tab 154.8.20260716.43450 train hop, "
@@ -5110,7 +5197,7 @@ FX_154_8_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_155_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx155 Aug-11 Trainhop",
+    name="New Tab Fx155 Aug-11 Trainhop [Deprecated]",
     slug="newtab-155-0811-trainhop",
     description=(
         "Desktop users having the New Tab 155.1.20260811.195042 train hop, "
@@ -5126,7 +5213,7 @@ FX_155_TRAINHOP = NimbusTargetingConfig(
 FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
     name=(
         "Windows 10+ users, no MSIX, not pinned, not default, "
-        "with New Tab Fx155 Aug-11 Trainhop"
+        "with New Tab Fx155 Aug-11 Trainhop [Deprecated]"
     ),
     slug="newtab-155-0811-trainhop-win10-plus-nomsix-notpinned-notdefault",
     description=(
@@ -5150,7 +5237,7 @@ FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_NOT_DEFAULT = NimbusTargetingConfig
 FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
     name=(
         "Windows 10+ users, no MSIX, pinned, not default, "
-        "with New Tab Fx155 Aug-11 Trainhop"
+        "with New Tab Fx155 Aug-11 Trainhop [Deprecated]"
     ),
     slug="newtab-155-0811-trainhop-win10-plus-nomsix-pinned-notdefault",
     description=(
@@ -5174,7 +5261,7 @@ FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
 FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_DEFAULT = NimbusTargetingConfig(
     name=(
         "Windows 10+ users, no MSIX, not pinned, default, "
-        "with New Tab Fx155 Aug-11 Trainhop"
+        "with New Tab Fx155 Aug-11 Trainhop [Deprecated]"
     ),
     slug="newtab-155-0811-trainhop-win10-plus-nomsix-notpinned-default",
     description=(
@@ -5195,8 +5282,65 @@ FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_USERS_FX154_WIN10_PLUS_NOMSIX_NOT_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
+    name="Windows 10+ users, no MSIX, not pinned, not default, Fx154+, existing users",
+    slug="existing_users_fx154_win10_plus_nomsix_notpinned_notdefault",
+    description=(
+        "Windows 10+ existing users with profiles older than 28 days, on Fx154+, "
+        "who are not running MSIX, who have not pinned Firefox to the taskbar, "
+        "and who do not have Firefox set as the default browser"
+    ),
+    targeting=(
+        f"{WINDOWS_10_PLUS_NOMSIX_NOT_PINNED_NOT_DEFAULT.targeting} "
+        "&& version|versionCompare('154.!') >= 0 "
+        f"&& {PROFILE28DAYS}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USERS_FX154_WIN10_PLUS_NOMSIX_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
+    name="Windows 10+ users, no MSIX, pinned, not default, Fx154+, existing users",
+    slug="existing_users_fx154_win10_plus_nomsix_pinned_notdefault",
+    description=(
+        "Windows 10+ existing users with profiles older than 28 days, on Fx154+, "
+        "who are not running MSIX, who have pinned Firefox to the taskbar, "
+        "and who do not have Firefox set as the default browser"
+    ),
+    targeting=(
+        f"{WINDOWS_10_PLUS_NOMSIX_PINNED_NOT_DEFAULT.targeting} "
+        "&& version|versionCompare('154.!') >= 0 "
+        f"&& {PROFILE28DAYS}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USERS_FX154_WIN10_PLUS_NOMSIX_NOT_PINNED_DEFAULT = NimbusTargetingConfig(
+    name="Windows 10+ users, no MSIX, not pinned, default, Fx154+, existing users",
+    slug="existing_users_fx154_win10_plus_nomsix_notpinned_default",
+    description=(
+        "Windows 10+ existing users with profiles older than 28 days, on Fx154+, "
+        "who are not running MSIX, who have not pinned Firefox to the taskbar, "
+        "and who have Firefox set as the default browser"
+    ),
+    targeting=(
+        f"{WINDOWS_10_PLUS_NOMSIX_NOT_PINNED_DEFAULT.targeting} "
+        "&& version|versionCompare('154.!') >= 0 "
+        f"&& {PROFILE28DAYS}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FX_156_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx156 Aug-18 Trainhop",
+    name="New Tab Fx156 Aug-18 Trainhop [Deprecated]",
     slug="newtab-156-0818-trainhop",
     description=(
         "Desktop users having the New Tab 156.1.20260818.43226 train hop, "
@@ -5210,7 +5354,7 @@ FX_156_TRAINHOP = NimbusTargetingConfig(
 )
 
 PROFILE_UNDER_48_HOURS_FX_156_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx156 Aug-18 Trainhop, Profile Newer Than 48 Hours",
+    name="New Tab Fx156 Aug-18 Trainhop, Profile Newer Than 48 Hours [Deprecated]",
     slug="newtab-156-0818-trainhop-profile-under-48-hours",
     description=(
         "Desktop users having the New Tab 156.1.20260818.43226 train hop, "
@@ -5224,7 +5368,7 @@ PROFILE_UNDER_48_HOURS_FX_156_TRAINHOP = NimbusTargetingConfig(
 )
 
 PROFILE_48_HOURS_OR_OLDER_FX_156_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx156 Aug-18 Trainhop, Profile 48 Hours Or Older",
+    name="New Tab Fx156 Aug-18 Trainhop, Profile 48 Hours Or Older [Deprecated]",
     slug="newtab-156-0818-trainhop-profile-48-hours-or-older",
     description=(
         "Desktop users having the New Tab 156.1.20260818.43226 train hop, "
@@ -5237,8 +5381,19 @@ PROFILE_48_HOURS_OR_OLDER_FX_156_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+PROFILE_48_HOURS_OR_OLDER = NimbusTargetingConfig(
+    name="Profile 48 Hours Or Older",
+    slug="profile_48_hours_or_older",
+    description="Desktop users whose profile is at least 48 hours old",
+    targeting=PROFILE2DAYS,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FX_156_2_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx156 Aug-24 Trainhop",
+    name="New Tab Fx156 Aug-24 Trainhop [Deprecated]",
     slug="newtab-156-0824-trainhop",
     description=(
         "Desktop users having the New Tab 156.2.20260824.60102 train hop, "
@@ -5252,7 +5407,7 @@ FX_156_2_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_157_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx157 Aug-31 Trainhop",
+    name="New Tab Fx157 Aug-31 Trainhop [Deprecated]",
     slug="newtab-157-0831-trainhop",
     description=(
         "Desktop users having the New Tab 157.0.20260831.183837 train hop, "
@@ -5266,7 +5421,7 @@ FX_157_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_158_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx158 Sep-13 Trainhop",
+    name="New Tab Fx158 Sep-13 Trainhop [Deprecated]",
     slug="newtab-158-0913-trainhop",
     description=(
         "Desktop users having the New Tab 158.0.20260913.220257 train hop, "
@@ -5305,7 +5460,8 @@ WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
 
 WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_3_TRAINHOP = NimbusTargetingConfig(
     name=(
-        "New Tab Fx153 Jun-05 Trainhop, Lists/Timer Interaction, Neither Widget Disabled"
+        "New Tab Fx153 Jun-05 Trainhop, Lists/Timer Interaction, "
+        "Neither Widget Disabled [Deprecated]"
     ),
     slug="widgets-lists-timer-interacted-not-disabled-153-0605-trainhop",
     description=(
@@ -5385,7 +5541,7 @@ WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
 FX_153_3_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     name=(
         "New Tab Fx153 Jun-05 Trainhop, engaged with any of 4 widgets, "
-        "that widget not disabled"
+        "that widget not disabled [Deprecated]"
     ),
     slug="widgets-any-four-engaged-153-0605-trainhop",
     description=(
@@ -5402,7 +5558,7 @@ FX_153_3_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
 FX_153_5_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     name=(
         "New Tab Fx153 Jun-15 Trainhop, engaged with any of 4 widgets, "
-        "that widget not disabled"
+        "that widget not disabled [Deprecated]"
     ),
     slug="widgets-any-four-engaged-153-0615-trainhop",
     description=(
@@ -5419,7 +5575,7 @@ FX_153_5_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
 FX_154_8_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     name=(
         "New Tab Fx154 Jul-16 Trainhop, engaged with any of 4 widgets, "
-        "that widget not disabled"
+        "that widget not disabled [Deprecated]"
     ),
     slug="widgets-any-four-engaged-154-0716-trainhop",
     description=(
@@ -5436,7 +5592,7 @@ FX_154_8_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
 FX_153_3_TO_PRE_154_JUL16_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     name=(
         "New Tab Fx153 Jun-05 Trainhop (older than Jul-16), engaged with any of 4 "
-        "widgets, that widget not disabled"
+        "widgets, that widget not disabled [Deprecated]"
     ),
     slug="widgets-any-four-engaged-153-0605-thru-pre-154-0716-trainhop",
     description=(
@@ -5456,7 +5612,7 @@ FX_153_3_TO_PRE_154_JUL16_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingCon
 )
 
 FX_153_3_TO_PRE_154_JUL16_TRAINHOP = NimbusTargetingConfig(
-    name="New Tab Fx153 Jun-05 Trainhop (older than Jul-16)",
+    name="New Tab Fx153 Jun-05 Trainhop (older than Jul-16) [Deprecated]",
     slug="153-0605-thru-pre-154-0716-trainhop",
     description=(
         "Users on a New Tab train hop from 153.3.20260605.21338 (Jun-05) up to but "
@@ -5473,7 +5629,7 @@ FX_153_3_TO_PRE_154_JUL16_TRAINHOP = NimbusTargetingConfig(
 )
 
 FX_153_3_TRAINHOP_ANY_WIDGET_ENABLED = NimbusTargetingConfig(
-    name="New Tab Fx153 Jun-05 Trainhop, any of 4 widgets enabled",
+    name="New Tab Fx153 Jun-05 Trainhop, any of 4 widgets enabled [Deprecated]",
     slug="any-widget-enabled-153-0605-trainhop",
     description=(
         "Users having the New Tab 153.3.20260605.21338 train hop who still have at "
@@ -5490,6 +5646,64 @@ FX_153_3_TRAINHOP_ANY_WIDGET_ENABLED = NimbusTargetingConfig(
         "|preferenceValue == true) || ("
         "'browser.newtabpage.activity-stream.widgets.clocks.enabled'"
         "|preferenceValue == true))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+PRE_FX_154_JUL16_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab older than Fx154 Jul-16 Trainhop",
+    slug="pre-154-0716-trainhop",
+    description=(
+        "Users on a New Tab train hop up to but NOT including "
+        "154.8.20260716.43450 (Jul-16)"
+    ),
+    targeting="newtabAddonVersion|versionCompare('154.8.20260716.43450') < 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+PRE_FX_154_JUL16_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+    name=(
+        "New Tab older than Fx154 Jul-16 Trainhop, engaged with any of 4 widgets, "
+        "that widget not disabled"
+    ),
+    slug="widgets-any-four-engaged-pre-154-0716-trainhop",
+    description=(
+        "Users on a New Tab train hop up to but NOT including "
+        "154.8.20260716.43450 (Jul-16) who engaged with the Sports, Clocks, Lists, "
+        "or Timer widget and still have that widget enabled"
+    ),
+    targeting=(
+        f"{PRE_FX_154_JUL16_TRAINHOP.targeting} && ({WIDGETS_ANY_FOUR_ENGAGED.targeting})"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+ANY_WIDGET_ENABLED = NimbusTargetingConfig(
+    name="New Tab any of 4 widgets enabled",
+    slug="any-widget-enabled",
+    description=(
+        "Users who still have at least one of the Sports, Clocks, Lists, or Timer "
+        "widgets enabled (i.e. they have not disabled all four widgets)"
+    ),
+    targeting=(
+        "("
+        "'browser.newtabpage.activity-stream.widgets.lists.enabled'"
+        "|preferenceValue == true) || ("
+        "'browser.newtabpage.activity-stream.widgets.focusTimer.enabled'"
+        "|preferenceValue == true) || ("
+        "'browser.newtabpage.activity-stream.widgets.sportsWidget.enabled'"
+        "|preferenceValue == true) || ("
+        "'browser.newtabpage.activity-stream.widgets.clocks.enabled'"
+        "|preferenceValue == true)"
     ),
     desktop_telemetry="",
     sticky_required=False,
@@ -5581,7 +5795,7 @@ TELEMETRY_ENABLED = NimbusTargetingConfig(
 )
 
 FX_149_TRAINHOP_2 = NimbusTargetingConfig(
-    name="New Tab Fx149.2 Feb-26 Trainhop",
+    name="New Tab Fx149.2 Feb-26 Trainhop [Deprecated]",
     slug="newtab-1492-0226-trainhop",
     description=(
         "Desktop users having the New Tab 149.2.20260220.204414 train hop, "
@@ -5595,7 +5809,9 @@ FX_149_TRAINHOP_2 = NimbusTargetingConfig(
 )
 
 FX_149_TRAINHOP_2_ACTIVATION_WINDOW = NimbusTargetingConfig(
-    name="New first run Windows profiles with New Tab Fx149.2 Feb-26 Trainhop",
+    name=(
+        "New first run Windows profiles with New Tab Fx149.2 Feb-26 Trainhop [Deprecated]"
+    ),
     slug="new-first-run-windows-profiles-newtab-1492-0226-trainhop",
     description=(
         "Desktop Windows first run users with new non-selectable profiles "
@@ -5607,6 +5823,17 @@ FX_149_TRAINHOP_2_ACTIVATION_WINDOW = NimbusTargetingConfig(
         f"{NEW_NON_SELECTABLE_PROFILE} && "
         f"{FX_149_TRAINHOP_2.targeting}"
     ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NEW_FIRST_RUN_WINDOWS_PROFILES = NimbusTargetingConfig(
+    name="New first run Windows profiles",
+    slug="new-first-run-windows-profiles",
+    description=("Desktop Windows first run users with new non-selectable profiles"),
+    targeting=(f"{PROFILELESSTHAN1HOUR} && os.isWindows && {NEW_NON_SELECTABLE_PROFILE}"),
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
@@ -5726,7 +5953,7 @@ EDITORIAL_CONTENT_UNAVAILABLE_MARKETS = NimbusTargetingConfig(
 )
 
 TOPSITES_1ROW_NON_EDITORIAL_FX151_TRAINHOP = NimbusTargetingConfig(
-    name="Non-Editorial Markets, 1-Row Top Sites, Fx151 Trainhop",
+    name="Non-Editorial Markets, 1-Row Top Sites, Fx151 Trainhop [Deprecated]",
     slug="topsites-1row-non-editorial-fx151-trainhop",
     description=(
         "Desktop users in non-editorial content markets, with top sites rows set to 1, "
@@ -5735,6 +5962,22 @@ TOPSITES_1ROW_NON_EDITORIAL_FX151_TRAINHOP = NimbusTargetingConfig(
     targeting=(
         f"(region in {EDITORIAL_CONTENT_MARKETS}) != true"
         f" && {FX_151_2_TRAINHOP.targeting}"
+        " && 'browser.newtabpage.activity-stream.topSitesRows'|preferenceValue == 1"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+TOPSITES_1ROW_NON_EDITORIAL = NimbusTargetingConfig(
+    name="Non-Editorial Markets, 1-Row Top Sites",
+    slug="topsites-1row-non-editorial",
+    description=(
+        "Desktop users in non-editorial content markets, with top sites rows set to 1"
+    ),
+    targeting=(
+        f"{EDITORIAL_CONTENT_UNAVAILABLE_MARKETS.targeting}"
         " && 'browser.newtabpage.activity-stream.topSitesRows'|preferenceValue == 1"
     ),
     desktop_telemetry="",
