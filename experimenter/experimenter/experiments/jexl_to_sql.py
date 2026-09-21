@@ -36,6 +36,9 @@ JEXL_TO_BQ_COLUMN = {
         "metrics.quantity.nimbus_targeting_context_total_bookmarks_count"
     ),
     "addressesSaved": "metrics.quantity.nimbus_targeting_context_addresses_saved",
+    "allowedNotificationOrigins": (
+        "metrics.quantity.nimbus_targeting_context_allowed_notification_origins"
+    ),
     "profileGroupProfileCount": (
         "metrics.quantity.nimbus_targeting_context_profile_group_profile_count"
     ),
@@ -181,7 +184,6 @@ JEXL_TO_BQ_COLUMN_IOS = {
 # Attributes with no corresponding column in nimbus_targeting_context.
 KNOWN_UNTRANSLATABLE = {
     "attachedFxAOAuthClients",  # privacy-sensitive, will never be recorded
-    "allowedNotificationOrigins",  # not yet recorded to the targeting context
     "isFirstRun",  # Desktop uses isFirstStartup; also mobile-only
     "is_first_run",
     "isNonStubFirstRun",

@@ -38,6 +38,7 @@ PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
         "isNonStubFirstRun",
         "localeLanguageCode",
         "attachedFxAOAuthClients",
+        # TODO #17342
         # Remove once the recorded targeting context manifest includes this
         # attribute (Bug 2069104).
         "allowedNotificationOrigins",
