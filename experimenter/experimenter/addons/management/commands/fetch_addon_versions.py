@@ -12,46 +12,41 @@ from experimenter.addons import (
     AddonVersions,
 )
 
-SHIPIT_API_URL = "https://shipit-api.mozilla-releng.net/"
 TASKCLUSTER_API_URL = "https://firefox-ci-tc.services.mozilla.com/api/"
 MANIFEST_ARTIFACT_PATH = "public%2Fbuild%2Fmanifest.json"
-BUILD_PHASE_NAME = "build"
-BUILD_TASK_NAME_PREFIX = "build-"
+RELEASE_SIGNING_INDEX_NAMESPACE = "xpi.v2.xpi-manifest.{addon}.release-signing.revision"
+ACTION_TASK_NAME_PREFIX = "Action:"
+INDEX_TASKS_LIMIT = 1000
 REQUEST_TIMEOUT = 60
-TASK_GROUP_LIMIT = 200
-RELEASES_LIMIT = 500
 TRACKED_ADDONS = (NEWTAB_ADDON,)
 
 
 class Command(BaseCommand):
-    help = "Merge newly shipped addon versions from ShipIt into the committed versions"
+    help = (
+        "Merge newly shipped addon versions from the Taskcluster index "
+        "into the committed versions"
+    )
 
     def handle(self, *args, **options):
         for addon in TRACKED_ADDONS:
             versions = list(Addons.by_addon(addon))
-            known_releases = {version.shipit_release for version in versions}
+            known_revisions = {version.xpi_revision for version in versions}
 
-            for release in self.fetch_releases(addon):
-                if release["name"] in known_releases:
+            for revision, signing_task_id in self.fetch_signed_revisions(addon):
+                if revision in known_revisions:
                     continue
 
-                version = self.fetch_version(release)
+                version = self.fetch_version(addon, signing_task_id)
 
                 if version is None:
                     self.stdout.write(
-                        f"No build manifest available for {release['name']}, skipping"
+                        f"No build manifest available for {addon} revision "
+                        f"{revision}, skipping"
                     )
                     continue
 
-                versions.append(
-                    AddonVersion(
-                        version=version,
-                        shipit_release=release["name"],
-                        xpi_revision=release["xpi_revision"],
-                        created=release["created"],
-                    )
-                )
-                self.stdout.write(f"Added {addon} version {version}")
+                versions.append(version)
+                self.stdout.write(f"Added {addon} version {version.version}")
 
             versions.sort(key=lambda version: version.sort_key)
             self.write_versions(addon, versions)
@@ -66,52 +61,70 @@ class Command(BaseCommand):
             versions_file.write(AddonVersions(root=versions).model_dump_json(indent=2))
             versions_file.write("\n")
 
-    def fetch_releases(self, addon):
+    def fetch_signed_revisions(self, addon):
+        namespace = RELEASE_SIGNING_INDEX_NAMESPACE.format(addon=addon)
+        url = urljoin(TASKCLUSTER_API_URL, f"index/v1/tasks/{namespace}")
+        payload = {"limit": INDEX_TASKS_LIMIT}
+
+        while True:
+            response = requests.post(url, json=payload, timeout=REQUEST_TIMEOUT)
+            response.raise_for_status()
+            body = response.json()
+
+            for task in body["tasks"]:
+                yield task["namespace"].rsplit(".", 1)[-1], task["taskId"]
+
+            continuation_token = body.get("continuationToken")
+
+            if not continuation_token:
+                return
+
+            payload = {
+                "limit": INDEX_TASKS_LIMIT,
+                "continuationToken": continuation_token,
+            }
+
+    def fetch_version(self, addon, signing_task_id):
+        signing_task = self.fetch_task(signing_task_id)
+        build_task_id = None
+        action_task = None
+
+        for dependency_id in signing_task["dependencies"]:
+            dependency = self.fetch_task(dependency_id)
+            name = dependency["metadata"]["name"]
+
+            if name == f"build-{addon}":
+                build_task_id = dependency_id
+            elif name.startswith(ACTION_TASK_NAME_PREFIX):
+                action_task = dependency
+
+        if build_task_id is None or action_task is None:
+            return None
+
+        manifest = self.fetch_build_manifest(build_task_id)
+
+        if manifest is None:
+            return None
+
+        action_input = action_task["extra"]["action"]["context"]["input"]
+
+        return AddonVersion(
+            version=manifest["version"],
+            shipit_release=(
+                f"{action_input['xpi_name']}-{action_input['version']}"
+                f"-build{action_input['build_number']}"
+            ),
+            xpi_revision=action_input["revision"],
+            created=action_task["created"],
+        )
+
+    def fetch_task(self, task_id):
         response = requests.get(
-            urljoin(SHIPIT_API_URL, "xpi/releases"),
-            params={
-                "xpi_name": addon,
-                "status": "shipped",
-                "limit": RELEASES_LIMIT,
-            },
+            urljoin(TASKCLUSTER_API_URL, f"queue/v1/task/{task_id}"),
             timeout=REQUEST_TIMEOUT,
         )
         response.raise_for_status()
         return response.json()
-
-    def fetch_version(self, release):
-        action_task_id = self.build_action_task_id(release)
-        if action_task_id is None:
-            return None
-
-        build_task_id = self.fetch_build_task_id(action_task_id)
-        if build_task_id is None:
-            return None
-
-        manifest = self.fetch_build_manifest(build_task_id)
-        if manifest is None:
-            return None
-
-        return manifest["version"]
-
-    def build_action_task_id(self, release):
-        for phase in release["phases"]:
-            if phase["name"] == BUILD_PHASE_NAME and phase.get("actionTaskId"):
-                return phase["actionTaskId"]
-        return None
-
-    def fetch_build_task_id(self, action_task_id):
-        response = requests.get(
-            urljoin(TASKCLUSTER_API_URL, f"queue/v1/task-group/{action_task_id}/list"),
-            params={"limit": TASK_GROUP_LIMIT},
-            timeout=REQUEST_TIMEOUT,
-        )
-        response.raise_for_status()
-
-        for task in response.json()["tasks"]:
-            if task["task"]["metadata"]["name"].startswith(BUILD_TASK_NAME_PREFIX):
-                return task["status"]["taskId"]
-        return None
 
     def fetch_build_manifest(self, build_task_id):
         response = requests.get(
