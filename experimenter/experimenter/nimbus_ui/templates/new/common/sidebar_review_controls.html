@@ -2,11 +2,11 @@
 
 {% with controls=experiment.rollout_review_controls timed_out=experiment.should_show_timeout_message rejection=experiment.rejection_block rs_pending=experiment.remote_settings_pending_message %}
   {% if controls or rs_pending or timed_out or rejection %}
-    <div class="accordion accordion-flush rounded-3 bg-body-secondary"
+    <div class="accordion accordion-flush rounded-4 bg-body-secondary"
          style="--bs-accordion-btn-active-color: var(--bs-body-color);
                 --bs-accordion-btn-active-bg: transparent;
                 --bs-accordion-active-color: var(--bs-body-color)">
-      <div class="accordion-item border-0 bg-transparent rounded-3">
+      <div class="accordion-item border-0 bg-transparent rounded-4">
         <h2 class="accordion-header">
           <div class="accordion-button accordion-no-icon bg-transparent shadow-none fw-semibold text-body small pb-1"
                style="cursor: default">
@@ -80,7 +80,7 @@
               <div class="d-flex flex-column gap-2">
                 <button type="button"
                         id="rollout-review-reject-btn"
-                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
+                        class="btn btn-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
                         data-bs-toggle="collapse"
                         data-bs-target="#rollout-reject-form"
                         aria-expanded="false"
@@ -109,7 +109,7 @@
                           rows="3"></textarea>
                 <button type="button"
                         id="rollout-review-submit-reject-btn"
-                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
+                        class="btn btn-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
                         hx-post="{% url controls.reject_url experiment.slug %}"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                         hx-disabled-elt=".sidebar-action-button"

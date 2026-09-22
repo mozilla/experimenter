@@ -1,40 +1,40 @@
 {% extends "new/common/card_base.html" %}
 
 {% block card %}
-  <div class="d-flex flex-column gap-3" id="rollout-overview-body">
+  <div class="row g-3" id="rollout-overview-body">
     {# Name #}
-    <div>
-      <div class="text-secondary mb-1" style="font-size: 13px;">Name</div>
-      <div id="rollout-overview-name" class="small text-body">{{ experiment.name|default:"— Not Set" }}</div>
+    <div class="col-12 col-xl-6 order-1">
+      <div class="small text-secondary mb-1">Name</div>
+      <div id="rollout-overview-name" class="text-body">{{ experiment.name|default:"— Not Set" }}</div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.name %}
 
     </div>
     {# Observations & Problem space #}
-    <div>
-      <div class="text-secondary mb-1" style="font-size: 13px;">Observations &amp; Problem space</div>
+    <div class="col-12 col-xl-6 order-3">
+      <div class="small text-secondary mb-1">Observations &amp; Problem space</div>
       <div id="rollout-overview-hypothesis"
-           class="small text-body"
+           class="text-body"
            style="white-space: pre-wrap">{{ experiment.hypothesis|default:"— Not Set" }}</div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.hypothesis %}
 
     </div>
     {# Public description #}
-    <div>
-      <div class="text-secondary mb-1" style="font-size: 13px;">Public description</div>
+    <div class="col-12 col-xl-6 order-4">
+      <div class="small text-secondary mb-1">Public description</div>
       <div id="rollout-overview-public-description"
-           class="small text-body"
+           class="text-body"
            style="white-space: pre-wrap">{{ experiment.public_description|default:"— Not Set" }}</div>
       {% include "new/common/validation_errors.html" with errors=validation_errors.public_description %}
 
     </div>
     {# Important Links #}
-    <div>
-      <div class="text-secondary mb-1" style="font-size: 13px;">Important Links</div>
+    <div class="col-12 col-xl-6 order-2">
+      <div class="small text-secondary mb-1">Important Links</div>
       {% if experiment.documentation_links.exists %}
         <div class="d-flex flex-column gap-1">
           {% for link in experiment.documentation_links.all %}
             {% if link.link %}
-              <div class="small">
+              <div>
                 <a href="{{ link.link }}"
                    target="_blank"
                    rel="noopener noreferrer"
@@ -47,14 +47,14 @@
           {% endfor %}
         </div>
       {% else %}
-        <div class="small text-body">— Not Set</div>
+        <div class="text-body">— Not Set</div>
       {% endif %}
       {% include "new/common/validation_errors.html" with errors=documentation_link_errors %}
 
     </div>
     {# Project Tags #}
-    <div>
-      <div class="text-secondary mb-1" style="font-size: 13px;">Project Tags</div>
+    <div class="col-12 col-xl-6 order-5">
+      <div class="small text-secondary mb-1">Project Tags</div>
       {% if experiment.tags.exists %}
         <div class="d-flex flex-wrap gap-1">
           {% for tag in experiment.tags.all %}
@@ -64,12 +64,12 @@
           {% endfor %}
         </div>
       {% else %}
-        <div class="small text-body">— Not Set</div>
+        <div class="text-body">— Not Set</div>
       {% endif %}
     </div>
     {# Subscribers #}
-    <div>
-      <div class="text-secondary mb-1" style="font-size: 13px;">Subscribers</div>
+    <div class="col-12 col-xl-6 order-5">
+      <div class="small text-secondary mb-1">Subscribers</div>
       {% if experiment.subscribers.exists %}
         <div class="d-flex flex-wrap gap-1">
           {% for subscriber in experiment.subscribers.all %}
@@ -79,13 +79,13 @@
           {% endfor %}
         </div>
       {% else %}
-        <div class="small text-body">— Not Set</div>
+        <div class="text-body">— Not Set</div>
       {% endif %}
     </div>
   </div>
   {% if hx_swap_oob %}
     <h1 id="experiment-header-name"
-        class="mb-0 fw-semibold fs-4 text-body"
+        class="mb-0 fw-semibold fs-3 text-body"
         hx-swap-oob="true">{{ experiment.name }}</h1>
     {% include "new/common/sidebar_links.html" with hx_swap_oob=True %}
 

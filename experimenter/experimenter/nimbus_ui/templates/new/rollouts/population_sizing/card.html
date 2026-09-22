@@ -20,43 +20,36 @@
              class="small">Learn more</a>
         </div>
         {% if rollout_phase_population_estimates %}
-          <table class="table table-borderless table-sm align-middle mb-0 w-auto">
+          <table class="table table-borderless table-sm align-middle mb-0 w-100">
             <thead>
-              <tr style="font-size: 11px">
-                <th class="border-0 text-secondary fw-normal py-1"
-                    style="padding-right: 10rem">Phase</th>
-                <th class="border-0 text-secondary fw-normal py-1"
-                    style="padding-right: 10rem">Population ratio</th>
-                <th class="border-0 text-secondary fw-normal py-1 text-end"
-                    style="padding-right: 1.5rem">Projected enrollment</th>
+              <tr class="small">
+                <th class="border-0 text-secondary fw-normal py-1" style="width: 18%">Phase</th>
+                <th class="border-0 text-secondary fw-normal py-1" style="width: 60%">Population ratio</th>
+                <th class="border-0 text-secondary fw-normal py-1 text-end">Projected enrollment</th>
               </tr>
             </thead>
             <tbody>
               {% for estimate in rollout_phase_population_estimates %}
                 {% with phase=estimate.phase %}
                   <tr data-testid="sizing-phase-estimate">
-                    <td class="small text-body py-2 text-nowrap fw-normal"
-                        style="padding-right: 6rem">Phase {{ phase.number }}</td>
-                    <td class="py-2" style="padding-right: 6rem">
+                    <td class="small text-body py-2 text-nowrap fw-normal">Phase {{ phase.number }}</td>
+                    <td class="py-2">
                       <div class="d-flex align-items-center gap-2">
-                        <div class="progress rounded-pill"
-                             style="height: 8px;
-                                    width: 18rem"
+                        <div class="progress rounded-pill w-100"
+                             style="height: 8px"
                              role="progressbar"
                              aria-label="Phase {{ phase.number }} population ratio">
                           <div class="progress-bar bg-primary rounded-pill"
                                style="width: {{ phase.population_percent }}%"></div>
                         </div>
-                        <span class="text-secondary text-nowrap"
-                              style="font-size: 11px;
-                                     font-variant-numeric: tabular-nums">
+                        <span class="small text-secondary text-nowrap"
+                              style="font-variant-numeric: tabular-nums">
                           {{ phase.population_percent|floatformat:"-2" }}%
                         </span>
                       </div>
                     </td>
                     <td class="small text-body py-2 text-end text-nowrap"
-                        style="padding-right: 1.5rem;
-                               font-variant-numeric: tabular-nums">~{{ estimate.estimated_count|short_number }}</td>
+                        style="font-variant-numeric: tabular-nums">~{{ estimate.estimated_count|short_number }}</td>
                   </tr>
                 {% endwith %}
               {% endfor %}
