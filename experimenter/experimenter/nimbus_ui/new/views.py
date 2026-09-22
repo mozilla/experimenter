@@ -68,6 +68,35 @@ def trigger_toast(response, toast_id):
     return response
 
 
+class OldRolloutUIRedirectMixin:
+    def get_old_rollout_ui_redirect_url(self):
+        experiment = self.get_object()
+        if experiment.is_rollout and not experiment.uses_new_rollout_ui:
+            return experiment.get_detail_url()
+        return None
+
+    def htmx_redirect(self, redirect_url):
+        if self.request.headers.get("HX-Request"):
+            response = HttpResponse()
+            response.headers["HX-Redirect"] = redirect_url
+            return response
+        return HttpResponseRedirect(redirect_url)
+
+    def get(self, request, *args, **kwargs):
+        if redirect_url := self.get_old_rollout_ui_redirect_url():
+            return self.htmx_redirect(redirect_url)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if redirect_url := self.get_old_rollout_ui_redirect_url():
+            return self.htmx_redirect(redirect_url)
+
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 302:
+            return self.htmx_redirect(self.object.get_detail_url())
+        return response
+
+
 class CloneExperimentFormMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -150,7 +179,7 @@ class NimbusRolloutsCreateView(NimbusExperimentsCreateView):
     template_name = "nimbus_experiments/create.html"
 
     def get_redirect_url(self):
-        return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.object.slug})
+        return self.object.get_detail_url()
 
 
 class NimbusFirefoxLabsCreateView(NimbusExperimentsCreateView):
@@ -386,6 +415,7 @@ class RolloutSetupProgressMixin:
 
 
 class NimbusRolloutDetailView(
+    OldRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     RolloutSetupProgressMixin,
     NimbusExperimentViewMixin,
@@ -424,6 +454,7 @@ class CardMixin:
 
 
 class NewCardUpdateView(
+    OldRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     RolloutSetupProgressMixin,
     NimbusExperimentViewMixin,
@@ -566,6 +597,9 @@ class NewSignoffUpdateView(CardMixin, NewCardUpdateView):
 
 class CardMutationMixin:
     def post(self, request, *args, **kwargs):
+        if redirect_url := self.get_old_rollout_ui_redirect_url():
+            return self.htmx_redirect(redirect_url)
+
         self.object = self.get_object()
         if not self.can_edit():
             response = HttpResponse()
@@ -598,7 +632,7 @@ class NewDocumentationLinkDeleteView(CardMutationMixin, NewOverviewUpdateView):
         self.object.documentation_links.filter(id=link_id).delete()
 
 
-class NewM2MSearchView(NimbusExperimentViewMixin, DetailView):
+class NewM2MSearchView(OldRolloutUIRedirectMixin, NimbusExperimentViewMixin, DetailView):
     """Base for search-as-you-type views that find items not yet assigned to an
     experiment M2M relation.
 
@@ -717,7 +751,12 @@ class NewRemoveSubscriberView(NewSubscriberView):
     add = False
 
 
-class StatusUpdateView(RequestFormMixin, RenderResponseMixin, NimbusExperimentDetailView):
+class StatusUpdateView(
+    OldRolloutUIRedirectMixin,
+    RequestFormMixin,
+    RenderResponseMixin,
+    NimbusExperimentDetailView,
+):
     fields = None
 
     def get_template_names(self):
@@ -865,7 +904,9 @@ class NewRolloutPlanCreateView(NewRolloutScheduleUpdateView):
         )
 
 
-class NewSubscribeView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class NewSubscribeView(
+    OldRolloutUIRedirectMixin, NimbusExperimentViewMixin, RequestFormMixin, UpdateView
+):
     model = NimbusExperiment
     form_class = SubscribeForm
     template_name = "new/common/subscribe_bell.html"
@@ -883,7 +924,9 @@ class NewUnsubscribeView(NewSubscribeView):
     toast_id = NimbusUIConstants.TOAST_UNSUBSCRIBED
 
 
-class NewCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class NewCloneView(
+    OldRolloutUIRedirectMixin, NimbusExperimentViewMixin, RequestFormMixin, UpdateView
+):
     form_class = NimbusExperimentSidebarCloneForm
     template_name = "new/common/clone_form.html"
 
@@ -896,18 +939,13 @@ class NewCloneView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(experiment=self.get_object(), **kwargs)
 
-    def post(self, *args, **kwargs):
-        response = super().post(*args, **kwargs)
-        if response.status_code == 302:
-            response = HttpResponse()
-            response.headers["HX-Redirect"] = reverse(
-                "new-nimbus-ui-rollout-detail", kwargs={"slug": self.object.slug}
-            )
-        return response
-
 
 class NewToggleArchiveView(
-    RolloutSetupProgressMixin, NimbusExperimentViewMixin, RequestFormMixin, UpdateView
+    OldRolloutUIRedirectMixin,
+    RolloutSetupProgressMixin,
+    NimbusExperimentViewMixin,
+    RequestFormMixin,
+    UpdateView,
 ):
     form_class = ToggleArchiveForm
     template_name = "new/common/base.html"
@@ -921,7 +959,7 @@ class NewToggleArchiveView(
 
 
 class NewToggleReviewSlackNotificationsView(
-    NimbusExperimentViewMixin, RequestFormMixin, UpdateView
+    OldRolloutUIRedirectMixin, NimbusExperimentViewMixin, RequestFormMixin, UpdateView
 ):
     model = NimbusExperiment
     form_class = ToggleReviewSlackNotificationsForm

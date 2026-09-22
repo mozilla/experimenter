@@ -3582,6 +3582,10 @@ class TestAudienceUpdateView(AuthTestCase):
         )
 
     def test_post_updates_overview_risks(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             is_rollout=True,
@@ -3722,6 +3726,29 @@ class TestNewRolloutUIRedirectMixin(AuthTestCase):
 
         self.assertRedirects(
             response,
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    @parameterized.expand(GET_URL_NAMES)
+    def test_htmx_get_redirects_rollout_to_new_ui_when_flag_enabled(self, url_name):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+
+        response = self.client.get(
+            reverse(url_name, kwargs={"slug": rollout.slug}),
+            headers={"Hx-Request": "true"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": rollout.slug}),
         )
 
