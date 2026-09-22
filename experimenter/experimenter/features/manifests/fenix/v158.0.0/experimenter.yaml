@@ -456,14 +456,6 @@ marketing-onboarding-card:
     enabled:
       type: boolean
       description: If false, the marketing onboarding card will never be shown.
-merino-client:
-  description: Feature to enable the Merino Client for users on Firefox on Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, Merino Client is enabled.
 messaging:
   description: |
     The in-app messaging system.
@@ -935,6 +927,19 @@ tab-management-enhancements:
     opening_animation_enabled:
       type: boolean
       description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
+tab-reload-cover:
+  description: |
+    Shows a cached thumbnail cover over the engine view while a tab reloads from session restore, hiding it once the page has repainted. Optionally refreshes the stored thumbnail before backgrounding so the cover reflects the last visible scroll position.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the cached thumbnail cover is shown on tab reloads.
+    scroll-aware-capture-enabled:
+      type: boolean
+      description: |
+        If true, the stored thumbnail is refreshed at the last visible scroll position when the selected tab loses foreground focus. Only meaningful when `enabled` is true.
 tab-strip:
   description: Enables tab strip.
   hasExposure: true

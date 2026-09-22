@@ -4999,6 +4999,22 @@ httpsFirst:
         branch: default
         pref: dom.security.https_only_fire_http_request_background_timer_ms
 
+netErrorSearchCTA:
+  description: >-
+    The one-click search call-to-action on the online dnsNotFound network error
+    page (meta bug 2055374).
+  owner: jbrown@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        Whether the online dnsNotFound error page offers the search CTA. Off by
+        default outside Nightly.
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.netError.searchCTA.enabled
+
 contentRelevancy:
   description: >-
     A feature for interest-based content relevance ranking and personalization
