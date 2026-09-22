@@ -9,248 +9,265 @@
          target="_blank"
          rel="noopener noreferrer"><i class="fa-solid fa-users me-2"></i>Explore matching audiences</a>
     </div>
-    <div class="d-flex flex-column gap-3">
+    <div class="row g-3">
       {# Channel / channels #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 13px;">
+      <div class="col-6 col-lg-4 col-xxl-3 order-1">
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">
+            {% if experiment.is_desktop %}
+              Channels
+            {% else %}
+              Channel
+            {% endif %}
+          </div>
+          <div id="rollout-audience-channel" class="text-body">
+            {% if experiment.is_desktop %}
+              {% with experiment.channels as channels %}
+                {% if channels %}
+                  {# djlint:off #}
+                  {% for channel in channels %}{{ channel|capfirst }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                  {# djlint:on #}
+                {% else %}
+                  — Not Set
+                {% endif %}
+              {% endwith %}
+            {% else %}
+              {{ experiment.get_channel_display|default:"— Not Set" }}
+            {% endif %}
+          </div>
           {% if experiment.is_desktop %}
-            Channels
+            {% include "new/common/validation_errors.html" with errors=validation_errors.channels %}
+
           {% else %}
-            Channel
+            {% include "new/common/validation_errors.html" with errors=validation_errors.channel %}
+
           {% endif %}
         </div>
-        <div id="rollout-audience-channel" class="small text-body">
-          {% if experiment.is_desktop %}
-            {% with experiment.channels as channels %}
-              {% if channels %}
-                {% for channel in channels %}
-                  {{ channel|capfirst }}
-                  {% if not forloop.last %},{% endif %}
-                {% endfor %}
-              {% else %}
-                — Not Set
-              {% endif %}
-            {% endwith %}
-          {% else %}
-            {{ experiment.get_channel_display|default:"— Not Set" }}
-          {% endif %}
-        </div>
-        {% if experiment.is_desktop %}
-          {% include "new/common/validation_errors.html" with errors=validation_errors.channels %}
-
-        {% else %}
-          {% include "new/common/validation_errors.html" with errors=validation_errors.channel %}
-
-        {% endif %}
       </div>
       {# Version range #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 13px;">Min Version</div>
-        <div id="rollout-audience-min-version" class="small text-body">
-          {{ experiment.get_firefox_min_version_display|default:"— Not Set" }}
-        </div>
-        {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_min_version %}
+      <div class="col-6 col-lg-4 col-xxl-3 order-1">
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">Min Version</div>
+          <div id="rollout-audience-min-version" class="text-body">
+            {{ experiment.get_firefox_min_version_display|default:"— Not Set" }}
+          </div>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_min_version %}
 
+        </div>
       </div>
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 13px;">Max Version</div>
-        <div id="rollout-audience-max-version" class="small text-body">
-          {{ experiment.get_firefox_max_version_display|default:"— Not Set" }}
-        </div>
-        {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_max_version %}
+      <div class="col-6 col-lg-4 col-xxl-3 order-1">
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">Max Version</div>
+          <div id="rollout-audience-max-version" class="text-body">
+            {{ experiment.get_firefox_max_version_display|default:"— Not Set" }}
+          </div>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_max_version %}
 
+        </div>
       </div>
       {% if experiment.is_desktop %}
-        <div>
-          <div class="text-secondary mb-1" style="font-size: 13px;">New Tab Addon Minimum Version</div>
-          <div id="rollout-audience-newtab-addon-min-version"
-               class="small text-body">{{ experiment.newtab_addon_min_version|default:"— Not Set" }}</div>
-          {% include "new/common/validation_errors.html" with errors=validation_errors.newtab_addon_min_version %}
+        <div class="col-6 col-lg-4 col-xxl-3 order-1">
+          <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+            <div class="small text-secondary mb-1">New Tab Addon Minimum Version</div>
+            <div id="rollout-audience-newtab-addon-min-version" class="text-body">
+              {{ experiment.newtab_addon_min_version|default:"— Not Set" }}
+            </div>
+            {% include "new/common/validation_errors.html" with errors=validation_errors.newtab_addon_min_version %}
 
+          </div>
         </div>
       {% endif %}
       {# Locales / languages #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 13px;">
+      <div class="col-6 col-lg-4 col-xxl-3 order-1">
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">
+            {% if experiment.is_desktop %}
+              {% if experiment.exclude_locales %}
+                Excluded
+              {% else %}
+                Included
+              {% endif %}
+              Locales
+            {% else %}
+              {% if experiment.exclude_languages %}
+                Excluded
+              {% else %}
+                Included
+              {% endif %}
+              Languages
+            {% endif %}
+          </div>
+          <div id="rollout-audience-locales-languages" class="text-body">
+            {% if experiment.is_desktop %}
+              {% with experiment.locales.all as locales %}
+                {% if locales %}
+                  {# djlint:off #}
+                  {% for locale in locales %}{{ locale.code }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                  {# djlint:on #}
+                {% else %}
+                  — Not Set
+                {% endif %}
+              {% endwith %}
+            {% else %}
+              {% with experiment.languages.all as languages %}
+                {% if languages %}
+                  {# djlint:off #}
+                  {% for language in languages %}{{ language.code }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                  {# djlint:on #}
+                {% else %}
+                  — Not Set
+                {% endif %}
+              {% endwith %}
+            {% endif %}
+          </div>
           {% if experiment.is_desktop %}
-            {% if experiment.exclude_locales %}
-              Excluded
-            {% else %}
-              Included
-            {% endif %}
-            Locales
+            {% include "new/common/validation_errors.html" with errors=validation_errors.locales %}
+            {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_locales %}
+
           {% else %}
-            {% if experiment.exclude_languages %}
-              Excluded
-            {% else %}
-              Included
-            {% endif %}
-            Languages
+            {% include "new/common/validation_errors.html" with errors=validation_errors.languages %}
+            {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_languages %}
+
           {% endif %}
         </div>
-        <div id="rollout-audience-locales-languages" class="small text-body">
-          {% if experiment.is_desktop %}
-            {% with experiment.locales.all as locales %}
-              {% if locales %}
-                {% for locale in locales %}
-                  {{ locale.code }}
-                  {% if not forloop.last %},{% endif %}
-                {% endfor %}
-              {% else %}
-                — Not Set
-              {% endif %}
-            {% endwith %}
-          {% else %}
-            {% with experiment.languages.all as languages %}
-              {% if languages %}
-                {% for language in languages %}
-                  {{ language.code }}
-                  {% if not forloop.last %},{% endif %}
-                {% endfor %}
-              {% else %}
-                — Not Set
-              {% endif %}
-            {% endwith %}
-          {% endif %}
-        </div>
-        {% if experiment.is_desktop %}
-          {% include "new/common/validation_errors.html" with errors=validation_errors.locales %}
-          {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_locales %}
-
-        {% else %}
-          {% include "new/common/validation_errors.html" with errors=validation_errors.languages %}
-          {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_languages %}
-
-        {% endif %}
       </div>
       {# Countries #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 13px;">
-          {% if experiment.exclude_countries %}
-            Excluded
-          {% else %}
-            Included
-          {% endif %}
-          Countries
-        </div>
-        <div id="rollout-audience-countries" class="small text-body">
-          {% with experiment.countries.all as countries %}
-            {% if countries %}
-              {% for country in countries %}
-                {{ country.code }}
-                {% if not forloop.last %},{% endif %}
-              {% endfor %}
+      <div class="col-6 col-lg-4 col-xxl-3 order-1">
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">
+            {% if experiment.exclude_countries %}
+              Excluded
             {% else %}
-              — Not Set
+              Included
             {% endif %}
-          {% endwith %}
-        </div>
-        {% include "new/common/validation_errors.html" with errors=validation_errors.countries %}
-        {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_countries %}
+            Countries
+          </div>
+          <div id="rollout-audience-countries" class="text-body">
+            {% with experiment.countries.all as countries %}
+              {% if countries %}
+                {# djlint:off #}
+                {% for country in countries %}{{ country.code }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                {# djlint:on #}
+              {% else %}
+                — Not Set
+              {% endif %}
+            {% endwith %}
+          </div>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.countries %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.exclude_countries %}
 
+        </div>
       </div>
       {# Advanced targeting #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 13px;">Advanced targeting</div>
-        <div id="rollout-audience-targeting" class="small text-body">
-          {{ experiment.targeting_config_slug|default:"— Not Set" }}
-        </div>
-        {% include "new/common/validation_errors.html" with errors=validation_errors.targeting_config_slug %}
+      <div class="col-6 col-lg-4 col-xxl-3 order-1">
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">Advanced targeting</div>
+          <div id="rollout-audience-targeting" class="text-body">{{ experiment.targeting_config_slug|default:"— Not Set" }}</div>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.targeting_config_slug %}
 
+        </div>
       </div>
       {# Full targeting expression #}
-      {% include "new/common/full_targeting_expression.html" %}
+      <div class="col-12 order-2">
+        {% include "new/common/full_targeting_expression.html" %}
 
+      </div>
       {# Required experiments #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 13px;">Include users from existing deliveries</div>
-        {% with experiment.required_experiments_branches.all as required_branches %}
-          {% if required_branches %}
-            {% for branch in required_branches %}
-              <a href="{{ branch.child_experiment.get_detail_url }}"
-                 target="_blank"
-                 class="small"
-                 rel="noopener noreferrer">
-                {{ branch.child_experiment.name }}
-                ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
-              </a>
-              <br>
-            {% endfor %}
-          {% else %}
-            <div class="small text-body">— Not Set</div>
-          {% endif %}
-        {% endwith %}
-        {% include "new/common/validation_errors.html" with errors=validation_errors.required_experiments_branches %}
+      <div class="col-6 col-lg-4 col-xxl-3 order-1">
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">Include users from existing deliveries</div>
+          {% with experiment.required_experiments_branches.all as required_branches %}
+            {% if required_branches %}
+              {% for branch in required_branches %}
+                <a href="{{ branch.child_experiment.get_detail_url }}"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                  {{ branch.child_experiment.name }}
+                  ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+                </a>
+                <br>
+              {% endfor %}
+            {% else %}
+              <div class="text-body">— Not Set</div>
+            {% endif %}
+          {% endwith %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.required_experiments_branches %}
 
+        </div>
       </div>
       {# Excluded experiments #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 13px;">Exclude users from other deliveries</div>
-        {% with experiment.excluded_experiments_branches.all as excluded_branches %}
-          {% if excluded_branches %}
-            {% for branch in excluded_branches %}
-              <a href="{{ branch.child_experiment.get_detail_url }}"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 class="small">
-                {{ branch.child_experiment.name }}
-                ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
-              </a>
-              <br>
-            {% endfor %}
-          {% else %}
-            <div class="small text-body">— Not Set</div>
-          {% endif %}
-        {% endwith %}
-        {% include "new/common/validation_errors.html" with errors=validation_errors.excluded_experiments_branches %}
+      <div class="col-6 col-lg-4 col-xxl-3 order-1">
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">Exclude users from other deliveries</div>
+          {% with experiment.excluded_experiments_branches.all as excluded_branches %}
+            {% if excluded_branches %}
+              {% for branch in excluded_branches %}
+                <a href="{{ branch.child_experiment.get_detail_url }}"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                  {{ branch.child_experiment.name }}
+                  ({{ branch.branch_slug|add:" branch"|default:"All branches" }})
+                </a>
+                <br>
+              {% endfor %}
+            {% else %}
+              <div class="text-body">— Not Set</div>
+            {% endif %}
+          {% endwith %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.excluded_experiments_branches %}
 
+        </div>
       </div>
       {# Sticky enrollment #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 13px;">Apply sticky enrollment?</div>
-        {% if experiment.is_sticky %}
-          <span class="small text-body">
-            <i id="rollout-audience-sticky" class="fas fa-check text-success"></i> Yes
-          </span>
-        {% else %}
-          <span class="small text-body">
-            <i id="rollout-audience-sticky" class="fas fa-times text-danger"></i> No
-          </span>
-        {% endif %}
+      <div class="col-6 col-lg-4 col-xxl-3 order-1">
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">Apply sticky enrollment?</div>
+          {% if experiment.is_sticky %}
+            <div class="text-body">
+              <i id="rollout-audience-sticky" class="fas fa-check text-success"></i> Yes
+            </div>
+          {% else %}
+            <div class="text-body">
+              <i id="rollout-audience-sticky" class="fas fa-times text-danger"></i> No
+            </div>
+          {% endif %}
+        </div>
         {% include "new/common/validation_errors.html" with errors=validation_errors.is_sticky %}
 
       </div>
       {# Localization #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 13px;">{{ NimbusUIConstants.LOCALIZED_ROLLOUT_LABEL }}</div>
-        {% if experiment.is_localized %}
-          <span class="small text-body">
-            <i id="rollout-audience-localized" class="fas fa-check text-success"></i> Yes
-          </span>
-        {% else %}
-          <span class="small text-body">
-            <i id="rollout-audience-localized" class="fas fa-times text-danger"></i> No
-          </span>
-        {% endif %}
+      <div class="col-6 col-lg-4 col-xxl-3 order-1">
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">{{ NimbusUIConstants.LOCALIZED_ROLLOUT_LABEL }}</div>
+          {% if experiment.is_localized %}
+            <div class="text-body">
+              <i id="rollout-audience-localized" class="fas fa-check text-success"></i> Yes
+            </div>
+          {% else %}
+            <div class="text-body">
+              <i id="rollout-audience-localized" class="fas fa-times text-danger"></i> No
+            </div>
+          {% endif %}
+        </div>
         {% include "new/common/validation_errors.html" with errors=validation_errors.is_localized %}
 
       </div>
       {% if experiment.is_localized %}
-        <div>
-          <div class="text-secondary mb-1" style="font-size: 13px;">Localization Substitutions</div>
+        <div class="col-12 order-3">
+          <div class="small text-secondary mb-1">Localization Substitutions</div>
           {% if experiment.localizations %}
             {% include "nimbus_experiments/readonly_feature_value.html" with json_content=experiment.localizations %}
 
           {% else %}
-            <div class="small text-body">— Not Set</div>
+            <div class="text-body">— Not Set</div>
           {% endif %}
           {% include "new/common/validation_errors.html" with errors=validation_errors.localizations %}
 
         </div>
       {% endif %}
       {# Recipe JSON #}
-      <div>
-        <div class="text-secondary mb-1" style="font-size: 13px;">Recipe JSON</div>
+      <div class="col-12 order-4">
+        <div class="small text-secondary mb-1">Recipe JSON</div>
         <div data-nimbus-devtools-recipe-json>
           {% include "common/readonly_json.html" with json_content=experiment.recipe_json %}
 
