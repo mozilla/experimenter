@@ -416,7 +416,20 @@ urlbar:
       fallbackPref: browser.urlbar.newtab.featureGate
       description: >-
         Feature gate that controls whether about:newtab and about:home show the
-        address bar in place of the handoff search bar.
+        search bar in place of the handoff search bar.
+    newtabVariantA:
+      type: boolean
+      fallbackPref: browser.urlbar.newtab.variantA
+      description: >-
+        Layout variant A for the about:newtab and about:home search bar; depends
+        on newtabFeatureGate.
+    newtabVariantB:
+      type: boolean
+      fallbackPref: browser.urlbar.newtab.variantB
+      description: >-
+        Layout variant B for the about:newtab and about:home search bar, with
+        the search engine button above the input; depends on newtabFeatureGate
+        and takes precedence over newtabVariantA.
     exposureResults:
       type: string
       setPref:
@@ -1102,19 +1115,29 @@ windowsLaunchOnLogin:
       description: Should users see the Windows launch on login checkbox.
 
 pushNotificationHelper:
-  description: "Controls the Windows push notification helper process"
+  description: >-
+    Controls the Windows helper process that delivers web notifications while
+    Firefox is closed
   owner: desktop-integrations@mozilla.com
   applications:
     - firefox-desktop
   hasExposure: false
   variables:
-    enabled:
+    available:
       type: boolean
       setPref:
-        branch: default
-        pref: app.backgroundNotifications.helper.enabled
+        branch: user
+        pref: app.backgroundNotifications.helper.available
       description: >-
-        Whether the push notification helper process should be enabled and running.
+        Whether closed-browser web notifications are available to this client.
+        Clearing it on unenrollment is the feature's kill switch, which is why
+        it is set on the user branch: Nimbus cannot reset a default branch pref
+        in the running session, and the helper outlives a Firefox session, so
+        on that branch a killed experiment would keep delivering notifications
+        until the next restart. The helper also needs
+        app.backgroundNotifications.helper.enabled, which a message turns on
+        and the user can turn back off. Nimbus never writes that one, so
+        turning the feature off does not unenroll the client.
 
 firefoxBridge:
   description: "Controls for Firefox Bridge extension and extension registration"
@@ -2256,6 +2279,23 @@ creditcards-autofill-enabled:
       setPref:
         branch: default
         pref: extensions.formautofill.creditCards.supported
+
+creditcards-cvv-capture:
+  description: Capturing and storing credit card security codes (CVV/CSC)
+  owner: mtigley@mozilla.com
+  hasExposure: false
+  variables:
+    cvvSupported:
+      description: >-
+        When "on", the CVV feature is rolled out to this user: the security code
+        field takes part in autofill and the setting that turns capture on or
+        off is offered. Users can still decline capture through
+        extensions.formautofill.creditCards.cvv.enabled, which is their own
+        choice and is deliberately not controlled here.
+      type: string
+      setPref:
+        branch: default
+        pref: extensions.formautofill.creditCards.cvv.supported
 
 autofill-ml:
   description: Machine-learning based form field detection for autofill
@@ -3888,6 +3928,18 @@ compressionDictionaries:
        branch: default
        pref: network.http.dictionaries.enable
 
+streamingUpload:
+  description: Fetch Streaming upload support
+  owner: vgosu@mozilla.com
+  hasExposure: false
+  variables:
+    enableFetchStreamingUpload:
+      description: Enables fetch streaming upload
+      type: boolean
+      setPref:
+        branch: default
+        pref: "dom.fetch.streaming_upload"
+
 pingsender:
   description: "In-product usage of the pingsender telemetry reporter."
   owner: nalexander@mozilla.com
@@ -5040,6 +5092,22 @@ httpsFirst:
         branch: default
         pref: dom.security.https_only_fire_http_request_background_timer_ms
 
+netErrorSearchCTA:
+  description: >-
+    The one-click search call-to-action on the online dnsNotFound network error
+    page (meta bug 2055374).
+  owner: jbrown@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        Whether the online dnsNotFound error page offers the search CTA. Off by
+        default outside Nightly.
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.netError.searchCTA.enabled
+
 contentRelevancy:
   description: >-
     A feature for interest-based content relevance ranking and personalization
@@ -5657,15 +5725,17 @@ contentClassifier:
       setPref:
         branch: default
         pref: "privacy.trackingprotection.content.annotation.engines.pbmode"
-    mirrorEnabled:
+    mirrorMode:
       description: >-
-        Whether the tracking-protection prefs are mirrored onto the content
-        classifier engine prefs. While enabled the mirror derives (and
-        owns) the content classifier prefs from the ETP settings.
-      type: boolean
+        How the tracking-protection prefs drive the content classifier engine
+        prefs. 0 (off) does not mirror and releases any prefs it mirrored;
+        1 (on) mirrors the ETP settings onto the content classifier prefs
+        and owns them; 2 (handover) stops mirroring but leaves the mirrored
+        values in place as ordinary user prefs.
+      type: int
       setPref:
         branch: default
-        pref: "privacy.trackingprotection.content.mirror.enabled"
+        pref: "privacy.trackingprotection.content.mirror.mode"
     skipURLClassifier:
       description: >-
         Whether to skip the URLClassifier while the ContentClassifier engine is
