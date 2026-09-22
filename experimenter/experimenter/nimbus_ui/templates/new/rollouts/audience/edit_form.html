@@ -47,6 +47,18 @@
         {% endfor %}
       </div>
     </div>
+    {% if experiment.is_desktop %}
+      <div class="row g-3">
+        <div class="col">
+          <label for="id_newtab_addon_min_version" class="small text-body mb-2">New Tab Addon Minimum Version</label>
+          {{ form.newtab_addon_min_version|add_class:"form-control"|add_error_class:"is-invalid" }}
+          {% for error in form.newtab_addon_min_version.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+          {% for error in validation_errors.newtab_addon_min_version %}
+            <div class="form-text text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
     <div class="row g-3">
       <div class="col">
         {% if experiment.is_desktop %}
@@ -113,7 +125,7 @@
 
     </div>
     <div>
-      <label for="id_name" class="small text-body mb-2">Include users from existing experiments</label>
+      <label for="id_name" class="small text-body mb-2">Include users from existing deliveries</label>
       {{ form.required_experiments_branches }}
       {% if form.required_experiments_branches.errors %}
         <div class="text-danger small mt-1">{{ form.required_experiments_branches.errors|join:", " }}</div>
@@ -123,7 +135,7 @@
       {% endfor %}
     </div>
     <div>
-      <label for="id_name" class="small text-body mb-2">Exclude users from other experiments/rollouts</label>
+      <label for="id_name" class="small text-body mb-2">Exclude users from other deliveries</label>
       {{ form.excluded_experiments_branches }}
       {% if form.excluded_experiments_branches.errors %}
         <div class="text-danger small mt-1">{{ form.excluded_experiments_branches.errors|join:", " }}</div>
@@ -148,7 +160,15 @@
     <div>
       <div class="form-check">
         {{ form.is_localized }}
-        <label class="form-check-label small text-body" for="id_is_localized">Is this a localized rollout?</label>
+        <label class="form-check-label small text-body" for="id_is_localized">
+          {{ NimbusUIConstants.LOCALIZED_ROLLOUT_LABEL }}
+          <span class="d-block text-secondary fw-normal">
+            {{ NimbusUIConstants.LOCALIZED_ROLLOUT_DESCRIPTION }}
+            <a target="_blank"
+               rel="noopener noreferrer"
+               href="{{ NimbusUIConstants.AUDIENCE_PAGE_LINKS.localization_url }}">Learn more</a>
+          </span>
+        </label>
       </div>
       {% for error in form.is_localized.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
       {% for error in validation_errors.is_localized %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}

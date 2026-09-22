@@ -12,7 +12,7 @@
     <div class="d-flex flex-column gap-3">
       {# Channel / channels #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">
+        <div class="text-secondary mb-1" style="font-size: 13px;">
           {% if experiment.is_desktop %}
             Channels
           {% else %}
@@ -28,11 +28,11 @@
                   {% if not forloop.last %},{% endif %}
                 {% endfor %}
               {% else %}
-                —
+                — Not Set
               {% endif %}
             {% endwith %}
           {% else %}
-            {{ experiment.get_channel_display|default:"—" }}
+            {{ experiment.get_channel_display|default:"— Not Set" }}
           {% endif %}
         </div>
         {% if experiment.is_desktop %}
@@ -45,24 +45,33 @@
       </div>
       {# Version range #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Min Version</div>
+        <div class="text-secondary mb-1" style="font-size: 13px;">Min Version</div>
         <div id="rollout-audience-min-version" class="small text-body">
-          {{ experiment.get_firefox_min_version_display|default:"—" }}
+          {{ experiment.get_firefox_min_version_display|default:"— Not Set" }}
         </div>
         {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_min_version %}
 
       </div>
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Max Version</div>
+        <div class="text-secondary mb-1" style="font-size: 13px;">Max Version</div>
         <div id="rollout-audience-max-version" class="small text-body">
-          {{ experiment.get_firefox_max_version_display|default:"—" }}
+          {{ experiment.get_firefox_max_version_display|default:"— Not Set" }}
         </div>
         {% include "new/common/validation_errors.html" with errors=validation_errors.firefox_max_version %}
 
       </div>
+      {% if experiment.is_desktop %}
+        <div>
+          <div class="text-secondary mb-1" style="font-size: 13px;">New Tab Addon Minimum Version</div>
+          <div id="rollout-audience-newtab-addon-min-version"
+               class="small text-body">{{ experiment.newtab_addon_min_version|default:"— Not Set" }}</div>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.newtab_addon_min_version %}
+
+        </div>
+      {% endif %}
       {# Locales / languages #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">
+        <div class="text-secondary mb-1" style="font-size: 13px;">
           {% if experiment.is_desktop %}
             {% if experiment.exclude_locales %}
               Excluded
@@ -88,7 +97,7 @@
                   {% if not forloop.last %},{% endif %}
                 {% endfor %}
               {% else %}
-                —
+                — Not Set
               {% endif %}
             {% endwith %}
           {% else %}
@@ -99,7 +108,7 @@
                   {% if not forloop.last %},{% endif %}
                 {% endfor %}
               {% else %}
-                —
+                — Not Set
               {% endif %}
             {% endwith %}
           {% endif %}
@@ -116,7 +125,7 @@
       </div>
       {# Countries #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">
+        <div class="text-secondary mb-1" style="font-size: 13px;">
           {% if experiment.exclude_countries %}
             Excluded
           {% else %}
@@ -132,7 +141,7 @@
                 {% if not forloop.last %},{% endif %}
               {% endfor %}
             {% else %}
-              —
+              — Not Set
             {% endif %}
           {% endwith %}
         </div>
@@ -142,8 +151,10 @@
       </div>
       {# Advanced targeting #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Advanced targeting</div>
-        <div id="rollout-audience-targeting" class="small text-body">{{ experiment.targeting_config_slug|default:"—" }}</div>
+        <div class="text-secondary mb-1" style="font-size: 13px;">Advanced targeting</div>
+        <div id="rollout-audience-targeting" class="small text-body">
+          {{ experiment.targeting_config_slug|default:"— Not Set" }}
+        </div>
         {% include "new/common/validation_errors.html" with errors=validation_errors.targeting_config_slug %}
 
       </div>
@@ -152,11 +163,11 @@
 
       {# Required experiments #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Include users from existing experiments</div>
+        <div class="text-secondary mb-1" style="font-size: 13px;">Include users from existing deliveries</div>
         {% with experiment.required_experiments_branches.all as required_branches %}
           {% if required_branches %}
             {% for branch in required_branches %}
-              <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
+              <a href="{{ branch.child_experiment.get_detail_url }}"
                  target="_blank"
                  class="small"
                  rel="noopener noreferrer">
@@ -166,7 +177,7 @@
               <br>
             {% endfor %}
           {% else %}
-            —
+            <div class="small text-body">— Not Set</div>
           {% endif %}
         {% endwith %}
         {% include "new/common/validation_errors.html" with errors=validation_errors.required_experiments_branches %}
@@ -174,11 +185,11 @@
       </div>
       {# Excluded experiments #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Exclude users from other experiments/rollouts</div>
+        <div class="text-secondary mb-1" style="font-size: 13px;">Exclude users from other deliveries</div>
         {% with experiment.excluded_experiments_branches.all as excluded_branches %}
           {% if excluded_branches %}
             {% for branch in excluded_branches %}
-              <a href="{% url 'nimbus-ui-detail' branch.child_experiment.slug %}"
+              <a href="{{ branch.child_experiment.get_detail_url }}"
                  target="_blank"
                  rel="noopener noreferrer"
                  class="small">
@@ -188,7 +199,7 @@
               <br>
             {% endfor %}
           {% else %}
-            —
+            <div class="small text-body">— Not Set</div>
           {% endif %}
         {% endwith %}
         {% include "new/common/validation_errors.html" with errors=validation_errors.excluded_experiments_branches %}
@@ -196,34 +207,42 @@
       </div>
       {# Sticky enrollment #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Apply sticky enrollment?</div>
+        <div class="text-secondary mb-1" style="font-size: 13px;">Apply sticky enrollment?</div>
         {% if experiment.is_sticky %}
-          <i id="rollout-audience-sticky" class="fas fa-check text-success"></i>
+          <span class="small text-body">
+            <i id="rollout-audience-sticky" class="fas fa-check text-success"></i> Yes
+          </span>
         {% else %}
-          <i id="rollout-audience-sticky" class="fas fa-times text-danger"></i>
+          <span class="small text-body">
+            <i id="rollout-audience-sticky" class="fas fa-times text-danger"></i> No
+          </span>
         {% endif %}
         {% include "new/common/validation_errors.html" with errors=validation_errors.is_sticky %}
 
       </div>
       {# Localization #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Is this a localized rollout?</div>
+        <div class="text-secondary mb-1" style="font-size: 13px;">{{ NimbusUIConstants.LOCALIZED_ROLLOUT_LABEL }}</div>
         {% if experiment.is_localized %}
-          <i id="rollout-audience-localized" class="fas fa-check text-success"></i>
+          <span class="small text-body">
+            <i id="rollout-audience-localized" class="fas fa-check text-success"></i> Yes
+          </span>
         {% else %}
-          <i id="rollout-audience-localized" class="fas fa-times text-danger"></i>
+          <span class="small text-body">
+            <i id="rollout-audience-localized" class="fas fa-times text-danger"></i> No
+          </span>
         {% endif %}
         {% include "new/common/validation_errors.html" with errors=validation_errors.is_localized %}
 
       </div>
       {% if experiment.is_localized %}
         <div>
-          <div class="text-secondary mb-1" style="font-size: 12px;">Localization Substitutions</div>
+          <div class="text-secondary mb-1" style="font-size: 13px;">Localization Substitutions</div>
           {% if experiment.localizations %}
             {% include "nimbus_experiments/readonly_feature_value.html" with json_content=experiment.localizations %}
 
           {% else %}
-            —
+            <div class="small text-body">— Not Set</div>
           {% endif %}
           {% include "new/common/validation_errors.html" with errors=validation_errors.localizations %}
 
@@ -231,7 +250,7 @@
       {% endif %}
       {# Recipe JSON #}
       <div>
-        <div class="text-secondary mb-1" style="font-size: 12px;">Recipe JSON</div>
+        <div class="text-secondary mb-1" style="font-size: 13px;">Recipe JSON</div>
         <div data-nimbus-devtools-recipe-json>
           {% include "common/readonly_json.html" with json_content=experiment.recipe_json %}
 

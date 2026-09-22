@@ -38,6 +38,10 @@ PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
         "isNonStubFirstRun",
         "localeLanguageCode",
         "attachedFxAOAuthClients",
+        # TODO #17342
+        # Remove once the recorded targeting context manifest includes this
+        # attribute (Bug 2069104).
+        "allowedNotificationOrigins",
     },
     Application.FENIX: {
         "current_date",
@@ -1348,31 +1352,59 @@ WINDOWS_LAUNCH_AT_LOGIN_FINAL = NimbusTargetingConfig(
     name="Windows users eligible for launch at login - final",
     slug="windows_launch_at_login_eligible_final",
     description="Users eligible for the launch-at-login-infobar-existing-user treatment.",
+    targeting="""
+        os.isWindows && os.windowsVersion >= 10
+        && !launchOnLoginEnabled
+        && launchOnLoginAllowedByPolicy
+        && 'browser.startup.windowsLaunchOnLogin.enabled'|preferenceValue
+        && (
+          !isMSIX
+          || os.windowsBuildNumber >= 22000
+          || version|versionCompare('157.!') >= 0
+        ) && profileAgeCreated < '2026-06-16'|date
+        && profileGroupProfileCount < 2
+        && !hasActiveEnterprisePolicies
+        && userMonthlyActivity|length < 25
+        && 'browser.contentblocking.category'|preferenceValue == 'standard'
+        && !'privacy.globalprivacycontrol.enabled'|preferenceValue
+        && !'dom.security.https_only_mode'|preferenceValue
+        && !'dom.security.https_only_mode_pbm'|preferenceValue
+        && !(
+            'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceIsUserSet
+            && !'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
+        )
+        && !(
+            'browser.newtabpage.activity-stream.showSponsored'|preferenceIsUserSet
+            && !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
+        )
+        && !(
+            'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceIsUserSet
+            && !'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue
+        )
+        && !addonsInfo.addons['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}']
+        && !addonsInfo.addons['uBlock0@raymondhill.net']
+        && !addonsInfo.addons['adguardadblocker@adguard.com']
+        && !addonsInfo.addons['jid1-NIfFY2CA8fy1tg@jetpack']
+        && !addonsInfo.addons['adblockultimate@adblockultimate.net']
+        && !addonsInfo.addons['firefox@ghostery.com']
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WINDOWS_LAUNCH_AT_LOGIN_NEW_USERS = NimbusTargetingConfig(
+    name="New Windows users eligible for launch at login",
+    slug="windows_launch_at_login_new_users",
+    description="New users eligible for the launch-at-login-infobar-new-user treatment.",
     targeting=(
-        "os.isWindows && os.windowsVersion >= 10 && !launchOnLoginEnabled && "
+        "os.isWindows && os.windowsVersion >= 10 && "
         "launchOnLoginAllowedByPolicy && "
-        "'browser.startup.windowsLaunchOnLogin.enabled'|preferenceValue && "
-        "(!isMSIX || os.windowsBuildNumber >= 22000) && "
-        "profileAgeCreated < '2026-06-16'|date && "
-        "profileGroupProfileCount < 2 && "
-        "!hasActiveEnterprisePolicies && "
-        "userMonthlyActivity|length < 25 && "
-        "'browser.contentblocking.category'|preferenceValue == 'standard' && "
-        "!'privacy.globalprivacycontrol.enabled'|preferenceValue && "
-        "!'dom.security.https_only_mode'|preferenceValue && "
-        "!'dom.security.https_only_mode_pbm'|preferenceValue && "
-        "'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue && "
-        "'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue && "
-        "'browser.newtabpage.activity-stream.feeds.section.topstories'|preferenceValue"
-        " && 'browser.newtabpage.activity-stream.showSponsored'|preferenceValue && "
-        "'browser.urlbar.suggest.quicksuggest.all'|preferenceValue && "
-        "'browser.urlbar.suggest.quicksuggest.sponsored'|preferenceValue && "
-        "!addonsInfo.addons['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}'] && "
-        "!addonsInfo.addons['uBlock0@raymondhill.net'] && "
-        "!addonsInfo.addons['adguardadblocker@adguard.com'] && "
-        "!addonsInfo.addons['jid1-NIfFY2CA8fy1tg@jetpack'] && "
-        "!addonsInfo.addons['adblockultimate@adblockultimate.net'] && "
-        "!addonsInfo.addons['firefox@ghostery.com']"
+        "(!isMSIX || "
+        "os.windowsBuildNumber >= 22000 || "
+        "version|versionCompare('157.!') >= 0) && "
+        f"{NON_STUB_FIRST_RUN.targeting}"
     ),
     desktop_telemetry="",
     sticky_required=False,
@@ -5234,6 +5266,20 @@ FX_157_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FX_158_TRAINHOP = NimbusTargetingConfig(
+    name="New Tab Fx158 Sep-13 Trainhop",
+    slug="newtab-158-0913-trainhop",
+    description=(
+        "Desktop users having the New Tab 158.0.20260913.220257 train hop, "
+        "which includes users of Fx156"
+    ),
+    targeting="newtabAddonVersion|versionCompare('158.0.20260913.220257') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
     name="New Tab Lists/Timer Interaction, Neither Widget Disabled",
     slug="widgets-lists-timer-interacted-not-disabled",
@@ -5604,10 +5650,15 @@ SMART_WINDOW_ONBOARDING_COMPLETE = NimbusTargetingConfig(
 )
 
 SPLIT_VIEW_HAS_BEEN_USED = NimbusTargetingConfig(
-    name="Users who have used Split View",
+    name="Users who have used Split View without active enterprise policies",
     slug="split_view_has_been_used",
-    description="Desktop users who have previously used Split View",
-    targeting="'browser.tabs.splitview.hasUsed'|preferenceValue",
+    description=(
+        "Desktop users who have previously used Split View and do not have active "
+        "enterprise policies"
+    ),
+    targeting=(
+        "'browser.tabs.splitview.hasUsed'|preferenceValue && !hasActiveEnterprisePolicies"
+    ),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -5815,6 +5866,39 @@ EXISTING_USER_NO_ENTERPRISE = NimbusTargetingConfig(
         "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features'|preferenceValue"
         " && "
         "'browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons'|preferenceValue"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+HAS_ALLOWED_NOTIFICATIONS = NimbusTargetingConfig(
+    name="Has allowed web notifications",
+    slug="has_allowed_notifications",
+    description=(
+        "Desktop users who have granted notification permission to at least one origin"
+    ),
+    targeting="allowedNotificationOrigins > 0",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+CBWN_DELIVERY_ESTABLISHED_PROFILES = NimbusTargetingConfig(
+    name="Closed-browser web notifications, established profiles",
+    slug="cbwn_delivery_established_profiles",
+    description=(
+        "Windows 10+ users with profiles 28 days or older, without active "
+        "enterprise policies, who have granted notification permission to at "
+        "least one origin"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && "
+        f"{PROFILE28DAYS} && "
+        f"{NO_ENTERPRISE.targeting} && "
+        f"{HAS_ALLOWED_NOTIFICATIONS.targeting}"
     ),
     desktop_telemetry="",
     sticky_required=True,

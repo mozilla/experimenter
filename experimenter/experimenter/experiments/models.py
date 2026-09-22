@@ -39,7 +39,10 @@ from experimenter.base.models import (
 from experimenter.experiments.constants import (
     ENROLLMENT_FUNNEL_STAGES,
     NIMBUS_TARGETING_CONTEXT_TABLE,
+    NIMBUS_TARGETING_CONTEXT_TABLE_FENIX,
+    NIMBUS_TARGETING_CONTEXT_TABLE_IOS,
     SIZING_FULL_SQL_TEMPLATE,
+    SIZING_FULL_SQL_TEMPLATE_MOBILE,
     SIZING_SAMPLE_ID_MAX,
     SIZING_WINDOW_DAYS,
     BucketRandomizationUnit,
@@ -252,6 +255,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     is_rollout_dirty = models.BooleanField(
         "Approved Changes Flag", blank=False, null=False, default=False
     )
+    rollout_plan_name = models.CharField(
+        "Selected Rollout Plan Name", max_length=255, blank=True, default=""
+    )
     rollout_advance_observations = models.TextField(
         "Advance Rollout Phase Observations", blank=True, default=""
     )
@@ -311,6 +317,12 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         "Maximum Firefox Version",
         max_length=255,
         default=NimbusConstants.Version.NO_VERSION,
+        blank=True,
+    )
+    newtab_addon_min_version = models.CharField(
+        "Minimum New Tab Addon Version",
+        max_length=255,
+        default="",
         blank=True,
     )
     application = models.CharField(
@@ -678,12 +690,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             value=True,
         ).exists()
 
-    def get_detail_url(self):
-        if (
+    @property
+    def uses_new_rollout_ui(self):
+        return (
             self.is_rollout
             and not self.is_firefox_labs_opt_in
             and self.is_new_rollout_ui_enabled
-        ):
+        )
+
+    def get_detail_url(self):
+        if self.uses_new_rollout_ui:
             return reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": self.slug})
 
         return reverse("nimbus-ui-detail", kwargs={"slug": self.slug})
@@ -715,7 +731,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def experiment_url(self):
-        return urljoin(f"https://{settings.HOSTNAME}", self.get_absolute_url())
+        return urljoin(f"https://{settings.HOSTNAME}", self.get_detail_url())
 
     @property
     def results_url(self):
@@ -767,6 +783,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return expressions
 
+    def _get_targeting_newtab_addon_min_version(self):
+        expressions = []
+
+        if self.is_desktop and (min_version := self.newtab_addon_min_version):
+            expressions.append(f"newtabAddonVersion|versionCompare('{min_version}') >= 0")
+
+        return expressions
+
     def _get_targeting_pref_conflicts(self):
         prefs = []
 
@@ -812,6 +836,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         sticky_expressions.extend(self._get_targeting_min_version())
         expressions.extend(self._get_targeting_max_version())
+        sticky_expressions.extend(self._get_targeting_newtab_addon_min_version())
 
         if locales := self.locales.all():
             locales = [locale.code for locale in sorted(locales, key=lambda l: l.code)]
@@ -1404,18 +1429,6 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return phases[next_index] if next_index < len(phases) else None
 
     @property
-    def has_rollout_review_errors(self):
-        from experimenter.experiments.api.v5.serializers import (
-            NimbusRolloutReviewSerializer,
-        )
-
-        if not self.is_rollout:
-            return False
-        return bool(
-            self.get_invalid_fields_errors(serializer_class=NimbusRolloutReviewSerializer)
-        )
-
-    @property
     def next_rollout_phase_number(self):
         next_phase = self.next_rollout_phase
         if next_phase is None:
@@ -1827,16 +1840,17 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         # referencing data that does not exist. Then, when we go to render the
         # list of slugs, we would attempt to generate links to these
         # non-existant recipes and cause a 500.
-        existing_slugs = set(
-            NimbusExperiment.objects.filter(
+        conflict_urls = {
+            conflict.slug: conflict.get_detail_url()
+            for conflict in NimbusExperiment.objects.filter(
                 slug__in={
                     slug for value in by_key.values() for slug in value["conflict_slugs"]
                 }
-            ).values_list("slug", flat=True)
-        )
+            )
+        }
 
         for value in by_key.values():
-            value["conflict_slugs"] &= existing_slugs
+            value["conflict_slugs"] &= conflict_urls.keys()
 
         def _build_stage(key, data):
             status, reason = key
@@ -1851,7 +1865,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "pct": (data["client_count"] / total * 100) if total else 0.0,
                 "color": stage_info[1] if stage_info else "secondary",
                 "text_color": stage_info[2] if stage_info else "dark",
-                "conflict_slugs": sorted(data["conflict_slugs"]),
+                "conflicts": [
+                    {"slug": slug, "detail_url": conflict_urls[slug]}
+                    for slug in sorted(data["conflict_slugs"])
+                ],
                 "has_null_conflict": (
                     reason == NimbusConstants.FunnelReason.FEATURE_CONFLICT
                     and not data["conflict_slugs"]
@@ -2063,6 +2080,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 )
             except TargetingMultipleKintoCollectionsError:
                 return False
+
+    @property
+    def uses_secure_collection(self):
+        try:
+            return self.kinto_collection == settings.KINTO_COLLECTION_NIMBUS_SECURE
+        except TargetingMultipleKintoCollectionsError:
+            return False
 
     def delete_branches(self):
         self.reference_branch = None
@@ -2405,6 +2429,15 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             entry = deliveries_by_slug.setdefault(slug, {"slug": slug, "reasons": []})
             entry["reasons"].append(reason)
 
+        detail_urls = {
+            delivery.slug: delivery.get_detail_url()
+            for delivery in NimbusExperiment.objects.filter(
+                slug__in=list(deliveries_by_slug)
+            )
+        }
+        for slug, entry in deliveries_by_slug.items():
+            entry["detail_url"] = detail_urls.get(slug)
+
         deliveries = sorted(deliveries_by_slug.values(), key=lambda d: d["slug"])
         return {"deliveries": deliveries}
 
@@ -2516,8 +2549,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         predicate = self.sizing_sql_display
         if not predicate:
             return None
-        return SIZING_FULL_SQL_TEMPLATE.format(
-            table=NIMBUS_TARGETING_CONTEXT_TABLE,
+        config = self.application_config
+        app_name = config.app_name if config else None
+        if app_name == "fenix":
+            template = SIZING_FULL_SQL_TEMPLATE_MOBILE
+            table = NIMBUS_TARGETING_CONTEXT_TABLE_FENIX
+        elif app_name == "firefox_ios":
+            template = SIZING_FULL_SQL_TEMPLATE_MOBILE
+            table = NIMBUS_TARGETING_CONTEXT_TABLE_IOS
+        else:
+            template = SIZING_FULL_SQL_TEMPLATE
+            table = NIMBUS_TARGETING_CONTEXT_TABLE
+        return template.format(
+            table=table,
             window_days=SIZING_WINDOW_DAYS,
             sample_id_max=SIZING_SAMPLE_ID_MAX,
             predicate=predicate.replace("\n", "\n    "),
@@ -2673,22 +2717,40 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     @property
     def show_rollout_reenable_warning(self):
-        return not self.supports_rollout_reenable and self.status in (
-            NimbusConstants.Status.DRAFT,
-            NimbusConstants.Status.PREVIEW,
-            NimbusConstants.Status.LIVE,
+        return (
+            bool(self.firefox_min_version)
+            and not self.supports_rollout_reenable
+            and self.status
+            in (
+                NimbusConstants.Status.DRAFT,
+                NimbusConstants.Status.PREVIEW,
+                NimbusConstants.Status.LIVE,
+            )
         )
+
+    def _validated_review_serializer(self, serializer_class):
+        serializer = serializer_class(self, data=serializer_class(self).data)
+        serializer.is_valid()
+        return serializer
 
     @cached_property
     def _review_serializer(self):
         from experimenter.experiments.api.v5.serializers import NimbusReviewSerializer
 
-        serializer = NimbusReviewSerializer(self, data=NimbusReviewSerializer(self).data)
-        serializer.is_valid()
-        return serializer
+        return self._validated_review_serializer(NimbusReviewSerializer)
 
-    @property
-    def review_warnings(self):
+    @cached_property
+    def _rollout_review_serializer(self):
+        from experimenter.experiments.api.v5.serializers import (
+            NimbusRolloutReviewSerializer,
+        )
+
+        if not self.is_rollout:
+            return self._review_serializer
+
+        return self._validated_review_serializer(NimbusRolloutReviewSerializer)
+
+    def _review_warnings(self, serializer):
         if self.status not in [
             NimbusConstants.Status.DRAFT,
             NimbusConstants.Status.PREVIEW,
@@ -2696,15 +2758,16 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             return []
 
         issues = []
-        for field, messages in self._review_serializer.flat_warnings.items():
+        for field, messages in serializer.flat_warnings.items():
+            message_as_label = field in NimbusUIConstants.REVIEW_WARNING_MESSAGE_AS_LABEL
             label = NimbusUIConstants.REVIEW_WARNING_LABELS.get(
                 field, field.replace("_", " ").title()
             )
             learn_more_url = NimbusUIConstants.REVIEW_WARNING_LEARN_MORE.get(field)
             issues.extend(
                 {
-                    "label": label,
-                    "detail": message,
+                    "label": message if message_as_label else label,
+                    "detail": None if message_as_label else message,
                     "learn_more_url": learn_more_url,
                 }
                 for message in messages
@@ -2712,7 +2775,14 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return issues
 
     @property
-    def audience_overlap_warnings(self):
+    def review_warnings(self):
+        return self._review_warnings(self._review_serializer)
+
+    @property
+    def rollout_review_warnings(self):
+        return self._review_warnings(self._rollout_review_serializer)
+
+    def _audience_overlap_warnings(self, self_issues):
         if self.status not in [
             NimbusConstants.Status.DRAFT,
             NimbusConstants.Status.PREVIEW,
@@ -2721,10 +2791,13 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         collisions = self.collision_warnings
         entries = [
-            {"slug": d["slug"], "reasons": d["reasons"]} for d in collisions["deliveries"]
+            {
+                "slug": d["slug"],
+                "reasons": d["reasons"],
+                "detail_url": d["detail_url"],
+            }
+            for d in collisions["deliveries"]
         ]
-
-        self_issues = self.review_warnings
 
         if not entries and not self_issues:
             return []
@@ -2735,9 +2808,19 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 "entries": entries,
                 "self_issues": self_issues,
                 "variant": "warning",
-                "learn_more_link": NimbusUIConstants.AUDIENCE_OVERLAP_WARNING,
+                "learn_more_link": (
+                    NimbusUIConstants.AUDIENCE_OVERLAP_WARNING if entries else None
+                ),
             }
         ]
+
+    @property
+    def audience_overlap_warnings(self):
+        return self._audience_overlap_warnings(self.review_warnings)
+
+    @property
+    def rollout_audience_overlap_warnings(self):
+        return self._audience_overlap_warnings(self.rollout_review_warnings)
 
     def collision_card_header(self, entries, self_issues):
         target = "rollout" if self.is_rollout else "experiment"
@@ -2758,6 +2841,41 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 if error:
                     return True
         return False
+
+    @property
+    def analysis_errors_by_key(self):
+        counts = {}
+        if self.results_data:
+            errors = self.results_data.get("v3", {}).get("errors", {})
+            for key, key_errors in errors.items():
+                if key_errors:
+                    counts[key] = len(key_errors)
+        return counts
+
+    @property
+    def analysis_errors_count(self):
+        return sum(self.analysis_errors_by_key.values())
+
+    @property
+    def reviewer_emails(self):
+        return sorted(
+            {
+                change.changed_by.email
+                for change in self.changes.all()
+                if change.old_publish_status == self.PublishStatus.REVIEW
+                and change.new_publish_status == self.PublishStatus.APPROVED
+            }
+        )
+
+    @property
+    def editor_emails(self):
+        return sorted(
+            {
+                change.changed_by.email
+                for change in self.changes.all()
+                if change.changed_by.email != settings.KINTO_DEFAULT_CHANGELOG_USER
+            }
+        )
 
     def get_invalid_fields_errors(self, serializer_class=None):
         if serializer_class is None:
@@ -3691,9 +3809,13 @@ class NimbusChangeLogManager(models.Manager["NimbusChangeLog"]):
 
     def latest_rejection(self):
         change = self.latest_change()
-        if change and change.has_filter(
-            NimbusChangeLog.Filters.IS_REJECTION
-            | NimbusChangeLog.Filters.IS_UPDATE_REJECTION
+        if (
+            change
+            and change.message != NimbusChangeLog.Messages.UPDATED_IN_KINTO
+            and change.has_filter(
+                NimbusChangeLog.Filters.IS_REJECTION
+                | NimbusChangeLog.Filters.IS_UPDATE_REJECTION
+            )
         ):
             return change
 

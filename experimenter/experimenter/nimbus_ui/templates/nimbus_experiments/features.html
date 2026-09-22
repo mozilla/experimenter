@@ -164,7 +164,7 @@
                   <tr scope="row">
                     <td id="delivery-name" class="text-wrap col-3">
                       <a target="_blank"
-                         href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
+                         href="{{ experiment.get_detail_url }}"
                          class="text-decoration-none fw-medium"
                          title="{{ experiment.name }}">{{ experiment.name }}</a>
                     </td>
@@ -331,7 +331,7 @@
                 {% for experiment in experiments_with_qa_status %}
                   <tr scope="row">
                     <td id="qa-run" class="text-wrap col-3">
-                      Request for: <a href="{% url 'nimbus-ui-detail' slug=experiment.slug %}"
+                      Request for: <a href="{{ experiment.get_detail_url }}"
     class="text-decoration-none fw-medium"
     title="{{ experiment.name }}">{{ experiment.name }}</a>
                     </td>

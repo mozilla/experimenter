@@ -551,6 +551,9 @@ class NimbusConstants:
     DESKTOP_NEWTAB_TRAINHOP_SLUG = DESKTOP_NEWTAB_TRAINHOP_SLUG
     DESKTOP_NEWTAB_ADDON_VERSION_ATTR = DESKTOP_NEWTAB_ADDON_VERSION_ATTR
 
+    DESKTOP_FXMS_MESSAGE_SLUG = "fxms-message"
+    DESKTOP_FXMS_MESSAGE_PLACEHOLDER_PREFIX = f"{DESKTOP_FXMS_MESSAGE_SLUG}-"
+
     MOBILE_MESSAGING_SLUG = "messaging"
     MOBILE_MESSAGING_MESSAGES_FIELD = "messages"
     MOBILE_MESSAGING_MESSAGE_EXPERIMENT_FIELD = "experiment"
@@ -692,7 +695,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     DAILY_ACTIVE_USERS = "client_level_daily_active_users_v2"
     DAYS_OF_USE = "days_of_use"
-    RETENTION = "retained"
+    RETENTION_WEEK_2 = "week_2_retention"
+    RETENTION_WEEK_4 = "week_4_retention"
     RETENTION_3_DAYS = "active_in_last_3_days"
     RETENTION_3_DAYS_DESKTOP = "active_in_last_3_days_legacy"
     SEARCH_COUNT = "search_count"
@@ -710,8 +714,17 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     KPI_METRICS = [
         {
             "group": "other_metrics",
-            "slug": RETENTION,
+            "friendly_name": "Week 2 Retention",
+            "slug": RETENTION_WEEK_2,
             "display_type": "percentage",
+            "description": "Users who were active in Firefox during the second week after enrollment.",  # noqa
+        },
+        {
+            "group": "other_metrics",
+            "friendly_name": "Week 4 Retention",
+            "slug": RETENTION_WEEK_4,
+            "display_type": "percentage",
+            "description": "Users who were active in Firefox during the fourth week after enrollment.",  # noqa
         },
         {
             "group": "other_metrics",
@@ -914,6 +927,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     WARNING_PREF_FLIPS_PREF_CONTROLLED_BY_FEATURE = (
         "Pref '{pref}' is controlled by a variable in feature {feature_config_slug}'"
     )
+
+    WARNING_DESKTOP_FXMS_MESSAGE_COENROLLMENT = (
+        "{feature_slugs} {verb} deprecated. Please use "
+        f"{DESKTOP_FXMS_MESSAGE_SLUG} instead, which allows multiple simultaneous "
+        "enrollments."
+    )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"
 
@@ -1110,6 +1129,12 @@ ENROLLMENT_FUNNEL_STAGES = {
 NIMBUS_TARGETING_CONTEXT_TABLE = (
     "moz-fx-data-shared-prod.firefox_desktop.nimbus_targeting_context"
 )
+NIMBUS_TARGETING_CONTEXT_TABLE_FENIX = (
+    "moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context"
+)
+NIMBUS_TARGETING_CONTEXT_TABLE_IOS = (
+    "moz-fx-data-shared-prod.org_mozilla_ios_firefox.nimbus_recorded_targeting_context"
+)
 SIZING_SAMPLE_ID_MAX = 10
 SIZING_WINDOW_DAYS = 7
 SIZING_FULL_SQL_TEMPLATE = """\
@@ -1129,6 +1154,32 @@ WITH latest_per_client AS (
       AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
     AND sample_id < {sample_id_max}
     AND client_info.client_id IS NOT NULL
+),
+clients AS (SELECT * EXCEPT (rn) FROM latest_per_client WHERE rn = 1)
+SELECT
+  COUNT(*) AS estimated_client_count
+FROM clients
+WHERE (
+    {predicate}
+)"""
+
+SIZING_FULL_SQL_TEMPLATE_MOBILE = """\
+-- Matches the 7-day window and 10% sample used by the population sizing ETL.
+-- Deduplicates on client_id, keeping the most recent row per client.
+-- Returns the eligible client count within the 10% sample.
+WITH latest_per_client AS (
+  SELECT
+    *,
+    ROW_NUMBER() OVER (
+      PARTITION BY client_id
+      ORDER BY submission_date DESC
+    ) AS rn
+  FROM `{table}`
+  WHERE submission_date
+      BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL {window_days} DAY)
+      AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+    AND ABS(MOD(FARM_FINGERPRINT(client_id), 100)) < {sample_id_max}
+    AND client_id IS NOT NULL
 ),
 clients AS (SELECT * EXCEPT (rn) FROM latest_per_client WHERE rn = 1)
 SELECT

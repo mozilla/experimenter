@@ -379,6 +379,25 @@
   }
 }
 
+.card-body-spinner {
+  display: none;
+}
+
+.card-action-button.htmx-request {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.rollout-card:has(.card-action-button.htmx-request) .card-body-spinner {
+  display: flex;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(var(--bs-body-bg-rgb), 0.6);
+}
+
 .sidebar-transition-spinner {
   display: none;
 }
@@ -408,8 +427,24 @@ body:has(.sidebar-action-button.htmx-request)
     font-size: 0.875rem;
   }
 
+  .btn:focus-visible,
+  .accordion-button:focus-visible {
+    box-shadow: 0 0 0 var(--bs-focus-ring-width) var(--bs-focus-ring-color) !important;
+  }
+
+  .card-edit-form:focus {
+    outline: none;
+  }
+
   .bootstrap-select .dropdown-menu,
   .bootstrap-select .dropdown-menu .inner {
     overscroll-behavior: contain;
   }
+}
+
+html:has(
+    .rollout-page .bootstrap-select .dropdown-toggle[aria-expanded="true"]
+  ) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
 }

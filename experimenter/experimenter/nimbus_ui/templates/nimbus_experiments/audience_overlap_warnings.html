@@ -9,7 +9,7 @@
       <ul class="mb-1">
         {% for entry in warning.entries %}
           <li>
-            <a target="_blank" href="{% url "nimbus-ui-detail" slug=entry.slug %}">{{ entry.slug }}</a>
+            <a target="_blank" href="{{ entry.detail_url }}">{{ entry.slug }}</a>
             <span class="text-muted">
               (
               {% for reason in entry.reasons %}
@@ -41,10 +41,12 @@
         {% for issue in warning.self_issues %}
           <li>
             <span>{{ issue.label }}</span>
-            <i class="fa-regular fa-circle-question fa-sm"
-               data-bs-toggle="tooltip"
-               data-bs-placement="top"
-               title="{{ issue.detail }}"></i>
+            {% if issue.detail %}
+              <i class="fa-regular fa-circle-question fa-sm"
+                 data-bs-toggle="tooltip"
+                 data-bs-placement="top"
+                 title="{{ issue.detail }}"></i>
+            {% endif %}
             {% if issue.learn_more_url %}
               <a href="{{ issue.learn_more_url }}"
                  target="_blank"

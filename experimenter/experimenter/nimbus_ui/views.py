@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import View
@@ -21,6 +21,7 @@ from experimenter.experiments.models import (
     NimbusVersionedSchema,
     Tag,
 )
+from experimenter.jetstream.models import Metric
 from experimenter.jetstream.results_manager import ExperimentResultsManager
 from experimenter.nimbus_ui.constants import (
     METRICS_MIN_BOUNDS_WIDTH,
@@ -239,6 +240,28 @@ class UpdateRedirectViewMixin:
         return super().post(request, *args, **kwargs)
 
 
+class NewRolloutUIRedirectMixin:
+    def get_new_rollout_ui_redirect_url(self):
+        experiment = self.get_object()
+        if experiment.uses_new_rollout_ui:
+            return experiment.get_detail_url()
+        return None
+
+    def get(self, request, *args, **kwargs):
+        if redirect_url := self.get_new_rollout_ui_redirect_url():
+            return HttpResponseRedirect(redirect_url)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if redirect_url := self.get_new_rollout_ui_redirect_url():
+            if request.headers.get("HX-Request"):
+                response = HttpResponse()
+                response.headers["HX-Redirect"] = redirect_url
+                return response
+            return HttpResponseRedirect(redirect_url)
+        return super().post(request, *args, **kwargs)
+
+
 class CloneExperimentFormMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -357,6 +380,7 @@ def build_experiment_context(experiment):
 
 
 class NimbusExperimentDetailView(
+    NewRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     ValidationErrorsMixin,
     NimbusExperimentViewMixin,
@@ -382,7 +406,9 @@ class NimbusExperimentDetailView(
         return context
 
 
-class QAStatusUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateView):
+class QAStatusUpdateView(
+    NewRolloutUIRedirectMixin, NimbusExperimentViewMixin, RequestFormMixin, UpdateView
+):
     form_class = QAStatusForm
     template_name = "nimbus_experiments/qa_edit_form.html"
 
@@ -408,7 +434,7 @@ class TakeawaysUpdateView(NimbusExperimentViewMixin, RequestFormMixin, UpdateVie
         )
 
 
-class SignoffUpdateView(RequestFormMixin, UpdateView):
+class SignoffUpdateView(NewRolloutUIRedirectMixin, RequestFormMixin, UpdateView):
     model = NimbusExperiment
     form_class = SignoffForm
     template_name = "nimbus_experiments/update_signoff.html"
@@ -433,9 +459,7 @@ class NimbusExperimentsCloneView(NimbusExperimentViewMixin, RequestFormMixin, Up
         response = super().post(*args, **kwargs)
         if response.status_code == 302:
             response = HttpResponse()
-            response.headers["HX-Redirect"] = reverse(
-                "nimbus-ui-detail", kwargs={"slug": self.object.slug}
-            )
+            response.headers["HX-Redirect"] = self.object.get_detail_url()
         return response
 
 
@@ -450,6 +474,7 @@ class NimbusExperimentsPromoteToRolloutView(NimbusExperimentsCloneView):
 
 
 class ToggleArchiveView(
+    NewRolloutUIRedirectMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
     RenderResponseMixin,
@@ -482,6 +507,7 @@ class SaveAndContinueMixin:
 
 
 class OverviewUpdateView(
+    NewRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     SaveAndContinueMixin,
     NimbusExperimentViewMixin,
@@ -509,6 +535,7 @@ class DocumentationLinkDeleteView(RenderParentDBResponseMixin, OverviewUpdateVie
 
 
 class BranchesBaseView(
+    NewRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     IntegrationTestBranchDataMixin,
     NimbusExperimentViewMixin,
@@ -549,6 +576,7 @@ class BranchScreenshotDeleteView(RenderParentDBResponseMixin, BranchesBaseView):
 
 
 class MetricsUpdateView(
+    NewRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     SaveAndContinueMixin,
     NimbusExperimentViewMixin,
@@ -568,6 +596,7 @@ class MetricsUpdateView(
 
 
 class AudienceUpdateView(
+    NewRolloutUIRedirectMixin,
     PrefetchExperimentQuerysetMixin,
     SaveAndContinueMixin,
     NimbusExperimentViewMixin,
@@ -596,6 +625,7 @@ class CollaboratorsContextMixin:
 
 
 class CollaboratorsUpdateView(
+    NewRolloutUIRedirectMixin,
     CollaboratorsContextMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -606,6 +636,7 @@ class CollaboratorsUpdateView(
 
 
 class SubscribeView(
+    NewRolloutUIRedirectMixin,
     CollaboratorsContextMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -616,6 +647,7 @@ class SubscribeView(
 
 
 class UnsubscribeView(
+    NewRolloutUIRedirectMixin,
     CollaboratorsContextMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
@@ -626,6 +658,7 @@ class UnsubscribeView(
 
 
 class ToggleReviewSlackNotificationsView(
+    NewRolloutUIRedirectMixin,
     NimbusExperimentViewMixin,
     RequestFormMixin,
     UpdateView,
@@ -847,6 +880,26 @@ class ResultsView(PrefetchExperimentQuerysetMixin, NimbusExperimentViewMixin, De
         )
         context["metric_area_data"] = all_metrics
 
+        metric_slugs = {
+            metric["slug"]
+            for area_data in all_metrics.values()
+            for metric in area_data.get("metrics", [])
+        }
+        retention_prefix, retention_suffix = Metric.WEEKLY_RETENTION.split("{}")
+        weekly_retention_slugs = {
+            slug
+            for slug in metric_slugs
+            if slug.startswith(retention_prefix) and slug.endswith(retention_suffix)
+        }
+        context["hidden_weekly_metrics"] = {
+            *NimbusUIConstants.HIDDEN_WEEKLY_METRICS,
+            *weekly_retention_slugs,
+        }
+        context["hidden_daily_metrics"] = {
+            *NimbusUIConstants.HIDDEN_DAILY_METRICS,
+            *weekly_retention_slugs,
+        }
+
         context["ask_experimenter_slack_link"] = settings.ASK_EXPERIMENTER_SLACK_LINK
 
         relative_metric_changes = {}
@@ -923,6 +976,18 @@ class ResultsView(PrefetchExperimentQuerysetMixin, NimbusExperimentViewMixin, De
         )
 
         return context
+
+
+class ResultsExportView(View):
+    def get(self, request, slug):
+        experiment = get_object_or_404(NimbusExperiment, slug=slug)
+        response = JsonResponse(
+            experiment.results_data or {}, json_dumps_params={"indent": 2}
+        )
+        response["Content-Disposition"] = (
+            f'attachment; filename="{experiment.slug}-results.json"'
+        )
+        return response
 
 
 class NimbusFeaturesView(TemplateView):

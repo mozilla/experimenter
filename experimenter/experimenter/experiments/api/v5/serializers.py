@@ -229,6 +229,9 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
     feature_configs = serializers.SerializerMethodField()
     experiment_summary = serializers.CharField(source="experiment_url")
     results_url = serializers.SerializerMethodField()
+    conclusion_recommendations = serializers.SerializerMethodField()
+    reviewer_emails = serializers.SerializerMethodField()
+    editor_emails = serializers.SerializerMethodField()
 
     class Meta:
         model = NimbusExperiment
@@ -249,6 +252,12 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
             "takeaways_gain_amount",
             "takeaways_qbr_learning",
             "takeaways_summary",
+            "conclusion_recommendations",
+            "project_impact",
+            "next_steps",
+            "reviewer_emails",
+            "editor_emails",
+            "analysis_errors_count",
         ]
 
     def get_feature_configs(self, obj):
@@ -259,6 +268,15 @@ class NimbusExperimentCsvSerializer(serializers.ModelSerializer):
 
     def get_results_url(self, obj):
         return f"{obj.experiment_url}results" if obj.results_ready else ""
+
+    def get_conclusion_recommendations(self, obj):
+        return ",".join(obj.conclusion_recommendation_labels)
+
+    def get_reviewer_emails(self, obj):
+        return ",".join(obj.reviewer_emails)
+
+    def get_editor_emails(self, obj):
+        return ",".join(obj.editor_emails)
 
 
 class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
@@ -294,6 +312,8 @@ class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
             "hypothesis",
             "is_rollout",
             "owner",
+            "reviewer_emails",
+            "editor_emails",
             "application_display",
             "channels",
             "feature_configs",
@@ -338,6 +358,7 @@ class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
             "excluded_experiments",
             "parent_experiment",
             "results_data",
+            "analysis_errors_by_key",
         ]
 
     def get_hypothesis(self, obj):
@@ -1696,6 +1717,54 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_desktop_fxms_message_coenrollment(self, data):
+        placeholder_slugs = sorted(
+            fc.slug
+            for fc in data.get("feature_configs", [])
+            if fc.slug.startswith(NimbusConstants.DESKTOP_FXMS_MESSAGE_PLACEHOLDER_PREFIX)
+        )
+
+        if not placeholder_slugs:
+            return data
+
+        min_version = NimbusExperiment.Version.parse(data["firefox_min_version"])
+        min_versioned_version = NimbusExperiment.Version.parse(
+            NimbusConstants.MIN_VERSIONED_FEATURE_VERSION[
+                NimbusExperiment.Application.DESKTOP
+            ]
+        )
+
+        if min_version < min_versioned_version:
+            return data
+
+        replacement = NimbusFeatureConfig.objects.filter(
+            slug=NimbusConstants.DESKTOP_FXMS_MESSAGE_SLUG,
+            application=NimbusExperiment.Application.DESKTOP,
+        ).first()
+
+        if replacement is None:
+            return data
+
+        max_version = data.get("firefox_max_version")
+        schema_range = replacement.get_versioned_schema_range(
+            min_version,
+            NimbusExperiment.Version.parse(max_version) if max_version else None,
+        )
+
+        if (
+            schema_range.schemas
+            and not schema_range.unsupported_versions
+            and all(schema.allow_coenrollment for schema in schema_range.schemas)
+        ):
+            self.warnings["fxms_message_coenrollment"] = [
+                NimbusConstants.WARNING_DESKTOP_FXMS_MESSAGE_COENROLLMENT.format(
+                    feature_slugs=", ".join(placeholder_slugs),
+                    verb="is" if len(placeholder_slugs) == 1 else "are",
+                )
+            ]
+
+        return data
+
     @classmethod
     def _validate_mobile_messaging(cls, value: str):
         json_value = None
@@ -2013,6 +2082,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_desktop_pref_rollouts(data)
             data = self._validate_desktop_pref_flips(data)
             data = self._validate_desktop_multichannel(data)
+            data = self._validate_desktop_fxms_message_coenrollment(data)
         return data
 
 
@@ -2035,6 +2105,18 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
         # The rollout setup flow doesn't require a reference-branch description so
         # this skips the parent's non-empty check
         return value
+
+    def _validate_desktop_pref_flips_value(self, value, min_version, max_version):
+        # The schema check has already rejected a malformed prefs value, so skip
+        # the scan rather than raise while rendering the rollout page
+        try:
+            return super()._validate_desktop_pref_flips_value(
+                value, min_version, max_version
+            )
+        except (AttributeError, TypeError):
+            if isinstance(value, dict) and isinstance(value.get("prefs"), dict):
+                raise
+            return self.ValidateFeatureResult()
 
     def validate_rollout_phases(self, value):
         if self.instance and not self.instance.is_rollout:

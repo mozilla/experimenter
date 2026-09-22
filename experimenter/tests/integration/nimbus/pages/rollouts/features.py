@@ -10,7 +10,6 @@ class FeaturesSection(FormBase):
     PAGE_TITLE = "Rollout Features"
     CARD_ID = "rollout-features"
 
-    _rollout_experience_locator = (By.ID, "id_rollout_experience")
     _feature_configs_button_locator = (
         By.CSS_SELECTOR,
         "button[data-id='id_feature_configs']",
@@ -22,10 +21,6 @@ class FeaturesSection(FormBase):
     _warn_feature_schema_locator = (By.ID, "id_warn_feature_schema")
     _prevent_pref_conflicts_locator = (By.ID, "id_prevent_pref_conflicts")
 
-    _displayed_rollout_experience_locator = (
-        By.ID,
-        "rollout-features-experience",
-    )
     _displayed_feature_configs_locator = (By.ID, "rollout-features-config-0")
     _displayed_warn_feature_schema_locator = (
         By.ID,
@@ -43,14 +38,6 @@ class FeaturesSection(FormBase):
 
     def _get_displayed_boolean(self, locator):
         return "fa-check" in self._wait_present(locator).get_attribute("class").split()
-
-    @property
-    def rollout_experience(self):
-        return self.get_input(self._rollout_experience_locator).get_attribute("value")
-
-    @rollout_experience.setter
-    def rollout_experience(self, value):
-        self.set_input(self._rollout_experience_locator, value)
 
     @property
     def feature_configs(self):
@@ -84,12 +71,8 @@ class FeaturesSection(FormBase):
         self._set_checkbox(self._prevent_pref_conflicts_locator, value)
 
     @property
-    def displayed_rollout_experience(self):
-        return self._wait_present(self._displayed_rollout_experience_locator).text
-
-    @property
     def displayed_feature_configs(self):
-        self._wait_present(self._displayed_rollout_experience_locator)
+        self._wait_present(self._displayed_warn_feature_schema_locator)
         return [
             element.text
             for element in self.selenium.find_elements(

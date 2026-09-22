@@ -1,8 +1,8 @@
 <div id="audience-overlap-warnings"
      style="display: contents"
      {% if oob %}hx-swap-oob="true"{% endif %}>
-  {% if experiment.audience_overlap_warnings %}
-    {% for warning in experiment.audience_overlap_warnings %}
+  {% if experiment.rollout_audience_overlap_warnings %}
+    {% for warning in experiment.rollout_audience_overlap_warnings %}
       <div class="rounded-2 p-3 small"
            style="background-color: var(--bs-warning-bg-subtle);
                   border: 1px solid var(--bs-warning-border-subtle)"
@@ -14,7 +14,7 @@
         <ul class="mb-1">
           {% for entry in warning.entries %}
             <li>
-              <a target="_blank" href="{% url "nimbus-ui-detail" slug=entry.slug %}">{{ entry.slug }}</a>
+              <a target="_blank" href="{{ entry.detail_url }}">{{ entry.slug }}</a>
               <span class="text-muted">
                 (
                 {% for reason in entry.reasons %}
@@ -46,10 +46,12 @@
           {% for issue in warning.self_issues %}
             <li>
               <span>{{ issue.label }}</span>
-              <i class="fa-regular fa-circle-question fa-sm"
-                 data-bs-toggle="tooltip"
-                 data-bs-placement="top"
-                 title="{{ issue.detail }}"></i>
+              {% if issue.detail %}
+                <i class="fa-regular fa-circle-question fa-sm"
+                   data-bs-toggle="tooltip"
+                   data-bs-placement="top"
+                   title="{{ issue.detail }}"></i>
+              {% endif %}
               {% if issue.learn_more_url %}
                 <a href="{{ issue.learn_more_url }}"
                    target="_blank"

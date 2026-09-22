@@ -1068,7 +1068,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             mock_get_errors.return_value = None
             tasks.fetch_experiment_data(experiment.id)
 
-    def test_results_data_warns_when_week_2_retention_is_missing(self):
+    def test_results_data_includes_weekly_retention_in_overall_window(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
         )
@@ -1082,11 +1082,12 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                         "metric": Metric.RETENTION,
                         "statistic": "binomial",
                         "branch": "control",
-                        "point": 0.5,
+                        "point": week / 10,
                         "segment": "all",
                         "analysis_basis": "enrollments",
-                        "window_index": "1",
+                        "window_index": str(week),
                     }
+                    for week in (1, 2, 4)
                 ]
             if window == AnalysisWindow.OVERALL:
                 return [
@@ -1110,18 +1111,17 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             mock_get_data.side_effect = mock_jetstream_data_by_window
             mock_get_metadata.return_value = None
             mock_get_errors.return_value = None
-
             tasks.fetch_experiment_data(experiment.id)
 
         experiment.refresh_from_db()
-        errors = experiment.results_data["v3"]["errors"]["experiment"]
-        self.assertEqual(len(errors), 1)
-        self.assertEqual(errors[0]["metric"], Metric.RETENTION)
-        self.assertEqual(
-            errors[0]["message"],
-            "Week 2 retention is unavailable because this experiment did not run "
-            "long enough.",
-        )
+        overall_metrics = experiment.results_data["v3"]["overall"]["enrollments"]["all"][
+            "control"
+        ]["branch_data"][Group.OTHER]
+
+        self.assertIn(Metric.WEEKLY_RETENTION.format(2), overall_metrics)
+        self.assertIn(Metric.WEEKLY_RETENTION.format(4), overall_metrics)
+        self.assertNotIn(Metric.WEEKLY_RETENTION.format(1), overall_metrics)
+        self.assertNotIn(Metric.RETENTION, overall_metrics)
 
     @parameterized.expand(
         [

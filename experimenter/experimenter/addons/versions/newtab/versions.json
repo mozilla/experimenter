@@ -1,0 +1,260 @@
+[
+  {
+    "version": "145.0.20250919.173227",
+    "shipit_release": "newtab-145.0.0-build1",
+    "xpi_revision": "4d5eae1eccb3b383b4a251a679a821012307daa7",
+    "created": "2025-09-19T17:18:18.203037Z"
+  },
+  {
+    "version": "145.1.20251008.231506",
+    "shipit_release": "newtab-145.1.0-build1",
+    "xpi_revision": "2d38cd5bd7d7958137dd5b4f97aef2f7185a0eb1",
+    "created": "2025-10-08T23:00:02.418953Z"
+  },
+  {
+    "version": "145.1.20251009.134757",
+    "shipit_release": "newtab-145.2.0-build1",
+    "xpi_revision": "b30a9b734819436853abf4eba6d768037514b3f6",
+    "created": "2025-10-09T13:31:59.619538Z"
+  },
+  {
+    "version": "146.0.20251107.60212",
+    "shipit_release": "newtab-146.0.0-build1",
+    "xpi_revision": "2e0c5ee7b4bbab4a26c1ac00749031c942c365e5",
+    "created": "2025-11-07T05:46:15.812177Z"
+  },
+  {
+    "version": "147.0.20251114.194929",
+    "shipit_release": "newtab-147.0.0-build1",
+    "xpi_revision": "3b9fd7d6dbf2f8bc0a428887a0611a66ebcbf0bd",
+    "created": "2025-11-14T19:34:42.968530Z"
+  },
+  {
+    "version": "148.0.20251209.214749",
+    "shipit_release": "newtab-148.0.0-build1",
+    "xpi_revision": "7496c8515212669451d7e775a00c2be07da38ca5",
+    "created": "2025-12-09T21:15:34.380380Z"
+  },
+  {
+    "version": "148.0.20251211.63751",
+    "shipit_release": "newtab-148.0.0-build2",
+    "xpi_revision": "54da8f6bfead7871ca89f2cb18323af5f00d9620",
+    "created": "2025-12-11T06:23:17.718753Z"
+  },
+  {
+    "version": "149.0.20260113.173112",
+    "shipit_release": "newtab-149.0.0-build1",
+    "xpi_revision": "566d45b812404ca3d1874a3ab7f6a071ab6c5fe2",
+    "created": "2026-01-13T17:16:50.828044Z"
+  },
+  {
+    "version": "149.1.20260121.51415",
+    "shipit_release": "newtab-149.1.0-build1",
+    "xpi_revision": "0ba3af42be7fcfb0773fbf057c5b67277d3aa399",
+    "created": "2026-01-21T04:51:12.807461Z"
+  },
+  {
+    "version": "149.2.20260220.204414",
+    "shipit_release": "newtab-149.2.0-build2",
+    "xpi_revision": "d6f77e12f592ba168b70389daaea017b1dff4faa",
+    "created": "2026-02-20T20:27:39.161412Z"
+  },
+  {
+    "version": "150.0.20260303.170544",
+    "shipit_release": "newtab-150.0.0-build1",
+    "xpi_revision": "40d492eeca1fbbad16583530e92818b99b5be468",
+    "created": "2026-03-03T16:50:32.381947Z"
+  },
+  {
+    "version": "150.1.20260304.231049",
+    "shipit_release": "newtab-150.1.0-build1",
+    "xpi_revision": "f856cb35fbcc",
+    "created": "2026-03-04T22:56:13.958881Z"
+  },
+  {
+    "version": "150.2.20260322.122914",
+    "shipit_release": "newtab-150.3.0-build1",
+    "xpi_revision": "fa60e21efa02b904872b0d1bcf244016381260ca",
+    "created": "2026-03-22T12:15:04.259846Z"
+  },
+  {
+    "version": "151.0.20260325.53807",
+    "shipit_release": "newtab-151.0.0-build1",
+    "xpi_revision": "1220fb413c9c5a80c1357b6c8970dc3fa8ebd313",
+    "created": "2026-03-25T05:23:22.577545Z"
+  },
+  {
+    "version": "151.1.20260327.141953",
+    "shipit_release": "newtab-151.1.0-build1",
+    "xpi_revision": "c05f9afba7e1d02f7324d51b4e9b13c375a733fe",
+    "created": "2026-03-27T14:04:08.655235Z"
+  },
+  {
+    "version": "151.2.20260328.211913",
+    "shipit_release": "newtab-151.2.0-build1",
+    "xpi_revision": "2e0ee903c41175ebfa1509ba9fb29a56173c0a57",
+    "created": "2026-03-28T21:04:20.563702Z"
+  },
+  {
+    "version": "151.3.20260419.192959",
+    "shipit_release": "newtab-151.4.0-build1",
+    "xpi_revision": "525a02ab534ece50c79702c9d139855cab226a41",
+    "created": "2026-04-19T19:14:53.018945Z"
+  },
+  {
+    "version": "152.0.20260504.33143",
+    "shipit_release": "newtab-152.0.0-build2",
+    "xpi_revision": "7af61f9b913e4c0221e4c572c1e4f1e937223895",
+    "created": "2026-05-04T03:11:48.767975Z"
+  },
+  {
+    "version": "152.1.20260513.225314",
+    "shipit_release": "newtab-152.1.0-build1",
+    "xpi_revision": "b794b1fb3c20e4efc691e97e3dad47080d3de066",
+    "created": "2026-05-13T22:29:47.848093Z"
+  },
+  {
+    "version": "152.2.20260515.174901",
+    "shipit_release": "newtab-152.3.0-build1",
+    "xpi_revision": "63e94da3c1f47565009db83b6c573a4f725afb7b",
+    "created": "2026-05-15T17:25:41.122623Z"
+  },
+  {
+    "version": "153.0.20260521.220634",
+    "shipit_release": "newtab-153.0.0-build1",
+    "xpi_revision": "0dae7143b975f00b5451ffcd7b461c922a512358",
+    "created": "2026-05-21T21:50:47.593326Z"
+  },
+  {
+    "version": "153.1.20260528.133333",
+    "shipit_release": "newtab-153.1.0-build1",
+    "xpi_revision": "6d198f86d48092c4e3a6b37f4578c6480cf02dbc",
+    "created": "2026-05-28T13:19:07.928338Z"
+  },
+  {
+    "version": "153.2.20260603.43703",
+    "shipit_release": "newtab-153.2.0-build1",
+    "xpi_revision": "2d8f76852e6336a183fa34ad81f34d19695e5c2d",
+    "created": "2026-06-03T04:22:06.481277Z"
+  },
+  {
+    "version": "153.3.20260605.21338",
+    "shipit_release": "newtab-153.3.0-build1",
+    "xpi_revision": "b8012dc1e1402a6a4dda4b0af49d7c700311ba59",
+    "created": "2026-06-05T01:59:42.702220Z"
+  },
+  {
+    "version": "153.4.20260610.40323",
+    "shipit_release": "newtab-153.4.0-build1",
+    "xpi_revision": "7e206e2fe7f83081198e46c33ac8a6dd66a65559",
+    "created": "2026-06-10T03:47:36.532557Z"
+  },
+  {
+    "version": "153.5.20260615.25040",
+    "shipit_release": "newtab-153.5.0-build1",
+    "xpi_revision": "8c19f7a4e55320917f6926160295c602874eb5fa",
+    "created": "2026-06-15T02:35:14.066662Z"
+  },
+  {
+    "version": "153.5.20260615.213953",
+    "shipit_release": "newtab-154.0.0-build1",
+    "xpi_revision": "6324548f9dced9dd5cc3a8101d62dd776f1249c8",
+    "created": "2026-06-15T21:25:54.425364Z"
+  },
+  {
+    "version": "154.1.20260619.43329",
+    "shipit_release": "newtab-154.1.0-build1",
+    "xpi_revision": "cf9714e9a8549632a647703c687418be3c0a5add",
+    "created": "2026-06-19T04:18:37.491246Z"
+  },
+  {
+    "version": "154.2.20260624.61428",
+    "shipit_release": "newtab-154.2.0-build1",
+    "xpi_revision": "c1395f54bdda7cb0ed71bbe54e2940ce16175389",
+    "created": "2026-06-24T05:50:05.295788Z"
+  },
+  {
+    "version": "154.3.20260630.235510",
+    "shipit_release": "newtab-154.3.0-build1",
+    "xpi_revision": "43aae7a9ab016c3892591a759e48ff73896287e4",
+    "created": "2026-06-30T23:40:06.462677Z"
+  },
+  {
+    "version": "154.4.20260708.42619",
+    "shipit_release": "newtab-154.4.0-build1",
+    "xpi_revision": "61a6fcf01694",
+    "created": "2026-07-08T04:12:21.171880Z"
+  },
+  {
+    "version": "154.5.20260712.224453",
+    "shipit_release": "newtab-154.5.0-build1",
+    "xpi_revision": "b87edfb9c0e4dfac75c3a27da44ded7ec9b5c5dc",
+    "created": "2026-07-12T22:11:04.889551Z"
+  },
+  {
+    "version": "154.6.20260713.11701",
+    "shipit_release": "newtab-154.6.0-build1",
+    "xpi_revision": "3ed11452652b84dea6d27db877a401a146e44ba3",
+    "created": "2026-07-13T01:02:12.851701Z"
+  },
+  {
+    "version": "154.7.20260715.34513",
+    "shipit_release": "newtab-154.7.0-build1",
+    "xpi_revision": "b4b9a39b817bd9e1952c9bc8f16efabffd1875ec",
+    "created": "2026-07-15T03:26:09.122949Z"
+  },
+  {
+    "version": "154.8.20260716.43450",
+    "shipit_release": "newtab-154.8.0-build1",
+    "xpi_revision": "a6ce501c049734e3e12288ec0f85f3d1e26dc94b",
+    "created": "2026-07-16T04:20:01.126173Z"
+  },
+  {
+    "version": "155.0.20260810.200528",
+    "shipit_release": "newtab-155.0.0-build5",
+    "xpi_revision": "5243d39ace9a990aae67a43f1fec750796ec35c0",
+    "created": "2026-08-10T19:49:35.310685Z"
+  },
+  {
+    "version": "155.1.20260811.195042",
+    "shipit_release": "newtab-155.1.0-build1",
+    "xpi_revision": "15cbd388feda8aeb143c5c5393f5a146a60fc67d",
+    "created": "2026-08-11T19:35:28.790196Z"
+  },
+  {
+    "version": "156.0.20260816.233558",
+    "shipit_release": "newtab-156.0.0-build1",
+    "xpi_revision": "7c611117298561f542198076e70e641d4dd080bc",
+    "created": "2026-08-16T23:15:36.319494Z"
+  },
+  {
+    "version": "156.1.20260818.43226",
+    "shipit_release": "newtab-156.1.0-build1",
+    "xpi_revision": "b4230e7ab14b2c83a2231f595ccfa8149e8c11ff",
+    "created": "2026-08-18T04:18:00.331157Z"
+  },
+  {
+    "version": "156.2.20260824.60102",
+    "shipit_release": "newtab-156.2.0-build1",
+    "xpi_revision": "092b4be38e4fa42c638ff6700e3f833f71085fd2",
+    "created": "2026-08-24T05:46:46.681240Z"
+  },
+  {
+    "version": "157.0.20260831.183837",
+    "shipit_release": "newtab-157.0.0-build1",
+    "xpi_revision": "4f14b4a54928c479719ca9becf467b66847f923d",
+    "created": "2026-08-31T18:23:12.218752Z"
+  },
+  {
+    "version": "158.0.20260913.220257",
+    "shipit_release": "newtab-158.0.0-build1",
+    "xpi_revision": "9779d0c588762208f33a82c9fc710f81466f6e9e",
+    "created": "2026-09-13T21:47:36.718463Z"
+  },
+  {
+    "version": "158.1.20260920.214645",
+    "shipit_release": "newtab-158.1.0-build1",
+    "xpi_revision": "99f2f8d691af521b71ef2ada549f4da708aa2f0d",
+    "created": "2026-09-20T23:01:22.019000Z"
+  }
+]

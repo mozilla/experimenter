@@ -1662,7 +1662,7 @@ class TestNimbusReviewSerializerSingleFeature(
             serializer.errors,
             {
                 "reference_branch": {
-                    "feature_values": [{"value": ["This field may not be blank."]}]
+                    "feature_values": {0: {"value": ["This field may not be blank."]}}
                 }
             },
         )
@@ -1714,6 +1714,238 @@ class TestNimbusReviewSerializerSingleFeature(
             )
         else:
             self.assertNotIn("channels", serializer.warnings)
+
+    def test_fxms_message_coenrollment_warning(self):
+        NimbusFeatureConfigFactory.create(
+            slug="fxms-message",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=120, minor=0, patch=0
+                    ),
+                    schema=None,
+                    allow_coenrollment=True,
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="fxms-message-2",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+                NimbusFeatureConfigFactory.create(
+                    slug="fxms-message-1",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+            ],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertEqual(
+            serializer.warnings["fxms_message_coenrollment"],
+            [
+                (
+                    "fxms-message-1, fxms-message-2 are deprecated. Please use "
+                    "fxms-message instead, which allows multiple simultaneous "
+                    "enrollments."
+                )
+            ],
+        )
+
+    def test_fxms_message_coenrollment_no_warning_below_min_versioned_version(self):
+        NimbusFeatureConfigFactory.create(
+            slug="fxms-message",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=120, minor=0, patch=0
+                    ),
+                    schema=None,
+                    allow_coenrollment=True,
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_105,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="fxms-message-1",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+            ],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("fxms_message_coenrollment", serializer.warnings)
+
+    def test_fxms_message_coenrollment_no_warning_without_replacement_feature(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="fxms-message-1",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+            ],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("fxms_message_coenrollment", serializer.warnings)
+
+    def test_fxms_message_coenrollment_no_warning_without_placeholder_feature(self):
+        NimbusFeatureConfigFactory.create(
+            slug="fxms-message",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=120, minor=0, patch=0
+                    ),
+                    schema=None,
+                    allow_coenrollment=True,
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="some-other-feature",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+            ],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("fxms_message_coenrollment", serializer.warnings)
+
+    def test_fxms_message_coenrollment_no_warning_when_range_has_unsupported_version(
+        self,
+    ):
+        NimbusFeatureConfigFactory.create(
+            slug="fxms-message",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=152, minor=0, patch=0
+                    ),
+                    schema=None,
+                    allow_coenrollment=True,
+                ),
+            ],
+        )
+        NimbusFeatureConfigFactory.create(
+            slug="older-versioned-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=NimbusFeatureVersion.objects.create(
+                        major=150, minor=0, patch=0
+                    ),
+                    schema=None,
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_150,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    slug="fxms-message-1",
+                    application=NimbusExperiment.Application.DESKTOP,
+                    schemas=[
+                        NimbusVersionedSchemaFactory.build(version=None, schema=None),
+                    ],
+                ),
+            ],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("fxms_message_coenrollment", serializer.warnings)
 
     def test_substitute_localizations(self):
         value = {
@@ -2746,6 +2978,105 @@ class TestNimbusReviewSerializerSingleFeature(
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @parameterized.expand(
+        (
+            json.dumps({"prefs": True}),
+            json.dumps({"prefs": "enabled"}),
+            json.dumps({"prefs": []}),
+            json.dumps(True),
+        )
+    )
+    def test_rollout_prefflips_non_object_prefs_reports_errors(self, value):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            feature_configs=[prefflips_feature],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            is_rollout=True,
+            is_sticky=True,
+        )
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=100)
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = value
+        feature_value.save()
+
+        serializer = self.get_rollout_review_serializer(experiment)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("reference_branch", serializer.errors)
+
+    def test_rollout_prefflips_object_prefs_is_validated(self):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            feature_configs=[prefflips_feature],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            is_rollout=True,
+            is_sticky=True,
+        )
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=100)
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps(
+            {"prefs": {"browser.test.pref": {"branch": "user", "value": True}}}
+        )
+        feature_value.save()
+
+        serializer = self.get_rollout_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    def test_rollout_prefflips_unexpected_type_error_is_reraised(self):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            feature_configs=[prefflips_feature],
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            is_rollout=True,
+            is_sticky=True,
+        )
+        for branch in experiment.treatment_branches:
+            branch.delete()
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=100)
+
+        feature_value = experiment.reference_branch.feature_values.get(
+            feature_config=prefflips_feature
+        )
+        feature_value.value = json.dumps(
+            {"prefs": {"browser.test.pref": {"branch": "user", "value": True}}}
+        )
+        feature_value.save()
+
+        with patch.object(
+            NimbusReviewSerializer,
+            "_validate_desktop_pref_flips_value",
+            side_effect=TypeError("unrelated failure"),
+        ):
+            serializer = self.get_rollout_review_serializer(experiment)
+            with self.assertRaises(TypeError):
+                serializer.is_valid()
 
     @parameterized.expand(
         (

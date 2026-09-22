@@ -60,6 +60,18 @@
               {% endfor %}
             </div>
           </div>
+          {% if experiment.is_desktop %}
+            <div class="row mb-3">
+              <div data-testid="newtab-addon-min-version" class="col">
+                <label for="id_newtab_addon_min_version" class="form-label">New Tab Addon Minimum Version</label>
+                {{ form.newtab_addon_min_version|add_class:"form-control"|add_error_class:"is-invalid" }}
+                {% for error in form.newtab_addon_min_version.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                {% for error in validation_errors.newtab_addon_min_version %}
+                  <div class="form-text text-danger">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
           <div class="row mb-3">
             <div data-testid="locales" class="col-6">
               {% if experiment.is_desktop %}

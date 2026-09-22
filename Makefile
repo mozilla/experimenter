@@ -97,7 +97,10 @@ install_nimbus_cli:  ## Install Nimbus client
 	curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh > "$(CLI_INSTALLER)"
 	$(SHELL) $(CLI_INSTALLER) --directory "$(CLI_DIR)"
 
-fetch_external_resources: jetstream_config install_nimbus_cli feature_manifests  ## Fetch all external resources
+addon_versions: build_dev
+	$(COMPOSE_RUN) --no-deps experimenter python manage.py fetch_addon_versions
+
+fetch_external_resources: jetstream_config install_nimbus_cli feature_manifests addon_versions  ## Fetch all external resources
 	echo "External Resources Fetched"
 
 update_kinto:  ## Update latest Kinto/Remote Settings container
@@ -171,6 +174,28 @@ export_targeting_sql: build_test  ## Export targeting SQL for BigQuery dry-run v
 	status=$$?; \
 	$(COMPOSE_TEST) down; \
 	exit $$status
+
+export_targeting_sql_fenix: build_test  ## Export Fenix targeting SQL for BigQuery dry-run validation
+	$(COMPOSE_TEST_RUN) --no-deps experimenter sh -c '$(EXPORT_TARGETING_SQL) --app fenix' > targeting_sql_fenix.json; \
+	status=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$status
+
+export_targeting_sql_ios: build_test  ## Export iOS targeting SQL for BigQuery dry-run validation
+	$(COMPOSE_TEST_RUN) --no-deps experimenter sh -c '$(EXPORT_TARGETING_SQL) --app ios' > targeting_sql_ios.json; \
+	status=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$status
+
+export_targeting_sql_all: build_test  ## Export targeting SQL for all apps (desktop, fenix, iOS) with a single image build
+	$(COMPOSE_TEST_RUN) --no-deps experimenter sh -c '$(EXPORT_TARGETING_SQL)' > targeting_sql.json; \
+	status1=$$?; \
+	$(COMPOSE_TEST_RUN) --no-deps experimenter sh -c '$(EXPORT_TARGETING_SQL) --app fenix' > targeting_sql_fenix.json; \
+	status2=$$?; \
+	$(COMPOSE_TEST_RUN) --no-deps experimenter sh -c '$(EXPORT_TARGETING_SQL) --app ios' > targeting_sql_ios.json; \
+	status3=$$?; \
+	$(COMPOSE_TEST) down; \
+	exit $$(( status1 | status2 | status3 ))
 
 test: build_test  ## Run tests
 	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) python manage.py test --parallel'; \

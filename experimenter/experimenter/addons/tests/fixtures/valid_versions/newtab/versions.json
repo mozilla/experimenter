@@ -1,0 +1,14 @@
+[
+  {
+    "version": "158.0.20260913.220257",
+    "shipit_release": "newtab-158.0.0-build1",
+    "xpi_revision": "9779d0c588762208f33a82c9fc710f81466f6e9e",
+    "created": "2026-09-13T21:47:36.718463Z"
+  },
+  {
+    "version": "145.0.20250919.173227",
+    "shipit_release": "newtab-145.0.0-build1",
+    "xpi_revision": "4d5eae1eccb3b383b4a251a679a821012307daa7",
+    "created": "2025-09-19T17:18:18.203037Z"
+  }
+]

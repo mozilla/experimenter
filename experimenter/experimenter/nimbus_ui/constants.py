@@ -172,6 +172,8 @@ Optional - We expect this to <describe impact> on <core metric>.
         "proposed_release_date": "Release date set on a non-first-run experiment",
     }
 
+    REVIEW_WARNING_MESSAGE_AS_LABEL = {"fxms_message_coenrollment"}
+
     REVIEW_WARNING_LEARN_MORE = {
         "firefox_min_version": (
             "https://experimenter.info/advanced/rollouts"
@@ -186,6 +188,10 @@ Optional - We expect this to <describe impact> on <core metric>.
     so the new targeting can be added."""
     STICKY_ENROLLMENT_DESCRIPTION = (
         "Clients remain enrolled even if they no longer meet the targeting."
+    )
+    LOCALIZED_ROLLOUT_LABEL = "Does this rollout use off-train localizations?"
+    LOCALIZED_ROLLOUT_DESCRIPTION = (
+        "For rollouts with user-facing text that Firefox doesn't already translate."
     )
     TIMELINE_TOOLTIPS = {
         "Draft": (
@@ -223,6 +229,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         "sticky_targeting_url": "https://experimenter.info/advanced/custom-audiences#sticky-targeting",
         "experimentation_office_hours_url": "https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/6849684/Experimentation+Office+Hours",
         "population_sizing_learn_more_url": "https://experimenter.info/advanced/population-sizing#automatic-population-sizing-in-experimenter",
+        "localization_url": "https://experimenter.info/workflow/localization",
     }
     OVERVIEW_PAGE_LINKS = {
         "risk_link": "https://mana.mozilla.org/wiki/display/FIREFOX/Pref-Flip+and+Add-On+Experiments#PrefFlipandAddOnExperiments-Doesthishavehighrisktothebrand?",
@@ -275,6 +282,15 @@ Optional - We expect this to <describe impact> on <core metric>.
         "All statistically significant changes that have occurred in the experiment"
     )
     NOTABLE_CHANGES_ABSENT_TEXT = "There are no notable changes in this experiment"
+    METRIC_ERRORS_TOOLTIP = "No data available"
+    METRIC_ERRORS_TITLE = "Metric unavailable"
+    METRIC_ERRORS_TEXT = "Other metrics may not be affected."
+    METRIC_NO_DATA_TOOLTIP = "Not available yet"
+    METRIC_NO_DATA_TITLE = "Not available yet"
+    METRIC_NO_DATA_TEXT = (
+        "The analysis window for this metric has not been computed yet. "
+        "Results will appear once it has."
+    )
     FEATURE_MONITORING_CARD_TITLE = "Feature Monitoring"
     FEATURE_MONITORING_OPEN_DASHBOARD_TEXT = "Open in Grafana"
     FEATURE_MONITORING_DASHBOARD_INFO = (
@@ -403,10 +419,16 @@ Optional - We expect this to <describe impact> on <core metric>.
 
     ERROR_ROLLOUT_PLAN_NAME_REQUIRED = "Please name this rollout plan before saving it."
     ERROR_ROLLOUT_PLAN_NAME_DUPLICATE = "A rollout plan with this name already exists."
+    ERROR_ROLLOUT_PLAN_PHASES_DUPLICATE = (
+        "These phases are already saved as the rollout plan '{name}'."
+    )
     ERROR_ROLLOUT_PLAN_FIX_ERRORS = (
         "Resolve the highlighted errors above before saving this plan."
     )
-    ERROR_ROLLOUT_PHASE_LOCKED = "This rollout phase is locked and cannot be changed."
+    ROLLOUT_APPLICATION_TOOLTIP = (
+        "Rollouts can only target one Application at a time. Application can "
+        "not be changed after a rollout is created."
+    )
     ROLLOUT_REVIEW_PENDING_TOOLTIP = "A review is currently pending."
     ROLLOUT_NO_NEXT_PHASE_TOOLTIP = "There is no further phase to start."
     ROLLOUT_HAS_ISSUES_TOOLTIP = "All rollout issues must be resolved first."
@@ -424,6 +446,10 @@ Optional - We expect this to <describe impact> on <core metric>.
         "Phase dates are used for planning and reminders only. Phases do not start or "
         "end automatically, so these dates are optional."
     )
+    ROLLOUT_PLAN_VISIBILITY_NOTE = (
+        "Saved plans are shared, so this plan will be visible to everyone creating a "
+        "rollout."
+    )
     ROLLOUT_PREVIEW_MESSAGE = (
         "This rollout is in Preview mode and is live for testing now. It can take up "
         "to an hour before clients receive the preview. When you're ready, request "
@@ -431,6 +457,13 @@ Optional - We expect this to <describe impact> on <core metric>.
     )
     ROLLOUT_PREVIEW_BLOCKED_TOOLTIP = (
         "Resolve the detected setup issues before previewing or launching"
+    )
+    ROLLOUT_ARCHIVED_TOOLTIP = (
+        "This rollout is archived. Unarchive it before previewing or launching."
+    )
+    ROLLOUT_PREVIEW_UNSUPPORTED_TOOLTIP = (
+        "This rollout uses features that prevent it from being launched to preview. "
+        "We highly recommend QAing this rollout on stage first."
     )
     ROLLOUT_UNSAVED_CHANGES_CONFIRM = (
         "A section is still open for editing. Click OK to continue and discard "
@@ -464,14 +497,16 @@ Optional - We expect this to <describe impact> on <core metric>.
     TOAST_SLACK_ENABLED = "toast-slack-enabled"
     TOAST_SLACK_DISABLED = "toast-slack-disabled"
     TOAST_EDIT_CANCELLED = "toast-edit-cancelled"
+    TOAST_PREVIEW_LINK_COPIED = "toast-preview-link-copied"
 
     TOASTS = {
         TOAST_SAVED: "Changes saved",
-        TOAST_SUBSCRIBED: "Subscribed to this experiment",
-        TOAST_UNSUBSCRIBED: "Unsubscribed from this experiment",
+        TOAST_SUBSCRIBED: "Subscribed to this delivery",
+        TOAST_UNSUBSCRIBED: "Unsubscribed from this delivery",
         TOAST_SLACK_ENABLED: "Review Slack notifications enabled",
         TOAST_SLACK_DISABLED: "Review Slack notifications disabled",
         TOAST_EDIT_CANCELLED: "Edit cancelled",
+        TOAST_PREVIEW_LINK_COPIED: "Preview link copied to clipboard",
     }
 
     ROLLOUT_CARD_FIELDS = {
@@ -481,7 +516,6 @@ Optional - We expect this to <describe impact> on <core metric>.
                 ("Name", ("name",)),
                 ("Observations & Problem Space", ("hypothesis",)),
                 ("Public Description", ("public_description",)),
-                ("Application", ("application",)),
                 ("Important Links", ("documentation_links",)),
                 ("Project Tags", ()),
                 ("Subscribers", ()),
@@ -500,7 +534,6 @@ Optional - We expect this to <describe impact> on <core metric>.
         "rollout-features": {
             "section": "Features",
             "rows": (
-                ("Rollout Experience", ("takeaways_summary",)),
                 ("Feature Configuration", ("feature_configs", "reference_branch")),
                 ("Warn On Schema Failure", ("warn_feature_schema",)),
                 ("Prevent Pref Conflicts", ("prevent_pref_conflicts",)),

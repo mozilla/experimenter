@@ -201,7 +201,7 @@ searchConfiguration:
       type: boolean
       setPref:
         branch: user
-        pref: browser.search.separatePrivateDefault.ui.enabled
+        pref: browser.search.separatePrivateDefault.featureGate
       description: Whether the UI for the separate private default feature is enabled.
     separatePrivateDefaultUrlbarResultEnabled:
       type: boolean
@@ -4998,6 +4998,22 @@ httpsFirst:
       setPref:
         branch: default
         pref: dom.security.https_only_fire_http_request_background_timer_ms
+
+netErrorSearchCTA:
+  description: >-
+    The one-click search call-to-action on the online dnsNotFound network error
+    page (meta bug 2055374).
+  owner: jbrown@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        Whether the online dnsNotFound error page offers the search CTA. Off by
+        default outside Nightly.
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.netError.searchCTA.enabled
 
 contentRelevancy:
   description: >-

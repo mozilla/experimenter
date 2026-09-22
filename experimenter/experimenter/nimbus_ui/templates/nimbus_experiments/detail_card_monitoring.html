@@ -63,10 +63,10 @@
                   <td {% if stage.reason == "FeatureConflict" and stage.pct >= 25 %}class="fw-semibold"{% endif %}>
                     <span class="badge bg-{{ stage.color }} text-{{ stage.text_color }} me-1">{{ stage.status }}</span>
                     {{ stage.label }}
-                    {% if stage.conflict_slugs %}
+                    {% if stage.conflicts %}
                       —
-                      {% for slug in stage.conflict_slugs %}
-                        <a href="{% url 'nimbus-ui-detail' slug=slug %}">{{ slug }}</a>
+                      {% for conflict in stage.conflicts %}
+                        <a href="{{ conflict.detail_url }}">{{ conflict.slug }}</a>
                         {% if not forloop.last %},{% endif %}
                       {% endfor %}
                     {% endif %}
