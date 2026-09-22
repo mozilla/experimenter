@@ -551,6 +551,9 @@ class NimbusConstants:
     DESKTOP_NEWTAB_TRAINHOP_SLUG = DESKTOP_NEWTAB_TRAINHOP_SLUG
     DESKTOP_NEWTAB_ADDON_VERSION_ATTR = DESKTOP_NEWTAB_ADDON_VERSION_ATTR
 
+    DESKTOP_FXMS_MESSAGE_SLUG = "fxms-message"
+    DESKTOP_FXMS_MESSAGE_PLACEHOLDER_PREFIX = f"{DESKTOP_FXMS_MESSAGE_SLUG}-"
+
     MOBILE_MESSAGING_SLUG = "messaging"
     MOBILE_MESSAGING_MESSAGES_FIELD = "messages"
     MOBILE_MESSAGING_MESSAGE_EXPERIMENT_FIELD = "experiment"
@@ -923,6 +926,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
 
     WARNING_PREF_FLIPS_PREF_CONTROLLED_BY_FEATURE = (
         "Pref '{pref}' is controlled by a variable in feature {feature_config_slug}'"
+    )
+
+    WARNING_DESKTOP_FXMS_MESSAGE_COENROLLMENT = (
+        "{feature_slugs} {verb} deprecated. Please use "
+        f"{DESKTOP_FXMS_MESSAGE_SLUG} instead, which allows multiple simultaneous "
+        "enrollments."
     )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"

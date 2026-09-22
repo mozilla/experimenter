@@ -172,6 +172,8 @@ Optional - We expect this to <describe impact> on <core metric>.
         "proposed_release_date": "Release date set on a non-first-run experiment",
     }
 
+    REVIEW_WARNING_MESSAGE_AS_LABEL = {"fxms_message_coenrollment"}
+
     REVIEW_WARNING_LEARN_MORE = {
         "firefox_min_version": (
             "https://experimenter.info/advanced/rollouts"

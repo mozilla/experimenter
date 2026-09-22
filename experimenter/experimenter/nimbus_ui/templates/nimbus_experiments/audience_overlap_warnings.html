@@ -41,10 +41,12 @@
         {% for issue in warning.self_issues %}
           <li>
             <span>{{ issue.label }}</span>
-            <i class="fa-regular fa-circle-question fa-sm"
-               data-bs-toggle="tooltip"
-               data-bs-placement="top"
-               title="{{ issue.detail }}"></i>
+            {% if issue.detail %}
+              <i class="fa-regular fa-circle-question fa-sm"
+                 data-bs-toggle="tooltip"
+                 data-bs-placement="top"
+                 title="{{ issue.detail }}"></i>
+            {% endif %}
             {% if issue.learn_more_url %}
               <a href="{{ issue.learn_more_url }}"
                  target="_blank"
