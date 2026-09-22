@@ -11,14 +11,6 @@ features:
         description: If true, Add Shortcuts improvement is enabled.
         type: Boolean
         default: true
-  addressbar-focus-mode:
-    description: |
-      When starting to edit the current URL show the website details in the awesomebar instead of the addressbar.
-    variables:
-      enabled:
-        description: Whether the feature is enabled
-        type: Boolean
-        default: false
   ads-client-for-stories:
     description: Feature to enable the Mozilla Ads Client support for Sponsored Stories for users on Firefox on Android.
     variables:
@@ -60,19 +52,17 @@ features:
     description: Control Baseline Fingerprinting Protection
     variables:
       enabled:
-        description: |
-          Enables / disables baseline fingerprinting protection. Unset leaves the existing setting alone.
-        type: Option<Boolean>
-        default: null
+        description: Enables / disables baseline fingerprinting protection.
+        type: Boolean
+        default: true
       feat-enabled:
-        description: |
-          Deprecated and no longer read. Each of the values below is applied independently when a recipe supplies it; leaving a value unset means "leave the existing setting alone".
+        description: If true, the feature is active.
         type: Boolean
         default: false
       overrides:
-        description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. Unset leaves the existing setting alone.
-        type: Option<String>
-        default: null
+        description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
+        type: String
+        default: ''
   collections-to-tab-groups-migration:
     description: Feature to migrate Collections to Tab Groups for users on Firefox for Android.
     variables:
@@ -177,20 +167,19 @@ features:
     description: Control Fingerprinting Protection
     variables:
       enabled:
-        description: |
-          Deprecated and no longer read. Each of the values below is applied independently when a recipe supplies it; leaving a value unset means "leave the existing setting alone".
+        description: If true, the feature is active.
         type: Boolean
         default: false
       enabled-normal:
         description: |
-          Enables / disables fingerprinting protection in normal browsing mode. Unset leaves the existing setting alone.
-        type: Option<Boolean>
-        default: null
+          Enables / disables fingerprinting protection in normal browsing mode.
+        type: Boolean
+        default: false
       enabled-private:
         description: |
-          Enables / disables fingerprinting protection in private browsing mode. Unset leaves the existing setting alone.
-        type: Option<Boolean>
-        default: null
+          Enables / disables fingerprinting protection in private browsing mode.
+        type: Boolean
+        default: true
       fdlibm-math:
         description: |
           Uses a different math backend for Math.sin/cos/tan in JavaScript that exposes less entropy
@@ -198,9 +187,18 @@ features:
         default: false
       overrides:
         description: |
-          The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. Unset leaves the existing setting alone.
-        type: Option<String>
-        default: null
+          The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
+        type: String
+        default: ''
+  firefox-jp-guide-default-site:
+    description: |
+      This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
+    variables:
+      enabled:
+        description: |
+          Enables the feature.
+        type: Boolean
+        default: false
   fission:
     description: The feature that controls whether fission is enabled or not in Gecko.
     variables:
@@ -319,7 +317,7 @@ features:
       enabled:
         description: If true, trending and recent searches are shown on the Homepage Search.
         type: Boolean
-        default: true
+        default: false
   homepage-weather-widget:
     description: Feature to enable Homepage Weather Widget for users on Firefox for Android.
     variables:
@@ -336,6 +334,8 @@ features:
         default:
           top-sites: true
           jump-back-in: true
+          bookmarks: true
+          recent-explorations: true
           pocket: true
           pocket-sponsored-stories: true
           synced-tabs: true
@@ -550,6 +550,20 @@ features:
         description: If false, the marketing onboarding card will never be shown.
         type: Boolean
         default: true
+  media-notification-improvements:
+    description: Whether to show the media notification improvements
+    variables:
+      enabled:
+        description: enabled media notification improvements if true, else not enabled
+        type: Boolean
+        default: true
+  merino-client:
+    description: Feature to enable the Merino Client for users on Firefox on Android.
+    variables:
+      enabled:
+        description: If true, Merino Client is enabled.
+        type: Boolean
+        default: false
   messaging:
     description: |
       The in-app messaging system.
@@ -831,17 +845,6 @@ features:
         description: If true, the one click search will be enabled.
         type: Boolean
         default: false
-  pairing-signin-prompt:
-    description: Controls the day 1 sign-in prompt for users who installed Firefox through a pairing link.
-    variables:
-      campaign-utm-content:
-        description: The "utm_content" value used to identify installs from the pairing campaign.
-        type: String
-        default: ''
-      enabled:
-        description: Whether the day 1 sign-in prompt can be shown.
-        type: Boolean
-        default: false
   pdf-viewer:
     description: Feature for the PDF viewer tools for users on Firefox for Android.
     variables:
@@ -1053,7 +1056,7 @@ features:
       enabled:
         description: If true, show the expand/collapse buttons on the homepage.
         type: Boolean
-        default: true
+        default: false
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     variables:
@@ -1116,40 +1119,11 @@ features:
           Whether or not to enable onboarding for tab groups.
         type: Boolean
         default: true
-  tab-groups-strip:
-    description: Control whether the tab groups strip is shown.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the tab groups strip.
-        type: Boolean
-        default: false
-  tab-groups-ungroup:
-    description: Control whether the ungroup option is available for tab groups.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable ungrouping tab groups.
-        type: Boolean
-        default: true
   tab-management-enhancements:
     description: Control the visibility of the tab management enhancements.
     variables:
       opening_animation_enabled:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
-        type: Boolean
-        default: false
-  tab-reload-cover:
-    description: |
-      Shows a cached thumbnail cover over the engine view while a tab reloads from session restore, hiding it once the page has repainted. Optionally refreshes the stored thumbnail before backgrounding so the cover reflects the last visible scroll position.
-    variables:
-      enabled:
-        description: If true, the cached thumbnail cover is shown on tab reloads.
-        type: Boolean
-        default: false
-      scroll-aware-capture-enabled:
-        description: |
-          If true, the stored thumbnail is refreshed at the last visible scroll position when the selected tab loses foreground focus. Only meaningful when `enabled` is true.
         type: Boolean
         default: false
   tab-strip:
@@ -1314,6 +1288,8 @@ enums:
   HomeScreenSection:
     description: The identifiers for the sections of the homescreen.
     variants:
+      bookmarks:
+        description: The sites the user has bookmarked.
       collections:
         description: The collections section of the homepage.
       jump-back-in:
@@ -1324,6 +1300,8 @@ enums:
         description: Subsection of the Pocket homescreen section which shows sponsored stories.
       privacy-report:
         description: The privacy report section showing trackers blocked.
+      recent-explorations:
+        description: The tab groups
       synced-tabs:
         description: The synced tabs section of the homepage.
       top-sites:

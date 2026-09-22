@@ -6,15 +6,6 @@ add-shortcuts-improvement:
     enabled:
       type: boolean
       description: If true, Add Shortcuts improvement is enabled.
-addressbar-focus-mode:
-  description: |
-    When starting to edit the current URL show the website details in the awesomebar instead of the addressbar.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: Whether the feature is enabled
 ads-client-for-stories:
   description: Feature to enable the Mozilla Ads Client support for Sponsored Stories for users on Firefox on Android.
   hasExposure: true
@@ -59,15 +50,13 @@ baseline-fpp:
   variables:
     enabled:
       type: boolean
-      description: |
-        Enables / disables baseline fingerprinting protection. Unset leaves the existing setting alone.
+      description: Enables / disables baseline fingerprinting protection.
     feat-enabled:
       type: boolean
-      description: |
-        Deprecated and no longer read. Each of the values below is applied independently when a recipe supplies it; leaving a value unset means "leave the existing setting alone".
+      description: If true, the feature is active.
     overrides:
       type: string
-      description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. Unset leaves the existing setting alone.
+      description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
 collections-to-tab-groups-migration:
   description: Feature to migrate Collections to Tab Groups for users on Firefox for Android.
   hasExposure: true
@@ -179,16 +168,15 @@ fingerprinting-protection:
   variables:
     enabled:
       type: boolean
-      description: |
-        Deprecated and no longer read. Each of the values below is applied independently when a recipe supplies it; leaving a value unset means "leave the existing setting alone".
+      description: If true, the feature is active.
     enabled-normal:
       type: boolean
       description: |
-        Enables / disables fingerprinting protection in normal browsing mode. Unset leaves the existing setting alone.
+        Enables / disables fingerprinting protection in normal browsing mode.
     enabled-private:
       type: boolean
       description: |
-        Enables / disables fingerprinting protection in private browsing mode. Unset leaves the existing setting alone.
+        Enables / disables fingerprinting protection in private browsing mode.
     fdlibm-math:
       type: boolean
       description: |
@@ -196,7 +184,17 @@ fingerprinting-protection:
     overrides:
       type: string
       description: |
-        The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. Unset leaves the existing setting alone.
+        The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. The default value is empty string.
+firefox-jp-guide-default-site:
+  description: |
+    This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
 fission:
   description: The feature that controls whether fission is enabled or not in Gecko.
   hasExposure: true
@@ -456,6 +454,22 @@ marketing-onboarding-card:
     enabled:
       type: boolean
       description: If false, the marketing onboarding card will never be shown.
+media-notification-improvements:
+  description: Whether to show the media notification improvements
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: enabled media notification improvements if true, else not enabled
+merino-client:
+  description: Feature to enable the Merino Client for users on Firefox on Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Merino Client is enabled.
 messaging:
   description: |
     The in-app messaging system.
@@ -612,17 +626,6 @@ one-click-search:
     enabled:
       type: boolean
       description: If true, the one click search will be enabled.
-pairing-signin-prompt:
-  description: Controls the day 1 sign-in prompt for users who installed Firefox through a pairing link.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    campaign-utm-content:
-      type: string
-      description: The "utm_content" value used to identify installs from the pairing campaign.
-    enabled:
-      type: boolean
-      description: Whether the day 1 sign-in prompt can be shown.
 pdf-viewer:
   description: Feature for the PDF viewer tools for users on Firefox for Android.
   hasExposure: true
@@ -901,24 +904,6 @@ tab-groups-onboarding:
       type: boolean
       description: |
         Whether or not to enable onboarding for tab groups.
-tab-groups-strip:
-  description: Control whether the tab groups strip is shown.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the tab groups strip.
-tab-groups-ungroup:
-  description: Control whether the ungroup option is available for tab groups.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable ungrouping tab groups.
 tab-management-enhancements:
   description: Control the visibility of the tab management enhancements.
   hasExposure: true
@@ -927,19 +912,6 @@ tab-management-enhancements:
     opening_animation_enabled:
       type: boolean
       description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
-tab-reload-cover:
-  description: |
-    Shows a cached thumbnail cover over the engine view while a tab reloads from session restore, hiding it once the page has repainted. Optionally refreshes the stored thumbnail before backgrounding so the cover reflects the last visible scroll position.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, the cached thumbnail cover is shown on tab reloads.
-    scroll-aware-capture-enabled:
-      type: boolean
-      description: |
-        If true, the stored thumbnail is refreshed at the last visible scroll position when the selected tab loses foreground focus. Only meaningful when `enabled` is true.
 tab-strip:
   description: Enables tab strip.
   hasExposure: true

@@ -761,7 +761,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
