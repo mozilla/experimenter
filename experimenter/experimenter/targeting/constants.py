@@ -5287,6 +5287,65 @@ FX_158_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+# A widget renders only when it is addable AND its enabled pref is true, so the only
+# profiles whose New Tab could visibly change are the ones that explicitly turned a
+# widget on. Default-branch values do not count, hence preferenceIsUserSet per pref.
+ANY_WIDGET_EXPLICITLY_ENABLED = """
+(
+    (
+        ('browser.newtabpage.activity-stream.widgets.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.enabled'|preferenceValue)
+    )
+    ||
+    (
+        ('browser.newtabpage.activity-stream.widgets.lists.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.lists.enabled'|preferenceValue)
+    )
+    ||
+    (
+        ('browser.newtabpage.activity-stream.widgets.focusTimer.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.focusTimer.enabled'|preferenceValue)
+    )
+    ||
+    (
+        ('browser.newtabpage.activity-stream.widgets.crossword.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.crossword.enabled'|preferenceValue)
+    )
+    ||
+    (
+        ('browser.newtabpage.activity-stream.widgets.pictureOfTheDay.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.pictureOfTheDay.enabled'|preferenceValue)
+    )
+    ||
+    (
+        ('browser.newtabpage.activity-stream.widgets.clocks.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.clocks.enabled'|preferenceValue)
+    )
+)
+"""
+
+WIDGETS_NONE_EXPLICITLY_ENABLED = NimbusTargetingConfig(
+    name="New Tab No Widget Explicitly Enabled By User",
+    slug="widgets-none-explicitly-enabled",
+    description=(
+        "Users who have not explicitly (user-set, not default-branch) enabled the "
+        "widgets container or the Lists, Timer, Crossword, Picture of the Day, or "
+        "Clocks widget. Safe audience for revealing widget toggles without "
+        "changing what renders on the new tab page."
+    ),
+    targeting=f"!({ANY_WIDGET_EXPLICITLY_ENABLED})",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
     name="New Tab Lists/Timer Interaction, Neither Widget Disabled",
     slug="widgets-lists-timer-interacted-not-disabled",
