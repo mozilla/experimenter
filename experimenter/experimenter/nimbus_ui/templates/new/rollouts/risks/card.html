@@ -4,8 +4,8 @@
   <div class="row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-3"
        id="rollout-risks-body">
     {# AI risk #}
-    <div class="col">
-      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100 d-flex align-items-center justify-content-between gap-3">
+    <div class="col d-flex flex-column">
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 flex-grow-1 d-flex align-items-center justify-content-between gap-3">
         <span class="small text-secondary">AI risk</span>
         {% if experiment.risk_ai is None %}
           <span id="rollout-risks-ai" class="text-body text-nowrap">— Not Set</span>
@@ -23,8 +23,8 @@
 
     </div>
     {# Brand perception impact #}
-    <div class="col">
-      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100 d-flex align-items-center justify-content-between gap-3">
+    <div class="col d-flex flex-column">
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 flex-grow-1 d-flex align-items-center justify-content-between gap-3">
         <span class="small text-secondary">Brand perception impact</span>
         {% if experiment.risk_brand is None %}
           <span id="rollout-risks-brand" class="text-body text-nowrap">— Not Set</span>
@@ -42,8 +42,8 @@
 
     </div>
     {# Revenue impact #}
-    <div class="col">
-      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100 d-flex align-items-center justify-content-between gap-3">
+    <div class="col d-flex flex-column">
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 flex-grow-1 d-flex align-items-center justify-content-between gap-3">
         <span class="small text-secondary">Revenue impact</span>
         {% if experiment.risk_revenue is None %}
           <span id="rollout-risks-revenue" class="text-body text-nowrap">— Not Set</span>
@@ -61,8 +61,8 @@
 
     </div>
     {# External vendor impact #}
-    <div class="col">
-      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100 d-flex align-items-center justify-content-between gap-3">
+    <div class="col d-flex flex-column">
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 flex-grow-1 d-flex align-items-center justify-content-between gap-3">
         <span class="small text-secondary">External vendor impact</span>
         {% if experiment.risk_partner_related is None %}
           <span id="rollout-risks-partner-related" class="text-body text-nowrap">— Not Set</span>
@@ -80,8 +80,8 @@
 
     </div>
     {# Messaging impact #}
-    <div class="col">
-      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100 d-flex align-items-center justify-content-between gap-3">
+    <div class="col d-flex flex-column">
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 flex-grow-1 d-flex align-items-center justify-content-between gap-3">
         <span class="small text-secondary">Messaging impact</span>
         {% if experiment.risk_message is None %}
           <span id="rollout-risks-message" class="text-body text-nowrap">— Not Set</span>

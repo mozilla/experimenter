@@ -21,8 +21,8 @@
 
     </div>
     {# Warn only on feature schema validation failure #}
-    <div class="col-12 col-md-6">
-      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100 d-flex align-items-center justify-content-between gap-3">
+    <div class="col-12 col-md-6 d-flex flex-column">
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 flex-grow-1 d-flex align-items-center justify-content-between gap-3">
         <span class="small text-secondary">Warn only on feature schema validation failure</span>
         {% if experiment.warn_feature_schema %}
           <span class="text-body text-nowrap">
@@ -38,8 +38,8 @@
 
     </div>
     {# Prevent enrollment if prefs changed #}
-    <div class="col-12 col-md-6">
-      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100 d-flex align-items-center justify-content-between gap-3">
+    <div class="col-12 col-md-6 d-flex flex-column">
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 flex-grow-1 d-flex align-items-center justify-content-between gap-3">
         <span class="small text-secondary">Prevent enrollment if users have changed any prefs set by this rollout</span>
         {% if experiment.prevent_pref_conflicts %}
           <span class="text-body text-nowrap">

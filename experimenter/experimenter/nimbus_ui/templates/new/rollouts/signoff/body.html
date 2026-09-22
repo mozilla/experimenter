@@ -2,8 +2,8 @@
      id="rollout-signoff-body"
      {% if oob %}hx-swap-oob="true"{% endif %}>
   {# QA sign-off #}
-  <div class="col">
-    <div class="bg-body-tertiary rounded-3 p-3 h-100 d-flex flex-column gap-2">
+  <div class="col d-flex flex-column">
+    <div class="bg-body-tertiary rounded-3 p-3 flex-grow-1 d-flex flex-column gap-2">
       <div class="d-flex align-items-center justify-content-between gap-3">
         <span class="small text-secondary">QA sign-off</span>
         {% if experiment.qa_signoff %}
@@ -23,8 +23,8 @@
 
   </div>
   {# VP sign-off #}
-  <div class="col">
-    <div class="bg-body-tertiary rounded-3 p-3 h-100 d-flex flex-column gap-2">
+  <div class="col d-flex flex-column">
+    <div class="bg-body-tertiary rounded-3 p-3 flex-grow-1 d-flex flex-column gap-2">
       <div class="d-flex align-items-center justify-content-between gap-3">
         <span class="small text-secondary">VP sign-off</span>
         {% if experiment.vp_signoff %}
@@ -44,8 +44,8 @@
 
   </div>
   {# Legal sign-off #}
-  <div class="col">
-    <div class="bg-body-tertiary rounded-3 p-3 h-100 d-flex flex-column gap-2">
+  <div class="col d-flex flex-column">
+    <div class="bg-body-tertiary rounded-3 p-3 flex-grow-1 d-flex flex-column gap-2">
       <div class="d-flex align-items-center justify-content-between gap-3">
         <span class="small text-secondary">Legal sign-off</span>
         {% if experiment.legal_signoff %}
