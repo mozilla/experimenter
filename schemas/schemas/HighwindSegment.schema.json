@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "HighwindSegment",
+  "type": "object",
+  "properties": {
+    "branches": {
+      "items": {
+        "$ref": "#/$defs/HighwindSegmentBranch"
+      },
+      "type": "array"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "friendly_name": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "slug",
+    "friendly_name",
+    "branches"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "HighwindSegmentBranch": {
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "units": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "branch",
+        "units"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -52,3 +52,21 @@ export type {
   StatisticIngestEnum,
   Statistics,
 } from "./types/jetstream.d.ts";
+export type {
+  HighwindAnalysis,
+  HighwindAnalysisUnit,
+  HighwindBranchValue,
+  HighwindCellState,
+  HighwindComparison,
+  HighwindDirection,
+  HighwindError,
+  HighwindLogLevel,
+  HighwindMetadata,
+  HighwindMetricResult,
+  HighwindSegment,
+  HighwindSegmentBranch,
+  HighwindSegmentResult,
+  HighwindWindow,
+  HighwindWindowKind,
+  HighwindWindowResult,
+} from "./types/highwind.d.ts";

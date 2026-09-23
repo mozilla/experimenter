@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "HighwindWindow",
+  "type": "object",
+  "properties": {
+    "end_day": {
+      "type": "integer"
+    },
+    "kind": {
+      "$ref": "#/$defs/HighwindWindowKind"
+    },
+    "matures_on": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "start_day": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "kind",
+    "start_day",
+    "end_day",
+    "matures_on"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "HighwindWindowKind": {
+      "enum": [
+        "cumulative",
+        "disjoint"
+      ],
+      "type": "string"
+    }
+  }
+}

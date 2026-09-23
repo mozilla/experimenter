@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "HighwindWindowResult",
+  "type": "object",
+  "properties": {
+    "branches": {
+      "items": {
+        "$ref": "#/$defs/HighwindBranchValue"
+      },
+      "type": "array"
+    },
+    "comparisons": {
+      "items": {
+        "$ref": "#/$defs/HighwindComparison"
+      },
+      "type": "array"
+    },
+    "is_summary": {
+      "type": "boolean"
+    },
+    "window": {
+      "$ref": "#/$defs/HighwindWindow"
+    }
+  },
+  "required": [
+    "window",
+    "is_summary",
+    "branches",
+    "comparisons"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "HighwindBranchValue": {
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "n": {
+          "type": "integer"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "branch",
+        "n",
+        "value",
+        "lower",
+        "upper"
+      ],
+      "type": "object"
+    },
+    "HighwindCellState": {
+      "enum": [
+        "not_started",
+        "insufficient_data",
+        "forming",
+        "confident",
+        "error"
+      ],
+      "type": "string"
+    },
+    "HighwindComparison": {
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "direction": {
+          "$ref": "#/$defs/HighwindDirection"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "n_reference": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "n_treatment": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reference_branch": {
+          "type": "string"
+        },
+        "relative_shift": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "$ref": "#/$defs/HighwindCellState"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "branch",
+        "reference_branch",
+        "state",
+        "direction",
+        "relative_shift",
+        "lower",
+        "upper",
+        "n_reference",
+        "n_treatment",
+        "error"
+      ],
+      "type": "object"
+    },
+    "HighwindDirection": {
+      "enum": [
+        "positive",
+        "negative",
+        "neutral"
+      ],
+      "type": "string"
+    },
+    "HighwindWindow": {
+      "additionalProperties": false,
+      "properties": {
+        "end_day": {
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/HighwindWindowKind"
+        },
+        "matures_on": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "start_day": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "start_day",
+        "end_day",
+        "matures_on"
+      ],
+      "type": "object"
+    },
+    "HighwindWindowKind": {
+      "enum": [
+        "cumulative",
+        "disjoint"
+      ],
+      "type": "string"
+    }
+  }
+}

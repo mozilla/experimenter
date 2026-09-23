@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "HighwindMetadata",
+  "type": "object",
+  "properties": {
+    "analysis_unit": {
+      "$ref": "#/$defs/HighwindAnalysisUnit"
+    },
+    "as_of_date": {
+      "format": "date",
+      "type": "string"
+    },
+    "branches": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "end_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "experiment_slug": {
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "pipeline_version": {
+      "type": "string"
+    },
+    "reference_branch": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "integer"
+    },
+    "start_date": {
+      "format": "date",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "experiment_slug",
+    "as_of_date",
+    "generated_at",
+    "pipeline_version",
+    "start_date",
+    "end_date",
+    "analysis_unit",
+    "reference_branch",
+    "branches"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "HighwindAnalysisUnit": {
+      "enum": [
+        "client_id",
+        "profile_group_id"
+      ],
+      "type": "string"
+    }
+  }
+}

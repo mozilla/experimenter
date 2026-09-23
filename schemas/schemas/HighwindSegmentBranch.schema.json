@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "HighwindSegmentBranch",
+  "type": "object",
+  "properties": {
+    "branch": {
+      "type": "string"
+    },
+    "units": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "branch",
+    "units"
+  ],
+  "additionalProperties": false
+}
