@@ -59,6 +59,13 @@ class AuthTestCase(TestCase):
         super().setUp()
         self.user = UserFactory.create(email="user@example.com")
         self.client.defaults[settings.OPENIDC_EMAIL_HEADER] = self.user.email
+        self.new_delivery_menu_flag = SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+
+    def disable_new_delivery_menu(self):
+        self.new_delivery_menu_flag.delete()
 
 
 class TestNimbusExperimentsCreateView(AuthTestCase):
@@ -99,13 +106,9 @@ class TestNimbusExperimentsCreateView(AuthTestCase):
 
 
 class TestNimbusRolloutsCreateView(AuthTestCase):
-    def enable_rollout_creation(self):
-        return SiteFlag.objects.create(
-            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
-            value=True,
-        )
-
     def test_create_button_hidden_when_flag_is_unset(self):
+        self.disable_new_delivery_menu()
+
         response = self.client.get(reverse("nimbus-ui-home"))
 
         self.assertNotContains(response, 'id="new-delivery-button"')
@@ -114,8 +117,6 @@ class TestNimbusRolloutsCreateView(AuthTestCase):
         self.assertContains(response, 'id="create-new-button"')
 
     def test_new_delivery_menu_shown_when_flag_is_enabled(self):
-        self.enable_rollout_creation()
-
         response = self.client.get(reverse("nimbus-ui-home"))
 
         self.assertContains(response, 'id="new-delivery-button"')
@@ -125,8 +126,6 @@ class TestNimbusRolloutsCreateView(AuthTestCase):
         self.assertNotContains(response, 'id="create-new-button"')
 
     def test_post_creates_rollout_when_flag_is_enabled(self):
-        self.enable_rollout_creation()
-
         response = self.client.post(
             reverse("nimbus-ui-new-create-rollout"),
             {
@@ -149,13 +148,6 @@ class TestNimbusRolloutsCreateView(AuthTestCase):
 
 
 class TestNimbusFirefoxLabsCreateView(AuthTestCase):
-    def setUp(self):
-        super().setUp()
-        SiteFlag.objects.create(
-            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
-            value=True,
-        )
-
     def test_post_creates_labs_and_redirects_to_legacy_detail(self):
         response = self.client.post(
             reverse("nimbus-ui-new-create-labs"),
@@ -208,6 +200,165 @@ class TestNimbusFirefoxLabsCreateView(AuthTestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+
+class TestOldRolloutUIRedirectMixin(AuthTestCase):
+    GET_URL_NAMES = [
+        "new-nimbus-ui-rollout-detail",
+        "nimbus-ui-new-search-tags",
+        "nimbus-ui-new-search-subscribers",
+    ]
+
+    POST_URL_NAMES = [
+        "nimbus-ui-new-update-overview",
+        "nimbus-ui-new-update-risks",
+        "nimbus-ui-new-update-rollout-features",
+        "nimbus-ui-new-update-audience",
+        "nimbus-ui-new-update-qa",
+        "nimbus-ui-new-update-signoff",
+        "nimbus-ui-new-update-schedule",
+        "nimbus-ui-new-create-documentation-link",
+        "nimbus-ui-new-delete-documentation-link",
+        "nimbus-ui-new-create-rollout-screenshot",
+        "nimbus-ui-new-upload-rollout-screenshot",
+        "nimbus-ui-new-delete-rollout-screenshot",
+        "nimbus-ui-new-create-rollout-phase",
+        "nimbus-ui-new-delete-rollout-phase",
+        "nimbus-ui-new-create-rollout-plan",
+        "nimbus-ui-new-apply-rollout-plan",
+        "nimbus-ui-new-add-tag",
+        "nimbus-ui-new-remove-tag",
+        "nimbus-ui-new-add-subscriber",
+        "nimbus-ui-new-remove-subscriber",
+        "nimbus-ui-new-subscribe",
+        "nimbus-ui-new-unsubscribe",
+        "nimbus-ui-new-clone",
+        "nimbus-ui-new-toggle-archive",
+        "nimbus-ui-new-toggle-review-slack-notifications",
+        "nimbus-ui-new-draft-to-review-rollout",
+    ]
+
+    @parameterized.expand([*GET_URL_NAMES, *POST_URL_NAMES])
+    def test_get_redirects_to_old_ui_when_flag_disabled(self, url_name):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+        self.disable_new_delivery_menu()
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": rollout.slug}))
+
+        self.assertRedirects(
+            response,
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    @parameterized.expand([*GET_URL_NAMES, *POST_URL_NAMES])
+    def test_htmx_get_redirects_to_old_ui_when_flag_disabled(self, url_name):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+        self.disable_new_delivery_menu()
+
+        response = self.client.get(
+            reverse(url_name, kwargs={"slug": rollout.slug}),
+            headers={"Hx-Request": "true"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    @parameterized.expand(POST_URL_NAMES)
+    def test_htmx_post_redirects_to_old_ui_when_flag_disabled(self, url_name):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+        self.disable_new_delivery_menu()
+
+        response = self.client.post(
+            reverse(url_name, kwargs={"slug": rollout.slug}),
+            {},
+            headers={"Hx-Request": "true"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    @parameterized.expand(POST_URL_NAMES)
+    def test_non_htmx_post_redirects_to_old_ui_when_flag_disabled(self, url_name):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+        self.disable_new_delivery_menu()
+
+        response = self.client.post(reverse(url_name, kwargs={"slug": rollout.slug}), {})
+
+        self.assertRedirects(
+            response,
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
+        )
+
+    @parameterized.expand(GET_URL_NAMES)
+    def test_get_does_not_redirect_when_flag_enabled(self, url_name):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": rollout.slug}))
+
+        self.assertEqual(response.status_code, 200)
+
+    SHARED_GET_URL_NAMES = [
+        "nimbus-ui-new-search-tags",
+        "nimbus-ui-new-search-subscribers",
+    ]
+
+    @parameterized.expand(SHARED_GET_URL_NAMES)
+    def test_get_does_not_redirect_experiment_when_flag_disabled(self, url_name):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=False,
+        )
+        self.disable_new_delivery_menu()
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": experiment.slug}))
+
+        self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(SHARED_GET_URL_NAMES)
+    def test_get_redirects_labs_rollout_to_old_ui_when_flag_enabled(self, url_name):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            owner=self.user,
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="test-fx-labs-title",
+            firefox_labs_description="test-fx-labs-description",
+            firefox_labs_group="group",
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": rollout.slug}))
+
+        self.assertRedirects(
+            response,
+            reverse("nimbus-ui-detail", kwargs={"slug": rollout.slug}),
+        )
 
 
 class TestRolloutStatusUpdateViews(AuthTestCase):
@@ -3233,7 +3384,7 @@ class TestNewRolloutScheduleUpdateView(AuthTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
             response.url,
-            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
         )
 
     def test_get_shows_builtin_plan(self):
@@ -4220,18 +4371,16 @@ class TestNewCloneView(AuthTestCase):
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
         )
 
-    def test_post_clones_experiment_and_redirects_to_new_detail(self):
+    def test_post_clones_experiment_and_redirects_to_detail(self):
         response = self.client.post(
             reverse("nimbus-ui-new-clone", kwargs={"slug": self.experiment.slug}),
             {"owner": self.user, "name": "Test Experiment Copy"},
+            headers={"Hx-Request": "true"},
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.headers["HX-Redirect"],
-            reverse(
-                "new-nimbus-ui-rollout-detail",
-                kwargs={"slug": "test-experiment-copy"},
-            ),
+            reverse("nimbus-ui-detail", kwargs={"slug": "test-experiment-copy"}),
         )
         experiment = NimbusExperiment.objects.get(slug="test-experiment-copy")
         self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)

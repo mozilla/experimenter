@@ -12,7 +12,7 @@ class SummaryPage(ExperimenterBase):
 
     PAGE_TITLE = "Summary Page"
 
-    _page_wait_locator = (By.CSS_SELECTOR, "#PageSummary")
+    _page_wait_locator = (By.CSS_SELECTOR, "#PageSummary, #RolloutSummary")
     _promote_rollout_locator = (By.CSS_SELECTOR, 'button[data-testid="promote-rollout"]')
     _back_to_draft_locator = (By.CSS_SELECTOR, "#back-to-draft-button")
     _header_slug = (By.CSS_SELECTOR, "#experiment-slug")

@@ -242,6 +242,7 @@ jobs:
       - uses: ./.github/actions/run-integration-test
         if: steps.check-paths.outputs.should-run == 'true'
         with:
+          make-args: ENABLE_NEW_DELIVERY_MENU=1
           artifact-name: nimbus-ui-${{ matrix.split }}-test-report
 
   integration-remote-settings-all:

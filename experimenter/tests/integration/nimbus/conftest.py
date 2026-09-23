@@ -226,7 +226,7 @@ def experiment_url(base_url, experiment_slug):
 
 @pytest.fixture
 def rollout_url(base_url, experiment_slug):
-    return urljoin(base_url, f"/nimbus/new/rollouts/{experiment_slug}/")
+    return urljoin(base_url, f"/nimbus/rollouts/{experiment_slug}/")
 
 
 @pytest.fixture(name="load_experiment_outcomes")

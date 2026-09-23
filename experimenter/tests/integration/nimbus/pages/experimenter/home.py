@@ -16,6 +16,11 @@ class HomePage(ExperimenterBase):
     _page_wait_locator = (By.CSS_SELECTOR, "#PageHome-page")
     _table_experiment_link_locator = (By.CSS_SELECTOR, "#experiment-table tr a")
     _create_new_btn_locator = (By.CSS_SELECTOR, "#create-new-button")
+    _new_delivery_btn_locator = (By.CSS_SELECTOR, "#new-delivery-button")
+    _create_new_experiment_btn_locator = (
+        By.CSS_SELECTOR,
+        "#create-new-experiment-button",
+    )
     _public_name_locator = (By.CSS_SELECTOR, "#createForm #id_name")
     _hypothesis_locator = (By.CSS_SELECTOR, "#createForm #id_hypothesis")
     _application_select_locator = (By.CSS_SELECTOR, "#createForm #id_application")
@@ -38,7 +43,12 @@ class HomePage(ExperimenterBase):
         )
 
     def create_new_button(self):
-        self.click_element(self._create_new_btn_locator)
+        if self.find_elements(*self._create_new_btn_locator):
+            self.click_element(self._create_new_btn_locator)
+            return
+
+        self.click_element(self._new_delivery_btn_locator)
+        self.click_element(self._create_new_experiment_btn_locator)
 
     @property
     def public_name(self):

@@ -41,40 +41,42 @@
         {# Experiment header #}
         <div class="d-flex align-items-start justify-content-between mb-4">
           <div>
-            <div class="d-flex align-items-center gap-2">
-              <h1 id="experiment-header-name" class="mb-0 fw-semibold fs-4 text-body">{{ experiment.name }}</h1>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <h1 id="experiment-header-name" class="mb-0 fw-semibold fs-3 text-body">{{ experiment.name }}</h1>
               {% include "new/common/subscribe_bell.html" %}
+              {% include "new/common/experiment_status_badges.html" %}
 
             </div>
-            <div class="d-flex flex-column align-items-start gap-2 mt-1">
+            <div class="d-flex flex-wrap align-items-center gap-2 small text-secondary">
               <button id="experiment-slug"
-                      class="btn p-0 border-0 text-secondary d-flex align-items-center gap-1 small"
+                      class="btn p-0 border-0 text-secondary d-inline-flex align-items-center gap-1 small"
                       aria-label="Copy slug">
                 <span>{{ experiment.slug }}</span>
                 <i class="fa-regular fa-copy"></i>
               </button>
-              <div class="d-flex align-items-center gap-1 small text-secondary">
+              <span class="text-body-tertiary">|</span>
+              <span class="d-inline-flex align-items-center gap-1">
                 <span id="experiment-application">{{ experiment.get_application_display }}</span>
                 <i class="fa-regular fa-circle-question"
                    data-bs-toggle="tooltip"
                    data-bs-placement="right"
                    title="{{ NimbusUIConstants.ROLLOUT_APPLICATION_TOOLTIP }}"></i>
-              </div>
+              </span>
               {% if experiment.parent %}
-                <p class="text-secondary small mb-0">
+                <span class="text-body-tertiary">|</span>
+                <span>
                   Cloned from
                   <a href="{{ experiment.parent.get_detail_url }}"
                      target="_blank"
                      data-testid="experiment-parent"
                      rel="noopener noreferrer">{{ experiment.parent.name }}</a>
-                </p>
+                </span>
               {% endif %}
-              {% include "new/common/experiment_status_badges.html" %}
-
+              {% if experiment.latest_change %}
+                <span class="text-body-tertiary">|</span>
+                <span>Updated {{ experiment.latest_change.changed_on|timesince }} ago</span>
+              {% endif %}
             </div>
-            {% if experiment.latest_change %}
-              <div class="small text-secondary mt-1">Updated {{ experiment.latest_change.changed_on|timesince }} ago</div>
-            {% endif %}
           </div>
           <div class="align-self-start d-flex flex-column align-items-end gap-2">
             <div class="dropdown">

@@ -456,7 +456,7 @@ urlpatterns = [
     ),
     # ── New UI URLs (shared across rollouts and experiments) ───────────────────
     re_path(
-        r"^new/rollouts/(?P<slug>[\w-]+)/$",
+        r"^rollouts/(?P<slug>[\w-]+)/$",
         NimbusRolloutDetailView.as_view(),
         name="new-nimbus-ui-rollout-detail",
     ),

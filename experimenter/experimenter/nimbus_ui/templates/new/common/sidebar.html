@@ -4,12 +4,12 @@
 
 {% with stage=experiment.active_rollout_stage %}
   {# Set up card #}
-  <div class="accordion accordion-flush rounded-3 {% if stage == 'setup' %}bg-primary-subtle{% else %}bg-body-secondary{% endif %}"
+  <div class="accordion accordion-flush rounded-4 {% if stage == 'setup' %}bg-primary-subtle{% else %}bg-body-secondary{% endif %}"
        style="--bs-accordion-btn-active-color: var(--bs-body-color);
               --bs-accordion-btn-active-bg: transparent;
               --bs-accordion-active-color: var(--bs-body-color)"
        id="accordion-setup">
-    <div class="accordion-item border-0 bg-transparent rounded-3">
+    <div class="accordion-item border-0 bg-transparent rounded-4">
       <h2 class="accordion-header">
         <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_draft %} collapsed{% endif %}"
                 type="button"
@@ -51,12 +51,12 @@
       </div>
     </div>
   </div>
-  <div class="accordion accordion-flush rounded-3 {% if stage == 'preview' %}bg-primary-subtle{% else %}bg-body-secondary{% endif %}"
+  <div class="accordion accordion-flush rounded-4 {% if stage == 'preview' %}bg-primary-subtle{% else %}bg-body-secondary{% endif %}"
        style="--bs-accordion-btn-active-color: var(--bs-body-color);
               --bs-accordion-btn-active-bg: transparent;
               --bs-accordion-active-color: var(--bs-body-color)"
        id="accordion-preview">
-    <div class="accordion-item border-0 bg-transparent rounded-3">
+    <div class="accordion-item border-0 bg-transparent rounded-4">
       <h2 class="accordion-header">
         <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_preview %} collapsed{% endif %}"
                 type="button"
@@ -126,12 +126,12 @@
       </div>
     </div>
   </div>
-  <div class="accordion accordion-flush rounded-3 {% if stage == 'rollout' %}bg-primary-subtle{% else %}bg-body-secondary{% endif %}"
+  <div class="accordion accordion-flush rounded-4 {% if stage == 'rollout' %}bg-primary-subtle{% else %}bg-body-secondary{% endif %}"
        style="--bs-accordion-btn-active-color: var(--bs-body-color);
               --bs-accordion-btn-active-bg: transparent;
               --bs-accordion-active-color: var(--bs-body-color)"
        id="accordion-rollout">
-    <div class="accordion-item border-0 bg-transparent rounded-3">
+    <div class="accordion-item border-0 bg-transparent rounded-4">
       <h2 class="accordion-header">
         <button class="accordion-button bg-transparent shadow-none fw-semibold text-body small{% if not experiment.is_rolling_out %} collapsed{% endif %}"
                 type="button"
