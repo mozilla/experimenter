@@ -52,6 +52,7 @@ LOAD_FEATURES = python manage.py load_feature_configs
 GENERATE_TARGETING_CONFIGS = python manage.py generate_targeting_configs
 EXPORT_TARGETING_SQL = python manage.py export_targeting_sql
 LOAD_DUMMY_EXPERIMENTS = [[ -z $$SKIP_DUMMY ]] && python manage.py load_dummy_experiments || python manage.py load_dummy_tags
+ENABLE_NEW_DELIVERY_MENU_FLAG = [[ -z $$ENABLE_NEW_DELIVERY_MENU ]] || python manage.py set_site_flag NEW_DELIVERY_MENU true
 
 JETSTREAM_CONFIG_URL = https://github.com/mozilla/metric-hub/archive/main.zip
 
@@ -246,7 +247,7 @@ bash: build_dev cirrus_build
 refresh: kill build_dev cirrus_build compose_build refresh_db  ## Rebuild all containers and the database
 
 refresh_db:  # Rebuild the database
-	$(COMPOSE_RUN) -e SKIP_DUMMY=$$SKIP_DUMMY experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(GENERATE_TARGETING_CONFIGS)&&$(LOAD_DUMMY_EXPERIMENTS)'
+	$(COMPOSE_RUN) -e SKIP_DUMMY=$$SKIP_DUMMY -e ENABLE_NEW_DELIVERY_MENU=$$ENABLE_NEW_DELIVERY_MENU experimenter bash -c '$(WAIT_FOR_DB) $(PYTHON_MIGRATE)&&$(LOAD_LOCALES)&&$(LOAD_COUNTRIES)&&$(LOAD_LANGUAGES)&&$(LOAD_FEATURES)&&$(GENERATE_TARGETING_CONFIGS)&&$(LOAD_DUMMY_EXPERIMENTS)&&$(ENABLE_NEW_DELIVERY_MENU_FLAG)'
 
 dependabot_approve:
 	echo "Install and configure the Github CLI https://github.com/cli/cli"

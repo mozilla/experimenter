@@ -247,18 +247,21 @@ class NewRolloutUIRedirectMixin:
             return experiment.get_detail_url()
         return None
 
+    def new_rollout_ui_redirect(self, redirect_url):
+        if self.request.headers.get("HX-Request"):
+            response = HttpResponse()
+            response.headers["HX-Redirect"] = redirect_url
+            return response
+        return HttpResponseRedirect(redirect_url)
+
     def get(self, request, *args, **kwargs):
         if redirect_url := self.get_new_rollout_ui_redirect_url():
-            return HttpResponseRedirect(redirect_url)
+            return self.new_rollout_ui_redirect(redirect_url)
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if redirect_url := self.get_new_rollout_ui_redirect_url():
-            if request.headers.get("HX-Request"):
-                response = HttpResponse()
-                response.headers["HX-Redirect"] = redirect_url
-                return response
-            return HttpResponseRedirect(redirect_url)
+            return self.new_rollout_ui_redirect(redirect_url)
         return super().post(request, *args, **kwargs)
 
 
