@@ -162,6 +162,11 @@ features:
           If true, enables the add shortcut tile on homepage.
         type: Boolean
         default: false
+      animated-center-search-bar:
+        description: |
+          If true, enables the animated center search bar feature on homepage for users.
+        type: Boolean
+        default: false
       bookmarks-section-default:
         description: |
           If true, enables the bookmarks homepage section by default
@@ -182,11 +187,6 @@ features:
           If true, enables the pinned newsfeed header on homepage.
         type: Boolean
         default: true
-      search-bar:
-        description: |
-          If true, enables the search bar feature on homepage for users.
-        type: Boolean
-        default: false
   homepage-tracker-blocker-module-feature:
     description: |
       Controls the Tracker Blocker module feature
