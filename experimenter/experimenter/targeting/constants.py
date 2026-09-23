@@ -2662,6 +2662,17 @@ HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE_NO_STICKY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+DOES_NOT_HAVE_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
+    name="Does not have Google as current default search engine",
+    slug="does_not_have_google_as_current_default_search_engine",
+    description="Users without Google as current default engine",
+    targeting=("!('google' in searchEngines.current)"),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NEW_ANDROID_13_USERS = NimbusTargetingConfig(
     name="New Android 13 Users",
     slug="new_android_13_users",
