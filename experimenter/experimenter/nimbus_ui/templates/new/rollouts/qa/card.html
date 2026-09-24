@@ -13,12 +13,14 @@
     </div>
     {# QA notes #}
     <div class="col-12 col-md-8 col-xxl-9">
-      <div class="small text-secondary mb-1">QA notes</div>
-      <div id="rollout-qa-comment"
-           class="text-body"
-           style="white-space: pre-wrap">{{ experiment.qa_comment|default:"— Not Set" }}</div>
-      {% include "new/common/validation_errors.html" with errors=validation_errors.qa_comment %}
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+        <div class="small text-secondary mb-1">QA notes</div>
+        <div id="rollout-qa-comment"
+             class="text-body"
+             style="white-space: pre-wrap">{{ experiment.qa_comment|default:"— Not Set" }}</div>
+        {% include "new/common/validation_errors.html" with errors=validation_errors.qa_comment %}
 
+      </div>
     </div>
   </div>
   {% if hx_swap_oob %}

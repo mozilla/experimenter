@@ -143,21 +143,25 @@
     <div class="row g-3">
       {# Move to next phase observations #}
       <div class="col-12 col-lg-6">
-        <div class="small text-secondary mb-1">{{ NimbusUIConstants.ROLLOUT_ADVANCE_OBSERVATIONS_LABEL }}</div>
-        <div id="rollout-schedule-advance-observations"
-             class="text-body"
-             style="white-space: pre-wrap">{{ experiment.rollout_advance_observations|default:"— Not Set" }}</div>
-        {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_advance_observations %}
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">{{ NimbusUIConstants.ROLLOUT_ADVANCE_OBSERVATIONS_LABEL }}</div>
+          <div id="rollout-schedule-advance-observations"
+               class="text-body"
+               style="white-space: pre-wrap">{{ experiment.rollout_advance_observations|default:"— Not Set" }}</div>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_advance_observations %}
 
+        </div>
       </div>
       {# Pause rollout observations #}
       <div class="col-12 col-lg-6">
-        <div class="small text-secondary mb-1">{{ NimbusUIConstants.ROLLOUT_PAUSE_OBSERVATIONS_LABEL }}</div>
-        <div id="rollout-schedule-pause-observations"
-             class="text-body"
-             style="white-space: pre-wrap">{{ experiment.rollout_pause_observations|default:"— Not Set" }}</div>
-        {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_pause_observations %}
+        <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+          <div class="small text-secondary mb-1">{{ NimbusUIConstants.ROLLOUT_PAUSE_OBSERVATIONS_LABEL }}</div>
+          <div id="rollout-schedule-pause-observations"
+               class="text-body"
+               style="white-space: pre-wrap">{{ experiment.rollout_pause_observations|default:"— Not Set" }}</div>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_pause_observations %}
 
+        </div>
       </div>
     </div>
   </div>
