@@ -4486,6 +4486,52 @@ class TestNewToggleArchiveView(AuthTestCase):
         )
         self.assertContains(response, "Archive")
 
+    def test_archived_rollout_locks_card_edit_buttons(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            is_archived=True,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, NimbusUIConstants.ROLLOUT_ARCHIVED_EDIT_TOOLTIP)
+        for card_id in (
+            "overview",
+            "schedule",
+            "audience",
+            "rollout-features",
+            "signoff",
+            "risks",
+            "qa",
+        ):
+            self.assertNotContains(
+                response,
+                reverse(
+                    f"nimbus-ui-new-update-{card_id}", kwargs={"slug": experiment.slug}
+                ),
+            )
+
+    def test_unarchived_rollout_does_not_lock_card_edit_buttons(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            is_archived=False,
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertNotContains(response, NimbusUIConstants.ROLLOUT_ARCHIVED_EDIT_TOOLTIP)
+        self.assertContains(
+            response,
+            reverse("nimbus-ui-new-update-overview", kwargs={"slug": experiment.slug}),
+        )
+
 
 class TestNewToggleReviewSlackNotificationsView(AuthTestCase):
     def test_detail_page_renders_toggle_checked(self):

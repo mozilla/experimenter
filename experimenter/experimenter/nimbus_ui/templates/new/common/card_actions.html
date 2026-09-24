@@ -1,8 +1,8 @@
 {% with 'nimbus-ui-new-update-'|add:card_id as url_name %}
-  {% if lock_edit %}
+  {% if experiment.is_archived or lock_edit %}
     <span class="d-inline-flex align-items-center"
           data-bs-toggle="tooltip"
-          title="{{ lock_tooltip }}">
+          title="{% if experiment.is_archived %}{{ NimbusUIConstants.ROLLOUT_ARCHIVED_EDIT_TOOLTIP }}{% else %}{{ lock_tooltip }}{% endif %}">
       <button class="btn btn-sm btn-primary"
               type="button"
               disabled
