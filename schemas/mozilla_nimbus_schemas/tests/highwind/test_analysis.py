@@ -9,9 +9,12 @@ from mozilla_nimbus_schemas.highwind import (
     HighwindAnalysisUnit,
     HighwindCellState,
     HighwindDirection,
+    HighwindInterval,
     HighwindLogLevel,
     HighwindWindowKind,
 )
+
+NULL_INTERVAL = {"point": None, "lower": None, "upper": None}
 
 WINDOW_CUMULATIVE = {
     "kind": "cumulative",
@@ -74,16 +77,20 @@ EXAMPLE_ANALYSIS = {
                                 {
                                     "branch": "control",
                                     "n": 100,
-                                    "value": 0.5,
-                                    "lower": 0.4,
-                                    "upper": 0.6,
+                                    "value": {
+                                        "point": 0.5,
+                                        "lower": 0.4,
+                                        "upper": 0.6,
+                                    },
                                 },
                                 {
                                     "branch": "treatment",
                                     "n": 100,
-                                    "value": 0.6,
-                                    "lower": 0.5,
-                                    "upper": 0.7,
+                                    "value": {
+                                        "point": 0.6,
+                                        "lower": 0.5,
+                                        "upper": 0.7,
+                                    },
                                 },
                             ],
                             "comparisons": [
@@ -92,9 +99,16 @@ EXAMPLE_ANALYSIS = {
                                     "reference_branch": "control",
                                     "state": "confident",
                                     "direction": "positive",
-                                    "relative_shift": 10.0,
-                                    "lower": 1.0,
-                                    "upper": 20.0,
+                                    "relative": {
+                                        "point": 10.0,
+                                        "lower": 1.0,
+                                        "upper": 20.0,
+                                    },
+                                    "absolute": {
+                                        "point": 0.1,
+                                        "lower": 0.01,
+                                        "upper": 0.2,
+                                    },
                                     "n_reference": 100,
                                     "n_treatment": 100,
                                     "error": None,
@@ -108,16 +122,20 @@ EXAMPLE_ANALYSIS = {
                                 {
                                     "branch": "control",
                                     "n": 0,
-                                    "value": None,
-                                    "lower": None,
-                                    "upper": None,
+                                    "value": {
+                                        "point": None,
+                                        "lower": None,
+                                        "upper": None,
+                                    },
                                 },
                                 {
                                     "branch": "treatment",
                                     "n": 0,
-                                    "value": None,
-                                    "lower": None,
-                                    "upper": None,
+                                    "value": {
+                                        "point": None,
+                                        "lower": None,
+                                        "upper": None,
+                                    },
                                 },
                             ],
                             "comparisons": [
@@ -126,9 +144,8 @@ EXAMPLE_ANALYSIS = {
                                     "reference_branch": "control",
                                     "state": "not_started",
                                     "direction": "neutral",
-                                    "relative_shift": None,
-                                    "lower": None,
-                                    "upper": None,
+                                    "relative": NULL_INTERVAL,
+                                    "absolute": NULL_INTERVAL,
                                     "n_reference": None,
                                     "n_treatment": None,
                                     "error": None,
@@ -142,16 +159,20 @@ EXAMPLE_ANALYSIS = {
                                 {
                                     "branch": "control",
                                     "n": 0,
-                                    "value": None,
-                                    "lower": None,
-                                    "upper": None,
+                                    "value": {
+                                        "point": None,
+                                        "lower": None,
+                                        "upper": None,
+                                    },
                                 },
                                 {
                                     "branch": "treatment",
                                     "n": 0,
-                                    "value": None,
-                                    "lower": None,
-                                    "upper": None,
+                                    "value": {
+                                        "point": None,
+                                        "lower": None,
+                                        "upper": None,
+                                    },
                                 },
                             ],
                             "comparisons": [
@@ -160,9 +181,8 @@ EXAMPLE_ANALYSIS = {
                                     "reference_branch": "control",
                                     "state": "error",
                                     "direction": "neutral",
-                                    "relative_shift": None,
-                                    "lower": None,
-                                    "upper": None,
+                                    "relative": NULL_INTERVAL,
+                                    "absolute": NULL_INTERVAL,
                                     "n_reference": None,
                                     "n_treatment": None,
                                     "error": "Test error.",
@@ -223,6 +243,17 @@ def test_highwind_analysis_validates_example():
     assert windows[1].comparisons[0].state == HighwindCellState.NOT_STARTED
     assert windows[2].comparisons[0].state == HighwindCellState.ERROR
 
+    summary = windows[0]
+    assert summary.branches[1].value.point == 0.6
+    assert summary.branches[1].value.lower == 0.5
+    assert summary.branches[1].value.upper == 0.7
+    assert summary.comparisons[0].relative.point == 10.0
+    assert summary.comparisons[0].relative.lower == 1.0
+    assert summary.comparisons[0].relative.upper == 20.0
+    assert summary.comparisons[0].absolute.point == 0.1
+    assert summary.comparisons[0].absolute.lower == 0.01
+    assert summary.comparisons[0].absolute.upper == 0.2
+
     assert analysis.errors[0].log_level == HighwindLogLevel.ERROR
     assert analysis.errors[1].window is None
 
@@ -232,6 +263,18 @@ def test_highwind_analysis_round_trips():
     dumped = analysis.model_dump(mode="json")
 
     assert HighwindAnalysis.model_validate(dumped) == analysis
+
+
+def test_highwind_analysis_not_started_intervals_are_null():
+    analysis = HighwindAnalysis.model_validate(EXAMPLE_ANALYSIS)
+    not_started = analysis.metrics[0].segments[0].windows[1]
+    comparison = not_started.comparisons[0]
+    null_interval = HighwindInterval(point=None, lower=None, upper=None)
+
+    assert comparison.state == HighwindCellState.NOT_STARTED
+    assert comparison.relative == null_interval
+    assert comparison.absolute == null_interval
+    assert [b.value for b in not_started.branches] == [null_interval, null_interval]
 
 
 def test_highwind_analysis_optional_descriptions():
@@ -257,7 +300,10 @@ def test_highwind_analysis_optional_descriptions():
         ("metrics", 0, "segments", 0, "windows", 0),
         ("metrics", 0, "segments", 0, "windows", 0, "window"),
         ("metrics", 0, "segments", 0, "windows", 0, "branches", 0),
+        ("metrics", 0, "segments", 0, "windows", 0, "branches", 0, "value"),
         ("metrics", 0, "segments", 0, "windows", 0, "comparisons", 0),
+        ("metrics", 0, "segments", 0, "windows", 0, "comparisons", 0, "relative"),
+        ("metrics", 0, "segments", 0, "windows", 0, "comparisons", 0, "absolute"),
         ("errors", 0),
     ],
 )
@@ -307,6 +353,15 @@ def test_highwind_analysis_rejects_unknown_enum_values(path, key, value):
         (("metadata",), "end_date"),
         (("metrics", 0, "segments", 0, "windows", 0, "window"), "matures_on"),
         (("metrics", 0, "segments", 0, "windows", 0, "comparisons", 0), "error"),
+        (
+            ("metrics", 0, "segments", 0, "windows", 0, "comparisons", 0, "relative"),
+            "point",
+        ),
+        (
+            ("metrics", 0, "segments", 0, "windows", 0, "comparisons", 0, "absolute"),
+            "lower",
+        ),
+        (("metrics", 0, "segments", 0, "windows", 0, "branches", 0, "value"), "upper"),
         (("errors", 0), "window"),
     ],
 )

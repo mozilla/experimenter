@@ -44,12 +44,16 @@ class HighwindWindow(HighwindModel):
     matures_on: dt.date | None
 
 
+class HighwindInterval(HighwindModel):
+    point: float | None
+    lower: float | None
+    upper: float | None
+
+
 class HighwindBranchValue(HighwindModel):
     branch: str
     n: int
-    value: float | None
-    lower: float | None
-    upper: float | None
+    value: HighwindInterval
 
 
 class HighwindComparison(HighwindModel):
@@ -57,9 +61,8 @@ class HighwindComparison(HighwindModel):
     reference_branch: str
     state: HighwindCellState
     direction: HighwindDirection
-    relative_shift: float | None
-    lower: float | None
-    upper: float | None
+    relative: HighwindInterval
+    absolute: HighwindInterval
     n_reference: int | None
     n_treatment: int | None
     error: str | None

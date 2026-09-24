@@ -60,6 +60,7 @@ export type {
   HighwindComparison,
   HighwindDirection,
   HighwindError,
+  HighwindInterval,
   HighwindLogLevel,
   HighwindMetadata,
   HighwindMetricResult,
