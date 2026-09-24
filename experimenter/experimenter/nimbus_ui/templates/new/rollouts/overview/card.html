@@ -4,83 +4,95 @@
   <div class="row g-3" id="rollout-overview-body">
     {# Name #}
     <div class="col-12 col-xl-6 order-1">
-      <div class="small text-secondary mb-1">Name</div>
-      <div id="rollout-overview-name" class="text-body">{{ experiment.name|default:"— Not Set" }}</div>
-      {% include "new/common/validation_errors.html" with errors=validation_errors.name %}
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+        <div class="small text-secondary mb-1">Name</div>
+        <div id="rollout-overview-name" class="text-body">{{ experiment.name|default:"— Not Set" }}</div>
+        {% include "new/common/validation_errors.html" with errors=validation_errors.name %}
 
+      </div>
     </div>
     {# Observations & Problem space #}
     <div class="col-12 col-xl-6 order-3">
-      <div class="small text-secondary mb-1">Observations &amp; Problem space</div>
-      <div id="rollout-overview-hypothesis"
-           class="text-body"
-           style="white-space: pre-wrap">{{ experiment.hypothesis|default:"— Not Set" }}</div>
-      {% include "new/common/validation_errors.html" with errors=validation_errors.hypothesis %}
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+        <div class="small text-secondary mb-1">Observations &amp; Problem space</div>
+        <div id="rollout-overview-hypothesis"
+             class="text-body"
+             style="white-space: pre-wrap">{{ experiment.hypothesis|default:"— Not Set" }}</div>
+        {% include "new/common/validation_errors.html" with errors=validation_errors.hypothesis %}
 
+      </div>
     </div>
     {# Public description #}
     <div class="col-12 col-xl-6 order-4">
-      <div class="small text-secondary mb-1">Public description</div>
-      <div id="rollout-overview-public-description"
-           class="text-body"
-           style="white-space: pre-wrap">{{ experiment.public_description|default:"— Not Set" }}</div>
-      {% include "new/common/validation_errors.html" with errors=validation_errors.public_description %}
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+        <div class="small text-secondary mb-1">Public description</div>
+        <div id="rollout-overview-public-description"
+             class="text-body"
+             style="white-space: pre-wrap">{{ experiment.public_description|default:"— Not Set" }}</div>
+        {% include "new/common/validation_errors.html" with errors=validation_errors.public_description %}
 
+      </div>
     </div>
     {# Important Links #}
     <div class="col-12 col-xl-6 order-2">
-      <div class="small text-secondary mb-1">Important Links</div>
-      {% if experiment.documentation_links.exists %}
-        <div class="d-flex flex-column gap-1">
-          {% for link in experiment.documentation_links.all %}
-            {% if link.link %}
-              <div>
-                <a href="{{ link.link }}"
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   class="text-primary text-decoration-none">
-                  {{ link.get_title_display|default:link.link }}
-                  <i class="fa-solid fa-arrow-up-right-from-square fa-2xs ms-1"></i>
-                </a>
-              </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="text-body">— Not Set</div>
-      {% endif %}
-      {% include "new/common/validation_errors.html" with errors=documentation_link_errors %}
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+        <div class="small text-secondary mb-1">Important Links</div>
+        {% if experiment.documentation_links.exists %}
+          <div class="d-flex flex-column gap-1">
+            {% for link in experiment.documentation_links.all %}
+              {% if link.link %}
+                <div>
+                  <a href="{{ link.link }}"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     class="text-primary text-decoration-none">
+                    {{ link.get_title_display|default:link.link }}
+                    <i class="fa-solid fa-arrow-up-right-from-square fa-2xs ms-1"></i>
+                  </a>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-body">— Not Set</div>
+        {% endif %}
+        {% include "new/common/validation_errors.html" with errors=documentation_link_errors %}
 
+      </div>
     </div>
     {# Project Tags #}
     <div class="col-12 col-xl-6 order-5">
-      <div class="small text-secondary mb-1">Project Tags</div>
-      {% if experiment.tags.exists %}
-        <div class="d-flex flex-wrap gap-1">
-          {% for tag in experiment.tags.all %}
-            <span class="badge rounded-pill small fw-normal"
-                  style="background-color: {{ tag.color }};
-                         color: white">{{ tag.name }}</span>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="text-body">— Not Set</div>
-      {% endif %}
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+        <div class="small text-secondary mb-1">Project Tags</div>
+        {% if experiment.tags.exists %}
+          <div class="d-flex flex-wrap gap-1">
+            {% for tag in experiment.tags.all %}
+              <span class="badge rounded-pill small fw-normal"
+                    style="background-color: {{ tag.color }};
+                           color: white">{{ tag.name }}</span>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-body">— Not Set</div>
+        {% endif %}
+      </div>
     </div>
     {# Subscribers #}
     <div class="col-12 col-xl-6 order-5">
-      <div class="small text-secondary mb-1">Subscribers</div>
-      {% if experiment.subscribers.exists %}
-        <div class="d-flex flex-wrap gap-1">
-          {% for subscriber in experiment.subscribers.all %}
-            <span class="badge rounded-pill fw-normal small text-body"
-                  style="background-color: var(--bs-secondary-bg);
-                         border: 1px solid var(--bs-border-color)">{{ subscriber.email }}</span>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="text-body">— Not Set</div>
-      {% endif %}
+      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+        <div class="small text-secondary mb-1">Subscribers</div>
+        {% if experiment.subscribers.exists %}
+          <div class="d-flex flex-wrap gap-1">
+            {% for subscriber in experiment.subscribers.all %}
+              <span class="badge rounded-pill fw-normal small text-body"
+                    style="background-color: var(--bs-secondary-bg);
+                           border: 1px solid var(--bs-border-color)">{{ subscriber.email }}</span>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="text-body">— Not Set</div>
+        {% endif %}
+      </div>
     </div>
   </div>
   {% if hx_swap_oob %}
