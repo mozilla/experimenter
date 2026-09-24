@@ -18,6 +18,9 @@
                 {% if card_icon %}<i class="{{ card_icon }} mx-1 text-secondary"></i>{% endif %}
               {% endwith %}
               {{ title }}
+              <span class="spinner-border spinner-border-sm text-secondary ms-2 card-title-spinner"
+                    role="status"
+                    aria-hidden="true"></span>
               {% if card_status %}
                 {% include "new/rollouts/card_subtitle.html" with card_status=card_status card_id=card_id %}
 

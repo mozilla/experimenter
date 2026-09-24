@@ -366,17 +366,31 @@
   cursor: not-allowed;
 }
 
-.card-edit-form .card-edit-spinner {
+.card-edit-form.htmx-request,
+.card-edit-form:has(.htmx-request) {
+  pointer-events: none;
+}
+
+.rollout-card:has(.card-edit-form.htmx-request, .card-edit-form .htmx-request)
+  .card-action-button {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.card-title-spinner {
   display: none;
 }
 
-.card-edit-form.htmx-request {
-  opacity: 0.55;
-  pointer-events: none;
-
-  .card-edit-spinner {
+.rollout-card:has(.htmx-request),
+.sidebar-review-controls:has(.htmx-request) {
+  .card-title-spinner {
     display: inline-block;
   }
+}
+
+.sidebar-review-controls:has(.htmx-request) textarea {
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .card-body-spinner {
@@ -388,7 +402,12 @@
   pointer-events: none;
 }
 
-.rollout-card:has(.card-action-button.htmx-request) .card-body-spinner {
+.rollout-card:has(
+    .card-action-button.htmx-request,
+    .card-edit-form.htmx-request,
+    .card-edit-form .htmx-request:not([hx-get])
+  )
+  .card-body-spinner {
   display: flex;
   position: absolute;
   inset: 0;

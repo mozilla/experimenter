@@ -1,5 +1,5 @@
 <button type="button"
-        class="btn btn-sm btn-outline-secondary{% if icon_only %} d-none card-action-button{% endif %}"
+        class="btn btn-sm btn-outline-secondary card-action-button{% if icon_only %} d-none{% endif %}"
         {% if icon_only %}data-card-action="cancel" aria-label="Cancel editing {{ card_id }}"{% endif %}
         data-toast-id="{{ NimbusUIConstants.TOAST_EDIT_CANCELLED }}"
         hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}"
