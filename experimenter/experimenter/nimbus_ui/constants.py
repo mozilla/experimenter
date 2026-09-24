@@ -461,6 +461,9 @@ Optional - We expect this to <describe impact> on <core metric>.
     ROLLOUT_ARCHIVED_TOOLTIP = (
         "This rollout is archived. Unarchive it before previewing or launching."
     )
+    ROLLOUT_ARCHIVED_EDIT_TOOLTIP = (
+        "This rollout is archived. Unarchive it before editing."
+    )
     ROLLOUT_PREVIEW_UNSUPPORTED_TOOLTIP = (
         "This rollout uses features that prevent it from being launched to preview. "
         "We highly recommend QAing this rollout on stage first."

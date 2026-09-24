@@ -268,15 +268,18 @@ class UpdateRedirectViewMixin:
     def can_edit(self):
         raise NotImplementedError
 
+    def is_edit_locked(self):
+        return self.object.is_archived or not self.can_edit()
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not self.can_edit():
+        if self.is_edit_locked():
             return HttpResponseRedirect(self.object.get_detail_url())
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not self.can_edit():
+        if self.is_edit_locked():
             response = HttpResponse()
             base_url = self.object.get_detail_url()
             response.headers["HX-Redirect"] = f"{base_url}?save_failed=true"
@@ -601,7 +604,7 @@ class CardMutationMixin:
             return self.htmx_redirect(redirect_url)
 
         self.object = self.get_object()
-        if not self.can_edit():
+        if self.is_edit_locked():
             response = HttpResponse()
             base_url = self.object.get_detail_url()
             response.headers["HX-Redirect"] = f"{base_url}?save_failed=true"
