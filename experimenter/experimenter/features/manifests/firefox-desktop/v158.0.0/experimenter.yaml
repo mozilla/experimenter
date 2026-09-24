@@ -6227,6 +6227,70 @@ smartWindowAgentWatch:
         button, until the user opens the panel or the rollout ends. Independent
         of the dot that marks a task whose condition was met.
 
+autoTabGrouping:
+  description: >-
+    Tuning and rollout controls for Smart Window Auto Tab Grouping (the
+    "Organize Tabs" panel that clusters open tabs into suggested groups).
+  owner: vbaungally@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.enabled
+      description: >-
+        Enables Auto Tab Grouping (on by default). Set to false to turn it off
+        without disabling Smart Window itself; unenrolling reverts to the
+        default (on).
+    minCandidateTabs:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.minCandidateTabs
+      description: >-
+        Minimum candidate tabs a window must have before grouping is attempted.
+        Lower = grouping runs on smaller windows (more coverage).
+    minTabsPerGroup:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.minTabsPerGroup
+      description: >-
+        Minimum tabs a suggested group must contain to be offered.
+    maxGroups:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.maxGroups
+      description: >-
+        Maximum number of groups suggested per run (largest-first).
+    minCohesion:
+      type: string
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.minCohesion
+      description: >-
+        Minimum average pairwise cosine similarity (0..1) for a cluster to be
+        offered, as a decimal STRING (e.g. "0.15"); parsed with parseFloat at
+        the read site. Must be a quoted numeric string - a non-numeric value
+        parses to NaN and suppresses all groups.
+    timeoutMs:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.timeoutMs
+      description: >-
+        Milliseconds the panel waits for grouping to finish before showing
+        whatever is ready.
+    preloadModels:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.preloadModels
+      description: >-
+        Whether to preload the clustering/labeling ML models ahead of use.
+
 contentSharing:
   description: Controls the content sharing feature, which allows users to share browser content.
   owner: nbarrett@mozilla.com

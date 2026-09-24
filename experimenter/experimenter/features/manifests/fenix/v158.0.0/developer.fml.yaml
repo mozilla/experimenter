@@ -915,7 +915,7 @@ features:
       enabled:
         description: If true, Private Mode and Stories Entry Point Experiment is enabled.
         type: Boolean
-        default: true
+        default: false
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
