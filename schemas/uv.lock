@@ -500,7 +500,7 @@ wheels = [
 
 [[package]]
 name = "mozilla-nimbus-schemas"
-version = "3005.1.0"
+version = "3005.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "jsonschema" },

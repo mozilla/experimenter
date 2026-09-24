@@ -36,46 +36,17 @@
         "branch": {
           "type": "string"
         },
-        "lower": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "n": {
           "type": "integer"
         },
-        "upper": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "value": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "$ref": "#/$defs/HighwindInterval"
         }
       },
       "required": [
         "branch",
         "n",
-        "value",
-        "lower",
-        "upper"
+        "value"
       ],
       "type": "object"
     },
@@ -92,6 +63,9 @@
     "HighwindComparison": {
       "additionalProperties": false,
       "properties": {
+        "absolute": {
+          "$ref": "#/$defs/HighwindInterval"
+        },
         "branch": {
           "type": "string"
         },
@@ -102,16 +76,6 @@
           "anyOf": [
             {
               "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "lower": {
-          "anyOf": [
-            {
-              "type": "number"
             },
             {
               "type": "null"
@@ -141,28 +105,11 @@
         "reference_branch": {
           "type": "string"
         },
-        "relative_shift": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
+        "relative": {
+          "$ref": "#/$defs/HighwindInterval"
         },
         "state": {
           "$ref": "#/$defs/HighwindCellState"
-        },
-        "upper": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
         }
       },
       "required": [
@@ -170,9 +117,8 @@
         "reference_branch",
         "state",
         "direction",
-        "relative_shift",
-        "lower",
-        "upper",
+        "relative",
+        "absolute",
         "n_reference",
         "n_treatment",
         "error"
@@ -186,6 +132,47 @@
         "neutral"
       ],
       "type": "string"
+    },
+    "HighwindInterval": {
+      "additionalProperties": false,
+      "properties": {
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "point": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "point",
+        "lower",
+        "upper"
+      ],
+      "type": "object"
     },
     "HighwindWindow": {
       "additionalProperties": false,

@@ -65,7 +65,10 @@ export interface HighwindWindow {
 export interface HighwindBranchValue {
   branch: string;
   n: number;
-  value: number | null;
+  value: HighwindInterval;
+}
+export interface HighwindInterval {
+  point: number | null;
   lower: number | null;
   upper: number | null;
 }
@@ -74,9 +77,8 @@ export interface HighwindComparison {
   reference_branch: string;
   state: HighwindCellState;
   direction: HighwindDirection;
-  relative_shift: number | null;
-  lower: number | null;
-  upper: number | null;
+  relative: HighwindInterval;
+  absolute: HighwindInterval;
   n_reference: number | null;
   n_treatment: number | null;
   error: string | null;
