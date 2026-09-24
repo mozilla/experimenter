@@ -312,6 +312,10 @@ nova-design-feature:
       type: boolean
       description: |
         Enables Nova design.
+    privateThemeOverride:
+      type: boolean
+      description: |
+        If true, screens that opt in follow the regular light/dark Nova theme while the user is browsing in private mode, instead of the purple private theme.
 onboarding-framework-feature:
   description: |
     The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
