@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "HighwindComparison",
+  "type": "object",
+  "properties": {
+    "branch": {
+      "type": "string"
+    },
+    "direction": {
+      "$ref": "#/$defs/HighwindDirection"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "lower": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "n_reference": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "n_treatment": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reference_branch": {
+      "type": "string"
+    },
+    "relative_shift": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "$ref": "#/$defs/HighwindCellState"
+    },
+    "upper": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "branch",
+    "reference_branch",
+    "state",
+    "direction",
+    "relative_shift",
+    "lower",
+    "upper",
+    "n_reference",
+    "n_treatment",
+    "error"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "HighwindCellState": {
+      "enum": [
+        "not_started",
+        "insufficient_data",
+        "forming",
+        "confident",
+        "error"
+      ],
+      "type": "string"
+    },
+    "HighwindDirection": {
+      "enum": [
+        "positive",
+        "negative",
+        "neutral"
+      ],
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,524 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "HighwindAnalysis",
+  "type": "object",
+  "properties": {
+    "errors": {
+      "items": {
+        "$ref": "#/$defs/HighwindError"
+      },
+      "type": "array"
+    },
+    "metadata": {
+      "$ref": "#/$defs/HighwindMetadata"
+    },
+    "metrics": {
+      "items": {
+        "$ref": "#/$defs/HighwindMetricResult"
+      },
+      "type": "array"
+    },
+    "segments": {
+      "items": {
+        "$ref": "#/$defs/HighwindSegment"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "metadata",
+    "segments",
+    "metrics",
+    "errors"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "HighwindAnalysisUnit": {
+      "enum": [
+        "client_id",
+        "profile_group_id"
+      ],
+      "type": "string"
+    },
+    "HighwindBranchValue": {
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "n": {
+          "type": "integer"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "branch",
+        "n",
+        "value",
+        "lower",
+        "upper"
+      ],
+      "type": "object"
+    },
+    "HighwindCellState": {
+      "enum": [
+        "not_started",
+        "insufficient_data",
+        "forming",
+        "confident",
+        "error"
+      ],
+      "type": "string"
+    },
+    "HighwindComparison": {
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "direction": {
+          "$ref": "#/$defs/HighwindDirection"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lower": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "n_reference": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "n_treatment": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reference_branch": {
+          "type": "string"
+        },
+        "relative_shift": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "$ref": "#/$defs/HighwindCellState"
+        },
+        "upper": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "branch",
+        "reference_branch",
+        "state",
+        "direction",
+        "relative_shift",
+        "lower",
+        "upper",
+        "n_reference",
+        "n_treatment",
+        "error"
+      ],
+      "type": "object"
+    },
+    "HighwindDirection": {
+      "enum": [
+        "positive",
+        "negative",
+        "neutral"
+      ],
+      "type": "string"
+    },
+    "HighwindError": {
+      "additionalProperties": false,
+      "properties": {
+        "exception": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "exception_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "filename": {
+          "type": "string"
+        },
+        "func_name": {
+          "type": "string"
+        },
+        "log_level": {
+          "$ref": "#/$defs/HighwindLogLevel"
+        },
+        "message": {
+          "type": "string"
+        },
+        "metric": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "segment": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "timestamp": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "window": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HighwindWindow"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "timestamp",
+        "log_level",
+        "message",
+        "exception_type",
+        "exception",
+        "filename",
+        "func_name",
+        "metric",
+        "segment",
+        "window"
+      ],
+      "type": "object"
+    },
+    "HighwindLogLevel": {
+      "enum": [
+        "WARNING",
+        "ERROR"
+      ],
+      "type": "string"
+    },
+    "HighwindMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "analysis_unit": {
+          "$ref": "#/$defs/HighwindAnalysisUnit"
+        },
+        "as_of_date": {
+          "format": "date",
+          "type": "string"
+        },
+        "branches": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "end_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "experiment_slug": {
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "pipeline_version": {
+          "type": "string"
+        },
+        "reference_branch": {
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "integer"
+        },
+        "start_date": {
+          "format": "date",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "experiment_slug",
+        "as_of_date",
+        "generated_at",
+        "pipeline_version",
+        "start_date",
+        "end_date",
+        "analysis_unit",
+        "reference_branch",
+        "branches"
+      ],
+      "type": "object"
+    },
+    "HighwindMetricResult": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "friendly_name": {
+          "type": "string"
+        },
+        "segments": {
+          "items": {
+            "$ref": "#/$defs/HighwindSegmentResult"
+          },
+          "type": "array"
+        },
+        "slug": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "friendly_name",
+        "segments"
+      ],
+      "type": "object"
+    },
+    "HighwindSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "branches": {
+          "items": {
+            "$ref": "#/$defs/HighwindSegmentBranch"
+          },
+          "type": "array"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "friendly_name": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "slug",
+        "friendly_name",
+        "branches"
+      ],
+      "type": "object"
+    },
+    "HighwindSegmentBranch": {
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "type": "string"
+        },
+        "units": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "branch",
+        "units"
+      ],
+      "type": "object"
+    },
+    "HighwindSegmentResult": {
+      "additionalProperties": false,
+      "properties": {
+        "segment": {
+          "type": "string"
+        },
+        "windows": {
+          "items": {
+            "$ref": "#/$defs/HighwindWindowResult"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "segment",
+        "windows"
+      ],
+      "type": "object"
+    },
+    "HighwindWindow": {
+      "additionalProperties": false,
+      "properties": {
+        "end_day": {
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/HighwindWindowKind"
+        },
+        "matures_on": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "start_day": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "start_day",
+        "end_day",
+        "matures_on"
+      ],
+      "type": "object"
+    },
+    "HighwindWindowKind": {
+      "enum": [
+        "cumulative",
+        "disjoint"
+      ],
+      "type": "string"
+    },
+    "HighwindWindowResult": {
+      "additionalProperties": false,
+      "properties": {
+        "branches": {
+          "items": {
+            "$ref": "#/$defs/HighwindBranchValue"
+          },
+          "type": "array"
+        },
+        "comparisons": {
+          "items": {
+            "$ref": "#/$defs/HighwindComparison"
+          },
+          "type": "array"
+        },
+        "is_summary": {
+          "type": "boolean"
+        },
+        "window": {
+          "$ref": "#/$defs/HighwindWindow"
+        }
+      },
+      "required": [
+        "window",
+        "is_summary",
+        "branches",
+        "comparisons"
+      ],
+      "type": "object"
+    }
+  }
+}

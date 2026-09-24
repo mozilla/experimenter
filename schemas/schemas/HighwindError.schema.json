@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "HighwindError",
+  "type": "object",
+  "properties": {
+    "exception": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "exception_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "filename": {
+      "type": "string"
+    },
+    "func_name": {
+      "type": "string"
+    },
+    "log_level": {
+      "$ref": "#/$defs/HighwindLogLevel"
+    },
+    "message": {
+      "type": "string"
+    },
+    "metric": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "segment": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "timestamp": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "window": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HighwindWindow"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "timestamp",
+    "log_level",
+    "message",
+    "exception_type",
+    "exception",
+    "filename",
+    "func_name",
+    "metric",
+    "segment",
+    "window"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "HighwindLogLevel": {
+      "enum": [
+        "WARNING",
+        "ERROR"
+      ],
+      "type": "string"
+    },
+    "HighwindWindow": {
+      "additionalProperties": false,
+      "properties": {
+        "end_day": {
+          "type": "integer"
+        },
+        "kind": {
+          "$ref": "#/$defs/HighwindWindowKind"
+        },
+        "matures_on": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "start_day": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "start_day",
+        "end_day",
+        "matures_on"
+      ],
+      "type": "object"
+    },
+    "HighwindWindowKind": {
+      "enum": [
+        "cumulative",
+        "disjoint"
+      ],
+      "type": "string"
+    }
+  }
+}
