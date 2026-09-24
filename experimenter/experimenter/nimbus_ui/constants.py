@@ -538,17 +538,6 @@ Optional - We expect this to <describe impact> on <core metric>.
                 ("Warn On Schema Failure", ("warn_feature_schema",)),
                 ("Prevent Pref Conflicts", ("prevent_pref_conflicts",)),
                 ("Screenshots", ("reference_branch_screenshots",)),
-                (
-                    "Firefox Labs",
-                    (
-                        "is_firefox_labs_opt_in",
-                        "firefox_labs_title",
-                        "firefox_labs_description",
-                        "firefox_labs_description_links",
-                        "firefox_labs_group",
-                        "requires_restart",
-                    ),
-                ),
             ),
         },
         "audience": {
