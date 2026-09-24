@@ -1,8 +1,11 @@
+import datetime
+
 import markus
 import sentry_sdk
 from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Q
 from django.utils import timezone
 from pydantic import ValidationError
 
@@ -225,12 +228,19 @@ def fetch_monitoring_data():
             funnel_by_slug = {}
 
         updated_count = 0
+        post_end_cutoff = (
+            timezone.now()
+            - datetime.timedelta(days=NimbusConstants.POST_END_MONITORING_DAYS)
+        ).date()
+        monitored_statuses = Q(status=NimbusConstants.Status.LIVE) | Q(
+            status=NimbusConstants.Status.COMPLETE,
+            _computed_end_date__gte=post_end_cutoff,
+        )
 
         for exp_slug, monitoring_data in alert_data.items():
             try:
                 experiment = NimbusExperiment.objects.get(
-                    slug=exp_slug,
-                    status=NimbusConstants.Status.LIVE,
+                    monitored_statuses, slug=exp_slug
                 )
 
                 merged = {

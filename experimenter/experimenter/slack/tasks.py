@@ -10,6 +10,7 @@ from experimenter.experiments.constants import NimbusConstants
 from experimenter.experiments.models import NimbusAlert, NimbusExperiment
 from experimenter.experiments.monitoring_utils import (
     check_feature_conflict,
+    check_not_unenrolling,
     check_srm_mismatch,
     check_unenrollment_spike,
     check_zero_enrollment,
@@ -82,14 +83,15 @@ def check_experiment_alerts():
     metrics.incr("check_experiment_alerts.started")
 
     try:
-        # Get the cutoff date for COMPLETE experiments (3 days ago)
-        three_days_ago = (timezone.now() - timedelta(days=3)).date()
+        post_end_cutoff = (
+            timezone.now() - timedelta(days=NimbusConstants.POST_END_MONITORING_DAYS)
+        ).date()
         live_experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.LIVE
         )
         recent_complete_experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.COMPLETE,
-            _computed_end_date__gte=three_days_ago,
+            _computed_end_date__gte=post_end_cutoff,
         )
         experiments = live_experiments | recent_complete_experiments
 
@@ -408,6 +410,23 @@ def _send_zero_enrollment_alert(experiment, monitoring_data, days):
     )
 
 
+def _send_not_unenrolling_alert(experiment, monitoring_data, days):
+    message = SlackConstants.SLACK_NOT_UNENROLLING_MESSAGE.format(
+        experiment=experiment.name,
+        days=days,
+        client_threshold=NimbusConstants.NOT_UNENROLLING_CLIENT_THRESHOLD,
+        unenrollments=monitoring_data["unenrollments_since_end"],
+    )
+    _send_monitoring_alert(
+        experiment,
+        NimbusConstants.AlertType.NOT_UNENROLLING,
+        message,
+        SlackConstants.SLACK_LOG_NOT_UNENROLLING_SENT,
+        SlackConstants.SLACK_LOG_FAILED_SEND_NOT_UNENROLLING,
+        "not_unenrolling_alert",
+    )
+
+
 def _send_feature_conflict_alert(experiment, rate, conflict_slugs):
     # Each conflicting slug is looked up rather than derived from this
     # experiment's URL, because a conflict may be a different delivery type and
@@ -435,7 +454,36 @@ def _send_feature_conflict_alert(experiment, rate, conflict_slugs):
     )
 
 
+def _check_post_end_monitoring_alerts(experiment):
+    if not experiment.monitoring_data:
+        return
+
+    try:
+        days_since_end = (datetime.date.today() - experiment.computed_end_date).days
+        is_not_unenrolling = check_not_unenrolling(
+            experiment.monitoring_data,
+            days_since_end,
+            NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+            NimbusConstants.NOT_UNENROLLING_CLIENT_THRESHOLD,
+            NimbusConstants.NOT_UNENROLLING_MIN_ENROLLMENTS,
+        )
+        if is_not_unenrolling:
+            _send_not_unenrolling_alert(
+                experiment, experiment.monitoring_data, days_since_end
+            )
+
+    except Exception as e:
+        msg = SlackConstants.SLACK_LOG_MONITORING_ALERTS_ERROR.format(
+            experiment=experiment.slug
+        )
+        logger.error(f"{msg}: {e}")
+
+
 def _check_monitoring_alerts(experiment):
+    if experiment.status == NimbusConstants.Status.COMPLETE:
+        _check_post_end_monitoring_alerts(experiment)
+        return
+
     if experiment.status != NimbusConstants.Status.LIVE:
         return
 

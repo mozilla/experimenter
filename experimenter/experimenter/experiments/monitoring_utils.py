@@ -112,6 +112,23 @@ def check_zero_enrollment(
     return total_enrollments < client_threshold
 
 
+def check_not_unenrolling(
+    monitoring_data, days_since_end, threshold_days, client_threshold, min_enrollments
+):
+    if days_since_end < threshold_days:
+        return False
+
+    total_enrollments = monitoring_data.get("total_enrollments")
+    if total_enrollments is None or total_enrollments <= min_enrollments:
+        return False
+
+    unenrollments_since_end = monitoring_data.get("unenrollments_since_end")
+    if unenrollments_since_end is None:
+        return False
+
+    return unenrollments_since_end < client_threshold
+
+
 def check_feature_conflict(monitoring_data, threshold):
     funnel = monitoring_data.get("enrollment_funnel", [])
     if not funnel:

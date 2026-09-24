@@ -16,6 +16,7 @@ from experimenter.experiments.constants import (
 from experimenter.experiments.models import NimbusAlert
 from experimenter.experiments.monitoring_utils import (
     check_feature_conflict,
+    check_not_unenrolling,
     check_srm_mismatch,
     check_unenrollment_spike,
     check_zero_enrollment,
@@ -70,6 +71,21 @@ _ZERO_ENROLLMENT_MONITORING_DATA = {
         "treatment": {"enrollments": 0},
     },
     "reasons_by_branch": {},
+}
+
+_NOT_UNENROLLING_ENROLLED_MONITORING_DATA = {
+    **_NORMAL_MONITORING_DATA,
+    "total_enrollments": NimbusConstants.NOT_UNENROLLING_MIN_ENROLLMENTS + 1,
+}
+
+_NOT_UNENROLLING_MONITORING_DATA = {
+    **_NOT_UNENROLLING_ENROLLED_MONITORING_DATA,
+    "unenrollments_since_end": 10,
+}
+
+_UNENROLLING_MONITORING_DATA = {
+    **_NOT_UNENROLLING_ENROLLED_MONITORING_DATA,
+    "unenrollments_since_end": NimbusConstants.NOT_UNENROLLING_CLIENT_THRESHOLD,
 }
 
 _FEATURE_CONFLICT_MONITORING_DATA = {
@@ -200,6 +216,28 @@ class TestCheckExperimentAlerts(TestCase):
             self.assertEqual(mock_check.call_count, 2)
             called_ids = {call.args[0] for call in mock_check.call_args_list}
             self.assertEqual(called_ids, {live_exp.id, recent_complete_exp.id})
+
+    def test_queries_complete_experiments_within_post_end_window(self):
+        in_window_exp = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            _computed_end_date=(
+                timezone.now() - timedelta(days=NimbusConstants.POST_END_MONITORING_DAYS)
+            ).date(),
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            _computed_end_date=(
+                timezone.now()
+                - timedelta(days=NimbusConstants.POST_END_MONITORING_DAYS + 1)
+            ).date(),
+        )
+
+        with mock.patch(
+            "experimenter.slack.tasks.check_single_experiment_alerts.delay"
+        ) as mock_check:
+            tasks.check_experiment_alerts()
+            called_ids = {call.args[0] for call in mock_check.call_args_list}
+            self.assertEqual(called_ids, {in_window_exp.id})
 
     def test_handles_no_experiments(self):
         with mock.patch(
@@ -1135,6 +1173,93 @@ class TestCheckZeroEnrollment(TestCase):
         )
 
 
+class TestCheckNotUnenrolling(TestCase):
+    def _check(self, monitoring_data, days_since_end):
+        return check_not_unenrolling(
+            monitoring_data,
+            days_since_end=days_since_end,
+            threshold_days=NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+            client_threshold=NimbusConstants.NOT_UNENROLLING_CLIENT_THRESHOLD,
+            min_enrollments=NimbusConstants.NOT_UNENROLLING_MIN_ENROLLMENTS,
+        )
+
+    @parameterized.expand(
+        [
+            ("at_days_threshold", NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD),
+            ("after_days_threshold", NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD + 1),
+        ]
+    )
+    def test_returns_true_when_below_client_threshold(self, _, days_since_end):
+        self.assertTrue(self._check(_NOT_UNENROLLING_MONITORING_DATA, days_since_end))
+
+    def test_returns_false_when_unenrollments_at_client_threshold(self):
+        self.assertFalse(
+            self._check(
+                _UNENROLLING_MONITORING_DATA,
+                NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+            )
+        )
+
+    def test_returns_false_when_below_days_threshold(self):
+        self.assertFalse(
+            self._check(
+                _NOT_UNENROLLING_MONITORING_DATA,
+                NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD - 1,
+            )
+        )
+
+    @parameterized.expand(
+        [
+            ("missing", _NOT_UNENROLLING_ENROLLED_MONITORING_DATA),
+            (
+                "none",
+                {
+                    **_NOT_UNENROLLING_ENROLLED_MONITORING_DATA,
+                    "unenrollments_since_end": None,
+                },
+            ),
+        ]
+    )
+    def test_returns_false_when_unenrollments_since_end_unavailable(
+        self, _, monitoring_data
+    ):
+        self.assertFalse(
+            self._check(monitoring_data, NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD)
+        )
+
+    @parameterized.expand(
+        [
+            (
+                "at_min_enrollments",
+                {
+                    **_NOT_UNENROLLING_MONITORING_DATA,
+                    "total_enrollments": NimbusConstants.NOT_UNENROLLING_MIN_ENROLLMENTS,
+                },
+            ),
+            (
+                "below_min_enrollments",
+                {**_NOT_UNENROLLING_MONITORING_DATA, "total_enrollments": 10},
+            ),
+            (
+                "none",
+                {**_NOT_UNENROLLING_MONITORING_DATA, "total_enrollments": None},
+            ),
+            (
+                "missing",
+                {
+                    key: value
+                    for key, value in _NOT_UNENROLLING_MONITORING_DATA.items()
+                    if key != "total_enrollments"
+                },
+            ),
+        ]
+    )
+    def test_returns_false_when_total_enrollments_not_above_min(self, _, monitoring_data):
+        self.assertFalse(
+            self._check(monitoring_data, NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD)
+        )
+
+
 class TestCheckFeatureConflict(TestCase):
     def _check(self, monitoring_data):
         return check_feature_conflict(
@@ -1753,6 +1878,176 @@ class TestCheckMonitoringAlerts(TestCase):
         ) as mock_check:
             tasks.check_single_experiment_alerts(experiment.id)
             mock_check.assert_called_once_with(experiment)
+
+
+class TestCheckPostEndMonitoringAlerts(TestCase):
+    def _create_complete_experiment(self, monitoring_data, days_since_end):
+        return NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            monitoring_data=monitoring_data,
+            start_date=datetime.date.today() - datetime.timedelta(days=30),
+            end_date=datetime.date.today() - datetime.timedelta(days=days_since_end),
+        )
+
+    def test_sends_not_unenrolling_alert_once(self):
+        experiment = self._create_complete_experiment(
+            _NOT_UNENROLLING_MONITORING_DATA,
+            NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_called_once()
+            action_text = mock_send_slack.call_args[1]["action_text"]
+            self.assertEqual(
+                action_text,
+                SlackConstants.SLACK_NOT_UNENROLLING_MESSAGE.format(
+                    experiment=experiment.name,
+                    days=NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+                    client_threshold=NimbusConstants.NOT_UNENROLLING_CLIENT_THRESHOLD,
+                    unenrollments=10,
+                ),
+            )
+
+        alert = NimbusAlert.objects.get(
+            experiment=experiment,
+            alert_type=NimbusConstants.AlertType.NOT_UNENROLLING,
+        )
+        self.assertEqual(alert.slack_thread_id, "1234567890.123456")
+        self.assertEqual(alert.slack_channel_id, "C123456")
+
+    def test_complete_experiment_skips_live_monitoring_alerts(self):
+        experiment = self._create_complete_experiment(
+            {
+                **_SPIKE_MONITORING_DATA,
+                "total_enrollments": NimbusConstants.NOT_UNENROLLING_MIN_ENROLLMENTS + 1,
+                "unenrollments_since_end": 0,
+            },
+            NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ):
+            tasks._check_monitoring_alerts(experiment)
+
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.NOT_UNENROLLING,
+            ).exists()
+        )
+        self.assertFalse(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+            ).exists()
+        )
+
+    @parameterized.expand(
+        [
+            (
+                "normal_unenrollment",
+                _UNENROLLING_MONITORING_DATA,
+                NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+            ),
+            (
+                "field_missing",
+                _NOT_UNENROLLING_ENROLLED_MONITORING_DATA,
+                NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+            ),
+            (
+                "total_enrollments_at_min",
+                {
+                    **_NOT_UNENROLLING_MONITORING_DATA,
+                    "total_enrollments": NimbusConstants.NOT_UNENROLLING_MIN_ENROLLMENTS,
+                },
+                NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+            ),
+            (
+                "total_enrollments_missing",
+                {
+                    key: value
+                    for key, value in _NOT_UNENROLLING_MONITORING_DATA.items()
+                    if key != "total_enrollments"
+                },
+                NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+            ),
+            (
+                "below_days_threshold",
+                _NOT_UNENROLLING_MONITORING_DATA,
+                NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD - 1,
+            ),
+            (
+                "no_monitoring_data",
+                None,
+                NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+            ),
+        ]
+    )
+    def test_no_not_unenrolling_alert(self, _, monitoring_data, days_since_end):
+        experiment = self._create_complete_experiment(monitoring_data, days_since_end)
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification"
+        ) as mock_send_slack:
+            tasks._check_monitoring_alerts(experiment)
+            mock_send_slack.assert_not_called()
+
+        self.assertFalse(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.NOT_UNENROLLING,
+            ).exists()
+        )
+
+    def test_live_experiment_does_not_get_not_unenrolling_alert(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            monitoring_data={
+                **_SPIKE_MONITORING_DATA,
+                "total_enrollments": NimbusConstants.NOT_UNENROLLING_MIN_ENROLLMENTS + 1,
+                "unenrollments_since_end": 0,
+            },
+            start_date=datetime.date.today()
+            - datetime.timedelta(days=NimbusConstants.ZERO_ENROLLMENT_DAYS_THRESHOLD),
+        )
+        with mock.patch(
+            "experimenter.slack.tasks.send_slack_notification",
+            return_value=("1234567890.123456", "C123456"),
+        ):
+            tasks._check_monitoring_alerts(experiment)
+
+        self.assertTrue(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
+            ).exists()
+        )
+        self.assertFalse(
+            NimbusAlert.objects.filter(
+                experiment=experiment,
+                alert_type=NimbusConstants.AlertType.NOT_UNENROLLING,
+            ).exists()
+        )
+
+    def test_handles_slack_failure_gracefully(self):
+        experiment = self._create_complete_experiment(
+            _NOT_UNENROLLING_MONITORING_DATA,
+            NimbusConstants.NOT_UNENROLLING_DAYS_THRESHOLD,
+        )
+        with (
+            mock.patch(
+                "experimenter.slack.tasks.send_slack_notification",
+                side_effect=Exception("Slack API error"),
+            ),
+            mock.patch("experimenter.slack.tasks.logger") as mock_logger,
+        ):
+            tasks._check_monitoring_alerts(experiment)
+            self.assertEqual(mock_logger.error.call_count, 2)
+            self.assertIn(experiment.slug, mock_logger.error.call_args[0][0])
 
 
 class TestAddEmojiToMessageAsync(TestCase):

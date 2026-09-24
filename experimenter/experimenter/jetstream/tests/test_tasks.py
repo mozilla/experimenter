@@ -16,7 +16,10 @@ from mozilla_nimbus_schemas.jetstream import (
 from parameterized import parameterized
 from pydantic import ValidationError
 
-from experimenter.experiments.constants import APPLICATION_CONFIG_DESKTOP
+from experimenter.experiments.constants import (
+    APPLICATION_CONFIG_DESKTOP,
+    NimbusConstants,
+)
 from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.jetstream import tasks
@@ -4044,6 +4047,47 @@ class TestFetchMonitoringDataTask(TestCase):
         experiment = NimbusExperimentFactory.create(
             status=status,
             monitoring_data={},
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+
+        tasks.fetch_monitoring_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.monitoring_data, {})
+        self.assertIsNone(experiment.monitoring_data_updated_at)
+
+    def test_fetch_monitoring_data_updates_recently_ended_experiment(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.COMPLETE,
+            monitoring_data={},
+            _computed_end_date=(
+                timezone.now()
+                - datetime.timedelta(days=NimbusConstants.POST_END_MONITORING_DAYS)
+            ).date(),
+        )
+        self.mock_get_monitoring_data.return_value = {
+            "v1": {experiment.slug: self.monitoring_data}
+        }
+
+        tasks.fetch_monitoring_data()
+
+        experiment.refresh_from_db()
+        self.assertEqual(
+            experiment.monitoring_data,
+            {**self.monitoring_data, "enrollment_funnel": []},
+        )
+        self.assertIsNotNone(experiment.monitoring_data_updated_at)
+
+    def test_fetch_monitoring_data_skips_experiment_ended_before_post_end_window(self):
+        experiment = NimbusExperimentFactory.create(
+            status=NimbusExperiment.Status.COMPLETE,
+            monitoring_data={},
+            _computed_end_date=(
+                timezone.now()
+                - datetime.timedelta(days=NimbusConstants.POST_END_MONITORING_DAYS + 1)
+            ).date(),
         )
         self.mock_get_monitoring_data.return_value = {
             "v1": {experiment.slug: self.monitoring_data}
