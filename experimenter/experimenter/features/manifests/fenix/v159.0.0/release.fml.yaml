@@ -4,6 +4,13 @@ about:
 channels:
 - release
 features:
+  account-sync-decouple-m1:
+    description: Control whether the new UI for Account Sync is shown.
+    variables:
+      enabled:
+        description: If true, the new UI for Account Sync is shown.
+        type: Boolean
+        default: false
   add-shortcuts-improvement:
     description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
     variables:

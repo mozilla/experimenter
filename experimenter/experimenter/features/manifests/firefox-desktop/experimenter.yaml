@@ -1779,36 +1779,11 @@ newtabTrainhop:
       type: json
       description: The experiment configuration.
 
-newtabTrainhopAddon:
-  description: Enable download updated newtab resources packaged as an xpi
-  owner: mconley@mozilla.com
-  hasExposure: true
-  exposureDescription: |
-    Exposure is sent when the trainhop addon version is in use (starting from the browser startup
-    right after it has been downloaded and installed).
-  variables:
-    xpi_download_path:
-      type: string
-      description: |
-        Provide the path (relative to the base URL set in the `browser.newtabpage.trainhopAddon.xpiBaseURL`
-        about:config pref) from which the xpi should be downloaded.
-    addon_version:
-      type: string
-      description: |
-        Expected addon version (installing the xpi is cancelled if it mismatches the one set here).
-        The trainhop add-on version is also stored in an about:config pref, to be used on early
-        application startup to determine if the trainhop add-on version should be uninstalled
-        (and not be used for the newtab resources mapping to safely uninstall it later in the
-        same application session).
-      setPref:
-        branch: user
-        pref: browser.newtabpage.trainhopAddon.version
-
 newtabTrainhopAddonDeployment:
   description: |
-    Co-enrollment version of newtabTrainhopAddon used to deploy updated newtab
-    resources packaged as an xpi. Multiple overlapping enrollments are allowed and
-    the enrollment with the highest addon_version wins.
+    Co-enrollment feature used to deploy updated newtab resources packaged as an
+    xpi. Multiple overlapping enrollments are allowed and the enrollment with the
+    highest addon_version wins.
   owner: mconley@mozilla.com
   hasExposure: true
   allowCoenrollment: true
@@ -1826,10 +1801,10 @@ newtabTrainhopAddonDeployment:
       description: |
         Expected addon version (installing the xpi is cancelled if it mismatches the one set here).
         The trainhop add-on version is also stored in an about:config pref, managed manually by
-        AboutNewTabResourceMapping to reflect the highest version across all active enrollments
-        (across both this feature and newtabTrainhopAddon). It is used on early application startup
-        to determine if the trainhop add-on version should be uninstalled (and not be used for the
-        newtab resources mapping to safely uninstall it later in the same application session).
+        AboutNewTabResourceMapping to reflect the highest version across all active enrollments.
+        It is used on early application startup to determine if the trainhop add-on version should
+        be uninstalled (and not be used for the newtab resources mapping to safely uninstall it
+        later in the same application session).
 
 newtabTrainhopFirstStartup:
   description: |
