@@ -5287,6 +5287,70 @@ FX_158_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WIDGETS_NONE_EXPLICITLY_ENABLED = NimbusTargetingConfig(
+    name="New Tab No Widget Explicitly Enabled By User",
+    slug="widgets-none-explicitly-enabled",
+    description=(
+        "Users who have not explicitly (user-set, not default-branch) enabled the "
+        "widgets container or the Lists, Timer, Crossword, Picture of the Day, "
+        "Clocks, or Stocks widget. Safe audience for revealing widget toggles "
+        "without changing what renders on the new tab page."
+    ),
+    targeting=(
+        "!((("
+        "'browser.newtabpage.activity-stream.widgets.enabled'"
+        "|preferenceIsUserSet) && ("
+        "'browser.newtabpage.activity-stream.widgets.enabled'"
+        "|preferenceValue)) || (("
+        "'browser.newtabpage.activity-stream.widgets.lists.enabled'"
+        "|preferenceIsUserSet) && ("
+        "'browser.newtabpage.activity-stream.widgets.lists.enabled'"
+        "|preferenceValue)) || (("
+        "'browser.newtabpage.activity-stream.widgets.focusTimer.enabled'"
+        "|preferenceIsUserSet) && ("
+        "'browser.newtabpage.activity-stream.widgets.focusTimer.enabled'"
+        "|preferenceValue)) || (("
+        "'browser.newtabpage.activity-stream.widgets.crossword.enabled'"
+        "|preferenceIsUserSet) && ("
+        "'browser.newtabpage.activity-stream.widgets.crossword.enabled'"
+        "|preferenceValue)) || (("
+        "'browser.newtabpage.activity-stream.widgets.pictureOfTheDay.enabled'"
+        "|preferenceIsUserSet) && ("
+        "'browser.newtabpage.activity-stream.widgets.pictureOfTheDay.enabled'"
+        "|preferenceValue)) || (("
+        "'browser.newtabpage.activity-stream.widgets.clocks.enabled'"
+        "|preferenceIsUserSet) && ("
+        "'browser.newtabpage.activity-stream.widgets.clocks.enabled'"
+        "|preferenceValue)) || (("
+        "'browser.newtabpage.activity-stream.widgets.stocks.enabled'"
+        "|preferenceIsUserSet) && ("
+        "'browser.newtabpage.activity-stream.widgets.stocks.enabled'"
+        "|preferenceValue)))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FX_158_TRAINHOP_WIDGETS_NONE_EXPLICITLY_ENABLED = NimbusTargetingConfig(
+    name="New Tab Fx158 Sep-13 Trainhop, No Widget Explicitly Enabled By User",
+    slug="widgets-none-explicitly-enabled-158-0913-trainhop",
+    description=(
+        "Users having the New Tab 158.0.20260913.220257 train hop who have not "
+        "explicitly (user-set, not default-branch) enabled the widgets container "
+        "or the Lists, Timer, Crossword, Picture of the Day, Clocks, or Stocks "
+        "widget"
+    ),
+    targeting=(
+        f"{FX_158_TRAINHOP.targeting} && ({WIDGETS_NONE_EXPLICITLY_ENABLED.targeting})"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
     name="New Tab Lists/Timer Interaction, Neither Widget Disabled",
     slug="widgets-lists-timer-interacted-not-disabled",
