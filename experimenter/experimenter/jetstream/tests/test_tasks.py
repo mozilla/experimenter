@@ -4600,7 +4600,7 @@ class TestFetchPopulationEstimatesDataTask(TestCase):
         live_exp.refresh_from_db()
         self.assertIsNone(live_exp.sizing_data)
 
-    def test_fetch_population_estimates_data_idempotent_no_update_when_same(self):
+    def test_fetch_population_estimates_data_records_fetch_when_data_is_same(self):
         existing = {"eligible_count": 2_000_000, "warnings": []}
         experiment = NimbusExperimentFactory.create(
             slug="stable-exp",
@@ -4608,6 +4608,7 @@ class TestFetchPopulationEstimatesDataTask(TestCase):
             sizing_data=existing,
         )
         original_updated_at = experiment.sizing_data_updated_at
+        original_changelog_count = experiment.changes.count()
 
         self.mock_get_population_estimates_data.return_value = {
             "v1": {"stable-exp": {"eligible_count": 2_000_000, "warnings": []}}
@@ -4616,7 +4617,24 @@ class TestFetchPopulationEstimatesDataTask(TestCase):
         tasks.fetch_population_estimates_data()
 
         experiment.refresh_from_db()
-        self.assertEqual(experiment.sizing_data_updated_at, original_updated_at)
+        self.assertNotEqual(experiment.sizing_data_updated_at, original_updated_at)
+        self.assertEqual(experiment.sizing_data, existing)
+        self.assertEqual(experiment.changes.count(), original_changelog_count)
+
+    def test_fetch_population_estimates_data_clears_needs_update(self):
+        experiment = NimbusExperimentFactory.create(
+            slug="stable-exp",
+            status=NimbusExperiment.Status.DRAFT,
+            sizing_data={"eligible_count": 2_000_000, "warnings": []},
+        )
+        self.mock_get_population_estimates_data.return_value = {
+            "v1": {"stable-exp": {"eligible_count": 2_000_000, "warnings": []}}
+        }
+
+        tasks.fetch_population_estimates_data()
+
+        experiment.refresh_from_db()
+        self.assertFalse(experiment.sizing_needs_update)
 
     def test_fetch_population_estimates_data_leaves_unlisted_experiments_unchanged(self):
         experiment = NimbusExperimentFactory.create(

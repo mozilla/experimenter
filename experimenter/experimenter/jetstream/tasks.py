@@ -176,12 +176,19 @@ def fetch_population_estimates_data():
                     "eligible_count": result.get("eligible_count"),
                     "warnings": result.get("warnings", []),
                 }
-                if experiment.sizing_data != new_sizing_data:
+                # Record the fetch even when the numbers are unchanged. The
+                # timestamp is what clears sizing_needs_update, so skipping it
+                # here would leave the experiment flagged for re-sizing forever
+                # and bigquery-etl would re-query it on every run.
+                sizing_changed = experiment.sizing_data != new_sizing_data
+                update_fields = ["sizing_data_updated_at"]
+                if sizing_changed:
                     experiment.sizing_data = new_sizing_data
-                    experiment.sizing_data_updated_at = timezone.now()
-                    experiment.save(
-                        update_fields=["sizing_data", "sizing_data_updated_at"]
-                    )
+                    update_fields.append("sizing_data")
+                experiment.sizing_data_updated_at = timezone.now()
+                experiment.save(update_fields=update_fields)
+
+                if sizing_changed:
                     generate_nimbus_changelog(
                         experiment,
                         get_kinto_user(),

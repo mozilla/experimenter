@@ -419,9 +419,11 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.slack.tasks.check_experiment_alerts",
         "schedule": crontab(minute=0, hour=18),
     },
+    # Runs hourly, offset past the top of the hour so the sizing ETL has
+    # finished writing to GCS before we read it.
     "fetch_population_estimates_data": {
         "task": "experimenter.jetstream.tasks.fetch_population_estimates_data",
-        "schedule": crontab(minute=0, hour=9),
+        "schedule": crontab(minute=30),
     },
     "fetch_monitoring_data": {
         "task": "experimenter.jetstream.tasks.fetch_monitoring_data",
