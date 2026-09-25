@@ -2,7 +2,7 @@
 
 {% with controls=experiment.rollout_review_controls timed_out=experiment.should_show_timeout_message rejection=experiment.rejection_block rs_pending=experiment.remote_settings_pending_message %}
   {% if controls or rs_pending or timed_out or rejection %}
-    <div class="accordion accordion-flush rounded-4 bg-body-secondary"
+    <div class="accordion accordion-flush rounded-4 bg-body-secondary sidebar-review-controls"
          style="--bs-accordion-btn-active-color: var(--bs-body-color);
                 --bs-accordion-btn-active-bg: transparent;
                 --bs-accordion-active-color: var(--bs-body-color)">
@@ -25,6 +25,9 @@
               <i class="fa-regular fa-bell text-secondary me-2"></i>
               Action required
             {% endif %}
+            <span class="spinner-border spinner-border-sm text-secondary ms-2 card-title-spinner"
+                  role="status"
+                  aria-hidden="true"></span>
           </div>
         </h2>
         <div class="accordion-body pt-0 px-3 pb-3">
