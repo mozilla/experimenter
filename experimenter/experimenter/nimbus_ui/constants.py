@@ -520,7 +520,6 @@ Optional - We expect this to <describe impact> on <core metric>.
                 ("Observations & Problem Space", ("hypothesis",)),
                 ("Public Description", ("public_description",)),
                 ("Important Links", ("documentation_links",)),
-                ("Project Tags", ()),
                 ("Subscribers", ()),
             ),
         },

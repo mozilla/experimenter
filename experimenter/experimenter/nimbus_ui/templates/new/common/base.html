@@ -41,7 +41,7 @@
         {# Experiment header #}
         <div class="d-flex align-items-start justify-content-between mb-4">
           <div>
-            <div class="d-flex flex-wrap align-items-center gap-2">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
               <h1 id="experiment-header-name" class="mb-0 fw-semibold fs-3 text-body">{{ experiment.name }}</h1>
               {% include "new/common/subscribe_bell.html" %}
               {% include "new/common/experiment_status_badges.html" %}
@@ -205,6 +205,11 @@
             </form>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="modal fade" id="tagsModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content" id="tagsModalContent"></div>
       </div>
     </div>
     {% block extrascripts %}{% endblock %}
