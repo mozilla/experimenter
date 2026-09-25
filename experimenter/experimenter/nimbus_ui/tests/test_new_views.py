@@ -3128,6 +3128,23 @@ class TestNewAddTagView(AuthTestCase):
         experiment.refresh_from_db()
         self.assertIn(tag, experiment.tags.all())
 
+    def test_post_adds_tag_to_live_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            is_rollout=True,
+        )
+        tag = TagFactory.create(name="MyTag")
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-add-tag", kwargs={"slug": experiment.slug}),
+            {"tag_id": tag.id},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/overview/tags_field.html")
+        experiment.refresh_from_db()
+        self.assertIn(tag, experiment.tags.all())
+
 
 class TestNewRemoveTagView(AuthTestCase):
     def test_post_removes_tag_from_experiment(self):

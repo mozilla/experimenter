@@ -60,25 +60,8 @@
 
       </div>
     </div>
-    {# Project Tags #}
-    <div class="col-12 col-xl-6 order-5">
-      <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
-        <div class="small text-secondary mb-1">Project Tags</div>
-        {% if experiment.tags.exists %}
-          <div class="d-flex flex-wrap gap-1">
-            {% for tag in experiment.tags.all %}
-              <span class="badge rounded-pill small fw-normal"
-                    style="background-color: {{ tag.color }};
-                           color: white">{{ tag.name }}</span>
-            {% endfor %}
-          </div>
-        {% else %}
-          <div class="text-body">— Not Set</div>
-        {% endif %}
-      </div>
-    </div>
     {# Subscribers #}
-    <div class="col-12 col-xl-6 order-5">
+    <div class="col-12 order-5">
       <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
         <div class="small text-secondary mb-1">Subscribers</div>
         {% if experiment.subscribers.exists %}

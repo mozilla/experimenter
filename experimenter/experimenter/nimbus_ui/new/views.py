@@ -719,6 +719,9 @@ class NewTagView(NewM2MDeltaMixin, CardMixin, NewOverviewFieldUpdateView):
     template_name = "new/rollouts/overview/edit_form.html"
     field_template = "new/rollouts/overview/tags_field.html"
 
+    def can_edit(self):
+        return True
+
 
 class NewAddTagView(NewTagView):
     add = True
