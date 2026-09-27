@@ -6166,6 +6166,14 @@ smartWindow:
       description: >-
         Comma-separated list of screen ids that should be hidden in the Smart
         Window first run onboarding.
+    resumeActivity:
+      type: boolean
+      fallbackPref: browser.smartwindow.resumeActivity.enabled
+      description: >-
+        Enables generating and showing the Smart Window resume-activity
+        suggestions ("pick up where you left off") when true.
+        Set to false to disable them without affecting the regular
+        conversation starters.
 
 smartWindowAgentWatch:
   description: >-
