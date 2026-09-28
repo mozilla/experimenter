@@ -553,6 +553,17 @@ class NimbusConstants:
 
     DESKTOP_FXMS_MESSAGE_SLUG = "fxms-message"
     DESKTOP_FXMS_MESSAGE_PLACEHOLDER_PREFIX = f"{DESKTOP_FXMS_MESSAGE_SLUG}-"
+    DESKTOP_MESSAGING_FEATURE_SLUGS = (
+        DESKTOP_FXMS_MESSAGE_SLUG,
+        "cfr",
+        "infobar",
+        "spotlight",
+        "featureCallout",
+        "moments-page",
+        "pbNewtab",
+        "fxms_bmb_button",
+    )
+    DESKTOP_MESSAGING_MULTI_TEMPLATE = "multi"
 
     MOBILE_MESSAGING_SLUG = "messaging"
     MOBILE_MESSAGING_MESSAGES_FIELD = "messages"
@@ -933,6 +944,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "{feature_slugs} {verb} deprecated. Please use "
         f"{DESKTOP_FXMS_MESSAGE_SLUG} instead, which allows multiple simultaneous "
         "enrollments."
+    )
+    WARNING_DESKTOP_MESSAGING_CONTROL_NO_MESSAGE = (
+        "The control branch has no message for {feature_slugs}, so control clients "
+        "will not record exposure events. Add a message with the same trigger and "
+        "targeting as the treatment message and no template or content."
     )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"
