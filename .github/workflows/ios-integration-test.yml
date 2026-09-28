@@ -8,6 +8,9 @@ on:
     branches:
       - main
       - update_firefox_ios_main
+    paths:
+      - experimenter/tests/firefox_ios_main_build.env
+      - .github/workflows/ios-integration-test.yml
   pull_request:
   merge_group:
     types: [checks_requested]
