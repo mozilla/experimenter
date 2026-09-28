@@ -20,7 +20,7 @@
       {# AI risk #}
       <div>
         <label for="id_risk_ai" class="small text-body mb-2">
-          {{ RISK_QUESTIONS.AI }} <span class="d-block text-secondary fw-normal">{{ NimbusUIConstants.RISK_AI_TEXT }}</span>
+          Does this rollout use any AI features/functionality? <span class="d-block text-secondary fw-normal">{{ NimbusUIConstants.RISK_AI_TEXT }}</span>
         </label>
         {{ form.risk_ai }}
         {% if form.risk_ai.errors %}<div class="text-danger small mt-1">{{ form.risk_ai.errors|join:", " }}</div>{% endif %}
@@ -30,7 +30,7 @@
       {#  Brand perception impact  #}
       <div>
         <label for="id_name" class="small text-body mb-2">
-          Brand perception impact <span class="d-block text-secondary fw-normal">If the public, users, or press were to discover this experiment and description, could it negatively impact their perception of our brand? <a target="_blank"
+          Brand perception impact <span class="d-block text-secondary fw-normal">If the public, users, or press were to discover this rollout and description, could it negatively impact their perception of our brand? <a target="_blank"
     href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.risk_link }}">Learn more</a></span>
         </label>
         {{ form.risk_brand }}
@@ -43,7 +43,7 @@
       {# Revenue impact #}
       <div>
         <label for="id_name" class="small text-body mb-2">
-          Revenue impact <span class="d-block text-secondary fw-normal">Could this experiment impact revenue? (e.g., experiments related to Search, New Tab, Ads, Pocket, etc)? <a target="_blank"
+          Revenue impact <span class="d-block text-secondary fw-normal">Could this rollout impact revenue? (e.g., rollouts related to Search, New Tab, Ads, Pocket, etc)? <a target="_blank"
     href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.revenue_risk_link }}">Learn more</a></span>
         </label>
         {{ form.risk_revenue }}
@@ -56,7 +56,7 @@
       {# External vendor impact #}
       <div>
         <label for="id_name" class="small text-body mb-2">
-          External vendor impact <span class="d-block text-secondary fw-normal">Does this experiment impact or rely on an external vendor, partner, or company (e.g., Google, Amazon) or deliver any encryption or VPN? <a target="_blank"
+          External vendor impact <span class="d-block text-secondary fw-normal">Does this rollout impact or rely on an external vendor, partner, or company (e.g., Google, Amazon) or deliver any encryption or VPN? <a target="_blank"
     href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.partner_related_risk_link }}">Learn more</a></span>
         </label>
         {{ form.risk_partner_related }}
@@ -69,7 +69,7 @@
       {# Messaging impact #}
       <div>
         <label for="id_name" class="small text-body mb-2">
-          Messaging impact <span class="d-block text-secondary fw-normal">Does your experiment include any messaging? If yes, this experiment requires a Message Consultation. <a target="_blank"
+          Messaging impact <span class="d-block text-secondary fw-normal">Does your rollout include any messaging? If yes, this rollout requires a Message Consultation. <a target="_blank"
     href="{{ NimbusUIConstants.OVERVIEW_PAGE_LINKS.message_consult_link }}">Learn more</a></span>
         </label>
         {{ form.risk_message }}

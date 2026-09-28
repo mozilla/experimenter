@@ -21,7 +21,6 @@ from experimenter.base.tests.factories import (
 )
 from experimenter.experiments.constants import (
     EXTERNAL_URLS,
-    RISK_QUESTIONS,
     NimbusConstants,
 )
 from experimenter.experiments.models import (
@@ -2185,7 +2184,9 @@ class TestNewRisksUpdateView(NewViewTestMixin, AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "new/rollouts/risks/edit_form.html")
         self.assertResponseUsesForm(response, RolloutRisksForm)
-        self.assertContains(response, RISK_QUESTIONS["AI"])
+        self.assertContains(
+            response, "Does this rollout use any AI features/functionality?"
+        )
 
     def test_post_valid_saves_and_returns_display_card(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
