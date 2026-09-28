@@ -1112,7 +1112,14 @@ class TestRolloutFeaturesForm(RequestFormTestCase):
         self.assertIn("branch_feature_values", form.errors)
         self.assertEqual(
             form.errors["branch_feature_values"],
-            [{"id": ["This field is required."]}],
+            [
+                {
+                    "id": ["This field is required."],
+                    "__all__": [
+                        "Constraint “unique_with_branch_and_feature” is violated."
+                    ],
+                }
+            ],
         )
 
     def test_form_saves_new_reference_branch_feature_values(self):
