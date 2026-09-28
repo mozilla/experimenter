@@ -80,11 +80,11 @@ jobs:
     name: "iOS Enrollment"
     needs: create-recipe
     if: needs.create-recipe.outputs.should-run == 'true'
-    runs-on: macos-15
+    runs-on: macos-26
     env:
       IOS_CHANNEL: developer
-      XCODE_VERSION: "26.2"
-      IOS_VERSION: "26.2"
+      XCODE_VERSION: "26.5"
+      IOS_VERSION: "26.5"
       IOS_SIMULATOR: "iPhone 17"
       IOS_RECIPE_PATH: ${{ github.workspace }}/ios_recipe.json
     steps:
