@@ -2096,6 +2096,139 @@ class TestNimbusReviewSerializerSingleFeature(
 
         self.assertNotIn("messaging_control_no_message", warnings)
 
+    @parameterized.expand(
+        [
+            (
+                "targeting",
+                {**CONTROL_DUMMY_MESSAGE, "targeting": "false"},
+            ),
+            (
+                "trigger",
+                {**CONTROL_DUMMY_MESSAGE, "trigger": {"id": "openURL"}},
+            ),
+        ]
+    )
+    def test_messaging_control_mismatch_warning(self, _field, control_value):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": (control_value, TREATMENT_MESSAGE)}
+        )
+
+        self.assertEqual(
+            warnings["messaging_control_mismatch"],
+            [
+                (
+                    "The control branch has no message with the same trigger and "
+                    "targeting as spotlight message treatment-message, so control "
+                    "clients will not record exposure under the same conditions as "
+                    "treatment. Give each treatment message a control message with "
+                    "the same trigger and targeting."
+                )
+            ],
+        )
+
+    def test_messaging_control_mismatch_warning_groups_by_feature(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    CONTROL_DUMMY_MESSAGE,
+                    {
+                        "template": "multi",
+                        "messages": [
+                            {**TREATMENT_MESSAGE, "id": "treatment-b", "targeting": "b"},
+                            {**TREATMENT_MESSAGE, "id": "treatment-a", "targeting": "a"},
+                            TREATMENT_MESSAGE,
+                        ],
+                    },
+                ),
+                "cfr": (
+                    {**CONTROL_DUMMY_MESSAGE, "targeting": "false"},
+                    TREATMENT_MESSAGE,
+                ),
+                "infobar": (CONTROL_DUMMY_MESSAGE, TREATMENT_MESSAGE),
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_control_mismatch"],
+            [
+                (
+                    "The control branch has no message with the same trigger and "
+                    "targeting as cfr message treatment-message, so control clients "
+                    "will not record exposure under the same conditions as "
+                    "treatment. Give each treatment message a control message with "
+                    "the same trigger and targeting."
+                ),
+                (
+                    "The control branch has no message with the same trigger and "
+                    "targeting as spotlight messages treatment-a, treatment-b, so "
+                    "control clients will not record exposure under the same "
+                    "conditions as treatment. Give each treatment message a control "
+                    "message with the same trigger and targeting."
+                ),
+            ],
+        )
+
+    @parameterized.expand(
+        [
+            ("spotlight", CONTROL_DUMMY_MESSAGE, TREATMENT_MESSAGE),
+            (
+                "fxms-message",
+                {
+                    "template": "multi",
+                    "messages": [
+                        {**CONTROL_DUMMY_MESSAGE, "id": "control-a", "targeting": "a"},
+                        {**CONTROL_DUMMY_MESSAGE, "id": "control-b", "targeting": "b"},
+                    ],
+                },
+                {
+                    "template": "multi",
+                    "messages": [
+                        {**TREATMENT_MESSAGE, "id": "treatment-b", "targeting": "b"},
+                        {**TREATMENT_MESSAGE, "id": "treatment-a", "targeting": "a"},
+                    ],
+                },
+            ),
+            (
+                "cfr",
+                {"id": "control-message", "targeting": "true"},
+                {
+                    "id": "treatment-message",
+                    "template": "cfr_doorhanger",
+                    "targeting": "true",
+                },
+            ),
+            (
+                "some-other-feature",
+                {**CONTROL_DUMMY_MESSAGE, "targeting": "false"},
+                TREATMENT_MESSAGE,
+            ),
+        ]
+    )
+    def test_messaging_control_mismatch_no_warning(
+        self, feature_slug, control_value, treatment_value
+    ):
+        warnings = self._messaging_control_warnings(
+            {feature_slug: (control_value, treatment_value)}
+        )
+
+        self.assertNotIn("messaging_control_mismatch", warnings)
+
+    def test_messaging_control_mismatch_no_warning_without_control_message(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, TREATMENT_MESSAGE)}
+        )
+
+        self.assertNotIn("messaging_control_mismatch", warnings)
+        self.assertIn("messaging_control_no_message", warnings)
+
+    def test_messaging_control_mismatch_no_warning_for_rollout(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({**CONTROL_DUMMY_MESSAGE, "targeting": "false"}, {})},
+            is_rollout=True,
+        )
+
+        self.assertNotIn("messaging_control_mismatch", warnings)
+
     def test_substitute_localizations(self):
         value = {
             "foo": {

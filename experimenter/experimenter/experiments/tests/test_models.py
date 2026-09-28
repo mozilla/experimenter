@@ -4025,6 +4025,61 @@ class TestNimbusExperiment(TestCase):
             experiment.review_warnings,
         )
 
+    def test_review_warnings_messaging_control_mismatch(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug="spotlight",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None, schema=None, has_remote_schema=True
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+        )
+        experiment.reference_branch.feature_values.update(
+            value=json.dumps(
+                {
+                    "id": "control-message",
+                    "trigger": {"id": "defaultBrowserCheck"},
+                    "targeting": "false",
+                }
+            )
+        )
+        for branch in experiment.treatment_branches:
+            branch.feature_values.update(
+                value=json.dumps(
+                    {
+                        "id": "treatment-message",
+                        "template": "spotlight",
+                        "content": {"id": "treatment-message"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                    }
+                )
+            )
+
+        self.assertIn(
+            {
+                "label": (
+                    "The control branch has no message with the same trigger and "
+                    "targeting as spotlight message treatment-message, so control "
+                    "clients will not record exposure under the same conditions as "
+                    "treatment. Give each treatment message a control message with "
+                    "the same trigger and targeting."
+                ),
+                "detail": None,
+                "learn_more_url": None,
+            },
+            experiment.review_warnings,
+        )
+
     def test_audience_overlap_warnings_renders_each_warning_once(self):
         feature = NimbusFeatureConfigFactory.create(
             slug="duplicate-rollout-feature",
