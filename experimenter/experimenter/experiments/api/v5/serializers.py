@@ -1797,6 +1797,12 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             for message in cls._desktop_messages(feature_value["value"])
         ]
 
+    @staticmethod
+    def _desktop_messages_match(message, other_message):
+        return message.get("trigger") == other_message.get("trigger") and (
+            message.get("targeting") == other_message.get("targeting")
+        )
+
     def _validate_desktop_messaging_control_message(self, data):
         if data.get("is_rollout"):
             return data
@@ -1821,6 +1827,52 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     feature_slugs=", ".join(feature_slugs)
                 )
             ]
+
+        return data
+
+    def _validate_desktop_messaging_control_mismatch(self, data):
+        if data.get("is_rollout"):
+            return data
+
+        reference_branch = data.get("reference_branch", {})
+        treatment_branches = data.get("treatment_branches", [])
+
+        warnings = []
+        for feature_config in sorted(
+            data.get("feature_configs", []),
+            key=lambda feature_config: feature_config.slug,
+        ):
+            if not self._is_desktop_messaging_feature(feature_config):
+                continue
+
+            control_messages = self._branch_desktop_messages(
+                reference_branch, feature_config
+            )
+            if not control_messages:
+                continue
+
+            unmatched_ids = sorted(
+                {
+                    message["id"]
+                    for branch in treatment_branches
+                    for message in self._branch_desktop_messages(branch, feature_config)
+                    if not any(
+                        self._desktop_messages_match(message, control_message)
+                        for control_message in control_messages
+                    )
+                }
+            )
+            if unmatched_ids:
+                warnings.append(
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH.format(
+                        feature_slug=feature_config.slug,
+                        noun="message" if len(unmatched_ids) == 1 else "messages",
+                        message_ids=", ".join(unmatched_ids),
+                    )
+                )
+
+        if warnings:
+            self.warnings["messaging_control_mismatch"] = warnings
 
         return data
 
@@ -2143,6 +2195,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_desktop_multichannel(data)
             data = self._validate_desktop_fxms_message_coenrollment(data)
             data = self._validate_desktop_messaging_control_message(data)
+            data = self._validate_desktop_messaging_control_mismatch(data)
         return data
 
 
