@@ -736,6 +736,31 @@ class TestRolloutAudienceForm(RequestFormTestCase):
         self.assertTrue(experiment.is_localized)
         self.assertEqual(experiment.localizations, '{"en-US": {}}')
 
+    def test_clears_release_date_when_not_first_run(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.BETA,
+            is_first_run=True,
+            proposed_release_date=datetime.date(2026, 10, 1),
+        )
+
+        form = RolloutAudienceForm(
+            instance=experiment,
+            data=self._audience_data(
+                is_first_run=False,
+                proposed_release_date="2026-10-01",
+            ),
+            request=self.request,
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+
+        experiment = form.save()
+        experiment.refresh_from_db()
+
+        self.assertFalse(experiment.is_first_run)
+        self.assertIsNone(experiment.proposed_release_date)
+
     def test_check_rollout_dirty_does_not_set_flag_for_non_rollout(self):
         experiment = NimbusExperimentFactory.create(
             is_rollout=False,

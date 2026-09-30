@@ -754,6 +754,13 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         widget=InlineRadioSelect,
         coerce=lambda x: x == "True",
     )
+    is_first_run = forms.BooleanField(
+        required=False, widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
+    proposed_release_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+    )
 
     class Meta:
         model = NimbusExperiment
@@ -772,6 +779,7 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "languages",
             "locales",
             "newtab_addon_min_version",
+            "proposed_release_date",
             "required_experiments_branches",
             "targeting_config_slug",
             "is_localized",
@@ -789,7 +797,7 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         self.fields["is_first_run"].widget.attrs.update(
             {
                 "hx-post": reverse(
-                    "nimbus-ui-update-audience", kwargs={"slug": self.instance.slug}
+                    "nimbus-ui-new-update-audience", kwargs={"slug": self.instance.slug}
                 ),
                 "hx-trigger": "change",
                 "hx-select": "#first-run-fields",
@@ -888,6 +896,12 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 and channel != NimbusExperiment.Channel.NO_CHANNEL
             )
         ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not cleaned_data.get("is_first_run"):
+            cleaned_data["proposed_release_date"] = None
+        return cleaned_data
 
     @transaction.atomic
     def save(self, *args, **kwargs):

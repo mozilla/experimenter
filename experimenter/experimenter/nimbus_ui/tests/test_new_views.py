@@ -2301,6 +2301,69 @@ class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'id="id_newtab_addon_min_version"')
 
+    def test_get_renders_first_run_fields_for_mobile(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            is_first_run=True,
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="first-run-fields"')
+        self.assertContains(response, "First run rollout")
+        self.assertContains(response, "First Run Release Date")
+        self.assertNotContains(
+            response,
+            reverse("nimbus-ui-update-audience", kwargs={"slug": experiment.slug}),
+        )
+        self.assertContains(response, 'id="id_proposed_release_date"')
+
+    def test_get_hides_release_date_when_not_first_run(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            is_first_run=False,
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="id_is_first_run"')
+        self.assertNotContains(response, "First Run Release Date")
+        self.assertNotContains(response, 'id="id_proposed_release_date"')
+
+    def test_post_saves_first_run_fields_for_mobile_and_renders_card(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            is_first_run=False,
+            proposed_release_date=None,
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.audience_data(
+                application=NimbusExperiment.Application.FENIX,
+                is_first_run=True,
+                proposed_release_date="2026-10-01",
+                save="True",
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "new/rollouts/audience/card.html")
+        self.assertContains(response, "First Run Rollout")
+        self.assertContains(response, "First Run Release Date")
+        experiment.refresh_from_db()
+        self.assertTrue(experiment.is_first_run)
+        self.assertEqual(experiment.proposed_release_date, datetime.date(2026, 10, 1))
+
     def test_post_saves_newtab_addon_min_version_and_renders_card(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
