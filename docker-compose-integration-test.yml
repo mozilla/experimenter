@@ -13,6 +13,7 @@ services:
       - INTEGRATION_TEST_KINTO_URL
       - INTEGRATION_TEST_NGINX_URL
       - MOZ_REMOTE_SETTINGS_DEVTOOLS=1
+      - MOZ_REMOTE_ALLOW_SYSTEM_ACCESS=1
     volumes:
       - .:/code
       - /code/experimenter/tests/integration/.tox
