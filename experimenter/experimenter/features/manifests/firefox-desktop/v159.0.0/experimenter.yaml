@@ -2341,6 +2341,23 @@ autofill-ml-ignore-field-types:
         listed types, so leaving one out can let a broader rule win over the
         more specific one it would normally lose to.
 
+autofill-suppress-unrecognized-autocomplete:
+  description: >-
+    Leave fields whose autocomplete attribute is present but cannot be parsed
+    into a known field name out of autofill entirely.
+  owner: kbaliev@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: extensions.formautofill.suppressUnrecognizedAutocomplete.enabled
+      description: >-
+        If true, a field with an unrecognized autocomplete value is left
+        unclassified: it is offered no dropdown of its own, and it is not
+        filled when autofill is triggered from another field in the same form.
+
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
   owner: desktop-integrations@mozilla.com
