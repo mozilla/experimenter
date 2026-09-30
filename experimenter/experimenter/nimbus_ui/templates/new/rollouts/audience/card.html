@@ -235,6 +235,37 @@
         {% include "new/common/validation_errors.html" with errors=validation_errors.is_sticky %}
 
       </div>
+      {% if experiment.is_mobile %}
+        {# First run #}
+        <div class="col-6 col-lg-4 col-xxl-3 order-1">
+          <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+            <div class="small text-secondary mb-1">First Run Rollout</div>
+            {% if experiment.is_first_run %}
+              <div class="text-body">
+                <i id="rollout-audience-first-run" class="fas fa-check text-success"></i> Yes
+              </div>
+            {% else %}
+              <div class="text-body">
+                <i id="rollout-audience-first-run" class="fas fa-times text-danger"></i> No
+              </div>
+            {% endif %}
+          </div>
+          {% include "new/common/validation_errors.html" with errors=validation_errors.is_first_run %}
+
+        </div>
+        {% if experiment.is_first_run %}
+          <div class="col-6 col-lg-4 col-xxl-3 order-1">
+            <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
+              <div class="small text-secondary mb-1">First Run Release Date</div>
+              <div id="rollout-audience-release-date" class="text-body">
+                {{ experiment.proposed_release_date|default:"— Not Set" }}
+              </div>
+              {% include "new/common/validation_errors.html" with errors=validation_errors.proposed_release_date %}
+
+            </div>
+          </div>
+        {% endif %}
+      {% endif %}
       {# Localization #}
       <div class="col-6 col-lg-4 col-xxl-3 order-1">
         <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
