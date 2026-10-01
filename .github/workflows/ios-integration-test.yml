@@ -99,7 +99,15 @@ jobs:
           fi
           echo "FIREFOX_IOS_SHA=$FIREFOX_IOS_SHA" >> "$GITHUB_ENV"
 
+      - name: Restore cached Fennec build
+        id: fennec-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/FennecCache/Client.app
+          key: ios-fennec-${{ env.FIREFOX_IOS_SHA }}-xcode${{ env.XCODE_VERSION }}-ios${{ env.IOS_VERSION }}-${{ hashFiles('.github/workflows/ios-integration-test.yml') }}
+
       - name: Checkout firefox-ios
+        if: steps.fennec-cache.outputs.cache-hit != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: mozilla-mobile/firefox-ios
@@ -112,10 +120,12 @@ jobs:
           sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
 
       - name: Bootstrap firefox-ios
+        if: steps.fennec-cache.outputs.cache-hit != 'true'
         working-directory: firefox-ios-checkout
         run: ./bootstrap.sh firefox --force
 
       - name: Build Fennec scheme
+        if: steps.fennec-cache.outputs.cache-hit != 'true'
         working-directory: firefox-ios-checkout/firefox-ios
         run: |
           # DerivedData must live outside the checkout. bootstrap.sh installs
@@ -135,15 +145,28 @@ jobs:
             CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
             ENABLE_USER_SCRIPT_SANDBOXING=NO \
             ARCHS="arm64"
-
-      - name: Locate and ad-hoc sign Client.app
-        run: |
-          APP_PATH=$(find "${{ runner.temp }}/DerivedData/Build/Products" -path "*iphonesimulator*/Client.app" -type d | head -1)
-          if [ -z "$APP_PATH" ]; then
+          BUILT_APP=$(find "${{ runner.temp }}/DerivedData/Build/Products" -path "*iphonesimulator*/Client.app" -type d | head -1)
+          if [ -z "$BUILT_APP" ]; then
             echo "::error::Could not locate Client.app in DerivedData"
             find "${{ runner.temp }}/DerivedData/Build/Products" -maxdepth 3 -type d || true
             exit 1
           fi
+          rm -rf "${{ runner.temp }}/FennecCache"
+          mkdir -p "${{ runner.temp }}/FennecCache"
+          ditto "$BUILT_APP" "${{ runner.temp }}/FennecCache/Client.app"
+
+      - name: Locate and ad-hoc sign Client.app
+        run: |
+          CACHED_APP="${{ runner.temp }}/FennecCache/Client.app"
+          if [ ! -d "$CACHED_APP" ]; then
+            echo "::error::Could not locate Client.app at $CACHED_APP"
+            exit 1
+          fi
+          # Sign a working copy so the cached copy stays unsigned.
+          rm -rf "${{ runner.temp }}/Fennec"
+          mkdir -p "${{ runner.temp }}/Fennec"
+          ditto "$CACHED_APP" "${{ runner.temp }}/Fennec/Client.app"
+          APP_PATH="${{ runner.temp }}/Fennec/Client.app"
           # Sign leaves-to-root. --deep is deprecated and doesn't always
           # reach every embedded binary (dylibs, extensions, nested
           # frameworks) reliably on macOS 15.
@@ -208,3 +231,11 @@ jobs:
 
       - name: Run iOS enrollment test
         run: make integration_test_nimbus_ios
+
+      - name: Save Fennec build to cache
+        # Main only, so PR and merge queue runs can read it; after the test, so only a working build is cached.
+        if: success() && steps.fennec-cache.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/FennecCache/Client.app
+          key: ${{ steps.fennec-cache.outputs.cache-primary-key }}
