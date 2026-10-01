@@ -1932,10 +1932,6 @@ newtabWidgets:
       type: boolean
       description: >-
         Enable Clocks widget
-    sportsWidgetEnabled:
-      type: boolean
-      description: >-
-        Enable Sports widget
     listsBadgeEnabled:
       type: boolean
       description: >-
@@ -2340,6 +2336,23 @@ autofill-ml-ignore-field-types:
         together, as in the example: the heuristics only try the rules of the
         listed types, so leaving one out can let a broader rule win over the
         more specific one it would normally lose to.
+
+autofill-suppress-unrecognized-autocomplete:
+  description: >-
+    Leave fields whose autocomplete attribute is present but cannot be parsed
+    into a known field name out of autofill entirely.
+  owner: kbaliev@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: extensions.formautofill.suppressUnrecognizedAutocomplete.enabled
+      description: >-
+        If true, a field with an unrecognized autocomplete value is left
+        unclassified: it is offered no dropdown of its own, and it is not
+        filled when autofill is triggered from another field in the same form.
 
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
@@ -5767,18 +5780,6 @@ jpeg-xl:
       setPref:
         branch: user
         pref: "image.jxl.enabled"
-
-css-masonry:
-  description: "CSS Masonry Layout"
-  owner: dholbert@mozilla.com
-  hasExposure: false
-  variables:
-    enabled:
-      type: boolean
-      description: Whether or not to enable CSS masonry layout.
-      setPref:
-        branch: user
-        pref: "layout.css.grid-template-masonry-value.enabled"
 
 windowsUIAutomation:
   description: Support for the Windows UI Automation API
