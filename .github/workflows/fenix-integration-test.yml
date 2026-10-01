@@ -6,7 +6,6 @@ on:
     - cron: "3 12 * * *"
   push:
     branches:
-      - main
       - update_firefox_fenix_beta
       - update_firefox_fenix_release
   pull_request:

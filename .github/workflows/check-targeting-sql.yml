@@ -1,9 +1,6 @@
 name: Validate Targeting SQL
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
   merge_group:
     types: [checks_requested]

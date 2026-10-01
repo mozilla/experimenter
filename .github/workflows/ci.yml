@@ -80,6 +80,7 @@ jobs:
         run: make check
 
   check-feature-manifests:
+    if: github.event_name != 'push'
     name: "Check Local Feature Manifests"
     runs-on: ubuntu-24.04
     permissions:
@@ -118,6 +119,7 @@ jobs:
           fi
 
   check-schemas:
+    if: github.event_name != 'push'
     name: "Check Schemas"
     runs-on: ubuntu-24.04
     permissions:
@@ -140,6 +142,7 @@ jobs:
         run: make schemas_check
 
   integration-desktop-enrollment:
+    if: github.event_name != 'push'
     strategy:
       fail-fast: false
       matrix:
@@ -172,6 +175,7 @@ jobs:
           artifact-name: desktop-enrollment-${{ matrix.split }}-test-report
 
   integration-desktop-targeting:
+    if: github.event_name != 'push'
     strategy:
       fail-fast: false
       matrix:
@@ -213,6 +217,7 @@ jobs:
           artifact-name: desktop-targeting-${{ matrix.channel }}-${{ matrix.split }}-test-report
 
   integration-nimbus-ui:
+    if: github.event_name != 'push'
     strategy:
       fail-fast: false
       matrix:
@@ -246,6 +251,7 @@ jobs:
           artifact-name: nimbus-ui-${{ matrix.split }}-test-report
 
   integration-remote-settings-all:
+    if: github.event_name != 'push'
     name: "Remote Settings All Workflows (${{ matrix.name }})"
     runs-on: ubuntu-24.04
     permissions:
@@ -284,6 +290,7 @@ jobs:
           artifact-name: remote-settings-all-${{ matrix.marker }}-test-report
 
   integration-remote-settings-launch:
+    if: github.event_name != 'push'
     name: "Remote Settings Launch (All Applications)"
     runs-on: ubuntu-24.04
     permissions:
@@ -312,6 +319,7 @@ jobs:
           artifact-name: remote-settings-launch-test-report
 
   integration-experimenter-cirrus:
+    if: github.event_name != 'push'
     name: "Experimenter Cirrus Integration"
     runs-on: ubuntu-24.04
     permissions:
