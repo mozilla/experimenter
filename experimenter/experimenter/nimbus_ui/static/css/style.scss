@@ -441,9 +441,111 @@ body:has(.sidebar-action-button.htmx-request)
 }
 
 .rollout-page {
-  .cm-editor .cm-scroller {
-    font-family: var(--bs-font-monospace);
-    font-size: 0.875rem;
+  .cm-editor {
+    border-radius: var(--bs-border-radius-lg);
+    overflow: hidden;
+
+    .cm-scroller {
+      font-family: var(--bs-font-monospace);
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .cm-gutters {
+      border-right: 0;
+      color: var(--bs-secondary-color);
+    }
+
+    .cm-lineNumbers .cm-gutterElement {
+      padding-inline: 0.75rem 0.25rem;
+    }
+
+    .cm-foldGutter .cm-gutterElement {
+      padding-inline: 0.125rem 0.25rem;
+    }
+
+    .cm-content {
+      padding-block: 0.75rem;
+    }
+
+    .cm-line {
+      padding-inline: 0.5rem 0.75rem;
+    }
+
+    &:has(.cm-content[contenteditable="false"]) {
+      border: 0 !important;
+      background-color: var(--bs-tertiary-bg);
+
+      .cm-gutters {
+        background-color: transparent;
+      }
+
+      .cm-activeLine,
+      .cm-activeLineGutter {
+        background-color: transparent;
+      }
+    }
+
+    &:has(.cm-content[contenteditable="true"]) {
+      border: var(--bs-border-width) solid var(--bs-border-color) !important;
+      background-color: var(--bs-body-bg);
+
+      .cm-gutters {
+        background-color: var(--bs-tertiary-bg);
+        border-right: var(--bs-border-width) solid
+          var(--bs-border-color-translucent);
+      }
+    }
+
+    &.cm-focused {
+      outline: none;
+      border-color: $input-focus-border-color !important;
+      box-shadow: 0 0 0 var(--bs-focus-ring-width) var(--bs-focus-ring-color);
+
+      .cm-activeLine,
+      .cm-activeLineGutter {
+        background-color: rgba(var(--bs-primary-rgb), 0.06);
+      }
+
+      .cm-activeLineGutter {
+        color: var(--bs-emphasis-color);
+      }
+    }
+
+    &:not(.cm-focused) {
+      .cm-activeLine,
+      .cm-activeLineGutter {
+        background-color: transparent;
+      }
+    }
+  }
+
+  .codemirror-copy-btn {
+    --bs-btn-color: var(--bs-secondary-color);
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: transparent;
+    --bs-btn-hover-color: var(--bs-emphasis-color);
+    --bs-btn-hover-bg: var(--bs-secondary-bg);
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-color: var(--bs-emphasis-color);
+    --bs-btn-active-bg: var(--bs-secondary-bg);
+    --bs-btn-active-border-color: transparent;
+  }
+
+  .readonly-json-collapsible {
+    .show-btn,
+    .hide-btn {
+      --bs-btn-padding-x: 0;
+      --bs-btn-font-size: 0.8125rem;
+      --bs-btn-color: var(--bs-secondary-color);
+      --bs-btn-border-color: transparent;
+      --bs-btn-hover-color: var(--bs-emphasis-color);
+      --bs-btn-hover-bg: transparent;
+      --bs-btn-hover-border-color: transparent;
+      --bs-btn-active-color: var(--bs-emphasis-color);
+      --bs-btn-active-bg: transparent;
+      --bs-btn-active-border-color: transparent;
+    }
   }
 
   .btn:focus-visible,
