@@ -2641,7 +2641,7 @@ HAS_GOOGLE_BING_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-HAS_BING_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
+HAS_BING_AS_CURRENT_DEFAULT_SEARCH_ENGINE=NimbusTargetingConfig(
     name="Has Bing as current default search engine",
     slug="has_bing_as_current_default_search_engine",
     description="Users with Bing as current default engine",
@@ -2652,7 +2652,7 @@ HAS_BING_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-HAS_DDG_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
+HAS_DDG_AS_CURRENT_DEFAULT_SEARCH_ENGINE=NimbusTargetingConfig(
     name="Has DDG as current default search engine",
     slug="has_ddg_as_current_default_search_engine",
     description="Users with DuckDuckGo as current default engine",
@@ -2663,7 +2663,7 @@ HAS_DDG_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
+HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE=NimbusTargetingConfig(
     name="Has Google as current default search engine",
     slug="has_google_as_current_default_search_engine",
     description="Users with Google as current default engine",
@@ -2674,7 +2674,7 @@ HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE_NO_STICKY = NimbusTargetingConfig(
+HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE_NO_STICKY=NimbusTargetingConfig(
     name="Has Google as current default search engine no sticky",
     slug="has_google_as_current_default_search_engine_no_sticky",
     description="Users with Google as current default engine no sticky enrollment",
@@ -2685,7 +2685,7 @@ HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE_NO_STICKY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-DOES_NOT_HAVE_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
+DOES_NOT_HAVE_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE=NimbusTargetingConfig(
     name="Does not have Google as current default search engine",
     slug="does_not_have_google_as_current_default_search_engine",
     description="Users without Google as current default engine",
@@ -2696,7 +2696,7 @@ DOES_NOT_HAVE_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NEW_ANDROID_13_USERS = NimbusTargetingConfig(
+NEW_ANDROID_13_USERS=NimbusTargetingConfig(
     name="New Android 13 Users",
     slug="new_android_13_users",
     description="Users who have Android 13 and are on their first run of the application",
@@ -2707,7 +2707,7 @@ NEW_ANDROID_13_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-EXISTING_USER = NimbusTargetingConfig(
+EXISTING_USER=NimbusTargetingConfig(
     name="Existing user",
     slug="existing_user",
     description="Users with profiles older than 28 days",
@@ -2718,7 +2718,7 @@ EXISTING_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_NO_SEARCHES_IN_28_DAYS = NimbusTargetingConfig(
+EXISTING_USER_NO_SEARCHES_IN_28_DAYS=NimbusTargetingConfig(
     name="Existing user (no searches in 28 days)",
     slug="existing_user_no_searches_in_28_days",
     description=(
@@ -2732,7 +2732,7 @@ EXISTING_USER_NO_SEARCHES_IN_28_DAYS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+EXISTING_USER_HAS_DEFAULT_NEED_PIN=NimbusTargetingConfig(
     name="Existing user (has default, need pin)",
     slug="existing_user_has_default_need_pin",
     description="Users with profiles older than 28 days and w/ default need pin",
@@ -2743,7 +2743,7 @@ EXISTING_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
+EXISTING_USER_NEED_DEFAULT_HAS_PIN=NimbusTargetingConfig(
     name="Existing user (need default, has pin)",
     slug="existing_user_need_default_has_pin",
     description="Users with profiles older than 28 days and need default w/ pin",
@@ -2754,7 +2754,7 @@ EXISTING_USER_NEED_DEFAULT_HAS_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_NEED_PIN = NimbusTargetingConfig(
+EXISTING_USER_NEED_PIN=NimbusTargetingConfig(
     name="Existing user (need pin)",
     slug="existing_user_need_pin",
     description="Users with profiles older than 28 days who have not pinned",
@@ -2765,7 +2765,7 @@ EXISTING_USER_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_NEED_DEFAULT = NimbusTargetingConfig(
+EXISTING_USER_NEED_DEFAULT=NimbusTargetingConfig(
     name="Existing user (need default)",
     slug="existing_user_need_default",
     description="Users with profiles older than 28 days who have not set to default",
@@ -2776,7 +2776,7 @@ EXISTING_USER_NEED_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_NEED_DEFAULT_WIN1903 = NimbusTargetingConfig(
+EXISTING_USER_NEED_DEFAULT_WIN1903=NimbusTargetingConfig(
     name="Existing user (need default, Windows 1903+)",
     slug="existing_user_need_default_windows_1903",
     description=(
@@ -2790,7 +2790,7 @@ EXISTING_USER_NEED_DEFAULT_WIN1903 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_ONLY_WIN10 = NimbusTargetingConfig(
+EXISTING_USER_ONLY_WIN10=NimbusTargetingConfig(
     name="Existing user on Windows 10 only",
     slug="existing_user_win10",
     description="Users with profiles older than 28 days who are on Windows 10",
@@ -2801,7 +2801,7 @@ EXISTING_USER_ONLY_WIN10 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-WIN10_EXISTING_USER_STORIES_DISABLED = NimbusTargetingConfig(
+WIN10_EXISTING_USER_STORIES_DISABLED=NimbusTargetingConfig(
     name="Windows 10 existing users with HNT stories disabled.",
     slug="win10_existing_user_stories_disabled",
     description=(
@@ -2820,7 +2820,7 @@ WIN10_EXISTING_USER_STORIES_DISABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
+NEW_USER_FIVE_BOOKMARKS=NimbusTargetingConfig(
     name="New user (5 bookmarks)",
     slug="new_user_5_bookmarks",
     description="Profile age less than 28 days, has 5 bookmarks",
@@ -2831,7 +2831,7 @@ NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-INFREQUENT_USER_OR_NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
+INFREQUENT_USER_OR_NEW_USER_FIVE_BOOKMARKS=NimbusTargetingConfig(
     name="Infrequent user or new user (5 bookmarks)",
     slug="infrequent_user_or_new_user_five_bookmarks",
     description="Infrequent users or new users with 5 bookmarks",
@@ -2846,7 +2846,7 @@ INFREQUENT_USER_OR_NEW_USER_FIVE_BOOKMARKS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-USER_NOT_SET_TO_DEFAULT = NimbusTargetingConfig(
+USER_NOT_SET_TO_DEFAULT=NimbusTargetingConfig(
     name="User not set to default",
     slug="user_not_set_to_default",
     description="Users who have not set to default",
@@ -2857,7 +2857,7 @@ USER_NOT_SET_TO_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-USER_SET_TO_DEFAULT = NimbusTargetingConfig(
+USER_SET_TO_DEFAULT=NimbusTargetingConfig(
     name="User set to default",
     slug="user_set_to_default",
     description="Users who have set to default",
@@ -2868,7 +2868,7 @@ USER_SET_TO_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FIVE_BOOKMARKS = NimbusTargetingConfig(
+FIVE_BOOKMARKS=NimbusTargetingConfig(
     name="5 bookmarks",
     slug="5_bookmarks",
     description="Any user with exactly 5 bookmarks",
@@ -2879,7 +2879,7 @@ FIVE_BOOKMARKS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-WIN10_AT_LEAST_TEN_BOOKMARKS = NimbusTargetingConfig(
+WIN10_AT_LEAST_TEN_BOOKMARKS=NimbusTargetingConfig(
     name="Windows 10 users with at least 10 bookmarks",
     slug="win10_at_least_ten_bookmarks",
     description="Windows 10 users with at least 10 bookmarks",
@@ -2890,7 +2890,7 @@ WIN10_AT_LEAST_TEN_BOOKMARKS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NOT_MAC = NimbusTargetingConfig(
+NOT_MAC=NimbusTargetingConfig(
     name="Not Mac Users",
     slug="not_mac_users",
     description="Clients not on mac",
@@ -2901,7 +2901,7 @@ NOT_MAC = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EARLY_DAY_USER = NimbusTargetingConfig(
+EARLY_DAY_USER=NimbusTargetingConfig(
     name="Early day user (28 days or less)",
     slug="early_day_user",
     description="Users with profiles that are 28 days old or less",
@@ -2912,7 +2912,7 @@ EARLY_DAY_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EARLY_DAY_USER_V2 = NimbusTargetingConfig(
+EARLY_DAY_USER_V2=NimbusTargetingConfig(
     name="Early day user (less than 28 days)",
     slug="early_day_user_v2",
     description="Users with profiles that are less than 28 days old",
@@ -2923,7 +2923,7 @@ EARLY_DAY_USER_V2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EARLY_DAY_USER_NEED_DEFAULT = NimbusTargetingConfig(
+EARLY_DAY_USER_NEED_DEFAULT=NimbusTargetingConfig(
     name="Early day user (28 days or less) needs default",
     slug="early_day_user_need_default",
     description="Less than 28 day old profile age and has not set default",
@@ -2934,7 +2934,7 @@ EARLY_DAY_USER_NEED_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EARLY_DAY_USER_NEED_DEFAULT_V2 = NimbusTargetingConfig(
+EARLY_DAY_USER_NEED_DEFAULT_V2=NimbusTargetingConfig(
     name="Early day user (less than 28 days) needs default",
     slug="early_day_user_need_default_v2",
     description="Users with profiles that are less than 28 days old and "
@@ -2946,7 +2946,7 @@ EARLY_DAY_USER_NEED_DEFAULT_V2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EARLY_DAY_USER_NEED_PIN = NimbusTargetingConfig(
+EARLY_DAY_USER_NEED_PIN=NimbusTargetingConfig(
     name="Early day user (28 days or less) needs pin",
     slug="early_day_user_need_pin",
     description="Less than 28 day old profile age and has not pinned",
@@ -2957,7 +2957,7 @@ EARLY_DAY_USER_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EARLY_DAY_USER_NEED_PIN_V2 = NimbusTargetingConfig(
+EARLY_DAY_USER_NEED_PIN_V2=NimbusTargetingConfig(
     name="Early day user (less than 28 days) needs pin",
     slug="early_day_user_need_pin_v2",
     description="Users with profiles that are less than 28 days old and has not pinned",
@@ -2968,7 +2968,7 @@ EARLY_DAY_USER_NEED_PIN_V2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EARLY_DAY_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+EARLY_DAY_USER_HAS_DEFAULT_NEED_PIN=NimbusTargetingConfig(
     name="Early day user (28 days or less) has default needs pin",
     slug="early_day_user_has_default_need_pin",
     description="Less than 28 day old profile age has set default and has not pinned",
@@ -2979,7 +2979,7 @@ EARLY_DAY_USER_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EARLY_DAY_USER_HAS_DEFAULT_NEED_PIN_V2 = NimbusTargetingConfig(
+EARLY_DAY_USER_HAS_DEFAULT_NEED_PIN_V2=NimbusTargetingConfig(
     name="Early day user (less than 28 days) has default needs pin",
     slug="early_day_user_has_default_need_pin_v2",
     description="Less than 28 day old profile age has set default and has not pinned",
@@ -2990,7 +2990,7 @@ EARLY_DAY_USER_HAS_DEFAULT_NEED_PIN_V2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TRR_MODE_ZERO = NimbusTargetingConfig(
+TRR_MODE_ZERO=NimbusTargetingConfig(
     name="network.trr.mode = 0",
     slug="network_trr_mode_0",
     description="Users who are not using a trusted resolver",
@@ -3001,7 +3001,7 @@ TRR_MODE_ZERO = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NOT_IMPORT_INFREQUENT_ROLLOUT = NimbusTargetingConfig(
+NOT_IMPORT_INFREQUENT_ROLLOUT=NimbusTargetingConfig(
     name="Not in Import Infrequent Rollouts",
     slug="not_import_infrequent_rollout",
     description="Exclude users in the import infrequent rollouts",
@@ -3017,7 +3017,7 @@ NOT_IMPORT_INFREQUENT_ROLLOUT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SET_DEFAULT_PDF_EXPERIMENT_ENROLLEES = NimbusTargetingConfig(
+SET_DEFAULT_PDF_EXPERIMENT_ENROLLEES=NimbusTargetingConfig(
     name="Set Default PDF Experiment enrollees",
     slug="set_default_pdf_experiment_enrollees",
     description="Users who are enrolled in the set default pdf experiment",
@@ -3031,7 +3031,7 @@ SET_DEFAULT_PDF_EXPERIMENT_ENROLLEES = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TEST_MOBILE_FIRST_RUN_TARGETING_CRITERIA_IOS = NimbusTargetingConfig(
+TEST_MOBILE_FIRST_RUN_TARGETING_CRITERIA_IOS=NimbusTargetingConfig(
     name="TEST first run targeting criteria",
     slug="test_mobile_first_run_targeting_criteria",
     description=(
@@ -3049,7 +3049,7 @@ TEST_MOBILE_FIRST_RUN_TARGETING_CRITERIA_IOS = NimbusTargetingConfig(
     ),
 )
 
-LAPSED_USER = NimbusTargetingConfig(
+LAPSED_USER=NimbusTargetingConfig(
     name="Lapsed users (No activity in the past 28 days)",
     slug="lapsed_user_28_days",
     description=(
@@ -3075,7 +3075,7 @@ LAPSED_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-LAPSED_USER_WINDOWS_ONLY = NimbusTargetingConfig(
+LAPSED_USER_WINDOWS_ONLY=NimbusTargetingConfig(
     name="Lapsed Windows users (No activity in the past 28 days)",
     slug="lapsed_user_28_days_windows",
     description=(
@@ -3090,7 +3090,7 @@ LAPSED_USER_WINDOWS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-LAPSED_USER_WINDOWS_ONLY_NO_DEFAULT_PROMPT = NimbusTargetingConfig(
+LAPSED_USER_WINDOWS_ONLY_NO_DEFAULT_PROMPT=NimbusTargetingConfig(
     name="Lapsed Windows users (No activity in the past 28 days), no default prompt",
     slug="lapsed_user_28_days_windows_no_default_prompt",
     description=(
@@ -3114,7 +3114,7 @@ LAPSED_USER_WINDOWS_ONLY_NO_DEFAULT_PROMPT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-LAPSED_USER_VPN_ELIGIBLE = NimbusTargetingConfig(
+LAPSED_USER_VPN_ELIGIBLE=NimbusTargetingConfig(
     name="Lapsed users eligible for VPN promotions",
     slug="lapsed_user_vpn",
     description=(
@@ -3142,7 +3142,7 @@ LAPSED_USER_VPN_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-LAPSED_USER_VPN_AVAILABLE = NimbusTargetingConfig(
+LAPSED_USER_VPN_AVAILABLE=NimbusTargetingConfig(
     name="Lapsed users who have access to the VPN feature",
     slug="lapsed_user_vpn_available",
     description=(
@@ -3177,7 +3177,7 @@ LAPSED_USER_VPN_AVAILABLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-LAPSED_USER_CFR_FXA_NO_ENTERPRISE = NimbusTargetingConfig(
+LAPSED_USER_CFR_FXA_NO_ENTERPRISE=NimbusTargetingConfig(
     name="Lapsed users with CFRs and FxA enabled, no enterprise policies",
     slug="lapsed_user_cfr_fxa_no_enterprise",
     description=(
@@ -3210,7 +3210,7 @@ LAPSED_USER_CFR_FXA_NO_ENTERPRISE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION = NimbusTargetingConfig(
+RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION=NimbusTargetingConfig(
     name="Returning users who have lapsed a second time",
     slug="returning_churned_user_48_hr",
     description=(
@@ -3232,7 +3232,7 @@ RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION_PRIVACY_CAMPAIGN = NimbusTargetingConfig(
+RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION_PRIVACY_CAMPAIGN=NimbusTargetingConfig(
     name="Returning users, enrolled in the World Cup privacy campaign",
     slug="returning_churned_user_48_hr_privacy_campaign",
     description=(
@@ -3254,7 +3254,7 @@ RETURNING_CHURNED_USER_48_HR_OS_NOTIFICATION_PRIVACY_CAMPAIGN = NimbusTargetingC
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-CORE_USER_FULLY_ACTIVE = NimbusTargetingConfig(
+CORE_USER_FULLY_ACTIVE=NimbusTargetingConfig(
     name="Core user (Active Every Day)",
     slug="core_user_active_every_day",
     description="Active every day in the past 28 days",
@@ -3265,7 +3265,7 @@ CORE_USER_FULLY_ACTIVE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EARLY_DAY_USER_HASNT_CHANGED_BOOKMARKS_TOOLBAR = NimbusTargetingConfig(
+EARLY_DAY_USER_HASNT_CHANGED_BOOKMARKS_TOOLBAR=NimbusTargetingConfig(
     name="Early Day User (Hasn't changed bookmarks toolbar behavior)",
     slug="early_day_user_bookmarks_toolbar_unchanged",
     description=(
@@ -3282,7 +3282,7 @@ EARLY_DAY_USER_HASNT_CHANGED_BOOKMARKS_TOOLBAR = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-ANDROID_8_OR_HIGHER_USERS = NimbusTargetingConfig(
+ANDROID_8_OR_HIGHER_USERS=NimbusTargetingConfig(
     name="Android Version 8.0+ Users",
     slug="android_8_or_higher_users",
     description="Users on Android version 8.0 or higher",
@@ -3293,7 +3293,7 @@ ANDROID_8_OR_HIGHER_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-ANDROID_10_OR_HIGHER_USERS = NimbusTargetingConfig(
+ANDROID_10_OR_HIGHER_USERS=NimbusTargetingConfig(
     name="Android Version 10+ Users",
     slug="android_10_or_higher_users",
     description="Users on Android version 10 or higher",
@@ -3304,7 +3304,7 @@ ANDROID_10_OR_HIGHER_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-WINDOWS_10_PLUS = NimbusTargetingConfig(
+WINDOWS_10_PLUS=NimbusTargetingConfig(
     name="Windows 10+",
     slug="windows_10_plus",
     description="Windows users on version 10 or higher",
@@ -3316,7 +3316,7 @@ WINDOWS_10_PLUS = NimbusTargetingConfig(
 )
 
 
-WINDOWS_10_NOMSIX = NimbusTargetingConfig(
+WINDOWS_10_NOMSIX=NimbusTargetingConfig(
     name="Windows 10+ without msix",
     slug="windows_10_plus_nomsix",
     description="Windows users on version 10 or higher, but no MSIX intallations",
@@ -3327,7 +3327,7 @@ WINDOWS_10_NOMSIX = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-WINDOWS_10_MSIX_ONLY = NimbusTargetingConfig(
+WINDOWS_10_MSIX_ONLY=NimbusTargetingConfig(
     name="Windows 10+ msix only",
     slug="windows_10_plus_msix_only",
     description="Windows users on version 10 or higher using msix installation",
@@ -3338,7 +3338,7 @@ WINDOWS_10_MSIX_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-IOS_DEFAULT_BROWSER_FIRST_RUN_USER = NimbusTargetingConfig(
+IOS_DEFAULT_BROWSER_FIRST_RUN_USER=NimbusTargetingConfig(
     name="Default Browser & First Run FXiOS Users",
     slug="ios_default_browser_user",
     description="Users that already have FXiOS set as the default browser",
@@ -3349,7 +3349,7 @@ IOS_DEFAULT_BROWSER_FIRST_RUN_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_BOTTOM_TOOLBAR_USER = NimbusTargetingConfig(
+IOS_BOTTOM_TOOLBAR_USER=NimbusTargetingConfig(
     name="Existing Bottom Toolbar Users",
     slug="ios_bottom_toolbar_user",
     description="Users that already have a preference set to bottom for the toolbar",
@@ -3360,7 +3360,7 @@ IOS_BOTTOM_TOOLBAR_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_TIPS_NOTIFICATIONS_ENABLED_USER = NimbusTargetingConfig(
+IOS_TIPS_NOTIFICATIONS_ENABLED_USER=NimbusTargetingConfig(
     name="Users With Tips Notifications Enabled",
     slug="ios_tips_notifications_enabled_user",
     description="Users that already have enabled notifications for tips and features",
@@ -3371,7 +3371,7 @@ IOS_TIPS_NOTIFICATIONS_ENABLED_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
+IOS_ACCEPTED_TERMS_OF_USE_USER=NimbusTargetingConfig(
     name="Users Who Accepted Terms of Use",
     slug="ios_accepted_terms_of_use_user",
     description="Users that have already accepted the Terms of Use",
@@ -3382,7 +3382,7 @@ IOS_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_NOT_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
+IOS_NOT_ACCEPTED_TERMS_OF_USE_USER=NimbusTargetingConfig(
     name="Users Who Have Not Accepted Terms of Use",
     slug="ios_not_accepted_terms_of_use_user",
     description="Users that have not accepted the Terms of Use",
@@ -3393,7 +3393,7 @@ IOS_NOT_ACCEPTED_TERMS_OF_USE_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
+IOS_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE=NimbusTargetingConfig(
     name="Existing Users Who Have Not Accepted Terms of Use",
     slug="ios_existing_users_not_accepted_terms_of_use",
     description="Existing users for 28+ days who have not accepted Terms of Use",
@@ -3404,7 +3404,7 @@ IOS_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_TOU_EXPERIENCE_0_POINTS = NimbusTargetingConfig(
+IOS_TOU_EXPERIENCE_0_POINTS=NimbusTargetingConfig(
     name="iOS ToU Experience 0 Points",
     slug="ios_tou_experience_0_points",
     description="Existing iOS users who have not accepted ToU and have 0 points",
@@ -3419,7 +3419,7 @@ IOS_TOU_EXPERIENCE_0_POINTS = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_TOU_EXPERIENCE_1_POINT = NimbusTargetingConfig(
+IOS_TOU_EXPERIENCE_1_POINT=NimbusTargetingConfig(
     name="iOS ToU Experience 1 Point",
     slug="ios_tou_experience_1_point",
     description="Existing iOS users who have not accepted ToU and have 1 point",
@@ -3434,7 +3434,7 @@ IOS_TOU_EXPERIENCE_1_POINT = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_TOU_EXPERIENCE_2_POINTS = NimbusTargetingConfig(
+IOS_TOU_EXPERIENCE_2_POINTS=NimbusTargetingConfig(
     name="iOS ToU Experience 2 Points",
     slug="ios_tou_experience_2_points",
     description="Existing iOS users who have not accepted ToU and have 2 points",
@@ -3449,7 +3449,7 @@ IOS_TOU_EXPERIENCE_2_POINTS = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
+IOS_APPLE_INTELLIGENCE_AVAILABLE_USER=NimbusTargetingConfig(
     name="Apple Intelligence Available Users",
     slug="ios_apple_intelligence_available_user",
     description="Users that have apple intelligence available",
@@ -3460,7 +3460,7 @@ IOS_APPLE_INTELLIGENCE_AVAILABLE_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-CANNOT_USE_APPLE_INTELLIGENCE_USER = NimbusTargetingConfig(
+CANNOT_USE_APPLE_INTELLIGENCE_USER=NimbusTargetingConfig(
     name="Cannot Use Apple Intelligence Users",
     slug="cannot_use_apple_intelligence_user",
     description="Users who cannot use the Apple Intelligence model",
@@ -3471,7 +3471,7 @@ CANNOT_USE_APPLE_INTELLIGENCE_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
+IOS_IPHONE_USERS_ONLY=NimbusTargetingConfig(
     name="iPhone users only",
     slug="ios_iphone_users_only",
     description="Targeting iPhone users",
@@ -3482,7 +3482,7 @@ IOS_IPHONE_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_IPHONE_FIRST_RUN_USER = NimbusTargetingConfig(
+IOS_IPHONE_FIRST_RUN_USER=NimbusTargetingConfig(
     name="First run Users on iPhone",
     slug="ios_iphone_first_run_user",
     description="First-run users on Firefox for iOS on iPhones",
@@ -3493,7 +3493,7 @@ IOS_IPHONE_FIRST_RUN_USER = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_EARLY_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
+IOS_EARLY_DAY_USERS_IPHONE_ONLY=NimbusTargetingConfig(
     name="Early day users iPhone only",
     slug="ios_early_day_users_iphone_only",
     description="Targeting users under 28 since install with iPhones",
@@ -3504,7 +3504,7 @@ IOS_EARLY_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-IOS_LATER_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
+IOS_LATER_DAY_USERS_IPHONE_ONLY=NimbusTargetingConfig(
     name="Later day users iPhone only",
     slug="ios_later_day_users_iphone_only",
     description="Targeting users equal to or greater than 28 since install with iPhones",
@@ -3515,7 +3515,7 @@ IOS_LATER_DAY_USERS_IPHONE_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-ANDROID_EARLY_DAY_USERS_ONLY = NimbusTargetingConfig(
+ANDROID_EARLY_DAY_USERS_ONLY=NimbusTargetingConfig(
     name="Early day users only",
     slug="android_early_day_users_only",
     description="Targeting users under 28 since install",
@@ -3526,7 +3526,7 @@ ANDROID_EARLY_DAY_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
+ANDROID_LATER_DAY_USERS_ONLY=NimbusTargetingConfig(
     name="Later day users only",
     slug="android_later_day_users_only",
     description="Targeting users equal to or greater than 28 since install",
@@ -3537,7 +3537,7 @@ ANDROID_LATER_DAY_USERS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-ANDROID_DMA_USERS_ONLY = NimbusTargetingConfig(
+ANDROID_DMA_USERS_ONLY=NimbusTargetingConfig(
     name="DMA users only",
     slug="android_dma_users_only",
     description="Targeting users who installed Firefox Android through DMA choice screen",
@@ -3549,7 +3549,7 @@ ANDROID_DMA_USERS_ONLY = NimbusTargetingConfig(
 )
 
 
-ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE=NimbusTargetingConfig(
     name="Existing users who have not accepted Terms of Use",
     slug="android_existing_users_not_accepted_terms_of_use",
     description="Existing users for 28+ days who have not accepted Terms of Use",
@@ -3560,7 +3560,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-ANDROID_EXISTING_USERS_NOT_ACCEPTED_TOU_AND_NO_SPONSORED_OPT_OUTS = NimbusTargetingConfig(
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TOU_AND_NO_SPONSORED_OPT_OUTS=NimbusTargetingConfig(
     name=(
         "Existing users for 28+ days who have not accepted Terms of Use "
         "and have not opted out of any sponsored content"
@@ -3580,7 +3580,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TOU_AND_NO_SPONSORED_OPT_OUTS = NimbusTarget
     application_choice_names=(Application.FENIX.name,),
 )
 
-ANDROID_AD_BLOCKER_NOT_INSTALLED = """
+ANDROID_AD_BLOCKER_NOT_INSTALLED="""
 (
     ('uBlock0@raymondhill.net' in addon_ids) == false
     &&
@@ -3606,7 +3606,7 @@ ANDROID_AD_BLOCKER_NOT_INSTALLED = """
 )
 """
 
-ANDROID_AD_BLOCKER_INSTALLED = """
+ANDROID_AD_BLOCKER_INSTALLED="""
 (
     'uBlock0@raymondhill.net' in addon_ids
     ||
@@ -3632,7 +3632,7 @@ ANDROID_AD_BLOCKER_INSTALLED = """
 )
 """
 
-ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS = NimbusTargetingConfig(
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS=NimbusTargetingConfig(
     name=(
         "Existing users who have not accepted the Terms of Use and have zero ToU points."
     ),
@@ -3654,7 +3654,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ZERO_POINTS = NimbusTargetingCo
     application_choice_names=(Application.FENIX.name,),
 )
 
-ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConfig(
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT=NimbusTargetingConfig(
     name=(
         "Existing users who have not accepted the Terms of Use and have one ToU point."
     ),
@@ -3684,7 +3684,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_ONE_POINT = NimbusTargetingConf
     application_choice_names=(Application.FENIX.name,),
 )
 
-ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetingConfig(
+ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT=NimbusTargetingConfig(
     name=(
         "Existing users who have not accepted the Terms of Use "
         "and have more than one ToU point."
@@ -3715,7 +3715,7 @@ ANDROID_EXISTING_USERS_NOT_ACCEPTED_TERMS_OF_USE_OVER_ONE_POINT = NimbusTargetin
     application_choice_names=(Application.FENIX.name,),
 )
 
-TOU_TARGETING_ANDROID_ACCEPTED = NimbusTargetingConfig(
+TOU_TARGETING_ANDROID_ACCEPTED=NimbusTargetingConfig(
     name="Users that have accepted the Terms of Use",
     slug="users_accepted_tou",
     description="Targeting users who have accepted the Terms of Use",
@@ -3726,7 +3726,7 @@ TOU_TARGETING_ANDROID_ACCEPTED = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-CHATBOT_IS_HUGGINGCHAT = NimbusTargetingConfig(
+CHATBOT_IS_HUGGINGCHAT=NimbusTargetingConfig(
     name="Chatbot provider is HuggingChat",
     slug="chatbot_is_huggingchat",
     description="Users who selected HuggingChat",
@@ -3737,7 +3737,7 @@ CHATBOT_IS_HUGGINGCHAT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-CHATBOT_PROVIDER_SELECTED = NimbusTargetingConfig(
+CHATBOT_PROVIDER_SELECTED=NimbusTargetingConfig(
     name="Chatbot provider selected",
     slug="chatbot_provider_selected",
     description="Users who have selected any provider in the AI chatbot sidebar.",
@@ -3748,7 +3748,7 @@ CHATBOT_PROVIDER_SELECTED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
+DEFAULT_PDF_IS_DIFFERENT_BROWSER=NimbusTargetingConfig(
     name="Default PDF handler is a different browser",
     slug="default_pdf_is_different_browser",
     description=(
@@ -3764,7 +3764,7 @@ DEFAULT_PDF_IS_DIFFERENT_BROWSER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-ELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
+ELIGIBLE_FOR_DEFAULT_PDF_HANDLER=NimbusTargetingConfig(
     name="Eligible for default PDF handler",
     slug="eligible_for_default_pdf_handler",
     description=(
@@ -3788,7 +3788,7 @@ ELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-INELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
+INELIGIBLE_FOR_DEFAULT_PDF_HANDLER=NimbusTargetingConfig(
     name="Ineligible for default PDF handler",
     slug="ineligible_for_default_pdf_handler",
     description=(
@@ -3812,7 +3812,7 @@ INELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-DEBUG_INELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
+DEBUG_INELIGIBLE_FOR_DEFAULT_PDF_HANDLER=NimbusTargetingConfig(
     name="DEBUG Ineligible for default PDF handler",
     slug="debug_ineligible_for_default_pdf_handler",
     description=(
@@ -3832,7 +3832,7 @@ DEBUG_INELIGIBLE_FOR_DEFAULT_PDF_HANDLER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SHOPPING_OPTED_IN = NimbusTargetingConfig(
+SHOPPING_OPTED_IN=NimbusTargetingConfig(
     name="Users opted in to shopping",
     slug="shopping_opted_in",
     description="Users who have opted in to the shopping experience",
@@ -3843,7 +3843,7 @@ SHOPPING_OPTED_IN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SHOPPING_ONBOARDING_SHOWN = NimbusTargetingConfig(
+SHOPPING_ONBOARDING_SHOWN=NimbusTargetingConfig(
     name="Shopping onboarding shown",
     slug="shopping_onboarding_shown",
     description=(
@@ -3858,7 +3858,7 @@ SHOPPING_ONBOARDING_SHOWN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-IS_4GB_RAM = NimbusTargetingConfig(
+IS_4GB_RAM=NimbusTargetingConfig(
     name="Firefox build running on a computer with at least 4GB of RAM",
     slug="is_atleast_4gb_ram",
     description="Target computers with at least 4GB of RAM.",
@@ -3869,7 +3869,7 @@ IS_4GB_RAM = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-IS_64BIT_WITH_8GB_RAM = NimbusTargetingConfig(
+IS_64BIT_WITH_8GB_RAM=NimbusTargetingConfig(
     name="64bit Firefox build running on a computer with at least 8GB of RAM",
     slug="is_64bit_build_and_8gb_ram",
     description="Target 64bit builds running on computers with at least 8GB of RAM.",
@@ -3881,7 +3881,7 @@ IS_64BIT_WITH_8GB_RAM = NimbusTargetingConfig(
 )
 
 # --- Desktop Tier 1: High-End (≥16GB RAM) ---
-IS_DESKTOP_TIER_1_HIGH_END = NimbusTargetingConfig(
+IS_DESKTOP_TIER_1_HIGH_END=NimbusTargetingConfig(
     name="Desktop Tier 1: High-End (≥16GB RAM)",
     slug="desktop_tier_1_high_end",
     targeting="memoryMB >= 16384",
@@ -3897,7 +3897,7 @@ IS_DESKTOP_TIER_1_HIGH_END = NimbusTargetingConfig(
 )
 
 # --- Desktop Tier 2: Mid-Range (8-16GB RAM) ---
-IS_DESKTOP_TIER_2_MID_RANGE = NimbusTargetingConfig(
+IS_DESKTOP_TIER_2_MID_RANGE=NimbusTargetingConfig(
     name="Desktop Tier 2: Mid-Range (8-16GB RAM)",
     slug="desktop_tier_2_mid_range",
     targeting="memoryMB >= 8192 && memoryMB < 16384",
@@ -3916,7 +3916,7 @@ IS_DESKTOP_TIER_2_MID_RANGE = NimbusTargetingConfig(
 )
 
 # --- Desktop Tier 3: Low-End (<8GB RAM) ---
-IS_DESKTOP_TIER_3_LOW_END = NimbusTargetingConfig(
+IS_DESKTOP_TIER_3_LOW_END=NimbusTargetingConfig(
     name="Desktop Tier 3: Low-End (<8GB RAM)",
     slug="desktop_tier_3_low_end",
     targeting="memoryMB < 8192",
@@ -3932,7 +3932,7 @@ IS_DESKTOP_TIER_3_LOW_END = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-VIEWPOINT_SURVEY_DESKTOP = NimbusTargetingConfig(
+VIEWPOINT_SURVEY_DESKTOP=NimbusTargetingConfig(
     name="User Research Viewpoint Survey (Rolling Enrollment)",
     slug="viewpoint_survey_desktop",
     description=(
@@ -3949,7 +3949,7 @@ VIEWPOINT_SURVEY_DESKTOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-VIEWPOINT_SURVEY_IOS = NimbusTargetingConfig(
+VIEWPOINT_SURVEY_IOS=NimbusTargetingConfig(
     name="User Research Viewpoint Survey (Rolling Enrollmment)",
     slug="viewpoint_survey_ios",
     description=(
@@ -3966,7 +3966,7 @@ VIEWPOINT_SURVEY_IOS = NimbusTargetingConfig(
     application_choice_names=(Application.IOS.name,),
 )
 
-VIEWPOINT_SURVEY_FENIX = NimbusTargetingConfig(
+VIEWPOINT_SURVEY_FENIX=NimbusTargetingConfig(
     name="User Research Viewpoint Survey (Rolling Enrollmment)",
     slug="viewpoint_survey_fenix",
     description=(
@@ -3983,7 +3983,7 @@ VIEWPOINT_SURVEY_FENIX = NimbusTargetingConfig(
     application_choice_names=(Application.FENIX.name,),
 )
 
-NEW_PROFILE_MAC_ONLY = NimbusTargetingConfig(
+NEW_PROFILE_MAC_ONLY=NimbusTargetingConfig(
     name="New profile Mac OS only",
     slug="mac_only_new_profiles",
     description="New profiles with Mac OS",
@@ -3994,7 +3994,7 @@ NEW_PROFILE_MAC_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SEARCH_ROLLOUT_1 = NimbusTargetingConfig(
+SEARCH_ROLLOUT_1=NimbusTargetingConfig(
     name="Search Rollout 1",
     slug="search_rollout_1",
     description="Search Rollout 1 Namespace",
@@ -4005,7 +4005,7 @@ SEARCH_ROLLOUT_1 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SEARCH_ROLLOUT_2 = NimbusTargetingConfig(
+SEARCH_ROLLOUT_2=NimbusTargetingConfig(
     name="Search Rollout 2",
     slug="search_rollout_2",
     description="Search Rollout 2 Namespace",
@@ -4016,7 +4016,7 @@ SEARCH_ROLLOUT_2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
+AD_BLOCKERS_INSTALLED=NimbusTargetingConfig(
     name="Ad blockers installed",
     slug="ad_blockers_installed",
     description="Users who have installed an adblocker.",
@@ -4035,7 +4035,7 @@ AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-HAS_NO_STARTPAGE_ADDON_INSTALLED = NimbusTargetingConfig(
+HAS_NO_STARTPAGE_ADDON_INSTALLED=NimbusTargetingConfig(
     name="No Startpage Addon installed",
     slug="No Startpage Addon installed",
     description="Users who do not have Startpage Addon installed.",
@@ -4047,7 +4047,7 @@ HAS_NO_STARTPAGE_ADDON_INSTALLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
+HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_AD_BLOCKERS_INSTALLED=NimbusTargetingConfig(
     name="Has Bing as current default search engine and ad blockers installed",
     slug="has_bing_as_current_default_search_engine_and_ad_blockers_installed",
     description=(
@@ -4061,7 +4061,7 @@ HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_AD_BLOCKERS_INSTALLED = NimbusTargetingCon
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_NO_AD_BLOCKERS_INSTALLED = NimbusTargetingConfig(
+HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_NO_AD_BLOCKERS_INSTALLED=NimbusTargetingConfig(
     name="Has Bing as current default search engine and no ad blockers installed",
     slug="has_bing_as_current_default_search_engine_and_no_ad_blockers_installed",
     description=(
@@ -4075,7 +4075,7 @@ HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_NO_AD_BLOCKERS_INSTALLED = NimbusTargeting
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EARLY_DAY_WIN1903_USER_HAS_DEFAULT = NimbusTargetingConfig(
+EARLY_DAY_WIN1903_USER_HAS_DEFAULT=NimbusTargetingConfig(
     name="Early Day Windows 10 1903 User Has Default",
     slug="early_day_win1903_user_has_default",
     description=(
@@ -4089,7 +4089,7 @@ EARLY_DAY_WIN1903_USER_HAS_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_WIN1903_USER_HAS_DEFAULT = NimbusTargetingConfig(
+EXISTING_WIN1903_USER_HAS_DEFAULT=NimbusTargetingConfig(
     name="Existing Windows 1903+ User Has Default",
     slug="existing_win1903_user_has_default",
     description=(
@@ -4103,7 +4103,7 @@ EXISTING_WIN1903_USER_HAS_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SIGNED_IN_USER = NimbusTargetingConfig(
+SIGNED_IN_USER=NimbusTargetingConfig(
     name="Signed-in User",
     slug="signed_in_user",
     description="Users who are signed into FxA",
@@ -4114,7 +4114,7 @@ SIGNED_IN_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SIGNED_OUT_USER = NimbusTargetingConfig(
+SIGNED_OUT_USER=NimbusTargetingConfig(
     name="Signed-out User",
     slug="signed_out_user",
     description="Users who are NOT signed into FxA",
@@ -4125,7 +4125,7 @@ SIGNED_OUT_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SYNC_USER = NimbusTargetingConfig(
+SYNC_USER=NimbusTargetingConfig(
     name="Sync User",
     slug="sync_user",
     description="Users who have sync enabled and are signed into FxA",
@@ -4136,7 +4136,7 @@ SYNC_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_HASNT_CHANGED_BOOKMARKS_TOOLBAR = NimbusTargetingConfig(
+EXISTING_USER_HASNT_CHANGED_BOOKMARKS_TOOLBAR=NimbusTargetingConfig(
     name="Existing User, Hasn't Changed Bookmarks Toolbar Behavior",
     slug="existing_user_bookmarks_toolbar_unchanged",
     description=(
@@ -4153,7 +4153,7 @@ EXISTING_USER_HASNT_CHANGED_BOOKMARKS_TOOLBAR = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-MOZILLA_TESTDAY_EVENT = NimbusTargetingConfig(
+MOZILLA_TESTDAY_EVENT=NimbusTargetingConfig(
     name="Mozilla Testday",
     slug="users_that_have_testday_pref",
     description="Users that will be part of the Mozilla Testday events",
@@ -4164,7 +4164,7 @@ MOZILLA_TESTDAY_EVENT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-DEFAULT_WINDOWS_CONTENT_PROCESS_SANDBOX_LEVEL = NimbusTargetingConfig(
+DEFAULT_WINDOWS_CONTENT_PROCESS_SANDBOX_LEVEL=NimbusTargetingConfig(
     name="Windows users and default content process sandbox level",
     slug="default_windows_content_process_sandbox_level",
     description=(
@@ -4178,7 +4178,7 @@ DEFAULT_WINDOWS_CONTENT_PROCESS_SANDBOX_LEVEL = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-DEFAULT_AUTOFILL_CREDIT_CARDS_SUPPORTED = NimbusTargetingConfig(
+DEFAULT_AUTOFILL_CREDIT_CARDS_SUPPORTED=NimbusTargetingConfig(
     name="Users with Default or Non-'On' Setting for Credit Card Autofill",
     slug="default_autofill_credit_cards_supported",
     description=(
@@ -4195,7 +4195,7 @@ DEFAULT_AUTOFILL_CREDIT_CARDS_SUPPORTED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-DEFAULT_AUTOFILL_ADDRESSES_SUPPORTED = NimbusTargetingConfig(
+DEFAULT_AUTOFILL_ADDRESSES_SUPPORTED=NimbusTargetingConfig(
     name="Users with Default or Non-'On' Setting for Address Autofill",
     slug="default_autofill_addresses_supported",
     description=(
@@ -4212,7 +4212,7 @@ DEFAULT_AUTOFILL_ADDRESSES_SUPPORTED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NO_HTTPS_ONLY_DESKTOP = NimbusTargetingConfig(
+NO_HTTPS_ONLY_DESKTOP=NimbusTargetingConfig(
     name="Users who are not in HTTPS-Only Mode",
     slug="no_https_only_desktop",
     description=(
@@ -4229,7 +4229,7 @@ NO_HTTPS_ONLY_DESKTOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NO_PINNED_TABS = NimbusTargetingConfig(
+NO_PINNED_TABS=NimbusTargetingConfig(
     name="Users who have no pinned tabs",
     slug="no_pinned_tabs_desktop",
     description=(
@@ -4241,7 +4241,7 @@ NO_PINNED_TABS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NON_SIDEBAR_USERS = NimbusTargetingConfig(
+NON_SIDEBAR_USERS=NimbusTargetingConfig(
     name="Users that have never used the sidebar",
     slug="non_sidebar_users",
     description="Target users who have never used the new or old sidebar",
@@ -4268,7 +4268,7 @@ NON_SIDEBAR_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NON_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
+NON_SIDEBAR_USERS_V2=NimbusTargetingConfig(
     name="Users that have never used the sidebar v2",
     slug="non_sidebar_users_v2",
     description="Target users who have never used the new or old sidebar v2",
@@ -4290,7 +4290,7 @@ NON_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-OLD_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
+OLD_SIDEBAR_USERS_V2=NimbusTargetingConfig(
     name="Users that use the old sidebar",
     slug="old_sidebar_users_v2",
     description="Target users who use the old sidebar",
@@ -4303,7 +4303,7 @@ OLD_SIDEBAR_USERS_V2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NEW_SIDEBAR_USERS = NimbusTargetingConfig(
+NEW_SIDEBAR_USERS=NimbusTargetingConfig(
     name="Users that use the new sidebar",
     slug="new_sidebar_users",
     description="Target users who use the new sidebar",
@@ -4314,7 +4314,7 @@ NEW_SIDEBAR_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SIGNED_OUT_EARLY_DAY_USER = NimbusTargetingConfig(
+SIGNED_OUT_EARLY_DAY_USER=NimbusTargetingConfig(
     name="Signed-out early day user",
     slug="signed_out_early_day_user",
     description="Early day users who are NOT signed into FxA",
@@ -4325,7 +4325,7 @@ SIGNED_OUT_EARLY_DAY_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
+SIGNED_OUT_EXISTING_USER=NimbusTargetingConfig(
     name="Signed-out existing user",
     slug="signed_out_existing_user",
     description="Existing users who are NOT signed into FxA",
@@ -4336,7 +4336,7 @@ SIGNED_OUT_EXISTING_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SIGNED_OUT_EARLY_DAY_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+SIGNED_OUT_EARLY_DAY_USER_FXA_ENABLED_NO_ENTERPRISE=NimbusTargetingConfig(
     name="Signed-out early day user, FxA enabled, no enterprise policies",
     slug="signed_out_early_day_user_fxa_enabled_no_enterprise",
     description=(
@@ -4353,7 +4353,7 @@ SIGNED_OUT_EARLY_DAY_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SIGNED_OUT_EXISTING_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+SIGNED_OUT_EXISTING_USER_FXA_ENABLED_NO_ENTERPRISE=NimbusTargetingConfig(
     name="Signed-out existing user, FxA enabled, no enterprise policies",
     slug="signed_out_existing_user_fxa_enabled_no_enterprise",
     description=(
@@ -4369,7 +4369,7 @@ SIGNED_OUT_EXISTING_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SIGNED_OUT_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+SIGNED_OUT_USER_FXA_ENABLED_NO_ENTERPRISE=NimbusTargetingConfig(
     name="Signed-out user, FxA enabled, no enterprise policies",
     slug="signed_out_user_fxa_enabled_no_enterprise",
     description=(
@@ -4386,7 +4386,7 @@ SIGNED_OUT_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SIGNED_OUT_POST_FIRST_RUN_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig(
+SIGNED_OUT_POST_FIRST_RUN_USER_FXA_ENABLED_NO_ENTERPRISE=NimbusTargetingConfig(
     name="Signed-out user, post first run, FxA enabled, no enterprise policies",
     slug="signed_out_user_post_first_run_fxa_enabled_no_enterprise",
     description=(
@@ -4403,7 +4403,7 @@ SIGNED_OUT_POST_FIRST_RUN_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TOU_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
+TOU_ACCEPTED_V4PLUS_MAC_OR_WIN=NimbusTargetingConfig(
     name="TOU version 4 or higher accepted, Mac or Win",
     slug="tou_accepted_mac_win",
     description=(
@@ -4425,7 +4425,7 @@ TOU_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TOU_NOT_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
+TOU_NOT_ACCEPTED_V4PLUS_MAC_OR_WIN=NimbusTargetingConfig(
     name="TOU version 4 or higher NOT accepted, Mac or Win",
     slug="tou_not_accepted_mac_win",
     description=(
@@ -4454,7 +4454,7 @@ TOU_NOT_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TOU_ACCEPTED_V4_MAC_OR_WIN_AND_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfig(
+TOU_ACCEPTED_V4_MAC_OR_WIN_AND_SPONSORED_TOPSITES_ENABLED=NimbusTargetingConfig(
     name="Mac or Windows users accepted TOU version 4 and Sponsored TopSites enabled",
     slug="tou_accepted_mac_win_newtab_sponsored_topsites_enabled",
     description=(
@@ -4479,7 +4479,7 @@ TOU_ACCEPTED_V4_MAC_OR_WIN_AND_SPONSORED_TOPSITES_ENABLED = NimbusTargetingConfi
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TOU_ACCEPTED_V4_MAC_OR_WIN_AND_SPONSORED_TOPSITES_ENABLED_V2 = NimbusTargetingConfig(
+TOU_ACCEPTED_V4_MAC_OR_WIN_AND_SPONSORED_TOPSITES_ENABLED_V2=NimbusTargetingConfig(
     name="Mac or Windows users accepted TOU V4, all TopSites enabled",
     slug="tou_accepted_mac_win_newtab_sponsored_topsites_enabled_v2",
     description=(
@@ -4506,7 +4506,7 @@ TOU_ACCEPTED_V4_MAC_OR_WIN_AND_SPONSORED_TOPSITES_ENABLED_V2 = NimbusTargetingCo
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-WIN10_FIREFOX_VPN_ELIGIBLE = NimbusTargetingConfig(
+WIN10_FIREFOX_VPN_ELIGIBLE=NimbusTargetingConfig(
     name="Windows 10 users eligible for Firefox VPN",
     slug="win10_firefox_vpn",
     description=(
@@ -4529,7 +4529,7 @@ WIN10_FIREFOX_VPN_ELIGIBLE = NimbusTargetingConfig(
 )
 
 # TO DO - add MAC AND WINDOWS ONLY for all three levels
-TOU_EXPERIENCE_0 = NimbusTargetingConfig(
+TOU_EXPERIENCE_0=NimbusTargetingConfig(
     name="TOU Experience 0",
     slug="tou_experience_0",
     description=(
@@ -4557,7 +4557,7 @@ TOU_EXPERIENCE_0 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TOU_EXPERIENCE_1 = NimbusTargetingConfig(
+TOU_EXPERIENCE_1=NimbusTargetingConfig(
     name="TOU Experience 1",
     slug="tou_experience_1",
     description=(
@@ -4585,7 +4585,7 @@ TOU_EXPERIENCE_1 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TOU_EXPERIENCE_2 = NimbusTargetingConfig(
+TOU_EXPERIENCE_2=NimbusTargetingConfig(
     name="TOU Experience 2",
     slug="tou_experience_2",
     description=(
@@ -4613,7 +4613,7 @@ TOU_EXPERIENCE_2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-ACCEPTED_TOU_BEFORE_DEC_9_2025 = NimbusTargetingConfig(
+ACCEPTED_TOU_BEFORE_DEC_9_2025=NimbusTargetingConfig(
     name="Accepted TOU before Dec 9, 2025",
     slug="accepted_tou_before_dec_9_2025",
     description=("User accepted TOU before Dec 9, 2025 (excludes Linux)"),
@@ -4632,7 +4632,7 @@ ACCEPTED_TOU_BEFORE_DEC_9_2025 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025 = NimbusTargetingConfig(
+ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025=NimbusTargetingConfig(
     name="Accepted TOU on or after Dec 9, 2025",
     slug="accepted_tou_on_or_after_dec_9_2025",
     description=("User accepted TOU on or after Dec 9, 2025"),
@@ -4649,7 +4649,7 @@ ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-ACCEPTED_TOU_BEFORE_DEC_17_2025 = NimbusTargetingConfig(
+ACCEPTED_TOU_BEFORE_DEC_17_2025=NimbusTargetingConfig(
     name="Accepted TOU before Dec 17, 2025",
     slug="accepted_tou_before_dec_17_2025",
     description=("User accepted TOU before Dec 17, 2025 (excludes Linux)"),
@@ -4668,7 +4668,7 @@ ACCEPTED_TOU_BEFORE_DEC_17_2025 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-ACCEPTED_TOU_ON_OR_AFTER_DEC_15_2025 = NimbusTargetingConfig(
+ACCEPTED_TOU_ON_OR_AFTER_DEC_15_2025=NimbusTargetingConfig(
     name="Accepted TOU on or after Dec 15, 2025",
     slug="accepted_tou_on_or_after_dec_15_2025",
     description=("User accepted TOU on or after Dec 15, 2025"),
@@ -4685,7 +4685,7 @@ ACCEPTED_TOU_ON_OR_AFTER_DEC_15_2025 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-WINDOWS_10_PLUS_SIGNED_OUT_USER = NimbusTargetingConfig(
+WINDOWS_10_PLUS_SIGNED_OUT_USER=NimbusTargetingConfig(
     name="Windows 10+ signed out user",
     slug="windows_10_plus_signed_out",
     description="Windows users on version 10 or higher who are not signed into FxA",
@@ -4696,7 +4696,7 @@ WINDOWS_10_PLUS_SIGNED_OUT_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-MAC_SIGNED_OUT_USER = NimbusTargetingConfig(
+MAC_SIGNED_OUT_USER=NimbusTargetingConfig(
     name="Mac signed out user",
     slug="mac_signed_out",
     description="Mac users who are not signed into FxA",
@@ -4707,7 +4707,7 @@ MAC_SIGNED_OUT_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_145_TRAINHOP = NimbusTargetingConfig(
+FX_145_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx145 9-19 Trainhop",
     slug="newtab-145-0919-trainhop",
     description="Desktop users having the New Tab 145.0.20250919 train hop,"
@@ -4719,7 +4719,7 @@ FX_145_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_145_1_TRAINHOP = NimbusTargetingConfig(
+FX_145_1_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx145 10-09 Trainhop",
     slug="newtab-145-1009-trainhop",
     description="Desktop users having the New Tab 145.1.20251009 train hop,"
@@ -4731,7 +4731,7 @@ FX_145_1_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_146_TRAINHOP = NimbusTargetingConfig(
+FX_146_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx146.0.1 11-24 Trainhop",
     slug="newtab-146-1124-trainhop",
     description=(
@@ -4745,7 +4745,7 @@ FX_146_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_146_1_TRAINHOP = NimbusTargetingConfig(
+FX_146_1_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx146 11-24 Trainhop",
     slug="newtab-146-1-1124-trainhop",
     description=(
@@ -4759,7 +4759,7 @@ FX_146_1_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_148_TRAINHOP = NimbusTargetingConfig(
+FX_148_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx148 12-11 Trainhop",
     slug="newtab-148-1211-trainhop",
     description=(
@@ -4773,7 +4773,7 @@ FX_148_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_149_TRAINHOP = NimbusTargetingConfig(
+FX_149_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx149 Feb-09 Trainhop",
     slug="newtab-149-0209-trainhop",
     description=(
@@ -4787,7 +4787,7 @@ FX_149_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025_AND_FX_149_TRAINHOP = NimbusTargetingConfig(
+ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025_AND_FX_149_TRAINHOP=NimbusTargetingConfig(
     name="TOU accepted after Dec 9 2025, non-Linux, Fx149 trainhop",
     slug="tou_accepted_and_fx149_trainhop",
     description=(
@@ -4813,7 +4813,7 @@ ACCEPTED_TOU_ON_OR_AFTER_DEC_9_2025_AND_FX_149_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_150_TRAINHOP = NimbusTargetingConfig(
+FX_150_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx150 Mar-04 Trainhop",
     slug="newtab-150-0304-trainhop",
     description=(
@@ -4827,7 +4827,7 @@ FX_150_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_151_TRAINHOP = NimbusTargetingConfig(
+FX_151_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx151 Mar-27 Trainhop",
     slug="newtab-151-0327-trainhop",
     description=(
@@ -4841,7 +4841,7 @@ FX_151_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_151_2_TRAINHOP = NimbusTargetingConfig(
+FX_151_2_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx151 Mar-28 Trainhop",
     slug="newtab-151-0328-trainhop",
     description=(
@@ -4855,7 +4855,7 @@ FX_151_2_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_151_3_TRAINHOP = NimbusTargetingConfig(
+FX_151_3_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx151 Apr-19 Trainhop",
     slug="newtab-151-0419-trainhop",
     description=(
@@ -4869,7 +4869,7 @@ FX_151_3_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_151_3_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
+FX_151_3_TRAINHOP_WIN10_EXISTING_USERS=NimbusTargetingConfig(
     name="Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop",
     slug="newtab-151-0419-trainhop-win10-existing-users",
     description=(
@@ -4886,7 +4886,7 @@ FX_151_3_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_151_2_TRAINHOP_NEW_USERS = NimbusTargetingConfig(
+FX_151_2_TRAINHOP_NEW_USERS=NimbusTargetingConfig(
     name="New users with New Tab Fx151 Mar-28 Trainhop",
     slug="newtab-151-0328-trainhop-new-users",
     description=(
@@ -4901,7 +4901,7 @@ FX_151_2_TRAINHOP_NEW_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_151_3_TRAINHOP_WIN10_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+FX_151_3_TRAINHOP_WIN10_HAS_DEFAULT_NEED_PIN=NimbusTargetingConfig(
     name=(
         "Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop, "
         "having default and needing pin"
@@ -4923,7 +4923,7 @@ FX_151_3_TRAINHOP_WIN10_HAS_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_151_3_TRAINHOP_WIN10_NEED_DEFAULT_NEED_PIN = NimbusTargetingConfig(
+FX_151_3_TRAINHOP_WIN10_NEED_DEFAULT_NEED_PIN=NimbusTargetingConfig(
     name=(
         "Existing Windows 10 users with New Tab Fx151 Apr-19 Trainhop, "
         "needing default and pin"
@@ -4945,7 +4945,7 @@ FX_151_3_TRAINHOP_WIN10_NEED_DEFAULT_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_152_TRAINHOP = NimbusTargetingConfig(
+FX_152_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx152 May-04 Trainhop",
     slug="newtab-152-0504-trainhop",
     description=(
@@ -4959,7 +4959,7 @@ FX_152_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_152_2_TRAINHOP = NimbusTargetingConfig(
+FX_152_2_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx152 May-15 Trainhop",
     slug="newtab-152-0515-trainhop",
     description=(
@@ -4973,7 +4973,7 @@ FX_152_2_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_152_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
+FX_152_TRAINHOP_WIN10_EXISTING_USERS=NimbusTargetingConfig(
     name="Existing Windows 10 users with New Tab Fx152 May-04 Trainhop",
     slug="newtab-152-0504-trainhop-win10-existing-users",
     description=(
@@ -4990,7 +4990,7 @@ FX_152_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_152_2_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
+FX_152_2_TRAINHOP_WIN10_EXISTING_USERS=NimbusTargetingConfig(
     name="Existing Windows 10 users with New Tab Fx152 May-15 Trainhop",
     slug="newtab-152-0515-trainhop-win10-existing-users",
     description=(
@@ -5007,7 +5007,7 @@ FX_152_2_TRAINHOP_WIN10_EXISTING_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_153_TRAINHOP = NimbusTargetingConfig(
+FX_153_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx153 May-28 Trainhop",
     slug="newtab-153-0528-trainhop",
     description=(
@@ -5021,7 +5021,7 @@ FX_153_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_153_TRAINHOP_MAX = NimbusTargetingConfig(
+FX_153_TRAINHOP_MAX=NimbusTargetingConfig(
     name="New Tab up to Fx153 May-28 Trainhop (max)",
     slug="newtab-153-0528-trainhop-max",
     description=(
@@ -5035,7 +5035,7 @@ FX_153_TRAINHOP_MAX = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_153_3_TRAINHOP = NimbusTargetingConfig(
+FX_153_3_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx153 Jun-05 Trainhop",
     slug="newtab-153-0605-trainhop",
     description=(
@@ -5049,7 +5049,7 @@ FX_153_3_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_153_4_TRAINHOP = NimbusTargetingConfig(
+FX_153_4_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx153 Jun-10 Trainhop",
     slug="newtab-153-0610-trainhop",
     description=(
@@ -5063,7 +5063,7 @@ FX_153_4_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_153_5_TRAINHOP = NimbusTargetingConfig(
+FX_153_5_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx153 Jun-15 Trainhop",
     slug="newtab-153-0615-trainhop",
     description=(
@@ -5077,7 +5077,7 @@ FX_153_5_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_154_TRAINHOP = NimbusTargetingConfig(
+FX_154_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx154 Jun-19 Trainhop",
     slug="newtab-154-0619-trainhop",
     description=(
@@ -5091,7 +5091,7 @@ FX_154_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_154_2_TRAINHOP = NimbusTargetingConfig(
+FX_154_2_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx154 Jun-24 Trainhop",
     slug="newtab-154-0624-trainhop",
     description=(
@@ -5105,7 +5105,7 @@ FX_154_2_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_154_3_TRAINHOP = NimbusTargetingConfig(
+FX_154_3_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx154 Jun-30 Trainhop",
     slug="newtab-154-0630-trainhop",
     description=(
@@ -5119,7 +5119,7 @@ FX_154_3_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_154_4_TRAINHOP = NimbusTargetingConfig(
+FX_154_4_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx154 Jul-08 Trainhop",
     slug="newtab-154-0708-trainhop",
     description=(
@@ -5133,7 +5133,7 @@ FX_154_4_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_154_8_TRAINHOP = NimbusTargetingConfig(
+FX_154_8_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx154 Jul-16 Trainhop",
     slug="newtab-154-0716-trainhop",
     description=(
@@ -5147,7 +5147,7 @@ FX_154_8_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_155_TRAINHOP = NimbusTargetingConfig(
+FX_155_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx155 Aug-11 Trainhop",
     slug="newtab-155-0811-trainhop",
     description=(
@@ -5161,7 +5161,7 @@ FX_155_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
+FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_NOT_DEFAULT=NimbusTargetingConfig(
     name=(
         "Windows 10+ users, no MSIX, not pinned, not default, "
         "with New Tab Fx155 Aug-11 Trainhop"
@@ -5185,7 +5185,7 @@ FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_NOT_DEFAULT = NimbusTargetingConfig
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
+FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_PINNED_NOT_DEFAULT=NimbusTargetingConfig(
     name=(
         "Windows 10+ users, no MSIX, pinned, not default, "
         "with New Tab Fx155 Aug-11 Trainhop"
@@ -5209,7 +5209,7 @@ FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_PINNED_NOT_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_DEFAULT = NimbusTargetingConfig(
+FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_DEFAULT=NimbusTargetingConfig(
     name=(
         "Windows 10+ users, no MSIX, not pinned, default, "
         "with New Tab Fx155 Aug-11 Trainhop"
@@ -5233,7 +5233,7 @@ FX_155_TRAINHOP_WIN10_PLUS_NOMSIX_NOT_PINNED_DEFAULT = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_156_TRAINHOP = NimbusTargetingConfig(
+FX_156_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx156 Aug-18 Trainhop",
     slug="newtab-156-0818-trainhop",
     description=(
@@ -5247,7 +5247,7 @@ FX_156_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-PROFILE_UNDER_48_HOURS_FX_156_TRAINHOP = NimbusTargetingConfig(
+PROFILE_UNDER_48_HOURS_FX_156_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx156 Aug-18 Trainhop, Profile Newer Than 48 Hours",
     slug="newtab-156-0818-trainhop-profile-under-48-hours",
     description=(
@@ -5261,7 +5261,7 @@ PROFILE_UNDER_48_HOURS_FX_156_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-PROFILE_48_HOURS_OR_OLDER_FX_156_TRAINHOP = NimbusTargetingConfig(
+PROFILE_48_HOURS_OR_OLDER_FX_156_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx156 Aug-18 Trainhop, Profile 48 Hours Or Older",
     slug="newtab-156-0818-trainhop-profile-48-hours-or-older",
     description=(
@@ -5275,7 +5275,7 @@ PROFILE_48_HOURS_OR_OLDER_FX_156_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_156_2_TRAINHOP = NimbusTargetingConfig(
+FX_156_2_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx156 Aug-24 Trainhop",
     slug="newtab-156-0824-trainhop",
     description=(
@@ -5289,7 +5289,7 @@ FX_156_2_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_157_TRAINHOP = NimbusTargetingConfig(
+FX_157_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx157 Aug-31 Trainhop",
     slug="newtab-157-0831-trainhop",
     description=(
@@ -5303,7 +5303,7 @@ FX_157_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_158_TRAINHOP = NimbusTargetingConfig(
+FX_158_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx158 Sep-13 Trainhop",
     slug="newtab-158-0913-trainhop",
     description=(
@@ -5317,7 +5317,7 @@ FX_158_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
+WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED=NimbusTargetingConfig(
     name="New Tab Lists/Timer Interaction, Neither Widget Disabled",
     slug="widgets-lists-timer-interacted-not-disabled",
     description=(
@@ -5341,7 +5341,7 @@ WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_3_TRAINHOP = NimbusTargetingConfig(
+WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_3_TRAINHOP=NimbusTargetingConfig(
     name=(
         "New Tab Fx153 Jun-05 Trainhop, Lists/Timer Interaction, Neither Widget Disabled"
     ),
@@ -5361,7 +5361,7 @@ WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_3_TRAINHOP = NimbusTargeti
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_1_TRAINHOP_MAX = (
+WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_1_TRAINHOP_MAX=(
     NimbusTargetingConfig(
         name=(
             "New Tab up to Fx153 May-28 Trainhop (max), Lists/Timer Interaction, "
@@ -5384,7 +5384,7 @@ WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_1_TRAINHOP_MAX = (
     )
 )
 
-WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+WIDGETS_ANY_FOUR_ENGAGED=NimbusTargetingConfig(
     name="Engaged with Sports/Clocks/Lists/Timer widget, that widget not disabled",
     slug="widgets-any-four-engaged",
     description=(
@@ -5420,7 +5420,7 @@ WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_153_3_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+FX_153_3_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED=NimbusTargetingConfig(
     name=(
         "New Tab Fx153 Jun-05 Trainhop, engaged with any of 4 widgets, "
         "that widget not disabled"
@@ -5437,7 +5437,7 @@ FX_153_3_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_153_5_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+FX_153_5_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED=NimbusTargetingConfig(
     name=(
         "New Tab Fx153 Jun-15 Trainhop, engaged with any of 4 widgets, "
         "that widget not disabled"
@@ -5454,7 +5454,7 @@ FX_153_5_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_154_8_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+FX_154_8_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED=NimbusTargetingConfig(
     name=(
         "New Tab Fx154 Jul-16 Trainhop, engaged with any of 4 widgets, "
         "that widget not disabled"
@@ -5471,7 +5471,7 @@ FX_154_8_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_153_3_TO_PRE_154_JUL16_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
+FX_153_3_TO_PRE_154_JUL16_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED=NimbusTargetingConfig(
     name=(
         "New Tab Fx153 Jun-05 Trainhop (older than Jul-16), engaged with any of 4 "
         "widgets, that widget not disabled"
@@ -5493,7 +5493,7 @@ FX_153_3_TO_PRE_154_JUL16_TRAINHOP_WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingCon
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_153_3_TO_PRE_154_JUL16_TRAINHOP = NimbusTargetingConfig(
+FX_153_3_TO_PRE_154_JUL16_TRAINHOP=NimbusTargetingConfig(
     name="New Tab Fx153 Jun-05 Trainhop (older than Jul-16)",
     slug="153-0605-thru-pre-154-0716-trainhop",
     description=(
@@ -5510,7 +5510,7 @@ FX_153_3_TO_PRE_154_JUL16_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_153_3_TRAINHOP_ANY_WIDGET_ENABLED = NimbusTargetingConfig(
+FX_153_3_TRAINHOP_ANY_WIDGET_ENABLED=NimbusTargetingConfig(
     name="New Tab Fx153 Jun-05 Trainhop, any of 4 widgets enabled",
     slug="any-widget-enabled-153-0605-trainhop",
     description=(
@@ -5535,7 +5535,7 @@ FX_153_3_TRAINHOP_ANY_WIDGET_ENABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-BUILDID_20251006095753 = NimbusTargetingConfig(
+BUILDID_20251006095753=NimbusTargetingConfig(
     name="Build ID 20251006095753 or higher",
     slug="buildid-20251006095753",
     description="Desktop users having the Build ID 20251006095753 or higher",
@@ -5546,7 +5546,7 @@ BUILDID_20251006095753 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-BUILDID_20260601084312 = NimbusTargetingConfig(
+BUILDID_20260601084312=NimbusTargetingConfig(
     name="Build 2026-06-01 (20260601084312) or higher",
     slug="buildid-20260601084312",
     description=(
@@ -5559,7 +5559,7 @@ BUILDID_20260601084312 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-PROFILES_NUM_ZERO = NimbusTargetingConfig(
+PROFILES_NUM_ZERO=NimbusTargetingConfig(
     name="Number of Profiles is Zero",
     slug="number_of_profiles_is_zero",
     description="Desktop users having zero profiles",
@@ -5570,7 +5570,7 @@ PROFILES_NUM_ZERO = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-PROFILES_NUM_NON_ZERO = NimbusTargetingConfig(
+PROFILES_NUM_NON_ZERO=NimbusTargetingConfig(
     name="Number of Profiles is Non-Zero",
     slug="number_of_profiles_is_non_zero",
     description="Desktop users having non-zero profiles",
@@ -5581,7 +5581,7 @@ PROFILES_NUM_NON_ZERO = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-AI_TAB_GROUPING_ENABLED = NimbusTargetingConfig(
+AI_TAB_GROUPING_ENABLED=NimbusTargetingConfig(
     name="AI Tab Grouping Enabled",
     slug="ai_tab_grouping_enabled",
     description="Users with AI tab grouping feature enabled via preferences",
@@ -5596,7 +5596,7 @@ AI_TAB_GROUPING_ENABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-VPN_EARLY_ACCESS = NimbusTargetingConfig(
+VPN_EARLY_ACCESS=NimbusTargetingConfig(
     name="VPN Early Access",
     slug="vpn_early_access",
     description=(
@@ -5608,7 +5608,7 @@ VPN_EARLY_ACCESS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TELEMETRY_ENABLED = NimbusTargetingConfig(
+TELEMETRY_ENABLED=NimbusTargetingConfig(
     name="Telemetry Enabled",
     slug="telemetry_enabled",
     description="Users with telemetry (data reporting) enabled",
@@ -5619,7 +5619,7 @@ TELEMETRY_ENABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_149_TRAINHOP_2 = NimbusTargetingConfig(
+FX_149_TRAINHOP_2=NimbusTargetingConfig(
     name="New Tab Fx149.2 Feb-26 Trainhop",
     slug="newtab-1492-0226-trainhop",
     description=(
@@ -5633,7 +5633,7 @@ FX_149_TRAINHOP_2 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_149_TRAINHOP_2_ACTIVATION_WINDOW = NimbusTargetingConfig(
+FX_149_TRAINHOP_2_ACTIVATION_WINDOW=NimbusTargetingConfig(
     name="New first run Windows profiles with New Tab Fx149.2 Feb-26 Trainhop",
     slug="new-first-run-windows-profiles-newtab-1492-0226-trainhop",
     description=(
@@ -5652,7 +5652,7 @@ FX_149_TRAINHOP_2_ACTIVATION_WINDOW = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-FX_NEW_NON_SELECTABLE_PROFILE_KIT_CAMPAIGN = NimbusTargetingConfig(
+FX_NEW_NON_SELECTABLE_PROFILE_KIT_CAMPAIGN=NimbusTargetingConfig(
     name=(
         "New non-selectable profiles (< 1 hour old) having been created with Kit campaign"
     ),
@@ -5673,7 +5673,7 @@ FX_NEW_NON_SELECTABLE_PROFILE_KIT_CAMPAIGN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SMART_WINDOW_ONBOARDING_COMPLETE = NimbusTargetingConfig(
+SMART_WINDOW_ONBOARDING_COMPLETE=NimbusTargetingConfig(
     name="Smart Window enabled and onboarding complete",
     slug="smart_window_onboarding_complete",
     description="Smart Window is enabled and user has completed its onboarding",
@@ -5687,7 +5687,7 @@ SMART_WINDOW_ONBOARDING_COMPLETE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-SPLIT_VIEW_HAS_BEEN_USED = NimbusTargetingConfig(
+SPLIT_VIEW_HAS_BEEN_USED=NimbusTargetingConfig(
     name="Users who have used Split View without active enterprise policies",
     slug="split_view_has_been_used",
     description=(
@@ -5703,7 +5703,7 @@ SPLIT_VIEW_HAS_BEEN_USED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NOVA_ENABLED = NimbusTargetingConfig(
+NOVA_ENABLED=NimbusTargetingConfig(
     name="Nova enabled",
     slug="nova_enabled",
     description="Nova is enabled",
@@ -5714,7 +5714,7 @@ NOVA_ENABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NOT_DEFAULT_BROWSER_PROFILE_7_DAYS_NO_ENTERPRISE = NimbusTargetingConfig(
+NOT_DEFAULT_BROWSER_PROFILE_7_DAYS_NO_ENTERPRISE=NimbusTargetingConfig(
     name="Not default browser, profile 7+ days, not first startup, no enterprise",
     slug="not_default_browser_profile_7_days_no_enterprise",
     description=(
@@ -5736,11 +5736,11 @@ NOT_DEFAULT_BROWSER_PROFILE_7_DAYS_NO_ENTERPRISE = NimbusTargetingConfig(
 )
 
 
-EDITORIAL_CONTENT_MARKETS = (
+EDITORIAL_CONTENT_MARKETS=(
     "['AT', 'BE', 'CA', 'CH', 'DE', 'ES', 'FR', 'GB', 'IE', 'IN', 'IT', 'US']"
 )
 
-EDITORIAL_CONTENT_AVAILABLE_MARKETS = NimbusTargetingConfig(
+EDITORIAL_CONTENT_AVAILABLE_MARKETS=NimbusTargetingConfig(
     name="New Tab Editorial Content Available Markets",
     slug="newtab-editorial-content-markets",
     description=(
@@ -5752,7 +5752,7 @@ EDITORIAL_CONTENT_AVAILABLE_MARKETS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EDITORIAL_CONTENT_UNAVAILABLE_MARKETS = NimbusTargetingConfig(
+EDITORIAL_CONTENT_UNAVAILABLE_MARKETS=NimbusTargetingConfig(
     name="New Tab Editorial Content Unavailable Markets",
     slug="newtab-non-editorial-content-markets",
     description=(
@@ -5765,7 +5765,7 @@ EDITORIAL_CONTENT_UNAVAILABLE_MARKETS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-TOPSITES_1ROW_NON_EDITORIAL_FX151_TRAINHOP = NimbusTargetingConfig(
+TOPSITES_1ROW_NON_EDITORIAL_FX151_TRAINHOP=NimbusTargetingConfig(
     name="Non-Editorial Markets, 1-Row Top Sites, Fx151 Trainhop",
     slug="topsites-1row-non-editorial-fx151-trainhop",
     description=(
@@ -5783,7 +5783,7 @@ TOPSITES_1ROW_NON_EDITORIAL_FX151_TRAINHOP = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NON_CORE_USER_NEED_DEFAULT_EXCLUDE_WIN10 = NimbusTargetingConfig(
+NON_CORE_USER_NEED_DEFAULT_EXCLUDE_WIN10=NimbusTargetingConfig(
     name="Non-core users excluding Windows 10 (need default)",
     slug="non_core_user_need_default_exclude_win10",
     description=(
@@ -5804,7 +5804,7 @@ NON_CORE_USER_NEED_DEFAULT_EXCLUDE_WIN10 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-NON_DEFAULT_DAY_1_2_EXCLUDE_WIN10 = NimbusTargetingConfig(
+NON_DEFAULT_DAY_1_2_EXCLUDE_WIN10=NimbusTargetingConfig(
     name="Non-default users, Day 1-2 profile, excluding Windows 10",
     slug="non_default_day_1_2_exclude_win10",
     description=(
@@ -5823,7 +5823,7 @@ NON_DEFAULT_DAY_1_2_EXCLUDE_WIN10 = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED = NimbusTargetingConfig(
+EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED=NimbusTargetingConfig(
     name="Existing windows users with Taskbar Tabs enabled",
     slug="existing_windows_user_taskbar_tabs_enabled",
     description="Profile 7+ days, Windows only, has Taskbar Tabs enabled",
@@ -5836,7 +5836,7 @@ EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED_7_28_DAY_PROFILE = NimbusTargetingConfig(
+EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED_7_28_DAY_PROFILE=NimbusTargetingConfig(
     name="Existing windows users with Taskbar Tabs enabled, 7-28 day profiles",
     slug="existing_windows_user_taskbar_tabs_enabled_7_28_day_profile",
     description="Profile 7-28 days, Windows only, has Taskbar Tabs enabled",
@@ -5850,7 +5850,7 @@ EXISTING_USER_WINDOWS_TASKBAR_TABS_ENABLED_7_28_DAY_PROFILE = NimbusTargetingCon
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_WINDOWS_USER_NEED_PIN = NimbusTargetingConfig(
+EXISTING_WINDOWS_USER_NEED_PIN=NimbusTargetingConfig(
     name="Existing Windows users needing pin, 7-28 day profiles",
     slug="existing_windows_user_need_pin",
     description=(
@@ -5867,7 +5867,7 @@ EXISTING_WINDOWS_USER_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_VPN_ELIGIBLE = NimbusTargetingConfig(
+EXISTING_USER_VPN_ELIGIBLE=NimbusTargetingConfig(
     name="Existing users eligible for VPN, profile 14+ days, no enterprise",
     slug="existing_user_vpn_eligible",
     description=(
@@ -5890,7 +5890,7 @@ EXISTING_USER_VPN_ELIGIBLE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-EXISTING_USER_NO_ENTERPRISE = NimbusTargetingConfig(
+EXISTING_USER_NO_ENTERPRISE=NimbusTargetingConfig(
     name="Existing users (profile 14+ days), no enterprise, cfrs enabled",
     slug="existing_user_no_enterprise",
     description=(
@@ -5912,7 +5912,7 @@ EXISTING_USER_NO_ENTERPRISE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-HAS_ALLOWED_NOTIFICATIONS = NimbusTargetingConfig(
+HAS_ALLOWED_NOTIFICATIONS=NimbusTargetingConfig(
     name="Has allowed web notifications",
     slug="has_allowed_notifications",
     description=(
@@ -5925,7 +5925,7 @@ HAS_ALLOWED_NOTIFICATIONS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
-CBWN_DELIVERY_ESTABLISHED_PROFILES = NimbusTargetingConfig(
+CBWN_DELIVERY_ESTABLISHED_PROFILES=NimbusTargetingConfig(
     name="Closed-browser web notifications, established profiles",
     slug="cbwn_delivery_established_profiles",
     description=(
@@ -5947,11 +5947,11 @@ CBWN_DELIVERY_ESTABLISHED_PROFILES = NimbusTargetingConfig(
 
 
 class TargetingConstants:
-    TARGETING_CONFIGS = {
+    TARGETING_CONFIGS={
         targeting.slug: targeting for targeting in NimbusTargetingConfig.targeting_configs
     }
 
-    TargetingConfig = models.TextChoices(
+    TargetingConfig=models.TextChoices(
         "TargetingConfig",
         [
             (targeting.slug.upper(), targeting.slug)
@@ -5959,7 +5959,7 @@ class TargetingConstants:
         ],
     )
 
-    TARGETING_APPLICATION_SUPPORTED_VERSION = {
+    TARGETING_APPLICATION_SUPPORTED_VERSION={
         Application.FENIX: NimbusConstants.Version.FIREFOX_98,
         Application.IOS: NimbusConstants.Version.FIREFOX_98,
     }
