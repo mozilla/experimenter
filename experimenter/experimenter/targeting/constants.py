@@ -328,7 +328,8 @@ FIRST_RUN = NimbusTargetingConfig(
 MSIX_FIRST_RUN = NimbusTargetingConfig(
     name="First start-up users with MSIX Firefox",
     slug="msix_first_run",
-    description=("First start-up users (e.g. for about:welcome) with MSIX Firefox"),
+    description=(
+        "First start-up users (e.g. for about:welcome) with MSIX Firefox"),
     targeting="(isFirstStartup && os.isWindows && os.windowsVersion >= 10 && isMSIX)",
     desktop_telemetry="",
     sticky_required=False,
@@ -700,7 +701,8 @@ WINDOWS_WITH_USERCHOICE_FIRST_RUN = NimbusTargetingConfig(
 WINDOWS_WITH_USERCHOICE_22H2 = NimbusTargetingConfig(
     name="Users on Windows version 22H2 with UserChoice support",
     slug="windows_userchoice_22h2",
-    description=("Windows 22H2 with UserChoice support (version 22H2+/build ID 19045+)"),
+    description=(
+        "Windows 22H2 with UserChoice support (version 22H2+/build ID 19045+)"),
     targeting=f"{WIN22H2}",
     desktop_telemetry="",
     sticky_required=False,
@@ -724,7 +726,8 @@ FX95_DESKTOP_USERS = NimbusTargetingConfig(
 MOBILE_NEW_USER = NimbusTargetingConfig(
     name="New Users on Mobile (sticky)",
     slug="mobile_new_users",
-    description=("New users on mobile who installed the app less than a week ago"),
+    description=(
+        "New users on mobile who installed the app less than a week ago"),
     targeting="days_since_install < 7",
     desktop_telemetry="",
     sticky_required=True,
@@ -755,7 +758,8 @@ MOBILE_NEW_USER_UNSTICKY = NimbusTargetingConfig(
 MOBILE_EXISTING_USERS_OVER_7_DAYS = NimbusTargetingConfig(
     name="Existing mobile users with 7 or more days since install (not sticky)",
     slug="mobile_existing_users_over_7_days_not_sticky",
-    description=("Existing mobile users who installed the app 7 or more days ago"),
+    description=(
+        "Existing mobile users who installed the app 7 or more days ago"),
     targeting="days_since_install >= 7",
     desktop_telemetry="",
     sticky_required=False,
@@ -783,7 +787,8 @@ MOBILE_FIRST_RUN_USER = NimbusTargetingConfig(
 MOBILE_14_DAY_USER = NimbusTargetingConfig(
     name="Users who installed the app in the last 14 days",
     slug="mobile_14_day_users",
-    description=("New users on mobile who installed the app in the last 2 weeks"),
+    description=(
+        "New users on mobile who installed the app in the last 2 weeks"),
     targeting="days_since_install < 15",
     desktop_telemetry="",
     sticky_required=True,
@@ -1042,7 +1047,8 @@ RELAY_USER = NimbusTargetingConfig(
     name="Relay user",
     slug="relay_user",
     description="Include users who have Relay",
-    targeting=('("9ebfe2c2f9ea3c58" in attachedFxAOAuthClients|mapToProperty("id"))'),
+    targeting=(
+        '("9ebfe2c2f9ea3c58" in attachedFxAOAuthClients|mapToProperty("id"))'),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -1250,7 +1256,8 @@ WIN10_NEED_DEFAULT = NimbusTargetingConfig(
 WIN10_EXISTING_USERS_NEED_DEFAULT = NimbusTargetingConfig(
     name="Windows 10 existing users needing default",
     slug="win10_existing_users_need_default",
-    description=("Windows 10 users with profiles older than 28 days needing default"),
+    description=(
+        "Windows 10 users with profiles older than 28 days needing default"),
     targeting=f"{PROFILE28DAYS} && {WIN10_NEED_DEFAULT.targeting}",
     desktop_telemetry="",
     sticky_required=False,
@@ -1988,7 +1995,8 @@ EXISTING_USER_REVIEW_CHECKER_SIDEBAR_RECOMMENDATION = NimbusTargetingConfig(
     slug="existing_user_review_checker_sidebar_recommendation",
     description="Exclude existing users who have the Fakespot extension installed, "
     "or who have the CFR pref set to false",
-    targeting=(f"{PROFILE28DAYS} && {REVIEW_CHECKER_SIDEBAR_RECOMMENDATION.targeting}"),
+    targeting=(
+        f"{PROFILE28DAYS} && {REVIEW_CHECKER_SIDEBAR_RECOMMENDATION.targeting}"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -2583,7 +2591,8 @@ ANDROID_RECENTLY_LOGGED_IN_USER = NimbusTargetingConfig(
     name="Recently Logged In Users",
     slug="android_recently_logged_in_users",
     description="Users who have completed a Sync login within the last 12 weeks",
-    targeting=RECENTLY_LOGGED_IN_USERS_TARGETING.format(event="sync_auth.sign_in"),
+    targeting=RECENTLY_LOGGED_IN_USERS_TARGETING.format(
+        event="sync_auth.sign_in"),
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
@@ -2630,6 +2639,7 @@ HAS_GOOGLE_BING_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
+)
 
 HAS_BING_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     name="Has Bing as current default search engine",
@@ -3072,7 +3082,8 @@ LAPSED_USER_WINDOWS_ONLY = NimbusTargetingConfig(
         "Users with a profile age of 28 days and 0 days of activity "
         "in the past 28 days, using Windows"
     ),
-    targeting=(f"{LAPSED_USER.targeting} && (os.isWindows && (os.windowsVersion >= 10))"),
+    targeting=(
+        f"{LAPSED_USER.targeting} && (os.isWindows && (os.windowsVersion >= 10))"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -4028,7 +4039,8 @@ HAS_NO_STARTPAGE_ADDON_INSTALLED = NimbusTargetingConfig(
     name="No Startpage Addon installed",
     slug="No Startpage Addon installed",
     description="Users who do not have Startpage Addon installed.",
-    targeting=("addonsInfo.addons['{20fc2e06-e3e4-4b2b-812b-ab431220cada}'] == null"),
+    targeting=(
+        "addonsInfo.addons['{20fc2e06-e3e4-4b2b-812b-ab431220cada}'] == null"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -4041,7 +4053,8 @@ HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_AD_BLOCKERS_INSTALLED = NimbusTargetingCon
     description=(
         "Users with bing as current default search engine and has an adblocker installed."
     ),
-    targeting=(f"searchEngines.current =='bing' && ({AD_BLOCKERS_INSTALLED.targeting})"),
+    targeting=(
+        f"searchEngines.current =='bing' && ({AD_BLOCKERS_INSTALLED.targeting})"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -4054,7 +4067,8 @@ HAS_BING_AS_DEFAULT_SEARCH_ENGINE_AND_NO_AD_BLOCKERS_INSTALLED = NimbusTargeting
     description=(
         "Users with bing as current default search engine and has no adblocker installed."
     ),
-    targeting=(f"searchEngines.current =='bing' && !({AD_BLOCKERS_INSTALLED.targeting})"),
+    targeting=(
+        f"searchEngines.current =='bing' && !({AD_BLOCKERS_INSTALLED.targeting})"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -4156,7 +4170,8 @@ DEFAULT_WINDOWS_CONTENT_PROCESS_SANDBOX_LEVEL = NimbusTargetingConfig(
     description=(
         "Windows users who have not changed the content process sandbox level pref"
     ),
-    targeting=("os.isWindows && !('security.sandbox.content.level'|preferenceIsUserSet)"),
+    targeting=(
+        "os.isWindows && !('security.sandbox.content.level'|preferenceIsUserSet)"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
@@ -4217,7 +4232,8 @@ NO_HTTPS_ONLY_DESKTOP = NimbusTargetingConfig(
 NO_PINNED_TABS = NimbusTargetingConfig(
     name="Users who have no pinned tabs",
     slug="no_pinned_tabs_desktop",
-    description=("Targets users who have 0 pinned tabs in their open windows."),
+    description=(
+        "Targets users who have 0 pinned tabs in their open windows."),
     targeting=("!hasPinnedTabs"),
     desktop_telemetry="",
     sticky_required=False,
@@ -4390,7 +4406,8 @@ SIGNED_OUT_POST_FIRST_RUN_USER_FXA_ENABLED_NO_ENTERPRISE = NimbusTargetingConfig
 TOU_ACCEPTED_V4PLUS_MAC_OR_WIN = NimbusTargetingConfig(
     name="TOU version 4 or higher accepted, Mac or Win",
     slug="tou_accepted_mac_win",
-    description=("Users who have accepted the terms of use, and are on Mac or Windows"),
+    description=(
+        "Users who have accepted the terms of use, and are on Mac or Windows"),
     targeting=f"""
     (
         (
@@ -5582,7 +5599,8 @@ AI_TAB_GROUPING_ENABLED = NimbusTargetingConfig(
 VPN_EARLY_ACCESS = NimbusTargetingConfig(
     name="VPN Early Access",
     slug="vpn_early_access",
-    description=("Users who have FxA enabled, and do not have enterprise policies set"),
+    description=(
+        "Users who have FxA enabled, and do not have enterprise policies set"),
     targeting=(f"isFxAEnabled && {NO_ENTERPRISE.targeting}"),
     desktop_telemetry="",
     sticky_required=False,
@@ -5725,7 +5743,8 @@ EDITORIAL_CONTENT_MARKETS = (
 EDITORIAL_CONTENT_AVAILABLE_MARKETS = NimbusTargetingConfig(
     name="New Tab Editorial Content Available Markets",
     slug="newtab-editorial-content-markets",
-    description=("Users in markets where Firefox New Tab Editorial Content is available"),
+    description=(
+        "Users in markets where Firefox New Tab Editorial Content is available"),
     targeting=f"region in {EDITORIAL_CONTENT_MARKETS}",
     desktop_telemetry="",
     sticky_required=False,
