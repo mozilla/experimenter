@@ -43,7 +43,7 @@ dependencies = [
     "ipdb==0.13.9",
     "jsonschema>=4.26.0,<5",
     "kinto-http==11.11.0",
-    "markdown>=3.10.2,<4",
+    "markdown>=3.11,<4",
     "markdown2==2.5.0",
     "markus==3.0.0",
     "mock==4.0.3",
