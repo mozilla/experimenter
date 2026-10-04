@@ -400,10 +400,36 @@ class RolloutSetupProgressMixin:
             ]
             for card_id, card in cards.items()
         }
+        phase_errors_by_id, unplaced_phase_errors = self.split_row_errors(
+            field_errors.get("rollout_phases"), self.object.rollout_phases.all()
+        )
+        context["rollout_phase_errors"] = phase_errors_by_id
+        if unplaced_phase_errors:
+            context["validation_errors"]["rollout_phases"] = unplaced_phase_errors
+        else:
+            context["validation_errors"].pop("rollout_phases", None)
         context.update(self.readonly_card_errors(field_errors))
         return context
 
+    def split_row_errors(self, errors, rows):
+        rows = list(rows)
+        items = errors.items() if isinstance(errors, dict) else [(None, errors or [])]
+
+        errors_by_id = {}
+        unplaced = []
+        for index, row_errors in items:
+            messages = NimbusRolloutReviewSerializer.flatten_messages(row_errors)
+            if isinstance(index, int) and 0 <= index < len(rows):
+                errors_by_id[rows[index].id] = messages
+            else:
+                unplaced.extend(messages)
+        return errors_by_id, unplaced
+
     def readonly_card_errors(self, field_errors):
+        link_errors_by_id, unplaced_link_errors = self.split_row_errors(
+            field_errors.get("documentation_links"),
+            self.object.documentation_links.all(),
+        )
         return {
             "feature_value_errors": NimbusRolloutReviewSerializer.flatten_messages(
                 field_errors.get("reference_branch") or []
@@ -411,9 +437,8 @@ class RolloutSetupProgressMixin:
             "screenshot_errors": NimbusRolloutReviewSerializer.flatten_messages(
                 field_errors.get("reference_branch_screenshots") or []
             ),
-            "documentation_link_errors": NimbusRolloutReviewSerializer.flatten_messages(
-                field_errors.get("documentation_links") or []
-            ),
+            "documentation_link_errors": unplaced_link_errors,
+            "documentation_link_errors_by_id": link_errors_by_id,
         }
 
 
