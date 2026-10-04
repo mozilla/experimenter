@@ -3821,6 +3821,24 @@ class TestNewRolloutPhaseCreateView(AuthTestCase):
         self.assertEqual(form.rollout_phases.forms[0]["population_percent"].value(), "0")
         self.assertEqual(experiment.rollout_phases.count(), 0)
 
+    def test_post_hides_no_phases_error_for_unsaved_phase(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "0",
+                "rollout_phases-INITIAL_FORMS": "0",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(
+            NimbusConstants.ERROR_ROLLOUT_NO_PHASES,
+            response.context["validation_errors"].get("rollout_phases", []),
+        )
+
     def test_post_then_save_creates_phase_with_no_edits(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -3900,6 +3918,30 @@ class TestNewRolloutPhaseDeleteView(AuthTestCase):
         self.assertEqual(form.visible_phase_count, 0)
         self.assertTrue(form.rollout_phases.forms[0].is_deleted)
         self.assertEqual(experiment.rollout_phases.count(), 1)
+
+    def test_post_shows_no_phases_error_when_last_phase_removed(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        phase = NimbusRolloutPhaseFactory.create(
+            experiment=experiment, population_percent=25
+        )
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "1",
+                "rollout_phases-INITIAL_FORMS": "1",
+                "rollout_phases-0-id": phase.id,
+                "rollout_phases-0-population_percent": "25",
+                "phase_index": "0",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["validation_errors"]["rollout_phases"][0],
+            NimbusConstants.ERROR_ROLLOUT_NO_PHASES,
+        )
 
     def test_post_removes_unsaved_phase_row(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -4045,6 +4087,27 @@ class TestNewRolloutPlanApplyView(AuthTestCase):
         )
         experiment.refresh_from_db()
         self.assertEqual(experiment.rollout_plan_name, "")
+
+    def test_post_hides_no_phases_error_for_unsaved_plan(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        plan_name = next(iter(NimbusUIConstants.ROLLOUT_TEMPLATE_PLANS))
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            {
+                "rollout_phases-TOTAL_FORMS": "0",
+                "rollout_phases-INITIAL_FORMS": "0",
+                "rollout_plan": plan_name,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(
+            NimbusConstants.ERROR_ROLLOUT_NO_PHASES,
+            response.context["validation_errors"].get("rollout_phases", []),
+        )
+        self.assertEqual(experiment.rollout_phases.count(), 0)
 
     def test_post_does_not_overwrite_a_stored_plan_name(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

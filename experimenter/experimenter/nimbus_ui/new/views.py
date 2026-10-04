@@ -867,6 +867,23 @@ class NewRolloutScheduleUpdateView(NewCardUpdateView):
         context["rollout_phase_population_estimates"] = (
             get_rollout_phase_population_estimates(self.object)
         )
+        form = context.get("form")
+        if form is None or not form.is_bound:
+            return context
+
+        validation_errors = context["validation_errors"]
+        phase_errors = [
+            error
+            for error in validation_errors.get("rollout_phases", [])
+            if error != NimbusConstants.ERROR_ROLLOUT_NO_PHASES
+        ]
+        if not form.visible_phase_count:
+            phase_errors.insert(0, NimbusConstants.ERROR_ROLLOUT_NO_PHASES)
+
+        if phase_errors:
+            validation_errors["rollout_phases"] = phase_errors
+        else:
+            validation_errors.pop("rollout_phases", None)
         return context
 
     def can_edit(self):
