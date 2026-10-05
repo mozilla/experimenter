@@ -1,7 +1,12 @@
 {% extends "new/common/card_base.html" %}
 
 {% block card %}
-  <div id="rollout-audience-body">
+  <div id="rollout-audience-body"
+       hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}"
+       hx-trigger="rolloutSaved from:body"
+       hx-select="#rollout-audience-body"
+       hx-swap="outerHTML"
+       hx-sync="closest .rollout-card:abort">
     {# Explore matching audiences #}
     <div class="mb-3">
       <a href="{{ experiment.audience_url }}"

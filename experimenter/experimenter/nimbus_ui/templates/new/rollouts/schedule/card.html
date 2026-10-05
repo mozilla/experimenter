@@ -1,7 +1,13 @@
 {% extends "new/common/card_base.html" %}
 
 {% block card %}
-  <div class="d-flex flex-column gap-3" id="rollout-schedule-body">
+  <div class="d-flex flex-column gap-3"
+       id="rollout-schedule-body"
+       hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}"
+       hx-trigger="rolloutSaved from:body"
+       hx-select="#rollout-schedule-body"
+       hx-swap="outerHTML"
+       hx-sync="closest .rollout-card:abort">
     {% with phases=experiment.annotated_rollout_phases %}
       {% if phases %}
         <table class="table table-borderless align-middle mb-0"

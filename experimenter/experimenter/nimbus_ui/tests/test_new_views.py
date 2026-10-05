@@ -2059,6 +2059,50 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertNotContains(response, "Projected enrollment")
         self.assertNotContains(response, 'data-testid="sizing-phase-estimate"')
 
+    def test_read_only_cards_refresh_when_a_card_is_saved(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, is_rollout=True
+        )
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'hx-trigger="rolloutSaved from:body"', count=7)
+        for card_id in (
+            "overview",
+            "schedule",
+            "audience",
+            "rollout-features",
+            "signoff",
+            "risks",
+            "qa",
+        ):
+            self.assertContains(response, f'hx-select="#rollout-{card_id}-body"')
+
+    @parameterized.expand(
+        [
+            ("overview",),
+            ("schedule",),
+            ("audience",),
+            ("rollout-features",),
+            ("signoff",),
+            ("risks",),
+            ("qa",),
+        ]
+    )
+    def test_edit_forms_do_not_refresh_when_a_card_is_saved(self, card_id):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, is_rollout=True
+        )
+
+        response = self.client.get(
+            reverse(f"nimbus-ui-new-update-{card_id}", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "rolloutSaved")
+
 
 class TestNewOverviewUpdateView(NewViewTestMixin, AuthTestCase):
     url_name = "nimbus-ui-new-update-overview"
@@ -4690,7 +4734,10 @@ class TestToastTriggers(AuthTestCase):
             {"qa_signoff": "on", "vp_signoff": "on", "legal_signoff": "on"},
         )
 
-        self.assertToastTriggered(response, NimbusUIConstants.TOAST_SAVED)
+        self.assertEqual(
+            json.loads(response.headers["HX-Trigger"]),
+            {"showToast": {"id": NimbusUIConstants.TOAST_SAVED}, "rolloutSaved": True},
+        )
 
     def test_subscribing_and_unsubscribing_trigger_toasts(self):
         experiment = NimbusExperimentFactory.create()

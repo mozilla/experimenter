@@ -1,7 +1,13 @@
 {% extends "new/common/card_base.html" %}
 
 {% block card %}
-  <div class="row g-3" id="rollout-overview-body">
+  <div class="row g-3"
+       id="rollout-overview-body"
+       hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}"
+       hx-trigger="rolloutSaved from:body"
+       hx-select="#rollout-overview-body"
+       hx-swap="outerHTML"
+       hx-sync="closest .rollout-card:abort">
     {# Name #}
     <div class="col-12 col-xl-6 order-1">
       <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
