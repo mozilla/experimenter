@@ -56,6 +56,7 @@ from experimenter.nimbus_ui.new.forms import (
     NimbusExperimentSidebarCloneForm,
     NimbusFirefoxLabsCreateForm,
     NimbusRolloutCreateForm,
+    NimbusRolloutPromoteToExperimentForm,
     PreviewReviewRolloutForm,
     PreviewToDraftRolloutForm,
     RolloutAudienceForm,
@@ -363,6 +364,62 @@ class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
         self.assertEqual(
             form.errors["name"], [NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG]
         )
+
+
+class TestNimbusRolloutPromoteToExperimentForm(RequestFormTestCase):
+    def test_save_clones_rollout_into_experiment_without_rollout_fields(self):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            name="Original Rollout",
+            application=NimbusExperiment.Application.DESKTOP,
+            hypothesis="Rollout hypothesis",
+            population_percent=25,
+            rollout_plan_name="Gradual",
+            rollout_advance_observations="Advance notes",
+            rollout_pause_observations="Pause notes",
+        )
+        NimbusRolloutPhaseFactory.create(experiment=rollout, population_percent=10)
+        NimbusRolloutPhaseFactory.create(experiment=rollout, population_percent=50)
+
+        form = NimbusRolloutPromoteToExperimentForm(
+            {"owner": self.user, "name": "Promoted Experiment"},
+            instance=rollout,
+            request=self.request,
+        )
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        experiment.refresh_from_db()
+        self.assertFalse(experiment.is_rollout)
+        self.assertEqual(experiment.slug, "promoted-experiment")
+        self.assertEqual(experiment.owner, self.user)
+        self.assertEqual(experiment.parent, rollout)
+        self.assertEqual(experiment.status, NimbusExperiment.Status.DRAFT)
+        self.assertFalse(experiment.rollout_phases.exists())
+        self.assertEqual(experiment.rollout_plan_name, "")
+        self.assertEqual(experiment.rollout_advance_observations, "")
+        self.assertEqual(experiment.rollout_pause_observations, "")
+        self.assertEqual(experiment.application, NimbusExperiment.Application.DESKTOP)
+        self.assertEqual(experiment.hypothesis, "Rollout hypothesis")
+        self.assertEqual(experiment.population_percent, 25)
+        self.assertEqual(
+            set(experiment.feature_configs.all()), set(rollout.feature_configs.all())
+        )
+        self.assertEqual(
+            set(experiment.branches.values_list("slug", flat=True)),
+            set(rollout.branches.values_list("slug", flat=True)),
+        )
+        self.assertEqual(experiment.reference_branch.slug, rollout.reference_branch.slug)
+        self.assertEqual(
+            experiment.changes.latest("changed_on").message,
+            f"{self.user} promoted this rollout to an experiment",
+        )
+
+        rollout.refresh_from_db()
+        self.assertTrue(rollout.is_rollout)
+        self.assertEqual(rollout.rollout_phases.count(), 2)
+        self.assertEqual(rollout.rollout_plan_name, "Gradual")
 
 
 class TestRolloutOverviewForm(RequestFormTestCase):

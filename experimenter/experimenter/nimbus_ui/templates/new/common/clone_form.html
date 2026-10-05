@@ -5,7 +5,7 @@
     <input type="text"
            id="{{ form_id_prefix }}-name"
            name="name"
-           value="{{ form.name.value }}{% if not form.is_bound %}{% if branch_slug %} - {{ branch_slug }} Rollout{% else %} Copy{% endif %}{% endif %}"
+           value="{{ form.name.value }}{% if not form.is_bound %}{% if branch_slug %} - {{ branch_slug }} Rollout{% else %}{{ name_suffix|default:" Copy" }}{% endif %}{% endif %}"
            class="form-control{% if form.name.errors %} is-invalid{% endif %}" />
     {% for error in form.name.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
     <p class="form-text mb-0 mt-1">This name will be public to users in about:studies.</p>

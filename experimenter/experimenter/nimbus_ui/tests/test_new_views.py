@@ -233,6 +233,7 @@ class TestOldRolloutUIRedirectMixin(AuthTestCase):
         "nimbus-ui-new-subscribe",
         "nimbus-ui-new-unsubscribe",
         "nimbus-ui-new-clone",
+        "nimbus-ui-new-promote-to-experiment",
         "nimbus-ui-new-toggle-archive",
         "nimbus-ui-new-toggle-review-slack-notifications",
         "nimbus-ui-new-draft-to-review-rollout",
@@ -4477,6 +4478,47 @@ class TestNewCloneView(AuthTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context["form"].errors)
         self.assertEqual(response.context["experiment"], self.experiment)
+
+
+class TestNewPromoteToExperimentView(AuthTestCase):
+    def test_post_promotes_rollout_and_redirects_to_experiment_detail(self):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=rollout, population_percent=10)
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-promote-to-experiment", kwargs={"slug": rollout.slug}),
+            {"name": "Promoted Experiment"},
+            headers={"Hx-Request": "true"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse("nimbus-ui-detail", kwargs={"slug": "promoted-experiment"}),
+        )
+        experiment = NimbusExperiment.objects.get(slug="promoted-experiment")
+        self.assertFalse(experiment.is_rollout)
+        self.assertEqual(experiment.owner, self.user)
+        self.assertFalse(experiment.rollout_phases.exists())
+
+    def test_form_invalid_renders_promote_form(self):
+        rollout = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+
+        response = self.client.post(
+            reverse("nimbus-ui-new-promote-to-experiment", kwargs={"slug": rollout.slug}),
+            {"name": "$."},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["form"].errors)
+        self.assertEqual(response.context["experiment"], rollout)
+        self.assertFalse(NimbusExperiment.objects.filter(is_rollout=False).exists())
 
 
 class TestNewToggleArchiveView(AuthTestCase):

@@ -41,6 +41,7 @@ from experimenter.nimbus_ui.new.forms import (
     NimbusExperimentSidebarCloneForm,
     NimbusFirefoxLabsCreateForm,
     NimbusRolloutCreateForm,
+    NimbusRolloutPromoteToExperimentForm,
     PreviewReviewRolloutForm,
     PreviewToDraftRolloutForm,
     RolloutAudienceForm,
@@ -101,6 +102,9 @@ class CloneExperimentFormMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["clone_form"] = NimbusExperimentSidebarCloneForm(instance=self.object)
+        context["promote_to_experiment_form"] = NimbusRolloutPromoteToExperimentForm(
+            instance=self.object
+        )
         return context
 
 
@@ -944,6 +948,10 @@ class NewCloneView(
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(experiment=self.get_object(), **kwargs)
+
+
+class NewPromoteToExperimentView(NewCloneView):
+    form_class = NimbusRolloutPromoteToExperimentForm
 
 
 class NewToggleArchiveView(

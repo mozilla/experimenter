@@ -493,6 +493,9 @@ Optional - We expect this to <describe impact> on <core metric>.
         "There is no next phase to start. Accept to copy and launch the current "
         "phase again, or cancel and add a new phase in the rollout schedule."
     )
+    ROLLOUT_PROMOTE_TO_EXPERIMENT_WARNING = (
+        "Rollout phases, plan and observations will not be copied to the experiment."
+    )
 
     TOAST_SAVED = "toast-saved"
     TOAST_SUBSCRIBED = "toast-subscribed"
