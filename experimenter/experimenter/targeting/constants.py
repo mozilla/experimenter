@@ -2622,10 +2622,7 @@ HAS_GOOGLE_BING_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     name="Has Google or Bing as current default search engine",
     slug="has_google_or_bing_as_current_default_search_engine",
     description="Users with Google or Bing as current default engine",
-    targeting=(
-        "'google' in searchEngines.current ||"
-        "searchEngines.current == 'bing'"
-    ),
+    targeting=("'google' in searchEngines.current ||searchEngines.current == 'bing'"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
