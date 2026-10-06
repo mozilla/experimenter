@@ -280,18 +280,10 @@ native-error-page-feature:
   hasExposure: true
   exposureDescription: ''
   variables:
-    bad-cert-domain-error-page:
-      type: boolean
-      description: |
-        This feature is for managing the roll out of the bad certificate domain native error page
     enabled:
       type: boolean
       description: |
         If true, the feature is active.
-    no_internet_connection_error:
-      type: boolean
-      description: |
-        This feature is for managing the roll out of the no interet connection native error page feature
 new-bookmark-folder-tree-feature:
   description: |
     This property determines weather we show the new bookmark folder tree UI

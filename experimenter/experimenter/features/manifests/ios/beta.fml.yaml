@@ -392,19 +392,9 @@ features:
     description: |
       This feature is for managing the roll out of the native error page feature
     variables:
-      bad-cert-domain-error-page:
-        description: |
-          This feature is for managing the roll out of the bad certificate domain native error page
-        type: Boolean
-        default: false
       enabled:
         description: |
           If true, the feature is active.
-        type: Boolean
-        default: false
-      no_internet_connection_error:
-        description: |
-          This feature is for managing the roll out of the no interet connection native error page feature
         type: Boolean
         default: false
   new-bookmark-folder-tree-feature:
