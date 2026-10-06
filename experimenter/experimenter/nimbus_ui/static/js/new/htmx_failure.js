@@ -1,13 +1,10 @@
-let reloadingAfterHtmxFailure = false;
-
-const reloadOnHtmxFailure = () => {
-  if (reloadingAfterHtmxFailure) {
-    return;
+const showRequestFailedToast = () => {
+  const toastEl = document.getElementById("toast-request-failed");
+  if (toastEl) {
+    window.bootstrap?.Toast.getOrCreateInstance(toastEl).show();
   }
-  reloadingAfterHtmxFailure = true;
-  window.location.reload();
 };
 
-document.addEventListener("htmx:responseError", reloadOnHtmxFailure);
-document.addEventListener("htmx:sendError", reloadOnHtmxFailure);
-document.addEventListener("htmx:timeout", reloadOnHtmxFailure);
+document.addEventListener("htmx:responseError", showRequestFailedToast);
+document.addEventListener("htmx:sendError", showRequestFailedToast);
+document.addEventListener("htmx:timeout", showRequestFailedToast);
