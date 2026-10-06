@@ -2,7 +2,12 @@
 
 {% block card %}
   <div class="row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-3"
-       id="rollout-risks-body">
+       id="rollout-risks-body"
+       hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}"
+       hx-trigger="rolloutSaved from:body"
+       hx-select="#rollout-risks-body"
+       hx-swap="outerHTML"
+       hx-sync="closest .rollout-card:abort">
     {# AI risk #}
     <div class="col d-flex flex-column">
       <div class="bg-body-tertiary rounded-3 px-3 py-2 flex-grow-1 d-flex align-items-center justify-content-between gap-3">
@@ -99,8 +104,4 @@
 
     </div>
   </div>
-  {% if hx_swap_oob %}
-    {% include "new/rollouts/signoff/body.html" with oob=True %}
-
-  {% endif %}
 {% endblock %}

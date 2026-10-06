@@ -371,6 +371,25 @@ class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm
         return self.instance.clone(self.cleaned_data["name"], self.cleaned_data["owner"])
 
 
+class NimbusRolloutPromoteToExperimentForm(NimbusExperimentSidebarCloneForm):
+    def get_changelog_message(self):
+        return f"{self.request.user} promoted this rollout to an experiment"
+
+    @transaction.atomic
+    def save(self):
+        experiment = super().save()
+        experiment.rollout_phases.all().delete()
+        experiment.is_rollout = False
+        experiment.rollout_plan_name = ""
+        experiment.rollout_advance_observations = ""
+        experiment.rollout_pause_observations = ""
+        experiment.save()
+        generate_nimbus_changelog(
+            experiment, self.request.user, self.get_changelog_message()
+        )
+        return experiment
+
+
 class NimbusBranchFeatureValueForm(forms.ModelForm):
     value = forms.CharField(
         required=False,

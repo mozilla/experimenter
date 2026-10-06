@@ -1,7 +1,13 @@
 {% extends "new/common/card_base.html" %}
 
 {% block card %}
-  <div class="row g-3" id="rollout-qa-body">
+  <div class="row g-3"
+       id="rollout-qa-body"
+       hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}"
+       hx-trigger="rolloutSaved from:body"
+       hx-select="#rollout-qa-body"
+       hx-swap="outerHTML"
+       hx-sync="closest .rollout-card:abort">
     {# QA status #}
     <div class="col-12 col-md-4 col-xxl-3">
       <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
