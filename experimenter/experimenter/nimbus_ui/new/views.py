@@ -64,8 +64,8 @@ from experimenter.nimbus_ui.new.forms import (
 )
 
 
-def trigger_toast(response, toast_id):
-    response.headers["HX-Trigger"] = json.dumps({"showToast": {"id": toast_id}})
+def trigger_toast(response, toast_id, **events):
+    response.headers["HX-Trigger"] = json.dumps({"showToast": {"id": toast_id}, **events})
     return response
 
 
@@ -520,6 +520,7 @@ class NewCardUpdateView(
                 context=context,
             ),
             self.save_toast_id,
+            rolloutSaved=True,
         )
 
 
