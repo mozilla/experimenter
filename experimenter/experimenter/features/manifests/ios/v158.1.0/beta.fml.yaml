@@ -388,6 +388,15 @@ features:
           If true, the feature is active.
         type: Boolean
         default: false
+  multi-day-onboarding-feature:
+    description: |
+      Multi-day progressive onboarding
+    variables:
+      useMultiDayOnboarding:
+        description: |
+          Whether or not multi-day onboarding is enabled
+        type: Boolean
+        default: false
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
