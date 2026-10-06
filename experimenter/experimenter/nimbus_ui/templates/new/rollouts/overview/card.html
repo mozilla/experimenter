@@ -1,5 +1,7 @@
 {% extends "new/common/card_base.html" %}
 
+{% load error_helpers %}
+
 {% block card %}
   <div class="row g-3" id="rollout-overview-body">
     {# Name #}
@@ -40,17 +42,25 @@
         {% if experiment.documentation_links.exists %}
           <div class="d-flex flex-column gap-1">
             {% for link in experiment.documentation_links.all %}
-              {% if link.link %}
-                <div>
-                  <a href="{{ link.link }}"
-                     target="_blank"
-                     rel="noopener noreferrer"
-                     class="text-primary text-decoration-none">
-                    {{ link.get_title_display|default:link.link }}
-                    <i class="fa-solid fa-arrow-up-right-from-square fa-2xs ms-1"></i>
-                  </a>
-                </div>
-              {% endif %}
+              {% with link_errors=documentation_link_errors_by_id|get_item:link.id %}
+                {% if link.link or link_errors %}
+                  <div>
+                    {% if link.link %}
+                      <a href="{{ link.link }}"
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         class="text-primary text-decoration-none">
+                        {{ link.get_title_display|default:link.link }}
+                        <i class="fa-solid fa-arrow-up-right-from-square fa-2xs ms-1"></i>
+                      </a>
+                    {% else %}
+                      <div class="text-body">{{ link.get_title_display|default:"Link" }}: — Not Set</div>
+                    {% endif %}
+                    {% include "new/common/validation_errors.html" with errors=link_errors %}
+
+                  </div>
+                {% endif %}
+              {% endwith %}
             {% endfor %}
           </div>
         {% else %}

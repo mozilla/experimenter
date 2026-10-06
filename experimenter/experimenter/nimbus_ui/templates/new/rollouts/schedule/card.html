@@ -1,5 +1,7 @@
 {% extends "new/common/card_base.html" %}
 
+{% load error_helpers %}
+
 {% block card %}
   <div class="d-flex flex-column gap-3" id="rollout-schedule-body">
     {% with phases=experiment.annotated_rollout_phases %}
@@ -128,6 +130,16 @@
                     {% endif %}
                   </td>
                 </tr>
+                {% with phase_errors=rollout_phase_errors|get_item:phase.id %}
+                  {% if phase_errors %}
+                    <tr id="rollout-schedule-phase-{{ forloop.counter0 }}-errors">
+                      <td colspan="4" class="pt-0 pb-3 ps-3">
+                        {% include "new/common/validation_errors.html" with errors=phase_errors %}
+
+                      </td>
+                    </tr>
+                  {% endif %}
+                {% endwith %}
               {% endwith %}
             {% endfor %}
           </tbody>

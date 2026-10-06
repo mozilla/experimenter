@@ -1,4 +1,5 @@
 {% load widget_tweaks %}
+{% load error_helpers %}
 
 {# ── Edit form ── #}
 <div id="rollout-schedule-body">
@@ -95,6 +96,14 @@
                   </button>
                 {% endif %}
               </div>
+              {% with phase_errors=rollout_phase_errors|get_item:phase_form.instance.pk %}
+                {% if phase_errors %}
+                  <div {% if phase_form.errors %}class="pt-4"{% endif %}>
+                    {% include "new/common/validation_errors.html" with errors=phase_errors %}
+
+                  </div>
+                {% endif %}
+              {% endwith %}
             </div>
           {% endwith %}
         {% endif %}

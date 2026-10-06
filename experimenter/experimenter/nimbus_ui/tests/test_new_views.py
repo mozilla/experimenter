@@ -1224,7 +1224,10 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             )
             for population_percent in populations:
                 NimbusRolloutPhaseFactory.create(
-                    experiment=experiment, population_percent=population_percent
+                    experiment=experiment,
+                    population_percent=population_percent,
+                    start_date=None,
+                    end_date=None,
                 )
 
             response = self.client.get(
@@ -1543,6 +1546,30 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertNotContains(response, "ErrorDetail")
         self.assertNotContains(response, "is not a valid choice")
         self.assertContains(response, "This field may not be blank.")
+
+    @parameterized.expand(
+        [
+            ("new-nimbus-ui-rollout-detail",),
+            ("nimbus-ui-new-update-overview",),
+        ]
+    )
+    def test_documentation_link_errors_are_keyed_by_link(self, url_name):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED, is_rollout=True
+        )
+        experiment.documentation_links.all().delete()
+        NimbusDocumentationLinkFactory.create(
+            experiment=experiment, link="https://example.com"
+        )
+        blank = NimbusDocumentationLinkFactory.create(experiment=experiment, link="")
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": experiment.slug}))
+
+        self.assertEqual(
+            response.context["documentation_link_errors_by_id"],
+            {blank.id: ["This field may not be blank."]},
+        )
+        self.assertEqual(response.context["documentation_link_errors"], [])
 
     def test_documentation_link_title_only_error_is_not_reported(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -3304,6 +3331,150 @@ class TestNewRemoveSubscriberView(AuthTestCase):
 
 class TestNewRolloutScheduleUpdateView(AuthTestCase):
     url_name = "nimbus-ui-new-update-schedule"
+
+    @parameterized.expand(
+        [
+            (
+                [(0, None, None), (50, None, None)],
+                0,
+                NimbusConstants.ERROR_ROLLOUT_FIRST_PHASE_ZERO,
+            ),
+            (
+                [(10, None, None), (150, None, None)],
+                1,
+                NimbusConstants.ERROR_ROLLOUT_PHASE_POPULATION_RANGE,
+            ),
+            (
+                [
+                    (10, datetime.date(2026, 1, 1), datetime.date(2026, 1, 10)),
+                    (50, datetime.date(2026, 1, 20), datetime.date(2026, 1, 15)),
+                ],
+                1,
+                NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER,
+            ),
+            (
+                [
+                    (10, datetime.date(2026, 1, 1), datetime.date(2026, 1, 10)),
+                    (50, datetime.date(2026, 1, 5), datetime.date(2026, 1, 20)),
+                ],
+                1,
+                NimbusConstants.ERROR_ROLLOUT_PHASE_SEQUENCE,
+            ),
+        ]
+    )
+    def test_get_reports_phase_error_on_its_phase(
+        self, phase_specs, failing_index, message
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        phases = [
+            NimbusRolloutPhaseFactory.create(
+                experiment=experiment,
+                population_percent=population_percent,
+                start_date=start_date,
+                end_date=end_date,
+            )
+            for population_percent, start_date, end_date in phase_specs
+        ]
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["rollout_phase_errors"],
+            {phases[failing_index].id: [message]},
+        )
+        self.assertNotIn("rollout_phases", response.context["validation_errors"])
+
+    @parameterized.expand(
+        [
+            ("nimbus-ui-new-update-schedule",),
+            ("new-nimbus-ui-rollout-detail",),
+        ]
+    )
+    def test_reports_errors_for_every_failing_phase(self, url_name):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=10,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 1, 10),
+        )
+        out_of_order = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=150,
+            start_date=datetime.date(2026, 1, 20),
+            end_date=datetime.date(2026, 1, 15),
+        )
+        overlapping = NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=60,
+            start_date=datetime.date(2026, 1, 12),
+            end_date=datetime.date(2026, 1, 30),
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": experiment.slug}))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["rollout_phase_errors"],
+            {
+                out_of_order.id: [
+                    NimbusConstants.ERROR_ROLLOUT_PHASE_POPULATION_RANGE,
+                    NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER,
+                ],
+                overlapping.id: [NimbusConstants.ERROR_ROLLOUT_PHASE_SEQUENCE],
+            },
+        )
+        self.assertNotIn("rollout_phases", response.context["validation_errors"])
+
+    def test_valid_schedule_has_no_phase_errors(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=10,
+            start_date=datetime.date(2026, 1, 1),
+            end_date=datetime.date(2026, 1, 10),
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=50,
+            start_date=datetime.date(2026, 1, 10),
+            end_date=datetime.date(2026, 1, 20),
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.context["rollout_phase_errors"], {})
+        self.assertNotIn("rollout_phases", response.context["validation_errors"])
+
+    def test_get_keeps_no_phases_error_on_the_schedule(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+
+        response = self.client.get(
+            reverse(self.url_name, kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(response.context["rollout_phase_errors"], {})
+        self.assertEqual(
+            response.context["validation_errors"]["rollout_phases"],
+            [NimbusConstants.ERROR_ROLLOUT_NO_PHASES],
+        )
 
     def test_save_persists_selected_rollout_plan_name(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
