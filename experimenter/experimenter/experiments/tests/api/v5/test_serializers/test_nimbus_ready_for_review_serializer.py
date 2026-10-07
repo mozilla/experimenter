@@ -88,6 +88,21 @@ REF_JSON_SCHEMA = """\
 """
 
 
+TREATMENT_MESSAGE = {
+    "id": "treatment-message",
+    "template": "spotlight",
+    "content": {"id": "treatment-message"},
+    "trigger": {"id": "defaultBrowserCheck"},
+    "targeting": "true",
+}
+
+CONTROL_DUMMY_MESSAGE = {
+    "id": "control-message",
+    "trigger": {"id": "defaultBrowserCheck"},
+    "targeting": "true",
+}
+
+
 class GetReviewSerializerMixin:
     def get_review_serializer(self, experiment):
         return NimbusReviewSerializer(
@@ -1983,6 +1998,140 @@ class TestNimbusReviewSerializerSingleFeature(
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertNotIn("fxms_message_coenrollment", serializer.warnings)
+
+    def _messaging_control_warnings(self, feature_values, is_rollout=False):
+        feature_configs = [
+            NimbusFeatureConfigFactory.create(
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                schemas=[
+                    NimbusVersionedSchemaFactory.build(
+                        version=None, schema=None, has_remote_schema=True
+                    ),
+                ],
+            )
+            for slug in feature_values
+        ]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            is_rollout=is_rollout,
+            feature_configs=feature_configs,
+        )
+
+        if is_rollout:
+            for branch in experiment.treatment_branches:
+                branch.delete()
+
+        for feature_config in feature_configs:
+            control_value, treatment_value = feature_values[feature_config.slug]
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config
+            ).update(value=json.dumps(control_value))
+            for branch in experiment.treatment_branches:
+                branch.feature_values.filter(feature_config=feature_config).update(
+                    value=json.dumps(treatment_value)
+                )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        return serializer.warnings
+
+    @parameterized.expand(
+        [
+            ("fxms-message-1", {}, TREATMENT_MESSAGE),
+            ("spotlight", {}, TREATMENT_MESSAGE),
+            (
+                "fxms-message",
+                {"template": "multi", "messages": []},
+                {"template": "multi", "messages": [TREATMENT_MESSAGE]},
+            ),
+            (
+                "featureCallout",
+                {"template": "multi"},
+                {"template": "multi", "messages": [TREATMENT_MESSAGE]},
+            ),
+        ]
+    )
+    def test_messaging_control_no_message_warning(
+        self, feature_slug, control_value, treatment_value
+    ):
+        warnings = self._messaging_control_warnings(
+            {feature_slug: (control_value, treatment_value)}
+        )
+
+        self.assertEqual(
+            warnings["messaging_control_no_message"],
+            [
+                (
+                    f"The control branch has no message for {feature_slug}, so "
+                    "control clients will not record exposure events. Add a message "
+                    "with the same trigger and targeting as the treatment message "
+                    "and no template or content."
+                )
+            ],
+        )
+
+    def test_messaging_control_no_message_warning_lists_each_feature(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": ({}, TREATMENT_MESSAGE),
+                "cfr": ({}, TREATMENT_MESSAGE),
+                "infobar": (CONTROL_DUMMY_MESSAGE, TREATMENT_MESSAGE),
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_control_no_message"],
+            [
+                (
+                    "The control branch has no message for cfr, spotlight, so "
+                    "control clients will not record exposure events. Add a message "
+                    "with the same trigger and targeting as the treatment message "
+                    "and no template or content."
+                )
+            ],
+        )
+
+    @parameterized.expand(
+        [
+            ("fxms-message-1", CONTROL_DUMMY_MESSAGE, TREATMENT_MESSAGE),
+            (
+                "fxms-message",
+                {"template": "multi", "messages": [CONTROL_DUMMY_MESSAGE]},
+                {"template": "multi", "messages": [TREATMENT_MESSAGE]},
+            ),
+            ("some-other-feature", {}, TREATMENT_MESSAGE),
+            ("spotlight", {}, {}),
+            ("spotlight", {}, {"template": "multi", "messages": []}),
+        ]
+    )
+    def test_messaging_control_no_message_no_warning(
+        self, feature_slug, control_value, treatment_value
+    ):
+        warnings = self._messaging_control_warnings(
+            {feature_slug: (control_value, treatment_value)}
+        )
+
+        self.assertNotIn("messaging_control_no_message", warnings)
+
+    def test_messaging_control_no_message_no_warning_for_rollout(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, TREATMENT_MESSAGE)}, is_rollout=True
+        )
+
+        self.assertNotIn("messaging_control_no_message", warnings)
 
     def test_substitute_localizations(self):
         value = {
