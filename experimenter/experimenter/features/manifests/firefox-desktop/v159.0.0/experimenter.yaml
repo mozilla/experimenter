@@ -2959,7 +2959,10 @@ pbNewtab:
 privateWindowRedesign:
   description: "Experimental features for the private browsing window redesign"
   owner: omc-core@mozilla.com
-  hasExposure: false
+  hasExposure: true
+  exposureDescription: >-
+    Recorded when the redesigned private browsing page renders, so results can
+    be limited to users who were actually shown the treatment.
   variables:
     pbwRedesignGate:
       type: boolean
