@@ -120,66 +120,98 @@ _USER_MONTHLY_ACTIVITY_COL = (
 FENIX_APP = "fenix"
 IOS_APP = "ios"
 
-# Mobile BQ tables store all context as a JSON blob column. BOOL columns are wrapped in
-# CAST(col AS BOOL) so that _is_boolean_sql() detects them correctly and _coerce_to_bool()
-# does not try to compare a BOOL column against '' or 'false'.
+# Mobile sizing pools carry the Nimbus context verbatim as a JSON column, so every
+# mobile attribute resolves out of `context` rather than a typed column. Keeping the
+# mapping here means adding a targeting attribute is an Experimenter-only change --
+# no bigquery-etl PR, no pool schema migration, no backfill.
+#
+# Context keys are snake_case. BOOL expressions are wrapped in CAST(... AS BOOL) so
+# _is_boolean_sql() detects them and _coerce_to_bool() does not compare them against
+# '' or 'false'.
 
-# Columns present as typed top-level fields in BOTH Fenix and iOS tables.
+
+def _ctx(key: str, cast: Optional[str] = None) -> str:
+    """Build a BigQuery expression reading `key` out of the mobile context blob."""
+    expr = f"JSON_VALUE(context, '$.{key}')"
+    return f"CAST({expr} AS {cast})" if cast else expr
+
+
+def _both(camel: str, snake: str, cast: Optional[str] = None) -> dict[str, str]:
+    """Map both JEXL spellings of an attribute onto the same context lookup."""
+    expr = _ctx(snake, cast)
+    return {camel: expr, snake: expr}
+
+
+# appVersion is a dotted string ("155.0.1"); versionCompare extracts the major part.
+_APP_VERSION_SQL = _ctx("app_version")
+
+# The region key is only present in the context on some builds, so
+# normalized_country_code — derived server-side and always set — backstops it.
+# (Do not start this comment with the word "region": pyright reads a leading
+# "# region" as a code-folding marker and demands a matching "# endregion".)
+_REGION_SQL = f"COALESCE({_ctx('region')}, normalized_country_code)"
+
+# Recorded by both Fenix and iOS.
 _SHARED_MOBILE_COLUMNS = {
-    "locale": "locale",
-    "region": "region",
-    "language": "language",
-    "appVersion": "appVersion",
-    "app_version": "appVersion",
-    "isFirstRun": "CAST(isFirstRun AS BOOL)",
-    "is_first_run": "CAST(isFirstRun AS BOOL)",
-    "daysSinceInstall": "daysSinceInstall",
-    "days_since_install": "daysSinceInstall",
-    "daysSinceUpdate": "daysSinceUpdate",
-    "days_since_update": "daysSinceUpdate",
-    "eventQueryValues.daysOpenedInLast28": "eventQuery_daysOpenedInLast28",
-    "event_query_values.days_opened_in_last_28": "eventQuery_daysOpenedInLast28",
+    "locale": _ctx("locale"),
+    "region": _REGION_SQL,
+    "language": _ctx("language"),
+    "appVersion": _APP_VERSION_SQL,
+    "app_version": _APP_VERSION_SQL,
+    **_both("isFirstRun", "is_first_run", "BOOL"),
+    **_both("daysSinceInstall", "days_since_install", "INT64"),
+    **_both("daysSinceUpdate", "days_since_update", "INT64"),
+    **_both("userDisabledAi", "user_disabled_ai", "BOOL"),
+    "eventQueryValues.daysOpenedInLast28": _ctx(
+        "event_query_values.days_opened_in_last_28", "INT64"
+    ),
+    "event_query_values.days_opened_in_last_28": _ctx(
+        "event_query_values.days_opened_in_last_28", "INT64"
+    ),
 }
 
-# Fenix (Android) — moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context
+# Fenix (Android)
 JEXL_TO_BQ_COLUMN_FENIX = {
     **_SHARED_MOBILE_COLUMNS,
-    "androidSdkVersion": "androidSdkVersion",
-    "android_sdk_version": "androidSdkVersion",
-    "deviceManufacturer": "deviceManufacturer",
-    "device_manufacturer": "deviceManufacturer",
-    "deviceModel": "deviceModel",
-    "device_model": "deviceModel",
-    "installReferrerResponseUtmSource": "installReferrerResponseUtmSource",
-    "install_referrer_response_utm_source": "installReferrerResponseUtmSource",
-    "installReferrerResponseUtmCampaign": "installReferrerResponseUtmCampaign",
-    "install_referrer_response_utm_campaign": "installReferrerResponseUtmCampaign",
-    "installReferrerResponseUtmMedium": "installReferrerResponseUtmMedium",
-    "install_referrer_response_utm_medium": "installReferrerResponseUtmMedium",
-    "installReferrerResponseUtmContent": "installReferrerResponseUtmContent",
-    "install_referrer_response_utm_content": "installReferrerResponseUtmContent",
-    "installReferrerResponseUtmTerm": "installReferrerResponseUtmTerm",
-    "install_referrer_response_utm_term": "installReferrerResponseUtmTerm",
-    # JSON-only on Fenix: in context blob, not a typed column (iOS has a direct column).
-    "isReviewCheckerEnabled": (
-        "CAST(JSON_VALUE(context, '$.isReviewCheckerEnabled') AS BOOL)"
+    **_both("androidSdkVersion", "android_sdk_version", "INT64"),
+    **_both("deviceManufacturer", "device_manufacturer"),
+    **_both("deviceModel", "device_model"),
+    **_both("installReferrerResponseUtmSource", "install_referrer_response_utm_source"),
+    **_both(
+        "installReferrerResponseUtmCampaign", "install_referrer_response_utm_campaign"
     ),
-    "is_review_checker_enabled": (
-        "CAST(JSON_VALUE(context, '$.isReviewCheckerEnabled') AS BOOL)"
+    **_both("installReferrerResponseUtmMedium", "install_referrer_response_utm_medium"),
+    **_both("installReferrerResponseUtmContent", "install_referrer_response_utm_content"),
+    **_both("installReferrerResponseUtmTerm", "install_referrer_response_utm_term"),
+    **_both("userAcceptedTou", "user_accepted_tou", "BOOL"),
+    **_both("touPoints", "tou_points", "INT64"),
+    **_both("areNotificationsEnabled", "are_notifications_enabled", "BOOL"),
+    **_both(
+        "areMarketingNotificationsEnabled",
+        "are_marketing_notifications_enabled",
+        "BOOL",
     ),
+    **_both("noShortcutsOrStoriesOptOuts", "no_shortcuts_or_stories_opt_outs", "BOOL"),
 }
 
 # iOS (Firefox for iOS)
-# moz-fx-data-shared-prod.org_mozilla_ios_firefox.nimbus_recorded_targeting_context
 JEXL_TO_BQ_COLUMN_IOS = {
     **_SHARED_MOBILE_COLUMNS,
-    "isDefaultBrowser": "CAST(isDefaultBrowser AS BOOL)",
-    "is_default_browser": "CAST(isDefaultBrowser AS BOOL)",
-    "isPhone": "CAST(isPhone AS BOOL)",
-    "is_phone": "CAST(isPhone AS BOOL)",
-    "isReviewCheckerEnabled": "CAST(isReviewCheckerEnabled AS BOOL)",
-    "is_review_checker_enabled": "CAST(isReviewCheckerEnabled AS BOOL)",
+    **_both("isDefaultBrowser", "is_default_browser", "BOOL"),
+    **_both("isPhone", "is_phone", "BOOL"),
+    **_both("hasAcceptedTermsOfUse", "has_accepted_terms_of_use", "BOOL"),
+    **_both("touExperiencePoints", "tou_experience_points", "INT64"),
+    **_both("isBottomToolbarUser", "is_bottom_toolbar_user", "BOOL"),
+    **_both("hasEnabledTipsNotifications", "has_enabled_tips_notifications", "BOOL"),
+    **_both("isAppleIntelligenceAvailable", "is_apple_intelligence_available", "BOOL"),
+    **_both("cannotUseAppleIntelligence", "cannot_use_apple_intelligence", "BOOL"),
 }
+
+# isReviewCheckerEnabled is deliberately NOT mapped. The dedicated
+# nimbus-targeting-context ping records it on neither platform, so a mapping
+# would resolve to NULL and match nothing without telling anyone. Leaving it
+# untranslatable surfaces a warning instead. The old metrics-ping-derived iOS
+# table did expose it, always false. See EXP-7326.
 
 # Attributes with no corresponding column in nimbus_targeting_context.
 KNOWN_UNTRANSLATABLE = {
@@ -656,9 +688,11 @@ def _version_compare_binary_to_sql_with(
         _add_warning(warnings, "|versionCompare")
         return None
 
-    # appVersion is a STRING column (e.g. "155.0.1") on mobile; extract major
-    # version as INT64 so the comparison is type-safe in BigQuery.
-    if version_col == "appVersion":
+    # appVersion is a dotted STRING (e.g. "155.0.1") on mobile; extract the major
+    # version as INT64 so the comparison is type-safe in BigQuery. Compared against
+    # the mapped expression rather than a column name, since mobile attributes
+    # resolve to JSON_VALUE(...) lookups rather than bare columns.
+    if version_col == _APP_VERSION_SQL:
         lhs = f"SAFE_CAST(SPLIT({version_col}, '.')[SAFE_OFFSET(0)] AS INT64)"
     else:
         lhs = version_col

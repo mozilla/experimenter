@@ -6,6 +6,8 @@ from experimenter.experiments.constants import (
     NIMBUS_TARGETING_CONTEXT_TABLE,
     NIMBUS_TARGETING_CONTEXT_TABLE_FENIX,
     NIMBUS_TARGETING_CONTEXT_TABLE_IOS,
+    TARGETING_SQL_DRY_RUN_TEMPLATE,
+    TARGETING_SQL_DRY_RUN_TEMPLATE_MOBILE,
     Application,
 )
 from experimenter.experiments.jexl_to_sql import (
@@ -57,7 +59,14 @@ class Command(BaseCommand):
                 continue
 
             sql = ensure_bool_sql(result.sql)
-            query = f"SELECT COUNTIF({sql}) FROM `{table}` WHERE FALSE"
+            # Mobile attributes resolve out of the nested context blob, so the
+            # dry-run needs the same projection the sizing pool applies.
+            template = (
+                TARGETING_SQL_DRY_RUN_TEMPLATE
+                if jexl_app is None
+                else TARGETING_SQL_DRY_RUN_TEMPLATE_MOBILE
+            )
+            query = template.format(predicate=sql, table=table)
             entries.append(
                 {
                     "slug": config.slug,
