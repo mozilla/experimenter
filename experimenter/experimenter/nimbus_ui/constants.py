@@ -468,10 +468,6 @@ Optional - We expect this to <describe impact> on <core metric>.
         "This rollout uses features that prevent it from being launched to preview. "
         "We highly recommend QAing this rollout on stage first."
     )
-    ROLLOUT_UNSAVED_CHANGES_CONFIRM = (
-        "A section is still open for editing. Click OK to continue and discard "
-        "those changes, or Cancel to go back and save them first."
-    )
     ROLLOUT_LIVE_MESSAGE = (
         "This rollout is live. You can advance to the next phase to adjust its "
         "population sizing, or disable it."
