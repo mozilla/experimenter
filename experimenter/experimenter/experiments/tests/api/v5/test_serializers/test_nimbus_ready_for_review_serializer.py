@@ -598,6 +598,24 @@ class TestNimbusReviewSerializerSingleFeature(
             {0: [NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER]},
         )
 
+    def test_rollout_serializer_uses_actual_start_date_for_phase_sequence(self):
+        experiment = self.create_rollout()
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=10,
+            start_date=datetime.date(2026, 9, 29),
+            end_date=datetime.date(2026, 10, 8),
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=20,
+            start_date=datetime.date(2026, 10, 7),
+            actual_start_date=datetime.date(2026, 10, 8),
+            end_date=datetime.date(2026, 11, 10),
+        )
+        serializer = self.get_rollout_review_serializer(experiment)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
     def test_rollout_serializer_rejects_phases_out_of_sequence(self):
         experiment = self.create_rollout()
         NimbusRolloutPhaseFactory.create(
