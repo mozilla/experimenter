@@ -98,3 +98,66 @@ document.addEventListener("htmx:afterSettle", () => {
 });
 
 document.addEventListener("DOMContentLoaded", syncCardEditActions);
+
+const hasUnsavedChanges = () => !!document.querySelector(".card-edit-form");
+
+let confirmedTrigger = null;
+let allowUnload = false;
+
+const actionsRequiringConfirmation = [
+  "#rollout-preview-btn",
+  "#rollout-launch-btn",
+  "#rollout-resume-btn",
+  "#rollout-disable-btn",
+  "#rollout-next-phase-btn",
+  "#cloneForm",
+  "#promoteToExperimentForm",
+].join(", ");
+
+window.addEventListener("beforeunload", (event) => {
+  if (hasUnsavedChanges() && !allowUnload) {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
+
+document.addEventListener("htmx:beforeRequest", (event) => {
+  const trigger = event.detail.elt;
+
+  if (
+    !hasUnsavedChanges() ||
+    !trigger.closest?.(actionsRequiringConfirmation)
+  ) {
+    return;
+  }
+
+  if (
+    !window.confirm(
+      "You may have unsaved changes. If you continue, any unsaved changes will be lost.",
+    )
+  ) {
+    event.preventDefault();
+    return;
+  }
+
+  confirmedTrigger = trigger;
+});
+
+document.addEventListener("htmx:beforeOnLoad", (event) => {
+  if (event.detail.elt !== confirmedTrigger) {
+    return;
+  }
+  const xhr = event.detail.xhr;
+
+  allowUnload =
+    xhr.getResponseHeader("HX-Refresh") === "true" ||
+    !!xhr.getResponseHeader("HX-Redirect");
+
+  confirmedTrigger = null;
+});
+
+document.addEventListener("htmx:afterRequest", (event) => {
+  if (event.detail.elt === confirmedTrigger) {
+    confirmedTrigger = null;
+  }
+});
