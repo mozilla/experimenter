@@ -6,14 +6,6 @@ account-sync-decouple-m1:
     enabled:
       type: boolean
       description: If true, the new UI for Account Sync is shown.
-add-shortcuts-improvement:
-  description: Feature to enable Add Shortcuts improvement for users on Firefox on Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, Add Shortcuts improvement is enabled.
 addressbar-focus-mode:
   description: |
     When starting to edit the current URL show the website details in the awesomebar instead of the addressbar.
@@ -523,14 +515,6 @@ minimal-addressbar:
       type: boolean
       description: |
         Whether to show the smaller height bottom addressbar with just the URL when entering text in a website.
-native-share-sheet:
-  description: Feature to enable the Native Share Sheet for users on Firefox on Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, Native Share Sheet is enabled.
 networking-happy-eyeballs:
   description: Networking (Necko) Happy Eyeballs V3 configuration
   hasExposure: true
