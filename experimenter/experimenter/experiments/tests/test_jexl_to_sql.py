@@ -18,7 +18,27 @@ from experimenter.targeting.constants import (
     WIN11_ONLY,
 )
 
-_REVIEW_CHECKER_JSON = "CAST(JSON_VALUE(context, '$.isReviewCheckerEnabled') AS BOOL)"
+
+def _ctx(key, cast=None):
+    """Mirror of jexl_to_sql._ctx — every mobile attribute reads out of `context`."""
+    expr = f"JSON_VALUE(context, '$.{key}')"
+    return f"CAST({expr} AS {cast})" if cast else expr
+
+
+_M_LOCALE = _ctx("locale")
+_M_LANGUAGE = _ctx("language")
+_M_REGION = f"COALESCE({_ctx('region')}, normalized_country_code)"
+_M_APP_VERSION = _ctx("app_version")
+_M_FIRST_RUN = _ctx("is_first_run", "BOOL")
+_M_DAYS_INSTALL = _ctx("days_since_install", "INT64")
+_M_DAYS_UPDATE = _ctx("days_since_update", "INT64")
+_M_SDK = _ctx("android_sdk_version", "INT64")
+_M_DEVICE_MANUF = _ctx("device_manufacturer")
+_M_DEVICE_MODEL = _ctx("device_model")
+_M_UTM_SOURCE = _ctx("install_referrer_response_utm_source")
+_M_EVENT_QUERY = _ctx("event_query_values.days_opened_in_last_28", "INT64")
+_M_DEFAULT_BROWSER = _ctx("is_default_browser", "BOOL")
+_M_PHONE = _ctx("is_phone", "BOOL")
 
 _OS = "metrics.object.nimbus_targeting_context_os"
 _BS = "metrics.object.nimbus_targeting_context_browser_settings"
@@ -511,59 +531,43 @@ class TestJEXLToSQL(TestCase):
 
 
 class TestJEXLToSQLMobile(TestCase):
-    _CAST_BOOL = "CAST(isFirstRun AS BOOL)"
-    _CAST_DFLT = "CAST(isDefaultBrowser AS BOOL)"
-    _CAST_PHONE = "CAST(isPhone AS BOOL)"
-    _CAST_RC_IOS = "CAST(isReviewCheckerEnabled AS BOOL)"
+    _CAST_BOOL = _M_FIRST_RUN
+    _CAST_DFLT = _M_DEFAULT_BROWSER
+    _CAST_PHONE = _M_PHONE
     _UTM_SRC = "installReferrerResponseUtmSource"
     _UTM_SRC_SNAKE = "install_referrer_response_utm_source"
-    _EQ_DAYS = "eventQuery_daysOpenedInLast28"
     _EQ_JEXL = "eventQueryValues.daysOpenedInLast28"
     _EQ_SNAKE = "event_query_values.days_opened_in_last_28"
 
     @parameterized.expand(
         [
-            # Shared columns — same on Fenix and iOS
-            ("locale_fenix", "locale", FENIX_APP, "locale"),
-            ("locale_ios", "locale", IOS_APP, "locale"),
-            ("region_fenix", "region", FENIX_APP, "region"),
-            ("language_fenix", "language", FENIX_APP, "language"),
-            ("app_version_fenix", "appVersion", FENIX_APP, "appVersion"),
-            ("app_version_snake", "app_version", FENIX_APP, "appVersion"),
-            ("is_first_run_fenix", "isFirstRun", FENIX_APP, _CAST_BOOL),
-            ("is_first_run_snake", "is_first_run", FENIX_APP, _CAST_BOOL),
-            ("is_first_run_ios", "isFirstRun", IOS_APP, _CAST_BOOL),
-            ("days_install_fenix", "daysSinceInstall", FENIX_APP, "daysSinceInstall"),
-            ("days_install_snake", "days_since_install", FENIX_APP, "daysSinceInstall"),
-            ("days_update_fenix", "daysSinceUpdate", FENIX_APP, "daysSinceUpdate"),
-            ("event_query_fenix", _EQ_JEXL, FENIX_APP, _EQ_DAYS),
-            ("event_query_snake", _EQ_SNAKE, FENIX_APP, _EQ_DAYS),
-            # Fenix-specific columns
-            ("android_sdk", "androidSdkVersion", FENIX_APP, "androidSdkVersion"),
-            ("android_sdk_snake", "android_sdk_version", FENIX_APP, "androidSdkVersion"),
-            (
-                "device_manufacturer",
-                "deviceManufacturer",
-                FENIX_APP,
-                "deviceManufacturer",
-            ),
-            ("device_model", "deviceModel", FENIX_APP, "deviceModel"),
-            ("utm_source", _UTM_SRC, FENIX_APP, _UTM_SRC),
-            ("utm_source_snake", _UTM_SRC_SNAKE, FENIX_APP, _UTM_SRC),
-            # Fenix JSON-only (not a typed column; uses JSON_VALUE)
-            ("rc_fenix", "isReviewCheckerEnabled", FENIX_APP, _REVIEW_CHECKER_JSON),
-            (
-                "rc_snake_fenix",
-                "is_review_checker_enabled",
-                FENIX_APP,
-                _REVIEW_CHECKER_JSON,
-            ),
-            # iOS-specific columns
-            ("default_browser_ios", "isDefaultBrowser", IOS_APP, _CAST_DFLT),
-            ("default_browser_snake", "is_default_browser", IOS_APP, _CAST_DFLT),
-            ("is_phone_ios", "isPhone", IOS_APP, _CAST_PHONE),
-            ("is_phone_snake", "is_phone", IOS_APP, _CAST_PHONE),
-            ("rc_ios", "isReviewCheckerEnabled", IOS_APP, _CAST_RC_IOS),
+            # Shared attributes — same on Fenix and iOS
+            ("locale_fenix", "locale", FENIX_APP, _M_LOCALE),
+            ("locale_ios", "locale", IOS_APP, _M_LOCALE),
+            ("region_fenix", "region", FENIX_APP, _M_REGION),
+            ("language_fenix", "language", FENIX_APP, _M_LANGUAGE),
+            ("app_version_fenix", "appVersion", FENIX_APP, _M_APP_VERSION),
+            ("app_version_snake", "app_version", FENIX_APP, _M_APP_VERSION),
+            ("is_first_run_fenix", "isFirstRun", FENIX_APP, _M_FIRST_RUN),
+            ("is_first_run_snake", "is_first_run", FENIX_APP, _M_FIRST_RUN),
+            ("is_first_run_ios", "isFirstRun", IOS_APP, _M_FIRST_RUN),
+            ("days_install_fenix", "daysSinceInstall", FENIX_APP, _M_DAYS_INSTALL),
+            ("days_install_snake", "days_since_install", FENIX_APP, _M_DAYS_INSTALL),
+            ("days_update_fenix", "daysSinceUpdate", FENIX_APP, _M_DAYS_UPDATE),
+            ("event_query_fenix", _EQ_JEXL, FENIX_APP, _M_EVENT_QUERY),
+            ("event_query_snake", _EQ_SNAKE, FENIX_APP, _M_EVENT_QUERY),
+            # Fenix-specific attributes
+            ("android_sdk", "androidSdkVersion", FENIX_APP, _M_SDK),
+            ("android_sdk_snake", "android_sdk_version", FENIX_APP, _M_SDK),
+            ("device_manufacturer", "deviceManufacturer", FENIX_APP, _M_DEVICE_MANUF),
+            ("device_model", "deviceModel", FENIX_APP, _M_DEVICE_MODEL),
+            ("utm_source", _UTM_SRC, FENIX_APP, _M_UTM_SOURCE),
+            ("utm_source_snake", _UTM_SRC_SNAKE, FENIX_APP, _M_UTM_SOURCE),
+            # iOS-specific attributes
+            ("default_browser_ios", "isDefaultBrowser", IOS_APP, _M_DEFAULT_BROWSER),
+            ("default_browser_snake", "is_default_browser", IOS_APP, _M_DEFAULT_BROWSER),
+            ("is_phone_ios", "isPhone", IOS_APP, _M_PHONE),
+            ("is_phone_snake", "is_phone", IOS_APP, _M_PHONE),
         ]
     )
     def test_attribute_translates_to_column(self, _name, jexl, app, expected_sql):
@@ -573,54 +577,59 @@ class TestJEXLToSQLMobile(TestCase):
 
     @parameterized.expand(
         [
-            ("locale_eq_fenix", "locale == 'en-US'", FENIX_APP, "locale = 'en-US'"),
+            (
+                "locale_eq_fenix",
+                "locale == 'en-US'",
+                FENIX_APP,
+                _M_LOCALE + " = 'en-US'",
+            ),
             (
                 "region_in_fenix",
                 "region in ['US', 'CA']",
                 FENIX_APP,
-                "(region IN ('US', 'CA'))",
+                f"({_M_REGION} IN ('US', 'CA'))",
             ),
             (
                 "days_lt_fenix",
                 "days_since_install < 7",
                 FENIX_APP,
-                "daysSinceInstall < 7",
+                _M_DAYS_INSTALL + " < 7",
             ),
             (
                 "sdk_gte_fenix",
                 "android_sdk_version >= 28",
                 FENIX_APP,
-                "androidSdkVersion >= 28",
+                _M_SDK + " >= 28",
             ),
             (
                 "is_phone_eq_ios",
                 "isPhone == true",
                 IOS_APP,
-                "CAST(isPhone AS BOOL) = TRUE",
+                _M_PHONE + " = TRUE",
             ),
             (
                 "is_first_run_eq_string_true_fenix",
                 "isFirstRun == 'true'",
                 FENIX_APP,
-                "CAST(isFirstRun AS BOOL) = TRUE",
+                _M_FIRST_RUN + " = TRUE",
             ),
             (
                 "is_first_run_eq_string_true_ios",
                 "isFirstRun == 'true'",
                 IOS_APP,
-                "CAST(isFirstRun AS BOOL) = TRUE",
+                _M_FIRST_RUN + " = TRUE",
             ),
             (
                 "is_first_run_eq_string_false_fenix",
                 "isFirstRun == 'false'",
                 FENIX_APP,
-                "CAST(isFirstRun AS BOOL) = FALSE",
+                _M_FIRST_RUN + " = FALSE",
             ),
             (
                 "string_true_eq_bool_col_reversed_fenix",
                 "'true' == isFirstRun",
                 FENIX_APP,
-                "TRUE = CAST(isFirstRun AS BOOL)",
+                "TRUE = " + _M_FIRST_RUN,
             ),
         ]
     )
@@ -631,14 +640,12 @@ class TestJEXLToSQLMobile(TestCase):
 
     def test_bool_column_not_string_coerced_in_and_fenix(self):
         result = jexl_to_sql("isFirstRun && daysSinceInstall < 7", app=FENIX_APP)
-        self.assertEqual(
-            result.sql, "(CAST(isFirstRun AS BOOL) AND daysSinceInstall < 7)"
-        )
+        self.assertEqual(result.sql, f"({_M_FIRST_RUN} AND {_M_DAYS_INSTALL} < 7)")
         self.assertEqual(result.warnings, [])
 
     def test_bool_column_not_string_coerced_in_and_ios(self):
         result = jexl_to_sql("isDefaultBrowser && region == 'US'", app=IOS_APP)
-        self.assertEqual(result.sql, "(CAST(isDefaultBrowser AS BOOL) AND region = 'US')")
+        self.assertEqual(result.sql, f"({_M_DEFAULT_BROWSER} AND {_M_REGION} = 'US')")
         self.assertEqual(result.warnings, [])
 
     _PREF_JEXL = "'browser.urlbar.suggest.searches'|preferenceValue"
@@ -676,14 +683,14 @@ class TestJEXLToSQLMobile(TestCase):
 
     def test_real_config_fenix_first_run_region(self):
         result = jexl_to_sql("isFirstRun && region == 'US'", app=FENIX_APP)
-        self.assertEqual(result.sql, "(CAST(isFirstRun AS BOOL) AND region = 'US')")
+        self.assertEqual(result.sql, f"({_M_FIRST_RUN} AND {_M_REGION} = 'US')")
         self.assertEqual(result.warnings, [])
 
     def test_real_config_ios_default_browser_phone(self):
         result = jexl_to_sql("isDefaultBrowser && isPhone", app=IOS_APP)
         self.assertEqual(
             result.sql,
-            "(CAST(isDefaultBrowser AS BOOL) AND CAST(isPhone AS BOOL))",
+            f"({_M_DEFAULT_BROWSER} AND {_M_PHONE})",
         )
         self.assertEqual(result.warnings, [])
 
@@ -701,21 +708,21 @@ class TestJEXLToSQLMobile(TestCase):
         result = jexl_to_sql(
             "android_sdk_version|versionCompare('33') >= 0", app=FENIX_APP
         )
-        self.assertEqual(result.sql, "androidSdkVersion >= 33")
+        self.assertEqual(result.sql, _M_SDK + " >= 33")
         self.assertEqual(result.warnings, [])
 
     def test_android_sdk_version_compare_reversed_fenix(self):
         result = jexl_to_sql(
             "0 <= android_sdk_version|versionCompare('29')", app=FENIX_APP
         )
-        self.assertEqual(result.sql, "androidSdkVersion >= 29")
+        self.assertEqual(result.sql, _M_SDK + " >= 29")
         self.assertEqual(result.warnings, [])
 
     def test_app_version_compare_fenix(self):
         result = jexl_to_sql("app_version|versionCompare('155.!') >= 0", app=FENIX_APP)
         self.assertEqual(
             result.sql,
-            "SAFE_CAST(SPLIT(appVersion, '.')[SAFE_OFFSET(0)] AS INT64) >= 155",
+            f"SAFE_CAST(SPLIT({_M_APP_VERSION}, '.')[SAFE_OFFSET(0)] AS INT64) >= 155",
         )
         self.assertEqual(result.warnings, [])
 
@@ -723,21 +730,111 @@ class TestJEXLToSQLMobile(TestCase):
         result = jexl_to_sql("app_version|versionCompare('156.1.0') >= 0", app=IOS_APP)
         self.assertEqual(
             result.sql,
-            "SAFE_CAST(SPLIT(appVersion, '.')[SAFE_OFFSET(0)] AS INT64) >= 156",
+            f"SAFE_CAST(SPLIT({_M_APP_VERSION}, '.')[SAFE_OFFSET(0)] AS INT64) >= 156",
         )
         self.assertEqual(result.warnings, [])
 
+    def test_user_disabled_ai_fenix(self):
+        result = jexl_to_sql("user_disabled_ai == false", app=FENIX_APP)
+        self.assertEqual(
+            result.sql, "CAST(JSON_VALUE(context, '$.user_disabled_ai') AS BOOL) = FALSE"
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_user_disabled_ai_ios(self):
+        result = jexl_to_sql("user_disabled_ai == false", app=IOS_APP)
+        self.assertEqual(
+            result.sql, "CAST(JSON_VALUE(context, '$.user_disabled_ai') AS BOOL) = FALSE"
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_user_accepted_tou_fenix(self):
+        result = jexl_to_sql("user_accepted_tou == true", app=FENIX_APP)
+        self.assertEqual(
+            result.sql,
+            "CAST(JSON_VALUE(context, '$.user_accepted_tou') AS BOOL) = TRUE",
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_tou_points_fenix(self):
+        result = jexl_to_sql("tou_points == 1", app=FENIX_APP)
+        self.assertEqual(
+            result.sql, "CAST(JSON_VALUE(context, '$.tou_points') AS INT64) = 1"
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_has_accepted_terms_of_use_ios(self):
+        result = jexl_to_sql("has_accepted_terms_of_use == false", app=IOS_APP)
+        self.assertEqual(
+            result.sql,
+            "CAST(JSON_VALUE(context, '$.has_accepted_terms_of_use') AS BOOL) = FALSE",
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_tou_experience_points_ios(self):
+        result = jexl_to_sql("tou_experience_points == 2", app=IOS_APP)
+        self.assertEqual(
+            result.sql,
+            "CAST(JSON_VALUE(context, '$.tou_experience_points') AS INT64) = 2",
+        )
+        self.assertEqual(result.warnings, [])
+
+    @parameterized.expand(
+        [
+            ("notifications", "are_notifications_enabled", FENIX_APP),
+            ("marketing", "are_marketing_notifications_enabled", FENIX_APP),
+            ("shortcuts", "no_shortcuts_or_stories_opt_outs", FENIX_APP),
+            ("bottom_toolbar", "is_bottom_toolbar_user", IOS_APP),
+            ("tips", "has_enabled_tips_notifications", IOS_APP),
+            ("ai_available", "is_apple_intelligence_available", IOS_APP),
+            ("ai_cannot_use", "cannot_use_apple_intelligence", IOS_APP),
+        ]
+    )
+    def test_context_only_bool_attribute(self, _name, attr, app):
+        result = jexl_to_sql(f"{attr} == true", app=app)
+        self.assertEqual(result.sql, _ctx(attr, "BOOL") + " = TRUE")
+        self.assertEqual(result.warnings, [])
+
+    def test_review_checker_untranslatable_on_both_platforms(self):
+        """The dedicated ping records it on neither platform. Mapping it would
+        resolve to NULL and match nothing silently; warning is safer."""
+        for app in (FENIX_APP, IOS_APP):
+            result = jexl_to_sql("isReviewCheckerEnabled == true", app=app)
+            self.assertIsNone(result.sql, app)
+            self.assertIn("isReviewCheckerEnabled", result.warnings)
+
+    def test_tou_attributes_stay_untranslatable_on_desktop(self):
+        """Mobile-only context keys; Desktop records none of them."""
+        for attr in ("user_accepted_tou", "tou_points", "has_accepted_terms_of_use"):
+            result = jexl_to_sql(f"{attr} == true")
+            self.assertIsNone(result.sql, attr)
+            self.assertIn(attr, result.warnings)
+
+    def test_tou_attributes_do_not_cross_platforms(self):
+        """Fenix records user_accepted_tou/tou_points; iOS records the
+        has_accepted_terms_of_use/tou_experience_points pair. Neither set
+        exists on the other platform."""
+        for attr, app in (
+            ("user_accepted_tou", IOS_APP),
+            ("tou_points", IOS_APP),
+            ("has_accepted_terms_of_use", FENIX_APP),
+            ("tou_experience_points", FENIX_APP),
+        ):
+            result = jexl_to_sql(f"{attr} == true", app=app)
+            self.assertIsNone(result.sql, f"{attr} on {app}")
+            self.assertIn(attr, result.warnings)
+
     def test_real_config_mobile_new_user_fenix(self):
         result = jexl_to_sql(MOBILE_NEW_USER.targeting, app=FENIX_APP)
-        self.assertEqual(result.sql, "daysSinceInstall < 7")
+        self.assertEqual(result.sql, _M_DAYS_INSTALL + " < 7")
         self.assertEqual(result.warnings, [])
 
     def test_real_config_mobile_recently_updated_fenix(self):
         result = jexl_to_sql(MOBILE_RECENTLY_UPDATED.targeting, app=FENIX_APP)
-        self.assertEqual(result.sql, "(daysSinceUpdate < 7 AND daysSinceInstall >= 7)")
+        self.assertEqual(result.sql, f"({_M_DAYS_UPDATE} < 7 AND {_M_DAYS_INSTALL} >= 7)")
         self.assertEqual(result.warnings, [])
 
     def test_real_config_ios_existing_users(self):
         result = jexl_to_sql(IOS_EXISTING_USERS.targeting, app=IOS_APP)
-        self.assertEqual(result.sql, "daysSinceInstall >= 28")
+        self.assertEqual(result.sql, _M_DAYS_INSTALL + " >= 28")
         self.assertEqual(result.warnings, [])
