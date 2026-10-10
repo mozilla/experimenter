@@ -21,7 +21,7 @@ dependencies = [
     "pytest-asyncio>=0.23.8,<0.24",
     "python-decouple>=3.8,<4",
     "glean-parser>=18.2.0,<19",
-    "pytest-mock>=3.15.0,<4",
+    "pytest-mock>=3.16.0,<4",
     "mozilla-nimbus-shared>=2.5.2,<3",
     "sentry-sdk>=2.70.0,<3",
 ]
