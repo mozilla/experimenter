@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- release
+- beta
 features:
   account-sync-decouple-m1:
     description: Control whether the new UI for Account Sync is shown.
@@ -355,7 +355,7 @@ features:
       enabled:
         description: If true, the import bookmarks feature will be enabled.
         type: Boolean
-        default: false
+        default: true
   ip-protection:
     description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
     variables:
@@ -655,6 +655,20 @@ features:
             primary-button-label: nova_onboarding_set_to_default_button
             secondary-button-label: nova_onboarding_negative_button
             title: nova_onboarding_set_to_default_title_2
+          sync-sign-in:
+            body: nova_onboarding_sync_subtitle
+            card-type: sync-sign-in
+            disqualifiers:
+            - NEVER
+            enabled: true
+            extra-data: null
+            image-res: nova_onboarding_sync
+            ordering: 15
+            prerequisites:
+            - ALWAYS
+            primary-button-label: nova_onboarding_sync_button
+            secondary-button-label: nova_onboarding_negative_button
+            title: nova_onboarding_sync_title
           marketing:
             body: ''
             card-type: marketing-data
@@ -708,12 +722,12 @@ features:
         description: |
           Whether or not to block LNA requests
         type: Boolean
-        default: false
+        default: true
       enabled:
         description: |
           Whether or not to turn on local network / device access blocking
         type: Boolean
-        default: false
+        default: true
   longfox:
     description: Flag to enable Longfox for users on Firefox Android.
     variables:
@@ -904,6 +918,14 @@ features:
           When the feature is enabled then microsurveys can be used.
         type: Boolean
         default: false
+  migrate-onboarding-state:
+    description: |
+      Feature to enable the one-time reconciliation of onboarding completion state for users who completed initial onboarding before continuous onboarding was enabled. See Onboarding-state-migration-and-reconciliation.md in the onboarding package for the affected user cohorts.
+    variables:
+      enabled:
+        description: If true, the feature is enabled.
+        type: Boolean
+        default: true
   minimal-addressbar:
     description: Show a smaller height bottom addressbar with just the URL.
     variables:
@@ -1003,14 +1025,15 @@ features:
         type: Boolean
         default: false
   pairing-signin-prompt:
-    description: Controls the day 1 sign-in prompt for users who installed Firefox through a pairing link.
+    description: |
+      Controls the Sync sign-in card shown during initial onboarding to users who installed Firefox through a pairing link.
     variables:
       campaign-utm-content:
         description: The "utm_content" value used to identify installs from the pairing campaign.
         type: String
         default: ''
       enabled:
-        description: Whether the day 1 sign-in prompt can be shown.
+        description: Whether the Sync sign-in card can be shown during initial onboarding.
         type: Boolean
         default: false
   pdf-viewer:
@@ -1270,7 +1293,7 @@ features:
         description: |
           Whether or not to enable drag and drop for tab groups.
         type: Boolean
-        default: false
+        default: true
   tab-groups-live-reorder:
     description: Control whether reorder happens live during a drag and drop action for Tab Groups.
     variables:
@@ -1448,6 +1471,14 @@ features:
     variables:
       enabled:
         description: If true, voice search is shown in the display toolbar.
+        type: Boolean
+        default: false
+  wayback-machine:
+    description: |
+      Feature that shows a "Check Archived Version" button on eligible error pages, linking to the Wayback Machine.
+    variables:
+      enabled:
+        description: If true, the "Check Archived Version" button is shown on eligible error pages.
         type: Boolean
         default: false
   webcompat-interventions:

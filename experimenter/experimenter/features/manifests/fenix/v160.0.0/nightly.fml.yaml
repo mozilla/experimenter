@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- release
+- nightly
 features:
   account-sync-decouple-m1:
     description: Control whether the new UI for Account Sync is shown.
@@ -141,7 +141,7 @@ features:
         description: |
           Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.
         type: Boolean
-        default: false
+        default: true
       show-ui:
         description: |
           When `true`, include DoH settings in the settings UI.
@@ -213,7 +213,7 @@ features:
         description: |
           The web content isolation strategy to use with fission. "0" means "isolate nothing", similar to non-fission behavior. "1" means "isolate everything", where every site-origin gets its own process. "2" means "isolate high value", Android-specific setting to only isolate sites considered "high value".
         type: Int
-        default: 0
+        default: 2
       shouldUseNimbus:
         description: |
           If true, the values for both SHIP and Fission set in this file apply. Otherwise, the values from modules/libpref/init/StaticPrefList.yaml apply.
@@ -231,7 +231,7 @@ features:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
-        default: false
+        default: true
   gecko-nimbus-validation:
     description: Feature for validating Nimbus Gecko functionality
     variables:
@@ -282,7 +282,7 @@ features:
       enabled:
         description: If true, Google Lens integration is enabled.
         type: Boolean
-        default: false
+        default: true
   homepage-as-new-tab:
     description: Enables homepage as a a new tab.
     variables:
@@ -290,7 +290,7 @@ features:
         description: |
           Whether or not to enable homepage as a new tab
         type: Boolean
-        default: false
+        default: true
   homepage-customization:
     description: Feature to enable Homepage Customization for users on Firefox on Android.
     variables:
@@ -355,7 +355,7 @@ features:
       enabled:
         description: If true, the import bookmarks feature will be enabled.
         type: Boolean
-        default: false
+        default: true
   ip-protection:
     description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
     variables:
@@ -655,6 +655,20 @@ features:
             primary-button-label: nova_onboarding_set_to_default_button
             secondary-button-label: nova_onboarding_negative_button
             title: nova_onboarding_set_to_default_title_2
+          sync-sign-in:
+            body: nova_onboarding_sync_subtitle
+            card-type: sync-sign-in
+            disqualifiers:
+            - NEVER
+            enabled: true
+            extra-data: null
+            image-res: nova_onboarding_sync
+            ordering: 15
+            prerequisites:
+            - ALWAYS
+            primary-button-label: nova_onboarding_sync_button
+            secondary-button-label: nova_onboarding_negative_button
+            title: nova_onboarding_sync_title
           marketing:
             body: ''
             card-type: marketing-data
@@ -708,12 +722,12 @@ features:
         description: |
           Whether or not to block LNA requests
         type: Boolean
-        default: false
+        default: true
       enabled:
         description: |
           Whether or not to turn on local network / device access blocking
         type: Boolean
-        default: false
+        default: true
   longfox:
     description: Flag to enable Longfox for users on Firefox Android.
     variables:
@@ -808,6 +822,52 @@ features:
             exclude-if-any:
             - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
+          microsurvey-printing-example-nightly:
+            title: microsurvey_prompt_printing_title
+            text: microsurvey_survey_printing_title
+            surface: microsurvey
+            trigger-if-all:
+            - RECENTLY_PRINTED
+            style: MICROSURVEY
+            microsurvey-config:
+              utm-content: homepage
+              icon: ic_print
+              answers:
+              - text: likert_scale_option_1
+                ordering: 0
+              - text: likert_scale_option_2
+                ordering: 1
+              - text: likert_scale_option_3
+                ordering: 2
+              - text: likert_scale_option_4
+                ordering: 3
+              - text: likert_scale_option_5
+                ordering: 4
+              - text: likert_scale_option_6
+                ordering: 5
+          microsurvey-uninstall-survey:
+            title: microsurvey_uninstall_survey_title
+            text: microsurvey_uninstall_survey_title
+            surface: microsurvey
+            trigger-if-all:
+            - NEVER
+            style: MICROSURVEY
+            microsurvey-config:
+              utm-content: uninstall_shortcut
+              icon: ic_delete_black
+              answers:
+              - text: uninstall_survey_option_1_v2
+                ordering: 0
+              - text: uninstall_survey_option_2_v2
+                ordering: 1
+              - text: uninstall_survey_option_3_v2
+                ordering: 2
+              - text: uninstall_survey_option_4_v2
+                ordering: 3
+              - text: uninstall_survey_option_5_v2
+                ordering: 4
+              - text: uninstall_survey_option_6_v2
+                ordering: 5
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -904,6 +964,14 @@ features:
           When the feature is enabled then microsurveys can be used.
         type: Boolean
         default: false
+  migrate-onboarding-state:
+    description: |
+      Feature to enable the one-time reconciliation of onboarding completion state for users who completed initial onboarding before continuous onboarding was enabled. See Onboarding-state-migration-and-reconciliation.md in the onboarding package for the affected user cohorts.
+    variables:
+      enabled:
+        description: If true, the feature is enabled.
+        type: Boolean
+        default: true
   minimal-addressbar:
     description: Show a smaller height bottom addressbar with just the URL.
     variables:
@@ -1003,14 +1071,15 @@ features:
         type: Boolean
         default: false
   pairing-signin-prompt:
-    description: Controls the day 1 sign-in prompt for users who installed Firefox through a pairing link.
+    description: |
+      Controls the Sync sign-in card shown during initial onboarding to users who installed Firefox through a pairing link.
     variables:
       campaign-utm-content:
         description: The "utm_content" value used to identify installs from the pairing campaign.
         type: String
         default: ''
       enabled:
-        description: Whether the day 1 sign-in prompt can be shown.
+        description: Whether the Sync sign-in card can be shown during initial onboarding.
         type: Boolean
         default: false
   pdf-viewer:
@@ -1270,7 +1339,7 @@ features:
         description: |
           Whether or not to enable drag and drop for tab groups.
         type: Boolean
-        default: false
+        default: true
   tab-groups-live-reorder:
     description: Control whether reorder happens live during a drag and drop action for Tab Groups.
     variables:
@@ -1309,7 +1378,7 @@ features:
       opening_animation_enabled:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
-        default: false
+        default: true
   tab-reload-cover:
     description: |
       Shows a cached thumbnail cover over the engine view while a tab reloads from session restore, hiding it once the page has repainted. Optionally refreshes the stored thumbnail before backgrounding so the cover reflects the last visible scroll position.
@@ -1449,6 +1518,14 @@ features:
       enabled:
         description: If true, voice search is shown in the display toolbar.
         type: Boolean
+        default: true
+  wayback-machine:
+    description: |
+      Feature that shows a "Check Archived Version" button on eligible error pages, linking to the Wayback Machine.
+    variables:
+      enabled:
+        description: If true, the "Check Archived Version" button is shown on eligible error pages.
+        type: Boolean
         default: false
   webcompat-interventions:
     description: Experimental controls for webcompat site interventions
@@ -1466,7 +1543,7 @@ features:
       enabled:
         description: If true, WebCompat Reporter enhancements is enabled.
         type: Boolean
-        default: false
+        default: true
   weekly-privacy-notification:
     description: A feature that shows a recurring weekly notification summarizing Tracking Protection activity.
     variables:
