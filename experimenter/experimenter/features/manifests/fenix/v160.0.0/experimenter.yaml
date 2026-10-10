@@ -506,6 +506,15 @@ microsurveys:
       type: boolean
       description: |
         When the feature is enabled then microsurveys can be used.
+migrate-onboarding-state:
+  description: |
+    Feature to enable the one-time reconciliation of onboarding completion state for users who completed initial onboarding before continuous onboarding was enabled. See Onboarding-state-migration-and-reconciliation.md in the onboarding package for the affected user cohorts.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature is enabled.
 minimal-addressbar:
   description: Show a smaller height bottom addressbar with just the URL.
   hasExposure: true
@@ -605,7 +614,8 @@ one-click-search:
       type: boolean
       description: If true, the one click search will be enabled.
 pairing-signin-prompt:
-  description: Controls the day 1 sign-in prompt for users who installed Firefox through a pairing link.
+  description: |
+    Controls the Sync sign-in card shown during initial onboarding to users who installed Firefox through a pairing link.
   hasExposure: true
   exposureDescription: ''
   variables:
@@ -614,7 +624,7 @@ pairing-signin-prompt:
       description: The "utm_content" value used to identify installs from the pairing campaign.
     enabled:
       type: boolean
-      description: Whether the day 1 sign-in prompt can be shown.
+      description: Whether the Sync sign-in card can be shown during initial onboarding.
 pdf-viewer:
   description: Feature for the PDF viewer tools for users on Firefox for Android.
   hasExposure: true
@@ -1060,6 +1070,15 @@ voice-search-in-display-mode:
     enabled:
       type: boolean
       description: If true, voice search is shown in the display toolbar.
+wayback-machine:
+  description: |
+    Feature that shows a "Check Archived Version" button on eligible error pages, linking to the Wayback Machine.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the "Check Archived Version" button is shown on eligible error pages.
 webcompat-interventions:
   description: Experimental controls for webcompat site interventions
   hasExposure: true

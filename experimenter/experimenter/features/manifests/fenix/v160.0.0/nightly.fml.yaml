@@ -2,7 +2,7 @@ version: 1.0.0
 about:
   description: Nimbus Feature Manifest for Fenix (Firefox Android)
 channels:
-- developer
+- nightly
 features:
   account-sync-decouple-m1:
     description: Control whether the new UI for Account Sync is shown.
@@ -10,7 +10,7 @@ features:
       enabled:
         description: If true, the new UI for Account Sync is shown.
         type: Boolean
-        default: true
+        default: false
   addressbar-focus-mode:
     description: |
       When starting to edit the current URL show the website details in the awesomebar instead of the addressbar.
@@ -18,7 +18,7 @@ features:
       enabled:
         description: Whether the feature is enabled
         type: Boolean
-        default: true
+        default: false
   ads-client-for-stories:
     description: Feature to enable the Mozilla Ads Client support for Sponsored Stories for users on Firefox on Android.
     variables:
@@ -141,7 +141,7 @@ features:
         description: |
           Controls the network.android_doh.autoselect_enabled pref and automatically chooses a DoH provider when Default Protection mode is selected.
         type: Boolean
-        default: false
+        default: true
       show-ui:
         description: |
           When `true`, include DoH settings in the settings UI.
@@ -226,7 +226,7 @@ features:
         description: |
           The feature boost wiki and AMP suggestions to the top of its group.
         type: Boolean
-        default: true
+        default: false
       enabled:
         description: |
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
@@ -363,7 +363,214 @@ features:
         description: Country codes whose users are eligible for IP Protection.
         type: List<String>
         default:
-        - XX
+        - AD
+        - AG
+        - AI
+        - AL
+        - AM
+        - AO
+        - AQ
+        - AR
+        - AS
+        - AT
+        - AU
+        - AW
+        - AX
+        - BA
+        - BB
+        - BD
+        - BE
+        - BF
+        - BG
+        - BI
+        - BJ
+        - BL
+        - BM
+        - BN
+        - BO
+        - BQ
+        - BR
+        - BS
+        - BT
+        - BW
+        - BZ
+        - CA
+        - CC
+        - CF
+        - CG
+        - CH
+        - CI
+        - CK
+        - CL
+        - CM
+        - CO
+        - CR
+        - CV
+        - CW
+        - CY
+        - CZ
+        - DE
+        - DJ
+        - DK
+        - DM
+        - DO
+        - DZ
+        - EC
+        - EE
+        - ES
+        - ET
+        - FI
+        - FJ
+        - FK
+        - FM
+        - FO
+        - FR
+        - GA
+        - GB
+        - GD
+        - GE
+        - GF
+        - GG
+        - GH
+        - GI
+        - GL
+        - GM
+        - GN
+        - GP
+        - GQ
+        - GR
+        - GT
+        - GU
+        - GW
+        - GY
+        - HN
+        - HR
+        - HT
+        - HU
+        - ID
+        - IE
+        - IL
+        - IM
+        - IO
+        - IS
+        - IT
+        - JE
+        - JM
+        - JO
+        - JP
+        - KE
+        - KG
+        - KH
+        - KI
+        - KM
+        - KN
+        - KR
+        - KW
+        - KY
+        - LA
+        - LB
+        - LC
+        - LI
+        - LK
+        - LR
+        - LS
+        - LT
+        - LU
+        - LV
+        - MA
+        - MC
+        - MD
+        - ME
+        - MF
+        - MG
+        - MH
+        - MK
+        - ML
+        - MN
+        - MO
+        - MP
+        - MQ
+        - MR
+        - MS
+        - MT
+        - MU
+        - MV
+        - MW
+        - MX
+        - MY
+        - MZ
+        - NA
+        - NC
+        - NE
+        - NF
+        - NG
+        - NI
+        - NL
+        - NO
+        - NP
+        - NR
+        - NU
+        - NZ
+        - PA
+        - PE
+        - PF
+        - PG
+        - PH
+        - PL
+        - PM
+        - PN
+        - PR
+        - PT
+        - PW
+        - PY
+        - RE
+        - RO
+        - RS
+        - RW
+        - SB
+        - SC
+        - SE
+        - SG
+        - SH
+        - SI
+        - SJ
+        - SK
+        - SL
+        - SM
+        - SN
+        - SO
+        - SR
+        - ST
+        - SV
+        - SX
+        - SZ
+        - TC
+        - TD
+        - TG
+        - TH
+        - TK
+        - TL
+        - TN
+        - TO
+        - TT
+        - TV
+        - TW
+        - UA
+        - US
+        - UY
+        - VA
+        - VC
+        - VE
+        - VG
+        - VI
+        - VU
+        - WF
+        - WS
+        - XK
+        - YT
+        - ZA
+        - ZM
+        - ZW
       data-limit-gigabyte:
         description: Specifies the VPN data limit for unpaid users in GB (e.g. 50 GB).
         type: Int
@@ -448,6 +655,20 @@ features:
             primary-button-label: nova_onboarding_set_to_default_button
             secondary-button-label: nova_onboarding_negative_button
             title: nova_onboarding_set_to_default_title_2
+          sync-sign-in:
+            body: nova_onboarding_sync_subtitle
+            card-type: sync-sign-in
+            disqualifiers:
+            - NEVER
+            enabled: true
+            extra-data: null
+            image-res: nova_onboarding_sync
+            ordering: 15
+            prerequisites:
+            - ALWAYS
+            primary-button-label: nova_onboarding_sync_button
+            secondary-button-label: nova_onboarding_negative_button
+            title: nova_onboarding_sync_title
           marketing:
             body: ''
             card-type: marketing-data
@@ -501,19 +722,19 @@ features:
         description: |
           Whether or not to block LNA requests
         type: Boolean
-        default: false
+        default: true
       enabled:
         description: |
           Whether or not to turn on local network / device access blocking
         type: Boolean
-        default: false
+        default: true
   longfox:
     description: Flag to enable Longfox for users on Firefox Android.
     variables:
       enabled:
         description: If true, users will see a CTA for launching Longfox on the home screen.
         type: Boolean
-        default: true
+        default: false
   marketing-onboarding-card:
     description: A temporary feature to control the marketing onboarding card shown during the onboarding flow.
     variables:
@@ -601,7 +822,7 @@ features:
             exclude-if-any:
             - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
-          microsurvey-printing-example:
+          microsurvey-printing-example-nightly:
             title: microsurvey_prompt_printing_title
             text: microsurvey_survey_printing_title
             surface: microsurvey
@@ -652,7 +873,7 @@ features:
         description: Configuration of the notification worker for all notification messages.
         type: NotificationConfig
         default:
-          refresh-interval: 120
+          refresh-interval: 240
       on-control:
         description: What should be displayed when a control message is selected.
         type: ControlMessageBehavior
@@ -664,7 +885,7 @@ features:
         default:
           DEFAULT:
             priority: 50
-            max-display-count: 100
+            max-display-count: 5
           SURVEY:
             priority: 55
             max-display-count: 1
@@ -683,9 +904,6 @@ features:
           MICROSURVEY:
             priority: 50
             max-display-count: 5
-          EXPIRES_QUICKLY:
-            priority: 100
-            max-display-count: 1
         string-alias: StyleName
       triggers:
         description: |
@@ -746,6 +964,14 @@ features:
           When the feature is enabled then microsurveys can be used.
         type: Boolean
         default: false
+  migrate-onboarding-state:
+    description: |
+      Feature to enable the one-time reconciliation of onboarding completion state for users who completed initial onboarding before continuous onboarding was enabled. See Onboarding-state-migration-and-reconciliation.md in the onboarding package for the affected user cohorts.
+    variables:
+      enabled:
+        description: If true, the feature is enabled.
+        type: Boolean
+        default: true
   minimal-addressbar:
     description: Show a smaller height bottom addressbar with just the URL.
     variables:
@@ -845,14 +1071,15 @@ features:
         type: Boolean
         default: false
   pairing-signin-prompt:
-    description: Controls the day 1 sign-in prompt for users who installed Firefox through a pairing link.
+    description: |
+      Controls the Sync sign-in card shown during initial onboarding to users who installed Firefox through a pairing link.
     variables:
       campaign-utm-content:
         description: The "utm_content" value used to identify installs from the pairing campaign.
         type: String
         default: ''
       enabled:
-        description: Whether the day 1 sign-in prompt can be shown.
+        description: Whether the Sync sign-in card can be shown during initial onboarding.
         type: Boolean
         default: false
   pdf-viewer:
@@ -1010,38 +1237,38 @@ features:
       enabled:
         description: If true, Search Optimization is enabled.
         type: Boolean
-        default: true
+        default: false
       show-flights-card:
         description: If true, Search Optimization Flights cards are enabled.
         type: Boolean
-        default: true
+        default: false
       show-sports-card:
         description: If true, Search Optimization Sports cards are enabled.
         type: Boolean
-        default: true
+        default: false
       show-stocks-card:
         description: If true, Search Optimization Stock cards are enabled.
         type: Boolean
-        default: true
+        default: false
   sent-from-firefox:
     description: A feature that allows the user to add a download firefox footer to a shared link.
     variables:
       download-link:
         description: A store download link.
         type: Text
-        default: '[Download Link]'
+        default: ''
       enabled:
         description: If true, the feature is available for the user.
         type: Boolean
-        default: true
+        default: false
       show-snackbar:
         description: If true, the user will see the snackbar after sharing a link, allowing quick navigation to settings.
         type: Boolean
-        default: true
+        default: false
       template-message:
         description: A template for the shared message, supporting three placeholders. A shared link, the brand name and a store download link.
         type: Text
-        default: sent_from_firefox_template
+        default: ''
   setup-checklist:
     description: A feature on the home page that allows the user to track onboarding setup progress.
     variables:
@@ -1112,7 +1339,7 @@ features:
         description: |
           Whether or not to enable drag and drop for tab groups.
         type: Boolean
-        default: false
+        default: true
   tab-groups-live-reorder:
     description: Control whether reorder happens live during a drag and drop action for Tab Groups.
     variables:
@@ -1151,7 +1378,7 @@ features:
       opening_animation_enabled:
         description: Whether or not the Tab Manager opening animation is enabled. When enabled, a shared element transition will initiate, taking the currently-opened tab's thumbnail and shrinking it into its spot in the Tab Manager.
         type: Boolean
-        default: false
+        default: true
   tab-reload-cover:
     description: |
       Shows a cached thumbnail cover over the engine view while a tab reloads from session restore, hiding it once the page has repainted. Optionally refreshes the stored thumbnail before backgrounding so the cover reflects the last visible scroll position.
@@ -1268,7 +1495,7 @@ features:
       enabled:
         description: If true, the uninstall survey shortcut is enabled and visible.
         type: Boolean
-        default: true
+        default: false
   universal-edge-to-edge-wallpapers:
     description: |
       Extends non-default homepage wallpapers edge-to-edge and adapts the toolbar, navigation bar and system bars to them.
@@ -1292,6 +1519,14 @@ features:
         description: If true, voice search is shown in the display toolbar.
         type: Boolean
         default: true
+  wayback-machine:
+    description: |
+      Feature that shows a "Check Archived Version" button on eligible error pages, linking to the Wayback Machine.
+    variables:
+      enabled:
+        description: If true, the "Check Archived Version" button is shown on eligible error pages.
+        type: Boolean
+        default: false
   webcompat-interventions:
     description: Experimental controls for webcompat site interventions
     variables:
