@@ -5922,6 +5922,22 @@ passwordManager:
         Triggers a reencryption of all passwords on the next startup for
         migration purposes.
 
+logins-rust-storage:
+  description: Rust storage backend for saved logins
+  owner: joschmidt@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        Whether saved logins are stored in the Rust backend. Turning it off
+        moves the logins back to the JSON storage on the next startup. The pref
+        is read before Nimbus applies its enrollments, so it is set on the user
+        branch and takes effect from the next startup.
+      type: boolean
+      setPref:
+        branch: user
+        pref: signon.storage.rust.enabled
+
 xpcom:
   description: Prefs that control the cross-platform component object model
   owner: tthorne@mozilla.com
