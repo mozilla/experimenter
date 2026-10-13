@@ -231,6 +231,16 @@ improved-app-store-review-trigger-feature:
       type: boolean
       description: |
         Enables the feature.
+merge-windows-feature:
+  description: |
+    This property determines whether the "Combine Windows" home screen Quick Action is offered on iPad when two or more windows are open
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 messaging:
   description: |
     The in-app messaging system
