@@ -2165,12 +2165,10 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_control_mismatch"],
             [
-                (
-                    "The control branch has no message with the same trigger and "
-                    "targeting as spotlight message treatment-message, so control "
-                    "clients will not record exposure under the same conditions as "
-                    "treatment. Give each treatment message a control message with "
-                    "the same trigger and targeting."
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH.format(
+                    feature_slug="spotlight",
+                    noun="message",
+                    message_ids="treatment-message",
                 )
             ],
         )
@@ -2200,19 +2198,15 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_control_mismatch"],
             [
-                (
-                    "The control branch has no message with the same trigger and "
-                    "targeting as cfr message treatment-message, so control clients "
-                    "will not record exposure under the same conditions as "
-                    "treatment. Give each treatment message a control message with "
-                    "the same trigger and targeting."
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH.format(
+                    feature_slug="cfr",
+                    noun="message",
+                    message_ids="treatment-message",
                 ),
-                (
-                    "The control branch has no message with the same trigger and "
-                    "targeting as spotlight messages treatment-a, treatment-b, so "
-                    "control clients will not record exposure under the same "
-                    "conditions as treatment. Give each treatment message a control "
-                    "message with the same trigger and targeting."
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH.format(
+                    feature_slug="spotlight",
+                    noun="messages",
+                    message_ids="treatment-a, treatment-b",
                 ),
             ],
         )
