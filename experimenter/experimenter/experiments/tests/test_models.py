@@ -4068,11 +4068,11 @@ class TestNimbusExperiment(TestCase):
         self.assertIn(
             {
                 "label": (
-                    "The control branch has no message with the same trigger and "
-                    "targeting as spotlight message treatment-message, so control "
-                    "clients will not record exposure under the same conditions as "
-                    "treatment. Give each treatment message a control message with "
-                    "the same trigger and targeting."
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH.format(
+                        feature_slug="spotlight",
+                        noun="message",
+                        message_ids="treatment-message",
+                    )
                 ),
                 "detail": None,
                 "learn_more_url": None,
