@@ -421,6 +421,16 @@ search:
     awesome-bar:
       type: json
       description: Configuring the awesome bar.
+search-config-v3-feature:
+  description: |
+    Feature flag to manage rollout of search-config-v3, the new search engine configuration with per-access-point partner codes
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 sent-from-firefox-feature:
   description: |
     Adds additional promo text to links shared to WhatsApp.
