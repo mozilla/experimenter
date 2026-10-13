@@ -807,6 +807,15 @@ features:
           min-search-term: 3
           search-highlights: false
           use-page-content: false
+  search-config-v3-feature:
+    description: |
+      Feature flag to manage rollout of search-config-v3, the new search engine configuration with per-access-point partner codes
+    variables:
+      enabled:
+        description: |
+          Whether or not this feature is enabled
+        type: Boolean
+        default: false
   sent-from-firefox-feature:
     description: |
       Adds additional promo text to links shared to WhatsApp.
