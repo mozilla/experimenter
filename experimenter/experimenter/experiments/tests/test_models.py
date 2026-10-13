@@ -4015,10 +4015,9 @@ class TestNimbusExperiment(TestCase):
         self.assertIn(
             {
                 "label": (
-                    "The control branch has no message for spotlight, so control "
-                    "clients will not record exposure events. Add a message with "
-                    "the same trigger and targeting as the treatment message and no "
-                    "template or content."
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_NO_MESSAGE.format(
+                        feature_slugs="spotlight"
+                    )
                 ),
                 "detail": None,
                 "learn_more_url": None,

@@ -2092,11 +2092,8 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_control_no_message"],
             [
-                (
-                    f"The control branch has no message for {feature_slug}, so "
-                    "control clients will not record exposure events. Add a message "
-                    "with the same trigger and targeting as the treatment message "
-                    "and no template or content."
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_NO_MESSAGE.format(
+                    feature_slugs=feature_slug
                 )
             ],
         )
@@ -2113,11 +2110,8 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_control_no_message"],
             [
-                (
-                    "The control branch has no message for cfr, spotlight, so "
-                    "control clients will not record exposure events. Add a message "
-                    "with the same trigger and targeting as the treatment message "
-                    "and no template or content."
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_NO_MESSAGE.format(
+                    feature_slugs="cfr, spotlight"
                 )
             ],
         )
