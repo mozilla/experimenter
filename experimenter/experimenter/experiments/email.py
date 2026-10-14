@@ -67,7 +67,9 @@ def nimbus_format_and_send_html_email(
     email.content_subtype = "html"
     email.send(fail_silently=False)
 
-    action_text = SlackConstants.SLACK_EMAIL_ACTIONS.get(email_type, "has updates")
+    action_text = SlackConstants.SLACK_EMAIL_ACTIONS.get(
+        email_type, SlackConstants.SLACK_EMAIL_DEFAULT_ACTION
+    )
     launch_alert = get_launch_request_thread(experiment.id)
     thread_ts = launch_alert.slack_thread_id if launch_alert else None
 
