@@ -48,6 +48,7 @@ from experimenter.nimbus_ui.new.forms import (
     RolloutRisksForm,
     RolloutSignoffForm,
 )
+from experimenter.nimbus_ui.new.views import RolloutSetupProgressMixin
 from experimenter.openidc.tests.factories import UserFactory
 from experimenter.targeting.constants import NimbusTargetingConfig
 
@@ -382,16 +383,11 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         self.mock_remove_emoji_task = patch(
             "experimenter.slack.tasks.remove_emoji_from_message_async.delay"
         ).start()
-        self.invalid_fields_patcher = patch.object(
-            NimbusExperiment, "get_invalid_fields_errors", return_value={}
-        )
-        self.mock_invalid_fields = self.invalid_fields_patcher.start()
         self.addCleanup(self.mock_preview_task.stop)
         self.addCleanup(self.mock_allocate_bucket_range.stop)
         self.addCleanup(self.mock_kinto_push_queue.stop)
         self.addCleanup(self.mock_emoji_task.stop)
         self.addCleanup(self.mock_remove_emoji_task.stop)
-        self.addCleanup(self.invalid_fields_patcher.stop)
 
     @parameterized.expand(
         [
@@ -463,15 +459,9 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
             is_rollout=True,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
-        if url_name == "nimbus-ui-new-live-to-disabled-rollout":
-            NimbusRolloutPhaseFactory.create(experiment=experiment)
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
 
-        with mock.patch.object(
-            NimbusExperiment, "get_invalid_fields_errors", return_value={}
-        ):
-            response = self.client.post(
-                reverse(url_name, kwargs={"slug": experiment.slug})
-            )
+        response = self.client.post(reverse(url_name, kwargs={"slug": experiment.slug}))
 
         self.assertEqual(response.status_code, 200)
         experiment.refresh_from_db()
@@ -600,7 +590,9 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
             status_next=NimbusExperiment.Status.LIVE,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
 
         response = self.client.post(reverse(url_name, kwargs={"slug": experiment.slug}))
 
@@ -611,15 +603,15 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         self.assertEqual(experiment.publish_status, expected_publish_status)
 
     def test_invalid_rollout_cannot_request_launch(self):
-        self.mock_invalid_fields.return_value = {
-            "risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]
-        }
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DRAFT,
             status_next=None,
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+            risk_brand=None,
         )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
 
         response = self.client.post(
             reverse(
@@ -682,7 +674,9 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
 
         self.client.post(
             reverse(
@@ -759,6 +753,26 @@ class TestRolloutStatusUpdateViews(AuthTestCase):
         self.assertEqual(experiment.rollout_phases.count(), 0)
         self.assertIsNone(experiment.status_next)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+
+
+class TestRolloutSetupProgressMixin(TestCase):
+    @parameterized.expand(
+        [
+            ([{"image": ["This field may not be blank."]}], True),
+            ([{}], False),
+        ]
+    )
+    def test_split_branch_screenshot_errors_handles_list_shaped_screenshots(
+        self, screenshots, expect_screenshot_errors
+    ):
+        field_errors = RolloutSetupProgressMixin().split_branch_screenshot_errors(
+            {"reference_branch": {"screenshots": screenshots}}
+        )
+
+        self.assertNotIn("reference_branch", field_errors)
+        self.assertEqual(
+            "reference_branch_screenshots" in field_errors, expect_screenshot_errors
+        )
 
 
 class NewViewTestMixin:
@@ -929,14 +943,13 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         else:
             self.assertContains(response, advance_url)
 
-    @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
-    def test_ready_rollout_shows_preview_and_launch_actions(self, _mock_errors):
-        experiment = NimbusExperimentFactory.create(
+    def test_ready_rollout_shows_preview_and_launch_actions(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
             is_rollout=True,
-            status=NimbusExperiment.Status.DRAFT,
-            status_next=None,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
 
         response = self.client.get(
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
@@ -953,14 +966,12 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         )
         self.assertContains(response, "Not launched")
 
-    @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
-    def test_pref_flips_rollout_disables_only_the_preview_button(self, _mock_errors):
-        experiment = NimbusExperimentFactory.create(
+    def test_pref_flips_rollout_disables_only_the_preview_button(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
             is_rollout=True,
-            status=NimbusExperiment.Status.DRAFT,
-            status_next=None,
-            publish_status=NimbusExperiment.PublishStatus.IDLE,
             application=NimbusExperiment.Application.DESKTOP,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
                     slug=NimbusConstants.DESKTOP_PREFFLIPS_SLUG,
@@ -968,6 +979,7 @@ class TestNimbusRolloutDetailView(AuthTestCase):
                 )
             ],
         )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
 
         response = self.client.get(
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
@@ -1036,11 +1048,13 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertNotContains(response, 'id="rollout-back-to-setup-btn"')
         self.assertNotContains(response, 'id="rollout-request-enrollment-btn"')
 
-    @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
-    def test_preview_rollout_shows_only_preview_stage_buttons(self, _mock_errors):
+    def test_preview_rollout_shows_only_preview_stage_buttons(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.PREVIEW, is_rollout=True
+            NimbusExperimentFactory.Lifecycles.PREVIEW,
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
 
         response = self.client.get(
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
@@ -1282,25 +1296,21 @@ class TestNimbusRolloutDetailView(AuthTestCase):
                 self.assertTrue(field["messages"])
 
     def test_setup_progress_advances_per_field_within_a_section(self):
-        experiment = NimbusExperimentFactory.create(is_rollout=True)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+            risk_brand=None,
+            risk_revenue=None,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
         url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
 
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={
-                "risk_brand": ["This field may not be null."],
-                "risk_revenue": ["This field may not be null."],
-            },
-        ):
-            two_invalid = self.client.get(url).context["setup_completion_percent"]
+        two_invalid = self.client.get(url).context["setup_completion_percent"]
 
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={"risk_brand": ["This field may not be null."]},
-        ):
-            one_invalid = self.client.get(url).context["setup_completion_percent"]
+        experiment.risk_revenue = False
+        experiment.save()
+        one_invalid = self.client.get(url).context["setup_completion_percent"]
 
         total_tracked = len(
             {
@@ -1315,28 +1325,34 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertEqual(one_invalid, round(100 * (total_tracked - 1) / total_tracked))
         self.assertGreater(one_invalid, two_invalid)
 
-    def test_untracked_and_display_only_fields_do_not_lower_completion(self):
-        experiment = NimbusExperimentFactory.create(is_rollout=True)
-        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+    @parameterized.expand(
+        [
+            ("population_percent", Decimal("150"), "Population Percent"),
+            ("qa_status", "not-a-qa-status", "Qa Status"),
+        ]
+    )
+    def test_untracked_and_display_only_fields_do_not_lower_completion(
+        self, field, invalid_value, label
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        setattr(experiment, field, invalid_value)
+        experiment.save()
 
-        for field, label in [
-            ("population_percent", "Population Percent"),
-            ("qa_status", "Qa Status"),
-            ("legal_signoff", "Legal Signoff"),
-        ]:
-            with mock.patch.object(
-                NimbusExperiment,
-                "get_invalid_fields_errors",
-                return_value={field: ["This field may not be null."]},
-            ):
-                context = self.client.get(url).context
+        context = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        ).context
 
-            self.assertEqual(context["setup_issues_count"], 1, field)
-            self.assertEqual(context["setup_completion_percent"], 100, field)
-            (group,) = context["setup_issues"]
-            self.assertEqual(group["section"], "Other", field)
-            self.assertIsNone(group["card_id"], field)
-            self.assertEqual([f["label"] for f in group["fields"]], [label], field)
+        self.assertEqual(context["setup_issues_count"], 1)
+        self.assertEqual(context["setup_completion_percent"], 100)
+        (group,) = context["setup_issues"]
+        self.assertEqual(group["section"], "Other")
+        self.assertIsNone(group["card_id"])
+        self.assertEqual([f["label"] for f in group["fields"]], [label])
 
     def test_card_summaries_present_for_all_cards(self):
         experiment = NimbusExperimentFactory.create(is_rollout=True)
@@ -1361,14 +1377,12 @@ class TestNimbusRolloutDetailView(AuthTestCase):
 
     def test_card_status_indicators_rendered_in_template(self):
         experiment = NimbusExperimentFactory.create(is_rollout=True)
-        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        experiment.name = ""
+        experiment.save()
 
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={"name": ["This field may not be blank."]},
-        ):
-            response = self.client.get(url)
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
 
         self.assertContains(response, 'id="rollout-card-overview-summary"')
         self.assertContains(response, "Observations &amp; Problem Space")
@@ -1442,37 +1456,78 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertNotContains(response, "Waiting for Remote Settings")
         self.assertNotContains(response, 'id="rollout-remote-settings-link"')
 
+    def test_feature_value_errors_reach_the_readonly_card(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        experiment.reference_branch.feature_values.update(value="")
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(
+            response.context["feature_value_errors"], ["This field may not be blank."]
+        )
+        self.assertEqual(response.context["screenshot_errors"], [])
+        self.assertContains(response, "This field may not be blank.")
+
+    def test_branch_name_errors_reach_the_readonly_card(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        experiment.reference_branch.name = ""
+        experiment.reference_branch.save()
+
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertEqual(
+            response.context["feature_value_errors"], ["This field may not be blank."]
+        )
+        self.assertEqual(response.context["screenshot_errors"], [])
+        self.assertContains(response, "This field may not be blank.")
+
     @parameterized.expand(
         [
-            ({"feature_values": [{"value": ["boom"]}]}, ["boom"], []),
-            ({"feature_values": [{"feature_config": ["boom"]}]}, ["boom"], []),
-            (["boom"], ["boom"], []),
-            ({"name": ["boom"]}, ["boom"], []),
-            ({"screenshots": [{"image": ["boom"]}]}, [], ["boom"]),
-            (
-                {"screenshots": [{"image": ["one"], "description": ["two"]}]},
-                [],
-                ["one", "two"],
-            ),
+            ({"image": None}, 1),
+            ({"image": None, "description": ""}, 2),
         ]
     )
-    def test_branch_errors_reach_the_readonly_card(
-        self, branch_errors, expected_features, expected_screenshots
+    def test_screenshot_errors_reach_the_readonly_card(
+        self, broken_fields, expected_count
     ):
-        experiment = NimbusExperimentFactory.create(is_rollout=True)
-        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        experiment.reference_branch.screenshots.all().delete()
+        screenshot = NimbusBranchScreenshotFactory.create(
+            branch=experiment.reference_branch
+        )
+        for field, value in broken_fields.items():
+            setattr(screenshot, field, value)
+        screenshot.save()
 
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={"reference_branch": branch_errors},
-        ):
-            response = self.client.get(url)
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
 
-        self.assertEqual(response.context["feature_value_errors"], expected_features)
-        self.assertEqual(response.context["screenshot_errors"], expected_screenshots)
-        for message in expected_features + expected_screenshots:
-            self.assertContains(response, message)
+        self.assertEqual(response.context["feature_value_errors"], [])
+        self.assertEqual(
+            response.context["screenshot_errors"],
+            ["This field may not be blank."] * expected_count,
+        )
+        self.assertContains(response, "This field may not be blank.")
 
     def test_screenshot_errors_reach_the_edit_form_per_screenshot(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1506,23 +1561,6 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertIn("description", screenshot_errors[1])
         self.assertContains(response, "This field may not be blank.", count=2)
         self.assertContains(response, clean_screenshot.description)
-
-    def test_documentation_link_errors_shown_when_there_are_no_links(self):
-        experiment = NimbusExperimentFactory.create(is_rollout=True)
-        experiment.documentation_links.all().delete()
-        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
-
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={"documentation_links": {0: {"link": ["Enter a valid URL."]}}},
-        ):
-            response = self.client.get(url)
-
-        self.assertEqual(
-            response.context["documentation_link_errors"], ["Enter a valid URL."]
-        )
-        self.assertContains(response, "Enter a valid URL.")
 
     @parameterized.expand(
         [
@@ -1589,37 +1627,35 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertNotContains(response, "is not a valid choice")
 
     def test_readonly_card_error_lists_empty_without_errors(self):
-        experiment = NimbusExperimentFactory.create(is_rollout=True)
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
 
-        with mock.patch.object(
-            NimbusExperiment, "get_invalid_fields_errors", return_value={}
-        ):
-            context = self.client.get(
-                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
-            ).context
+        context = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        ).context
 
         self.assertEqual(context["feature_value_errors"], [])
         self.assertEqual(context["screenshot_errors"], [])
         self.assertEqual(context["documentation_link_errors"], [])
 
     def test_fields_sharing_a_row_are_merged_into_one_label(self):
-        experiment = NimbusExperimentFactory.create(is_rollout=True)
-        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+            feature_configs=[],
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        experiment.reference_branch.name = ""
+        experiment.reference_branch.save()
 
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={
-                "reference_branch": {
-                    "feature_values": [
-                        {"value": ["This field may not be blank."]},
-                        {"value": ["This field may not be blank."]},
-                    ]
-                },
-                "feature_configs": ["You must select a feature configuration."],
-            },
-        ):
-            context = self.client.get(url).context
+        context = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        ).context
 
         (features_group,) = [
             group
@@ -1633,57 +1669,59 @@ class TestNimbusRolloutDetailView(AuthTestCase):
                     "label": "Feature Configuration",
                     "messages": [
                         "This field may not be blank.",
-                        "This field may not be blank.",
-                        "You must select a feature configuration.",
+                        NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG,
                     ],
                 },
             ],
         )
-        self.assertEqual(context["setup_issues_count"], 3)
+        self.assertEqual(context["setup_issues_count"], 2)
 
     def test_setup_issues_count_counts_every_message_not_every_field(self):
-        experiment = NimbusExperimentFactory.create(is_rollout=True)
-        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        experiment.name = ""
+        experiment.save()
+        experiment.reference_branch.screenshots.all().delete()
+        screenshot = NimbusBranchScreenshotFactory.create(
+            branch=experiment.reference_branch
+        )
+        screenshot.image = None
+        screenshot.description = ""
+        screenshot.save()
 
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={
-                "reference_branch": {
-                    "feature_values": [
-                        {"value": ["This field may not be blank."]},
-                        {"value": ["This field may not be blank."]},
-                    ]
-                },
-                "name": ["This field may not be blank."],
-            },
-        ):
-            response = self.client.get(url)
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
 
         self.assertEqual(response.context["setup_issues_count"], 3)
         self.assertContains(response, "3 issues detected")
 
     def test_reference_branch_errors_grouped_into_one_field(self):
-        experiment = NimbusExperimentFactory.create(is_rollout=True)
-        url = reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+        )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
+        experiment.reference_branch.feature_values.update(value="")
+        experiment.reference_branch.screenshots.all().delete()
+        screenshot = NimbusBranchScreenshotFactory.create(
+            branch=experiment.reference_branch
+        )
+        screenshot.description = ""
+        screenshot.save()
 
-        reference_branch_errors = {
-            "feature_values": [
-                "This field may not be blank.",
-                "This field may not be blank.",
-            ],
-            "screenshots": [{"description": ["This field is required."]}],
-        }
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={"reference_branch": reference_branch_errors},
-        ):
-            context = self.client.get(url).context
+        context = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        ).context
 
         self.assertEqual(
             context["validation_errors"]["reference_branch"],
-            {"feature_values": reference_branch_errors["feature_values"]},
+            {"feature_values": {0: {"value": ["This field may not be blank."]}}},
         )
         (features_group,) = [
             group
@@ -1695,18 +1733,15 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             [
                 {
                     "label": "Feature Configuration",
-                    "messages": [
-                        "This field may not be blank.",
-                        "This field may not be blank.",
-                    ],
+                    "messages": ["This field may not be blank."],
                 },
                 {
                     "label": "Screenshots",
-                    "messages": ["This field is required."],
+                    "messages": ["This field may not be blank."],
                 },
             ],
         )
-        self.assertEqual(context["screenshot_errors"], ["This field is required."])
+        self.assertEqual(context["screenshot_errors"], ["This field may not be blank."])
 
     def test_preview_card_hidden_when_not_in_preview(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -1827,14 +1862,13 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         self.assertNotContains(response, "this.innerText='Copied'")
 
     @override_settings(SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER=True)
-    @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
-    def test_sidebar_shows_approve_control_for_dev_reviewer(self, _mock_errors):
-        experiment = NimbusExperimentFactory.create(
-            status=NimbusExperiment.Status.DRAFT,
-            status_next=NimbusExperiment.Status.LIVE,
-            publish_status=NimbusExperiment.PublishStatus.REVIEW,
+    def test_sidebar_shows_approve_control_for_dev_reviewer(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
 
         response = self.client.get(
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
@@ -1855,6 +1889,7 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
             is_rollout=True,
+            risk_brand=None,
         )
         current_phase = NimbusRolloutPhaseFactory.create(
             experiment=experiment, population_percent=10
@@ -1863,14 +1898,9 @@ class TestNimbusRolloutDetailView(AuthTestCase):
         experiment.rollout_phase = current_phase
         experiment.save()
 
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={"risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]},
-        ):
-            response = self.client.get(
-                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
-            )
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug})
+        )
 
         self.assertNotContains(
             response,
@@ -1894,17 +1924,13 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             status_next=NimbusExperiment.Status.LIVE,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
             is_rollout=True,
+            risk_brand=None,
         )
 
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={"risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]},
-        ):
-            response = self.client.get(
-                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
-                **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
-            )
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
+        )
 
         self.assertContains(response, 'id="rollout-review-approve-btn"')
         self.assertNotContains(
@@ -1946,17 +1972,13 @@ class TestNimbusRolloutDetailView(AuthTestCase):
             status_next=status_next,
             publish_status=NimbusExperiment.PublishStatus.REVIEW,
             is_rollout=True,
+            risk_brand=None,
         )
 
-        with mock.patch.object(
-            NimbusExperiment,
-            "get_invalid_fields_errors",
-            return_value={"risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]},
-        ):
-            response = self.client.get(
-                reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
-                **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
-            )
+        response = self.client.get(
+            reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": experiment.slug}),
+            **{settings.OPENIDC_EMAIL_HEADER: settings.DEV_USER_EMAIL},
+        )
 
         self.assertContains(response, 'id="rollout-review-approve-btn"')
         approve_url = reverse(approve_url_name, kwargs={"slug": experiment.slug})
@@ -2780,17 +2802,7 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
             response.context["validation_errors"]["feature_configs"],
         )
 
-    @mock.patch.object(
-        NimbusExperiment,
-        "get_invalid_fields_errors",
-        return_value={
-            "feature_configs": [
-                NimbusExperiment.ERROR_REQUIRED_FEATURE_CONFIG,
-                "Feature Config application does not match experiment application.",
-            ]
-        },
-    )
-    def test_post_selecting_feature_keeps_other_feature_errors(self, _mock_errors):
+    def test_post_selecting_feature_keeps_other_feature_errors(self):
         feature_config = NimbusFeatureConfigFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
             slug="rollout-feature-other-errors",
@@ -2798,8 +2810,15 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            feature_configs=[],
+            is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+            feature_configs=[
+                NimbusFeatureConfigFactory.create(
+                    application=NimbusExperiment.Application.FENIX
+                )
+            ],
         )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
 
         response = self.client.post(
             reverse(self.url_name, kwargs={"slug": experiment.slug}),
@@ -2814,7 +2833,13 @@ class TestNewRolloutFeaturesUpdateView(AuthTestCase):
 
         self.assertEqual(
             response.context["validation_errors"]["feature_configs"],
-            ["Feature Config application does not match experiment application."],
+            [
+                (
+                    f"Feature Config application {NimbusExperiment.Application.FENIX} "
+                    "does not match experiment application "
+                    f"{NimbusExperiment.Application.DESKTOP}."
+                )
+            ],
         )
 
     def test_post_deselecting_feature_and_saving_deletes_the_stored_json(self):
@@ -2871,10 +2896,7 @@ class TestNewRolloutScreenshotCreateView(AuthTestCase):
         self.assertContains(response, 'id="sidebar-setup-progress"')
         self.assertContains(response, 'hx-swap-oob="true"')
 
-    @mock.patch.object(NimbusExperiment, "get_invalid_fields_errors", return_value={})
-    def test_post_saves_form_state_and_refreshes_actions_before_preview(
-        self, _mock_errors
-    ):
+    def test_post_saves_form_state_and_refreshes_actions_before_preview(self):
         experiment = NimbusExperimentFactory.create(
             is_rollout=True,
             status=NimbusExperiment.Status.DRAFT,
