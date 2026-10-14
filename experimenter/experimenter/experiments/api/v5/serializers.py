@@ -2146,8 +2146,12 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
         if phase.start_date and phase.end_date and phase.end_date < phase.start_date:
             errors.append(NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER)
         if previous_phase is not None:
-            boundary = previous_phase.end_date or previous_phase.start_date
-            if boundary and phase.start_date and phase.start_date < boundary:
+            boundary = previous_phase.end_date or previous_phase.effective_start_date
+            if (
+                boundary
+                and phase.effective_start_date
+                and phase.effective_start_date < boundary
+            ):
                 errors.append(NimbusConstants.ERROR_ROLLOUT_PHASE_SEQUENCE)
         return errors
 
