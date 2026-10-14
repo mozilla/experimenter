@@ -1450,6 +1450,14 @@ features:
         description: If true, voice search is shown in the display toolbar.
         type: Boolean
         default: false
+  wayback-machine:
+    description: |
+      Feature that shows a "Check Archived Version" button on eligible error pages, linking to the Wayback Machine.
+    variables:
+      enabled:
+        description: If true, the "Check Archived Version" button is shown on eligible error pages.
+        type: Boolean
+        default: false
   webcompat-interventions:
     description: Experimental controls for webcompat site interventions
     variables:
