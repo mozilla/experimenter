@@ -2618,6 +2618,17 @@ HAS_GOOGLE_BING_DDG_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+HAS_GOOGLE_BING_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
+    name="Has Google or Bing as current default search engine",
+    slug="has_google_or_bing_as_current_default_search_engine",
+    description="Users with Google or Bing as current default engine",
+    targeting=("'google' in searchEngines.current ||searchEngines.current == 'bing'"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 HAS_BING_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     name="Has Bing as current default search engine",
     slug="has_bing_as_current_default_search_engine",
@@ -5281,6 +5292,65 @@ FX_158_TRAINHOP = NimbusTargetingConfig(
         "which includes users of Fx156"
     ),
     targeting="newtabAddonVersion|versionCompare('158.0.20260913.220257') >= 0",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+# A widget renders only when it is addable AND its enabled pref is true, so the only
+# profiles whose New Tab could visibly change are the ones that explicitly turned a
+# widget on. Default-branch values do not count, hence preferenceIsUserSet per pref.
+ANY_WIDGET_EXPLICITLY_ENABLED = """
+(
+    (
+        ('browser.newtabpage.activity-stream.widgets.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.enabled'|preferenceValue)
+    )
+    ||
+    (
+        ('browser.newtabpage.activity-stream.widgets.lists.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.lists.enabled'|preferenceValue)
+    )
+    ||
+    (
+        ('browser.newtabpage.activity-stream.widgets.focusTimer.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.focusTimer.enabled'|preferenceValue)
+    )
+    ||
+    (
+        ('browser.newtabpage.activity-stream.widgets.crossword.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.crossword.enabled'|preferenceValue)
+    )
+    ||
+    (
+        ('browser.newtabpage.activity-stream.widgets.pictureOfTheDay.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.pictureOfTheDay.enabled'|preferenceValue)
+    )
+    ||
+    (
+        ('browser.newtabpage.activity-stream.widgets.clocks.enabled'|preferenceIsUserSet)
+        &&
+        ('browser.newtabpage.activity-stream.widgets.clocks.enabled'|preferenceValue)
+    )
+)
+"""
+
+WIDGETS_NONE_EXPLICITLY_ENABLED = NimbusTargetingConfig(
+    name="New Tab No Widget Explicitly Enabled By User",
+    slug="widgets-none-explicitly-enabled",
+    description=(
+        "Users who have not explicitly (user-set, not default-branch) enabled the "
+        "widgets container or the Lists, Timer, Crossword, Picture of the Day, or "
+        "Clocks widget. Safe audience for revealing widget toggles without "
+        "changing what renders on the new tab page."
+    ),
+    targeting=f"!({ANY_WIDGET_EXPLICITLY_ENABLED})",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,

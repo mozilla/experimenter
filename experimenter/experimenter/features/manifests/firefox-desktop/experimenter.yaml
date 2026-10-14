@@ -2959,7 +2959,10 @@ pbNewtab:
 privateWindowRedesign:
   description: "Experimental features for the private browsing window redesign"
   owner: omc-core@mozilla.com
-  hasExposure: false
+  hasExposure: true
+  exposureDescription: >-
+    Recorded when the redesigned private browsing page renders, so results can
+    be limited to users who were actually shown the treatment.
   variables:
     pbwRedesignGate:
       type: boolean
@@ -5919,6 +5922,22 @@ passwordManager:
         Triggers a reencryption of all passwords on the next startup for
         migration purposes.
 
+logins-rust-storage:
+  description: Rust storage backend for saved logins
+  owner: joschmidt@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        Whether saved logins are stored in the Rust backend. Turning it off
+        moves the logins back to the JSON storage on the next startup. The pref
+        is read before Nimbus applies its enrollments, so it is set on the user
+        branch and takes effect from the next startup.
+      type: boolean
+      setPref:
+        branch: user
+        pref: signon.storage.rust.enabled
+
 xpcom:
   description: Prefs that control the cross-platform component object model
   owner: tthorne@mozilla.com
@@ -6274,6 +6293,31 @@ autoTabGrouping:
         pref: browser.smartwindow.autoTabGrouping.preloadModels
       description: >-
         Whether to preload the clustering/labeling ML models ahead of use.
+    supportedLocales:
+      type: string
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.supportedLocales
+      description: >-
+        Comma-separated languages Auto Tab Grouping is offered in, matched
+        against the app locale by language ("en,fr" allows en-US and fr).
+    thresholdInt:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.tabs.groups.smart.agglomerativeThresholdInt
+      description: >-
+        Clustering cosine-distance cutoff, in thousandths (650 = 0.65). Lower =
+        stricter groups. Applies to English, and to other locales when
+        nonEnglishThresholdInt is 0.
+    nonEnglishThresholdInt:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.nonEnglishThresholdInt
+      description: >-
+        Clustering cosine-distance cutoff for non-English locales, in
+        thousandths (550 = 0.55). Lower = stricter groups. 0 uses thresholdInt.
 
 contentSharing:
   description: Controls the content sharing feature, which allows users to share browser content.

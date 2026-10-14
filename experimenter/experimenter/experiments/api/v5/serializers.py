@@ -2125,28 +2125,31 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
         phases = list(value)
         if not phases:
             raise serializers.ValidationError(NimbusConstants.ERROR_ROLLOUT_NO_PHASES)
-        if not phases[0].population_percent:
-            raise serializers.ValidationError(
-                NimbusConstants.ERROR_ROLLOUT_FIRST_PHASE_ZERO
-            )
+
+        errors = {}
         previous_phase = None
-        for phase in phases:
-            if not (0 <= phase.population_percent <= 100):
-                raise serializers.ValidationError(
-                    NimbusConstants.ERROR_ROLLOUT_PHASE_POPULATION_RANGE
-                )
-            if phase.start_date and phase.end_date and phase.end_date < phase.start_date:
-                raise serializers.ValidationError(
-                    NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER
-                )
-            if previous_phase is not None:
-                boundary = previous_phase.end_date or previous_phase.start_date
-                if boundary and phase.start_date and phase.start_date < boundary:
-                    raise serializers.ValidationError(
-                        NimbusConstants.ERROR_ROLLOUT_PHASE_SEQUENCE
-                    )
+        for index, phase in enumerate(phases):
+            if phase_errors := self.rollout_phase_errors(phase, previous_phase):
+                errors[index] = phase_errors
             previous_phase = phase
+        if errors:
+            raise serializers.ValidationError(errors)
         return value
+
+    @staticmethod
+    def rollout_phase_errors(phase, previous_phase):
+        errors = []
+        if previous_phase is None and not phase.population_percent:
+            errors.append(NimbusConstants.ERROR_ROLLOUT_FIRST_PHASE_ZERO)
+        if not (0 <= phase.population_percent <= 100):
+            errors.append(NimbusConstants.ERROR_ROLLOUT_PHASE_POPULATION_RANGE)
+        if phase.start_date and phase.end_date and phase.end_date < phase.start_date:
+            errors.append(NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER)
+        if previous_phase is not None:
+            boundary = previous_phase.end_date or previous_phase.start_date
+            if boundary and phase.start_date and phase.start_date < boundary:
+                errors.append(NimbusConstants.ERROR_ROLLOUT_PHASE_SEQUENCE)
+        return errors
 
 
 class LocalizationError(Exception):

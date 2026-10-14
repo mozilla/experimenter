@@ -1,5 +1,4 @@
-<div id="rollout-features-feature-errors"
-     {% if oob %}hx-swap-oob="true"{% endif %}>
+<div id="rollout-features-feature-errors">
   {% include "new/common/validation_errors.html" with errors=validation_errors.feature_configs %}
   {% include "new/common/validation_errors.html" with errors=feature_value_errors %}
 

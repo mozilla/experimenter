@@ -18,7 +18,8 @@
             aria-label="Edit {{ card_id }}"
             hx-get="{% url url_name experiment.slug %}"
             hx-target="#rollout-{{ card_id }}-body"
-            hx-swap="outerHTML">
+            hx-swap="outerHTML"
+            hx-sync="closest .rollout-card:replace">
       Edit <i class="fa-regular fa-pen-to-square ms-1"></i>
     </button>
   {% endif %}

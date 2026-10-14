@@ -47,7 +47,7 @@
               {% include "new/common/experiment_status_badges.html" %}
 
             </div>
-            <div class="d-flex flex-wrap align-items-center gap-2 small text-secondary">
+            <div class="d-flex flex-wrap align-items-center column-gap-2 row-gap-1 small text-secondary">
               <button id="experiment-slug"
                       class="btn p-0 border-0 text-secondary d-inline-flex align-items-center gap-1 small"
                       aria-label="Copy slug">
@@ -62,6 +62,8 @@
                    data-bs-placement="right"
                    title="{{ NimbusUIConstants.ROLLOUT_APPLICATION_TOOLTIP }}"></i>
               </span>
+              <span class="text-body-tertiary">|</span>
+              <span>Owned by {{ experiment.owner.email }}</span>
               {% if experiment.parent %}
                 <span class="text-body-tertiary">|</span>
                 <span>
@@ -97,6 +99,15 @@
                           data-bs-toggle="modal"
                           data-bs-target="#cloneModal">
                     <i class="fa-regular fa-copy fa-fw me-2"></i>Clone
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item"
+                          id="rollout-promote-to-experiment-button"
+                          type="button"
+                          data-bs-toggle="modal"
+                          data-bs-target="#promoteToExperimentModal">
+                    <i class="fa-solid fa-flask fa-fw me-2"></i>Promote to experiment
                   </button>
                 </li>
                 <li>
@@ -144,6 +155,16 @@
               <div class="toast-body">
                 <i class="fa-regular fa-circle-check"></i>
                 JSON copied to clipboard!
+              </div>
+            </div>
+            <div id="toast-request-failed"
+                 class="toast hide text-bg-danger mb-1"
+                 role="alert"
+                 aria-live="assertive"
+                 aria-atomic="true">
+              <div class="toast-body">
+                <i class="fa-regular fa-circle-xmark"></i>
+                Something went wrong. Please try again.
               </div>
             </div>
             {% for toast_id, toast_message in NimbusUIConstants.TOASTS.items %}
@@ -201,6 +222,43 @@
                   hx-target="#cloneForm">
               {% csrf_token %}
               {% include "new/common/clone_form.html" with form=clone_form experiment=experiment form_id_prefix="clone" %}
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade"
+         id="promoteToExperimentModal"
+         tabindex="-1"
+         aria-labelledby="promoteToExperimentModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5 d-flex align-items-center gap-2"
+                id="promoteToExperimentModalLabel">
+              <i class="fa-solid fa-flask"></i>
+              Promote {{ experiment.name }} to Experiment
+            </h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body bg-body-tertiary d-flex flex-column gap-3">
+            <div id="promote-to-experiment-warning"
+                 class="rounded-2 p-3 small"
+                 style="background-color: var(--bs-warning-bg-subtle);
+                        border: 1px solid var(--bs-warning-border-subtle)"
+                 role="alert">
+              <p class="mb-0 d-flex align-items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                {{ NimbusUIConstants.ROLLOUT_PROMOTE_TO_EXPERIMENT_WARNING }}
+              </p>
+            </div>
+            <form id="promoteToExperimentForm"
+                  hx-post="{% url 'nimbus-ui-new-promote-to-experiment' experiment.slug %}"
+                  hx-target="#promoteToExperimentForm">
+              {% csrf_token %}
+              {% include "new/common/clone_form.html" with form=promote_to_experiment_form experiment=experiment form_id_prefix="promote" name_suffix=" Experiment" %}
 
             </form>
           </div>

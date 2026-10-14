@@ -1,6 +1,10 @@
 <div class="row row-cols-1 row-cols-md-3 g-3"
      id="rollout-signoff-body"
-     {% if oob %}hx-swap-oob="true"{% endif %}>
+     hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}"
+     hx-trigger="rolloutSaved from:body"
+     hx-select="#rollout-signoff-body"
+     hx-swap="outerHTML"
+     hx-sync="closest .rollout-card:abort">
   {# QA sign-off #}
   <div class="col d-flex flex-column">
     <div class="bg-body-tertiary rounded-3 p-3 flex-grow-1 d-flex flex-column gap-2">

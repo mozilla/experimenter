@@ -1,7 +1,13 @@
 {% extends "new/common/card_base.html" %}
 
 {% block card %}
-  <div class="row g-3" id="rollout-rollout-features-body">
+  <div class="row g-3"
+       id="rollout-rollout-features-body"
+       hx-get="{% url 'new-nimbus-ui-rollout-detail' experiment.slug %}"
+       hx-trigger="rolloutSaved from:body"
+       hx-select="#rollout-rollout-features-body"
+       hx-swap="outerHTML"
+       hx-sync="closest .rollout-card:abort">
     {# Feature configurations #}
     <div class="col-12">
       <div class="small text-secondary mb-1">Feature configurations</div>
@@ -135,4 +141,3 @@
 
   {% endif %}
 {% endblock %}
-{% block cross_card_validation_refresh %}{% endblock %}

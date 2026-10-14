@@ -1,3 +1,5 @@
+{% load error_helpers %}
+
 {# ── Edit form ── #}
 <div id="rollout-overview-body">
   {% include "new/common/sidebar_setup_refresh.html" %}
@@ -67,12 +69,25 @@
                   <i class="fa-solid fa-xmark"></i>
                 </button>
               </div>
-              {% if link_form.link.errors %}
-                <div class="text-danger small mt-1">{{ link_form.link.errors|join:", " }}</div>
-              {% endif %}
-              {% if link_form.title.errors %}
-                <div class="text-danger small mt-1">{{ link_form.title.errors|join:", " }}</div>
-              {% endif %}
+              {% with link_errors=documentation_link_errors_by_id|get_item:link_form.instance.pk %}
+                {% if link_form.link.errors or link_form.title.errors or link_errors %}
+                  <div class="d-flex gap-2">
+                    <div class="flex-grow-1" style="min-width: 0">
+                      {% if link_form.link.errors %}
+                        <div class="text-danger small mt-1">{{ link_form.link.errors|join:", " }}</div>
+                      {% endif %}
+                      {% include "new/common/validation_errors.html" with errors=link_errors %}
+
+                    </div>
+                    <div style="width: 40%; min-width: 0" class="flex-shrink-0">
+                      {% if link_form.title.errors %}
+                        <div class="text-danger small mt-1">{{ link_form.title.errors|join:", " }}</div>
+                      {% endif %}
+                    </div>
+                    <div class="flex-shrink-0" style="width: 1rem"></div>
+                  </div>
+                {% endif %}
+              {% endwith %}
             </div>
           {% endfor %}
         </div>

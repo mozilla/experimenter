@@ -23,6 +23,7 @@ from experimenter.nimbus_ui.new.views import (
     NewDocumentationLinkCreateView,
     NewDocumentationLinkDeleteView,
     NewOverviewUpdateView,
+    NewPromoteToExperimentView,
     NewQAUpdateView,
     NewRemoveSubscriberView,
     NewRemoveTagView,
@@ -584,6 +585,11 @@ urlpatterns = [
         r"^new/(?P<slug>[\w-]+)/clone/$",
         NewCloneView.as_view(),
         name="nimbus-ui-new-clone",
+    ),
+    re_path(
+        r"^new/(?P<slug>[\w-]+)/promote_to_experiment/$",
+        NewPromoteToExperimentView.as_view(),
+        name="nimbus-ui-new-promote-to-experiment",
     ),
     re_path(
         r"^new/(?P<slug>[\w-]+)/toggle_review_slack_notifications/$",
