@@ -1134,11 +1134,13 @@ ENROLLMENT_FUNNEL_STAGES = {
 NIMBUS_TARGETING_CONTEXT_TABLE = (
     "moz-fx-data-shared-prod.firefox_desktop.nimbus_targeting_context"
 )
+# The dedicated nimbus-targeting-context ping, not the sparse context object on
+# the general metrics ping. These are union views covering every channel.
 NIMBUS_TARGETING_CONTEXT_TABLE_FENIX = (
-    "moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context"
+    "moz-fx-data-shared-prod.fenix.nimbus_targeting_context"
 )
 NIMBUS_TARGETING_CONTEXT_TABLE_IOS = (
-    "moz-fx-data-shared-prod.org_mozilla_ios_firefox.nimbus_recorded_targeting_context"
+    "moz-fx-data-shared-prod.firefox_ios.nimbus_targeting_context"
 )
 SIZING_SAMPLE_ID_MAX = 10
 SIZING_WINDOW_DAYS = 7
@@ -1168,23 +1170,39 @@ WHERE (
     {predicate}
 )"""
 
+# Dry-run shells used to validate generated targeting SQL against BigQuery.
+# Desktop predicates reference metrics.* paths that exist on the ping directly.
+# Mobile predicates resolve out of the context blob, which is nested, so they
+# need the same projection the sizing pool applies.
+TARGETING_SQL_DRY_RUN_TEMPLATE = "SELECT COUNTIF({predicate}) FROM `{table}` WHERE FALSE"
+
+TARGETING_SQL_DRY_RUN_TEMPLATE_MOBILE = """\
+SELECT COUNTIF({predicate}) FROM (
+  SELECT
+    metrics.object.nimbus_system_recorded_nimbus_context AS context,
+    normalized_country_code
+  FROM `{table}`
+) WHERE FALSE"""
+
 SIZING_FULL_SQL_TEMPLATE_MOBILE = """\
 -- Matches the 7-day window and 10% sample used by the population sizing ETL.
--- Deduplicates on client_id, keeping the most recent row per client.
+-- Deduplicates on client_id, keeping the most recent ping per client.
 -- Returns the eligible client count within the 10% sample.
 WITH latest_per_client AS (
   SELECT
-    *,
+    metrics.object.nimbus_system_recorded_nimbus_context AS context,
+    normalized_country_code,
     ROW_NUMBER() OVER (
-      PARTITION BY client_id
-      ORDER BY submission_date DESC
+      PARTITION BY client_info.client_id
+      ORDER BY submission_timestamp DESC
     ) AS rn
   FROM `{table}`
-  WHERE submission_date
+  WHERE DATE(submission_timestamp)
       BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL {window_days} DAY)
       AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
-    AND ABS(MOD(FARM_FINGERPRINT(client_id), 100)) < {sample_id_max}
-    AND client_id IS NOT NULL
+    AND sample_id < {sample_id_max}
+    AND client_info.client_id IS NOT NULL
+    AND metrics.object.nimbus_system_recorded_nimbus_context IS NOT NULL
 ),
 clients AS (SELECT * EXCEPT (rn) FROM latest_per_client WHERE rn = 1)
 SELECT

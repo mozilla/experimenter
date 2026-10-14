@@ -652,8 +652,11 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
         data = serializer.data["targetingSql"]
         self.assertIsNotNone(data)
-        # days_since_install < 15 → daysSinceInstall < 15 (Fenix BQ column)
-        self.assertEqual(data["sql"], "daysSinceInstall < 15")
+        # days_since_install < 15, read out of the Fenix context blob
+        self.assertEqual(
+            data["sql"],
+            "CAST(JSON_VALUE(context, '$.days_since_install') AS INT64) < 15",
+        )
         self.assertEqual(data["warnings"], [])
 
     def test_targeting_sql_uses_ios_column_map_for_ios_experiment(self):
@@ -671,7 +674,11 @@ class TestNimbusExperimentSerializer(TestCase):
         serializer = NimbusExperimentSerializer(experiment)
         data = serializer.data["targetingSql"]
         self.assertIsNotNone(data)
-        # days_since_update < 7 && days_since_install >= 7
-        # → (daysSinceUpdate < 7 AND daysSinceInstall >= 7) (iOS BQ columns)
-        self.assertEqual(data["sql"], "(daysSinceUpdate < 7 AND daysSinceInstall >= 7)")
+        # days_since_update < 7 && days_since_install >= 7, read out of the
+        # iOS context blob
+        self.assertEqual(
+            data["sql"],
+            "(CAST(JSON_VALUE(context, '$.days_since_update') AS INT64) < 7 AND "
+            "CAST(JSON_VALUE(context, '$.days_since_install') AS INT64) >= 7)",
+        )
         self.assertEqual(data["warnings"], [])

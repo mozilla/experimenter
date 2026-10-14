@@ -700,13 +700,15 @@ class TestNimbusExperiment(TestCase):
         )
         sql = experiment.sizing_full_sql
         self.assertIsNotNone(sql)
-        self.assertIn(
-            "moz-fx-data-shared-prod.fenix.nimbus_recorded_targeting_context", sql
-        )
-        self.assertIn("submission_date", sql)
-        self.assertIn("FARM_FINGERPRINT", sql)
-        self.assertNotIn("submission_timestamp", sql)
-        self.assertNotIn("client_info.client_id", sql)
+        self.assertIn("moz-fx-data-shared-prod.fenix.nimbus_targeting_context", sql)
+        # Mobile now reads the dedicated ping, so it shares desktop's sampling and
+        # timestamp handling; the hand-rolled hash is gone.
+        self.assertIn("sample_id <", sql)
+        self.assertIn("submission_timestamp", sql)
+        self.assertIn("client_info.client_id", sql)
+        self.assertIn("nimbus_system_recorded_nimbus_context", sql)
+        self.assertNotIn("FARM_FINGERPRINT", sql)
+        self.assertNotIn("nimbus_recorded_targeting_context", sql)
 
     def test_sizing_full_sql_ios_uses_mobile_template(self):
         experiment = NimbusExperimentFactory.create(
@@ -721,14 +723,13 @@ class TestNimbusExperiment(TestCase):
         )
         sql = experiment.sizing_full_sql
         self.assertIsNotNone(sql)
-        self.assertIn(
-            "moz-fx-data-shared-prod.org_mozilla_ios_firefox.nimbus_recorded_targeting_context",
-            sql,
-        )
-        self.assertIn("submission_date", sql)
-        self.assertIn("FARM_FINGERPRINT", sql)
-        self.assertNotIn("submission_timestamp", sql)
-        self.assertNotIn("client_info.client_id", sql)
+        self.assertIn("moz-fx-data-shared-prod.firefox_ios.nimbus_targeting_context", sql)
+        self.assertIn("sample_id <", sql)
+        self.assertIn("submission_timestamp", sql)
+        self.assertIn("client_info.client_id", sql)
+        self.assertIn("nimbus_system_recorded_nimbus_context", sql)
+        self.assertNotIn("FARM_FINGERPRINT", sql)
+        self.assertNotIn("nimbus_recorded_targeting_context", sql)
 
     def test_sizing_sql_none_for_match_all_targeting(self):
         experiment = NimbusExperimentFactory.create(
