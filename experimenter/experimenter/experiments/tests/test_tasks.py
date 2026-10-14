@@ -2,7 +2,9 @@ import json
 from unittest import mock
 
 from django.core.cache import cache
+from django.http import QueryDict
 from django.test import TestCase, override_settings
+from django.urls import reverse
 from rest_framework.renderers import JSONRenderer
 
 from experimenter.experiments.api.cache import (
@@ -14,6 +16,7 @@ from experimenter.experiments.api.v8.serializers import (
     NimbusExperimentSerializer as V8NimbusExperimentSerializer,
 )
 from experimenter.experiments.api.v8.views import NimbusExperimentViewSet as V8ViewSet
+from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tasks import (
     _get_warm_cache_endpoints,
     warm_api_cache_endpoint,
@@ -48,10 +51,10 @@ class TestWarmApiCaches(TestCase):
 
         warm_api_caches()
 
-        for key_prefix, _, _, _ in _get_warm_cache_endpoints():
-            cache_key = get_api_cache_key(key_prefix)
+        for endpoint in _get_warm_cache_endpoints():
+            cache_key = get_api_cache_key(endpoint.key_prefix, QueryDict(endpoint.params))
             cached = cache.get(cache_key)
-            self.assertIsNotNone(cached, f"Cache for {key_prefix} should be populated")
+            self.assertIsNotNone(cached, f"Cache for {endpoint.name} should be populated")
 
     def test_warm_api_caches_contains_correct_experiments(self):
         NimbusExperimentFactory.create_with_lifecycle(
@@ -104,8 +107,8 @@ class TestWarmApiCaches(TestCase):
     def test_warm_api_caches_empty_db(self):
         warm_api_caches()
 
-        for key_prefix, _, _, _ in _get_warm_cache_endpoints():
-            cache_key = get_api_cache_key(key_prefix)
+        for endpoint in _get_warm_cache_endpoints():
+            cache_key = get_api_cache_key(endpoint.key_prefix, QueryDict(endpoint.params))
             cached = cache.get(cache_key)
             self.assertIsNotNone(cached)
 
@@ -117,11 +120,13 @@ class TestWarmApiCaches(TestCase):
 
         warm_api_caches()
 
-        json_prefixes = [
-            p for p, _, _, _ in _get_warm_cache_endpoints() if not p.startswith("v5:")
+        json_endpoints = [
+            endpoint
+            for endpoint in _get_warm_cache_endpoints()
+            if not endpoint.key_prefix.startswith("v5:")
         ]
-        for key_prefix in json_prefixes:
-            cache_key = get_api_cache_key(key_prefix)
+        for endpoint in json_endpoints:
+            cache_key = get_api_cache_key(endpoint.key_prefix, QueryDict(endpoint.params))
             cached = cache.get(cache_key)
             data = json.loads(cached)
             for exp in data:
@@ -148,7 +153,7 @@ class TestWarmApiCaches(TestCase):
             warm_api_caches()
 
         dispatched_keys = [call.args[0] for call in mock_delay.call_args_list]
-        expected_keys = [entry[0] for entry in _get_warm_cache_endpoints()]
+        expected_keys = [endpoint.name for endpoint in _get_warm_cache_endpoints()]
         self.assertEqual(sorted(dispatched_keys), sorted(expected_keys))
 
     def test_warm_api_caches_failed_subtask_does_not_block_other_subtasks(self):
@@ -210,3 +215,103 @@ class TestWarmApiCaches(TestCase):
         )
 
         self.assertEqual(streamed, rendered)
+
+    def _create_filtered_variant_experiments(self):
+        desktop = NimbusExperiment.Application.DESKTOP
+        fenix = NimbusExperiment.Application.FENIX
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="desktop-complete",
+            application=desktop,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="desktop-live",
+            application=desktop,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="fenix-complete",
+            application=fenix,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="fenix-first-run",
+            application=fenix,
+            is_first_run=True,
+        )
+
+    def _filtered_variant_requests(self):
+        return [
+            (
+                "v6:experiments?status=Complete",
+                "nimbus-experiment-rest-v6-list",
+                {"status": NimbusExperiment.Status.COMPLETE},
+                ["desktop-complete", "fenix-complete"],
+            ),
+            (
+                "v6:experiments?application=firefox-desktop",
+                "nimbus-experiment-rest-v6-list",
+                {"application": NimbusExperiment.Application.DESKTOP},
+                ["desktop-complete", "desktop-live"],
+            ),
+            (
+                "v6:experiments?is_first_run=false",
+                "nimbus-experiment-rest-v6-list",
+                {"is_first_run": "false"},
+                ["desktop-complete", "desktop-live", "fenix-complete"],
+            ),
+            (
+                "v7:experiments?application=firefox-desktop&status=Complete",
+                "nimbus-experiment-rest-v7-list",
+                {
+                    "application": NimbusExperiment.Application.DESKTOP,
+                    "status": NimbusExperiment.Status.COMPLETE,
+                },
+                ["desktop-complete"],
+            ),
+            (
+                "v8:experiments?application=firefox-desktop",
+                "nimbus-experiment-rest-v8-list",
+                {"application": NimbusExperiment.Application.DESKTOP},
+                ["desktop-complete", "desktop-live"],
+            ),
+        ]
+
+    def test_warm_api_caches_filtered_variants_cover_expected_requests(self):
+        filtered_names = sorted(
+            endpoint.name for endpoint in _get_warm_cache_endpoints() if endpoint.params
+        )
+        expected_names = sorted(
+            name for name, _, _, _ in self._filtered_variant_requests()
+        )
+        self.assertEqual(filtered_names, expected_names)
+
+    def test_warm_api_caches_filtered_variants_are_served_to_matching_requests(self):
+        self._create_filtered_variant_experiments()
+
+        warm_api_caches()
+        NimbusExperiment.objects.all().delete()
+
+        for name, url_name, params, expected_slugs in self._filtered_variant_requests():
+            response = self.client.get(reverse(url_name), {**params, "cb": "123"})
+            self.assertEqual(response.status_code, 200)
+            slugs = sorted(recipe["slug"] for recipe in json.loads(response.content))
+            self.assertEqual(slugs, expected_slugs, name)
+
+    def test_warm_api_caches_filtered_variants_match_on_miss_render(self):
+        self._create_filtered_variant_experiments()
+
+        warm_api_caches()
+        warmed = {
+            endpoint.name: cache.get(
+                get_api_cache_key(endpoint.key_prefix, QueryDict(endpoint.params))
+            )
+            for endpoint in _get_warm_cache_endpoints()
+        }
+        cache.clear()
+
+        for name, url_name, params, _ in self._filtered_variant_requests():
+            response = self.client.get(reverse(url_name), params)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.content, warmed[name], name)

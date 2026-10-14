@@ -1,8 +1,11 @@
 import json
 
+from django.core.cache import cache
+from django.http import QueryDict
 from django.urls import reverse
 from parameterized import parameterized
 
+from experimenter.experiments.api.cache import get_api_cache_key
 from experimenter.experiments.api.v7.serializers import NimbusExperimentSerializer
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.api.v6.test_views import (
@@ -158,4 +161,62 @@ class TestNimbusExperimentViewSet(CachedViewSetTest):
                     )
                 ]
             ),
+        )
+
+    def test_list_live_and_preview_filter_bypasses_cache(self):
+        cache_key = get_api_cache_key(
+            "v7:experiments",
+            QueryDict(
+                f"status={NimbusExperiment.Status.LIVE}"
+                f"&status={NimbusExperiment.Status.PREVIEW}"
+            ),
+        )
+        cache.set(cache_key, b"[]")
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, slug="live-experiment"
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PREVIEW, slug="preview-experiment"
+        )
+
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-v7-list"),
+            {"status": [NimbusExperiment.Status.LIVE, NimbusExperiment.Status.PREVIEW]},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        recipes = json.loads(response.content)
+        self.assertEqual(
+            sorted(recipe["slug"] for recipe in recipes),
+            ["live-experiment", "preview-experiment"],
+        )
+        self.assertEqual(cache.get(cache_key), b"[]")
+
+    def test_list_live_and_complete_filter_is_cached(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, slug="live-experiment"
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="complete-experiment",
+        )
+
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-v7-list"),
+            {"status": [NimbusExperiment.Status.LIVE, NimbusExperiment.Status.COMPLETE]},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        cached = cache.get(
+            get_api_cache_key(
+                "v7:experiments",
+                QueryDict(
+                    f"status={NimbusExperiment.Status.LIVE}"
+                    f"&status={NimbusExperiment.Status.COMPLETE}"
+                ),
+            )
+        )
+        self.assertEqual(
+            sorted(recipe["slug"] for recipe in json.loads(cached)),
+            ["complete-experiment", "live-experiment"],
         )
