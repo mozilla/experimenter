@@ -67,9 +67,7 @@ Optional - We expect this to <describe impact> on <core metric>.
     SLACK_NIMBUS_CHANNEL = settings.SLACK_NIMBUS_CHANNEL
     ASK_EXPERIMENTER_SLACK_CHANNEL = "ask-experimenter"
 
-    ARCHIVE_DISABLED_TOOLTIP = (
-        "Experiments can only be archived when in Draft or Complete."
-    )
+    ARCHIVE_DISABLED_TOOLTIP = "Rollouts can only be archived when in Draft or Complete."
 
     PUBLIC_DESCRIPTION_TEXT = "This description will be public to users on about:studies"
     RISK_AI_TEXT = (
@@ -78,9 +76,9 @@ Optional - We expect this to <describe impact> on <core metric>.
     )
 
     MONITORING_CARD_TITLE = "Enrollment Monitoring"
-    MONITORING_EXPERIMENT_ENDED_MESSAGE = (
-        "This experiment has ended. Monitoring data reflects the last update "
-        "before the experiment concluded."
+    MONITORING_ROLLOUT_ENDED_MESSAGE = (
+        "This rollout has ended. Monitoring data reflects the last update "
+        "before the rollout concluded."
     )
     MONITORING_SECTION_UNENROLLMENT = "Unenrollment"
     MONITORING_SECTION_SRM = "Sample Ratio Mismatch (SRM)"
@@ -408,7 +406,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         NimbusConstants.RETENTION_3_DAYS_DESKTOP,
     ]
 
-    QA_CARD_DESCRIPTION = """Before launch, confirm your experiment or rollout works
+    QA_CARD_DESCRIPTION = """Before launch, confirm your rollout works
     as expected. QA ensures your setup runs correctly through Nimbus and targets the
     right users."""
     QA_METHOD_DESCRIPTION = """For new or complex work, request a QA review from the
