@@ -175,6 +175,7 @@ Optional - We expect this to <describe impact> on <core metric>.
     REVIEW_WARNING_MESSAGE_AS_LABEL = {
         "fxms_message_coenrollment",
         "messaging_control_no_message",
+        "messaging_control_mismatch",
     }
 
     REVIEW_WARNING_LEARN_MORE = {
