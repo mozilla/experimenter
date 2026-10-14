@@ -12,6 +12,10 @@ const syncCardEditActions = () => {
       .querySelectorAll("[data-card-action='edit']")
       .forEach((button) => button.classList.toggle("d-none", editing));
     card
+      .querySelectorAll("[data-card-action='save']")
+      .forEach((button) => button.classList.toggle("d-none", !editing));
+
+    card
       .querySelectorAll("[data-card-action='cancel']")
       .forEach((button) => button.classList.toggle("d-none", !editing));
   });
