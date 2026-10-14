@@ -98,3 +98,51 @@ document.addEventListener("htmx:afterSettle", () => {
 });
 
 document.addEventListener("DOMContentLoaded", syncCardEditActions);
+
+const toggleAllCards = (button) => {
+  const cards = document.querySelectorAll(".rollout-card");
+  const shouldExpand = button.getAttribute("aria-expanded") !== "true";
+
+  cards.forEach((card) => {
+    const collapse = card.querySelector(".accordion-collapse");
+    if (!collapse) {
+      return;
+    }
+
+    const instance = window.bootstrap?.Collapse.getOrCreateInstance(collapse, {
+      toggle: false,
+    });
+
+    if (shouldExpand) {
+      instance?.show();
+    } else {
+      instance?.hide();
+    }
+  });
+
+  button.setAttribute("aria-expanded", String(shouldExpand));
+  button.setAttribute(
+    "aria-label",
+    shouldExpand ? "Collapse all cards" : "Expand all cards",
+  );
+
+  const label = button.querySelector("[data-toggle-all-label]");
+  if (label) {
+    label.textContent = shouldExpand
+      ? "Collapse All Cards"
+      : "Expand All Cards";
+  }
+
+  const icon = button.querySelector("i");
+  if (icon) {
+    icon.classList.toggle("fa-angles-up", shouldExpand);
+    icon.classList.toggle("fa-angles-down", !shouldExpand);
+  }
+};
+
+document.addEventListener("click", (event) => {
+  const trigger = event.target.closest?.("[data-toggle-all-cards]");
+  if (trigger) {
+    toggleAllCards(trigger);
+  }
+});
