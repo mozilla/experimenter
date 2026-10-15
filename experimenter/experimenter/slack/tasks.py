@@ -42,6 +42,7 @@ def nimbus_send_slack_notification(
     requesting_user_email=None,
     link_url=None,
     thread_ts=None,
+    details=None,
 ):
     """
     An invoked task that sends a Slack notification for an experiment action.
@@ -59,6 +60,7 @@ def nimbus_send_slack_notification(
             requesting_user_email=requesting_user_email,
             link_url=link_url,
             thread_ts=thread_ts,
+            details=details,
         )
 
         logger.info(
@@ -277,11 +279,9 @@ def _send_error_alert(experiment, error_items):
     try:
         email_addresses = [experiment.owner.email] if experiment.owner else []
 
-        error_lines = "\n".join(
+        action_text = SlackConstants.SLACK_ANALYSIS_ERRORS_ACTION
+        details = "\n".join(
             [f"- {item['source']}: {item['type']}" for item in error_items]
-        )
-        message = SlackConstants.SLACK_ANALYSIS_ERRORS_MESSAGE.format(
-            error_lines=error_lines
         )
 
         launch_alert = get_launch_request_thread(experiment.id)
@@ -289,13 +289,14 @@ def _send_error_alert(experiment, error_items):
         result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
-            action_text=message,
+            action_text=action_text,
             link_url=experiment.results_url,
             thread_ts=thread_ts,
+            details=details,
         )
 
         # Update or create alert record - keeps only one alert per experiment
-        alert_defaults = {"message": message}
+        alert_defaults = {"message": f"{action_text}\n{details}"}
         if result:
             message_ts, channel_id = result
             alert_defaults["slack_thread_id"] = message_ts
@@ -324,7 +325,7 @@ def _send_error_alert(experiment, error_items):
 
 
 def _send_monitoring_alert(
-    experiment, alert_type, message, log_sent, log_failed, metric_prefix
+    experiment, alert_type, action_text, details, log_sent, log_failed, metric_prefix
 ):
     if NimbusAlert.objects.filter(experiment=experiment, alert_type=alert_type).exists():
         return
@@ -336,15 +337,16 @@ def _send_monitoring_alert(
         result = send_slack_notification(
             experiment_id=experiment.id,
             email_addresses=email_addresses,
-            action_text=message,
+            action_text=action_text,
             link_url=experiment.experiment_url,
             thread_ts=thread_ts,
+            details=details,
         )
 
         alert_kwargs = {
             "experiment": experiment,
             "alert_type": alert_type,
-            "message": message,
+            "message": f"{action_text}\n{details}",
         }
         if result:
             message_ts, channel_id = result
@@ -362,8 +364,7 @@ def _send_monitoring_alert(
 
 
 def _send_unenrollment_spike_alert(experiment, rate, reason, days):
-    message = SlackConstants.SLACK_UNENROLLMENT_SPIKE_MESSAGE.format(
-        experiment=experiment.name,
+    details = SlackConstants.SLACK_UNENROLLMENT_SPIKE_DETAILS.format(
         reason=reason,
         rate=rate,
         threshold=SlackConstants.UNENROLLMENT_SPIKE_THRESHOLD,
@@ -372,7 +373,8 @@ def _send_unenrollment_spike_alert(experiment, rate, reason, days):
     _send_monitoring_alert(
         experiment,
         NimbusConstants.AlertType.UNENROLLMENT_SPIKE,
-        message,
+        SlackConstants.SLACK_UNENROLLMENT_SPIKE_ACTION,
+        details,
         SlackConstants.SLACK_LOG_UNENROLLMENT_SPIKE_SENT,
         SlackConstants.SLACK_LOG_FAILED_SEND_UNENROLLMENT_SPIKE,
         "unenrollment_spike_alert",
@@ -380,13 +382,11 @@ def _send_unenrollment_spike_alert(experiment, rate, reason, days):
 
 
 def _send_srm_mismatch_alert(experiment, p_value):
-    message = SlackConstants.SLACK_SRM_MISMATCH_MESSAGE.format(
-        experiment=experiment.name,
-    )
     _send_monitoring_alert(
         experiment,
         NimbusConstants.AlertType.SRM_MISMATCH,
-        message,
+        SlackConstants.SLACK_SRM_MISMATCH_ACTION,
+        SlackConstants.SLACK_SRM_MISMATCH_DETAILS,
         SlackConstants.SLACK_LOG_SRM_MISMATCH_SENT,
         SlackConstants.SLACK_LOG_FAILED_SEND_SRM_MISMATCH,
         "srm_mismatch_alert",
@@ -394,8 +394,7 @@ def _send_srm_mismatch_alert(experiment, p_value):
 
 
 def _send_zero_enrollment_alert(experiment, monitoring_data, days):
-    message = SlackConstants.SLACK_ZERO_ENROLLMENT_MESSAGE.format(
-        experiment=experiment.name,
+    details = SlackConstants.SLACK_ZERO_ENROLLMENT_DETAILS.format(
         days=days,
         client_threshold=NimbusConstants.ZERO_ENROLLMENT_CLIENT_THRESHOLD,
         total_enrollments=monitoring_data.get("total_enrollments", 0),
@@ -403,7 +402,8 @@ def _send_zero_enrollment_alert(experiment, monitoring_data, days):
     _send_monitoring_alert(
         experiment,
         NimbusConstants.AlertType.ZERO_ENROLLMENT,
-        message,
+        SlackConstants.SLACK_ZERO_ENROLLMENT_ACTION,
+        details,
         SlackConstants.SLACK_LOG_ZERO_ENROLLMENT_SENT,
         SlackConstants.SLACK_LOG_FAILED_SEND_ZERO_ENROLLMENT,
         "zero_enrollment_alert",
@@ -411,8 +411,7 @@ def _send_zero_enrollment_alert(experiment, monitoring_data, days):
 
 
 def _send_not_unenrolling_alert(experiment, monitoring_data, days):
-    message = SlackConstants.SLACK_NOT_UNENROLLING_MESSAGE.format(
-        experiment=experiment.name,
+    details = SlackConstants.SLACK_NOT_UNENROLLING_DETAILS.format(
         days=days,
         client_threshold=NimbusConstants.NOT_UNENROLLING_CLIENT_THRESHOLD,
         unenrollments=monitoring_data["unenrollments_since_end"],
@@ -420,7 +419,8 @@ def _send_not_unenrolling_alert(experiment, monitoring_data, days):
     _send_monitoring_alert(
         experiment,
         NimbusConstants.AlertType.NOT_UNENROLLING,
-        message,
+        SlackConstants.SLACK_NOT_UNENROLLING_ACTION,
+        details,
         SlackConstants.SLACK_LOG_NOT_UNENROLLING_SENT,
         SlackConstants.SLACK_LOG_FAILED_SEND_NOT_UNENROLLING,
         "not_unenrolling_alert",
@@ -439,15 +439,15 @@ def _send_feature_conflict_alert(experiment, rate, conflict_slugs):
         f"<{conflict_urls[slug]}|{slug}>" if slug in conflict_urls else slug
         for slug in conflict_slugs
     )
-    message = SlackConstants.SLACK_FEATURE_CONFLICT_MESSAGE.format(
-        experiment=experiment.name,
+    details = SlackConstants.SLACK_FEATURE_CONFLICT_DETAILS.format(
         rate=rate,
         conflict_slugs=slug_links,
     )
     _send_monitoring_alert(
         experiment,
         NimbusConstants.AlertType.FEATURE_CONFLICT,
-        message,
+        SlackConstants.SLACK_FEATURE_CONFLICT_ACTION,
+        details,
         SlackConstants.SLACK_LOG_FEATURE_CONFLICT_SENT,
         SlackConstants.SLACK_LOG_FAILED_SEND_FEATURE_CONFLICT,
         "feature_conflict_alert",
