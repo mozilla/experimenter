@@ -408,6 +408,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     results_data = models.JSONField[dict[str, Any]](
         "Results Data", encoder=DjangoJSONEncoder, blank=True, null=True
     )
+    analysis_data = models.JSONField[dict[str, Any]](
+        "Analysis Data",
+        encoder=DjangoJSONEncoder,
+        blank=True,
+        null=True,
+        help_text=(
+            "JSON data from Highwind analysis "
+            "(metadata, segments, per-metric window results, errors)"
+        ),
+    )
+    analysis_last_updated = models.DateTimeField(
+        "Analysis Data Last Updated",
+        blank=True,
+        null=True,
+    )
     monitoring_data = models.JSONField[dict[str, Any]](
         "Monitoring Data",
         encoder=DjangoJSONEncoder,
@@ -2919,6 +2934,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.published_dto = None
         cloned.published_date = None
         cloned.results_data = None
+        cloned.analysis_data = None
+        cloned.analysis_last_updated = None
         cloned.monitoring_data = None
         cloned.takeaways_summary = None
         cloned.next_steps = None
