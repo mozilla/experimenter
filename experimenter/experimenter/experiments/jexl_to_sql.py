@@ -39,6 +39,9 @@ JEXL_TO_BQ_COLUMN = {
     "allowedNotificationOrigins": (
         "metrics.quantity.nimbus_targeting_context_allowed_notification_origins"
     ),
+    "activeWebPushSubscriptionCount": (
+        "metrics.quantity.nimbus_targeting_context_active_web_push_subscription_count"
+    ),
     "profileGroupProfileCount": (
         "metrics.quantity.nimbus_targeting_context_profile_group_profile_count"
     ),
