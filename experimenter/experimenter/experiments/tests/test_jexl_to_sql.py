@@ -4,6 +4,7 @@ from parameterized import parameterized
 from experimenter.experiments.jexl_to_sql import (
     FENIX_APP,
     IOS_APP,
+    JEXL_TO_BQ_COLUMN,
     KNOWN_UNTRANSLATABLE,
     ensure_bool_sql,
     jexl_to_sql,
@@ -290,6 +291,43 @@ class TestJEXLToSQL(TestCase):
         for attribute in KNOWN_UNTRANSLATABLE:
             result = jexl_to_sql(attribute)
             self.assertIn(attribute, result.warnings, f"Expected warning for {attribute}")
+
+    # Sub-fields the client does not record. Measured at 0% populated on every
+    # day of a 30-day window. Mapping them makes them resolve to NULL and match
+    # nobody without raising a warning, which is a silent wrong answer.
+    UNRECORDED_SUBFIELDS = (
+        "attributionData.campaign",
+        "attributionData.content",
+        "attributionData.dltoken",
+        "browserSettings.update.autoDownload",
+        "browserSettings.update.enabled",
+    )
+
+    @parameterized.expand([(a,) for a in UNRECORDED_SUBFIELDS])
+    def test_unrecorded_subfield_is_not_mapped(self, attribute):
+        """Guards against re-adding the mapping: a mapped attribute suppresses
+        the warning, so the clause would silently match nobody."""
+        self.assertNotIn(attribute, JEXL_TO_BQ_COLUMN)
+
+    @parameterized.expand([(a,) for a in UNRECORDED_SUBFIELDS])
+    def test_unrecorded_subfield_warns(self, attribute):
+        result = jexl_to_sql(attribute)
+        self.assertIsNone(result.sql)
+        self.assertIn(attribute, result.warnings)
+
+    @parameterized.expand(
+        [
+            ("source", "attributionData.source"),
+            ("medium", "attributionData.medium"),
+            ("ua", "attributionData.ua"),
+            ("channel", "browserSettings.update.channel"),
+        ]
+    )
+    def test_recorded_sibling_still_translates(self, _name, attribute):
+        """The siblings that are recorded must keep working."""
+        result = jexl_to_sql(attribute)
+        self.assertIsNotNone(result.sql)
+        self.assertEqual(result.warnings, [])
 
     def test_partial_translation_still_returns_sql(self):
         result = jexl_to_sql("isFirstStartup && attachedFxAOAuthClients")

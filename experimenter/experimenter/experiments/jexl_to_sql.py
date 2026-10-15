@@ -79,13 +79,9 @@ JEXL_TO_BQ_COLUMN = {
         f"SAFE_CAST(JSON_VALUE({_OS}, '$.windowsBuildNumber') AS INT64)"
     ),
     "os.windowsVersion": (f"SAFE_CAST(JSON_VALUE({_OS}, '$.windowsVersion') AS FLOAT64)"),
+    # The recorded update object only carries channel. autoDownload and enabled
+    # are listed in KNOWN_UNTRANSLATABLE rather than mapped here.
     "browserSettings.update.channel": (f"JSON_VALUE({_BS}, '$.update.channel')"),
-    "browserSettings.update.autoDownload": (
-        f"CAST(JSON_VALUE({_BS}, '$.update.autoDownload') AS BOOL)"
-    ),
-    "browserSettings.update.enabled": (
-        f"CAST(JSON_VALUE({_BS}, '$.update.enabled') AS BOOL)"
-    ),
     "homePageSettings.isDefault": (f"CAST(JSON_VALUE({_HP}, '$.isDefault') AS BOOL)"),
     "homePageSettings.isCustomUrl": (f"CAST(JSON_VALUE({_HP}, '$.isCustomUrl') AS BOOL)"),
     "homePageSettings.isLocked": f"CAST(JSON_VALUE({_HP}, '$.isLocked') AS BOOL)",
@@ -103,12 +99,11 @@ JEXL_TO_BQ_COLUMN = {
         "metrics.object.nimbus_targeting_context_primary_resolution"
         ", '$.height') AS INT64)"
     ),
+    # The recorded object only carries source, medium and ua. campaign, content
+    # and dltoken are listed in KNOWN_UNTRANSLATABLE rather than mapped here.
     "attributionData.medium": f"JSON_VALUE({_AD}, '$.medium')",
     "attributionData.source": f"JSON_VALUE({_AD}, '$.source')",
-    "attributionData.campaign": f"JSON_VALUE({_AD}, '$.campaign')",
-    "attributionData.content": f"JSON_VALUE({_AD}, '$.content')",
     "attributionData.ua": f"JSON_VALUE({_AD}, '$.ua')",
-    "attributionData.dltoken": f"JSON_VALUE({_AD}, '$.dltoken')",
 }
 
 _PREF_VALUES_COL = "metrics.object.nimbus_targeting_environment_pref_values"
@@ -216,6 +211,17 @@ JEXL_TO_BQ_COLUMN_IOS = {
 # Attributes with no corresponding column in nimbus_targeting_context.
 KNOWN_UNTRANSLATABLE = {
     "attachedFxAOAuthClients",  # privacy-sensitive, will never be recorded
+    # Sub-fields the client does not record. Measured at 0% populated on every
+    # day of a 30-day window. These were previously mapped, which meant they
+    # resolved to NULL and matched nobody *without* raising a warning -- a
+    # silent wrong answer. Listing them here surfaces the dropped clause
+    # instead. The recorded attribution object carries only source, medium and
+    # ua; the recorded update object carries only channel.
+    "attributionData.campaign",
+    "attributionData.content",
+    "attributionData.dltoken",
+    "browserSettings.update.autoDownload",
+    "browserSettings.update.enabled",
     "isFirstRun",  # Desktop uses isFirstStartup; also mobile-only
     "is_first_run",
     "isNonStubFirstRun",
