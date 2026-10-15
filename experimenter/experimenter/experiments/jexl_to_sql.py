@@ -106,6 +106,37 @@ JEXL_TO_BQ_COLUMN = {
     "attributionData.ua": f"JSON_VALUE({_AD}, '$.ua')",
 }
 
+# Array of {experimentSlug, branchSlug}. Desktop only — mobile records no
+# enrollment state, so these stay untranslatable there.
+_ENROLLMENTS_MAP_COL = "metrics.object.nimbus_targeting_context_enrollments_map"
+
+
+def _sql_string(value: str) -> str:
+    return "'" + value.replace("'", "\\'") + "'"
+
+
+def _enrollment_branch_sql(slug: str) -> str:
+    """enrollmentsMap['slug'] — yields the branch, or NULL when not enrolled.
+
+    A scalar subquery rather than EXISTS, so ==, != and == null all work
+    through the normal comparison handling.
+    """
+    return (
+        "(SELECT JSON_VALUE(e, '$.branchSlug')"
+        f" FROM UNNEST(JSON_QUERY_ARRAY({_ENROLLMENTS_MAP_COL})) e"
+        f" WHERE JSON_VALUE(e, '$.experimentSlug') = {_sql_string(slug)})"
+    )
+
+
+def _enrolled_in_sql(slug: str) -> str:
+    """'slug' in enrollments — enrolled in that experiment at all."""
+    return (
+        "EXISTS(SELECT 1"
+        f" FROM UNNEST(JSON_QUERY_ARRAY({_ENROLLMENTS_MAP_COL})) e"
+        f" WHERE JSON_VALUE(e, '$.experimentSlug') = {_sql_string(slug)})"
+    )
+
+
 _PREF_VALUES_COL = "metrics.object.nimbus_targeting_environment_pref_values"
 _USER_SET_PREFS_COL = "metrics.object.nimbus_targeting_environment_user_set_prefs"
 _USER_MONTHLY_ACTIVITY_COL = (
@@ -354,6 +385,14 @@ def _node_to_sql(node, warnings: list[str], column_map: dict[str, str]) -> Optio
         return _transform_to_sql(node, warnings, column_map)
     if isinstance(node, FilterExpression):
         subject_path = _identifier_path(node.subject)
+        # enrollmentsMap['slug'] — Desktop only.
+        if (
+            subject_path == "enrollmentsMap"
+            and column_map is JEXL_TO_BQ_COLUMN
+            and isinstance(node.expression, Literal)
+            and isinstance(node.expression.value, str)
+        ):
+            return _enrollment_branch_sql(node.expression.value)
         # addonsInfo.addons['addon-id'] — check addon ID membership in BQ array
         if subject_path == "addonsInfo.addons" and isinstance(node.expression, Literal):
             addon_id = node.expression.value
@@ -374,6 +413,17 @@ def _binary_to_sql(
         return _version_compare_binary_to_sql(node, warnings, column_map)
     if _is_version_compare_node(node.right) and isinstance(node.left, Literal):
         return _version_compare_binary_to_sql_reversed(node, warnings, column_map)
+
+    # 'slug' in enrollments — intercepted before translating operands, since
+    # `enrollments` has no column of its own and would otherwise warn.
+    if (
+        op == "in"
+        and column_map is JEXL_TO_BQ_COLUMN
+        and _identifier_path(node.right) == "enrollments"
+        and isinstance(node.left, Literal)
+        and isinstance(node.left.value, str)
+    ):
+        return _enrolled_in_sql(node.left.value)
 
     if op in ("&&", "||"):
         left = _node_to_sql(node.left, warnings, column_map)
@@ -425,6 +475,21 @@ def _binary_to_sql(
 
     if op in comparison_ops:
         sql_op = comparison_ops[op]
+
+        # (a == 'y') == false would emit `a = 'y' = FALSE`, which BigQuery
+        # rejects. Parenthesise nested comparisons. Detected from the AST, not
+        # the rendered string: an expression may begin with "(" without being
+        # wrapped, as the enrollmentsMap subquery does.
+        def _is_comparison_node(n) -> bool:
+            return (
+                isinstance(n, BinaryExpression)
+                and getattr(n.operator, "symbol", None) in comparison_ops
+            )
+
+        if _is_comparison_node(node.left):
+            left = f"({left})"
+        if _is_comparison_node(node.right):
+            right = f"({right})"
         # JEXL uses == null / != null; BigQuery requires IS NULL / IS NOT NULL.
         # FilterExpression results (IN UNNEST) represent "found/not found":
         #   filter == null  →  NOT (filter)   [addon/pref not present]
