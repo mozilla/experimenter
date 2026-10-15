@@ -5349,6 +5349,15 @@ class TestNimbusExperiment(TestCase):
         child = parent.clone("Child Experiment", parent.owner)
         self.assertTrue(child.enable_review_slack_notifications)
 
+    def test_clone_resets_analysis_data(self):
+        parent = NimbusExperimentFactory.create(
+            analysis_data={"metadata": {"experiment_slug": "parent"}},
+            analysis_last_updated=timezone.now(),
+        )
+        child = parent.clone("Child Experiment", parent.owner)
+        self.assertIsNone(child.analysis_data)
+        self.assertIsNone(child.analysis_last_updated)
+
     def _clone_experiment_and_assert_common_expectations(
         self, parent, rollout_branch_slug=None
     ):
@@ -5369,6 +5378,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.published_dto, None)
         self.assertEqual(child.published_date, None)
         self.assertEqual(child.results_data, None)
+        self.assertEqual(child.analysis_data, None)
+        self.assertEqual(child.analysis_last_updated, None)
         self.assertEqual(child.monitoring_data, None)
         self.assertEqual(child.takeaways_gain_amount, None)
         self.assertEqual(child.takeaways_metric_gain, False)
