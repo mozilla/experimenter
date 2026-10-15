@@ -118,6 +118,7 @@ const typeAssertions = {
 export const ATTRIBUTE_TRANSFORMS = Object.freeze({
   activeExperiments: typeAssertions.array,
   activeRollouts: typeAssertions.array,
+  activeWebPushSubscriptionCount: typeAssertions.quantity,
   addonsInfo: addonsInfo => ({
     addons: Object.keys(addonsInfo?.addons ?? {}).sort(),
     hasInstalledAddons: !!addonsInfo?.hasInstalledAddons,

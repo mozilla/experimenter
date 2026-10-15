@@ -2354,6 +2354,34 @@ autofill-suppress-unrecognized-autocomplete:
         unclassified: it is offered no dropdown of its own, and it is not
         filled when autofill is triggered from another field in the same form.
 
+autofill-addresses-rust-storage:
+  description: Application Services (Rust) storage backend for saved addresses
+  owner: dlee@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        If true, saved addresses are migrated to and served from the Rust
+        autofill store. If false, they are served from the JSON store.
+      type: boolean
+      setPref:
+        branch: user
+        pref: extensions.formautofill.addresses.storage.rust.enabled
+
+autofill-credit-cards-rust-storage:
+  description: Application Services (Rust) storage backend for saved credit cards
+  owner: dlee@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        If true, saved credit cards are migrated to and served from the Rust
+        autofill store. If false, they are served from the JSON store.
+      type: boolean
+      setPref:
+        branch: user
+        pref: extensions.formautofill.creditCards.storage.rust.enabled
+
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
   owner: desktop-integrations@mozilla.com
@@ -2443,6 +2471,13 @@ cfr:
   schema:
     uri: "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json"
     path: "browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json"
+  variables: {}
+
+includeForWebPush:
+  description: "Marker feature with no configuration. Recipes that should be re-evaluated once the web push service starts include it alongside their real feature."
+  owner: omc-core@mozilla.com
+  hasExposure: false
+  allowCoenrollment: true
   variables: {}
 
 infobar:
@@ -6254,6 +6289,14 @@ autoTabGrouping:
       description: >-
         Minimum candidate tabs a window must have before grouping is attempted.
         Lower = grouping runs on smaller windows (more coverage).
+    maxCandidateTabs:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.maxCandidateTabs
+      description: >-
+        Maximum tabs clustered per run. Larger windows only group their most
+        recently used tabs, which bounds how long a run takes.
     minTabsPerGroup:
       type: int
       setPref:
