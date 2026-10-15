@@ -39,12 +39,13 @@ class SlackConstants:
 
     # Slack email action text mappings
     SLACK_EMAIL_ACTIONS = {
-        NimbusConstants.EmailType.EXPERIMENT_END: "🛑 Is ready to end",
-        NimbusConstants.EmailType.ENROLLMENT_END: "⏸️ Is ready to end enrollment",
+        NimbusConstants.EmailType.EXPERIMENT_END: "🛑 Ready to end experiment",
+        NimbusConstants.EmailType.ENROLLMENT_END: "⏸️ Ready to end enrollment",
         NimbusConstants.EmailType.ROLLOUT_PHASE_ADVANCE: (
-            "⏩ Is scheduled to advance to its next phase today"
+            "⏩ Ready to advance rollout phase"
         ),
     }
+    SLACK_EMAIL_DEFAULT_ACTION = "🔔 Has updates"
 
     # Slack action to alert type mappings
     SLACK_ACTION_TO_ALERT_TYPE = {
@@ -85,53 +86,40 @@ class SlackConstants:
     # Slack message templates
     SLACK_DM_PREFIX = "🔔 Join {channel} to get slack notifications: {message}"
     SLACK_DM_CHANNEL_LINK_SUFFIX = "\n\n🔗 View in channel: {channel_message_link}"
-    SLACK_LAUNCH_SUCCESS_MESSAGE = (
-        "🎉 ✅ *{name}* is now LIVE!\n📊 View experiment: <{url}|{slug}>"
+    SLACK_LAUNCH_SUCCESS_MESSAGE = "🚀 ✅ Launched"
+    SLACK_UPDATE_SUCCESS_MESSAGE = "🔄 ✅ Published update"
+    SLACK_ENROLLMENT_ENDED_MESSAGE = "⏸️ ✅ Ended enrollment"
+    SLACK_EXPERIMENT_ENDED_MESSAGE = "🛑 ✅ Ended experiment"
+    SLACK_ROLLOUT_PHASE_ADVANCED_MESSAGE = "⏩ ✅ Advanced rollout phase"
+    SLACK_ROLLOUT_DISABLED_MESSAGE = "⏸️ ✅ Disabled rollout"
+    SLACK_ROLLOUT_REENABLED_MESSAGE = "▶️ ✅ Re-enabled rollout"
+    SLACK_RESULTS_READY_MESSAGE = "📈 {window} results ready"
+    SLACK_ANALYSIS_ERRORS_ACTION = "⚠️ Analysis errors"
+    SLACK_UNENROLLMENT_SPIKE_ACTION = "⚠️ Unenrollment spike"
+    SLACK_UNENROLLMENT_SPIKE_DETAILS = (
+        "Unenrollment rate {rate:.1%} after {days} days (threshold {threshold:.1%})\n"
+        "Primary reason: {reason}"
     )
-    SLACK_UPDATE_SUCCESS_MESSAGE = (
-        "🔄 ✅ *{name}* update has been published\n📊 View experiment: <{url}|{slug}>"
+    SLACK_SRM_MISMATCH_ACTION = "⚠️ Branch ratio mismatch"
+    SLACK_SRM_MISMATCH_DETAILS = (
+        "Enrollment is not at the expected ratio across branches. "
+        "Please review the results."
     )
-    SLACK_ENROLLMENT_ENDED_MESSAGE = (
-        "⏹️ ✅ Enrollment for *{name}* has ended\n📊 View experiment: <{url}|{slug}>"
-    )
-    SLACK_EXPERIMENT_ENDED_MESSAGE = (
-        "🛑 ✅ *{name}* has ended\n📊 View experiment: <{url}|{slug}>"
-    )
-    SLACK_ROLLOUT_PHASE_ADVANCED_MESSAGE = (
-        "⏩ ✅ *{name}* advanced to its next phase\n📊 View rollout: <{url}|{slug}>"
-    )
-    SLACK_ROLLOUT_DISABLED_MESSAGE = (
-        "⏸️ ✅ *{name}* is now disabled\n📊 View rollout: <{url}|{slug}>"
-    )
-    SLACK_ROLLOUT_REENABLED_MESSAGE = (
-        "▶️ ✅ *{name}* is now live again and advanced to its next phase\n"
-        "📊 View rollout: <{url}|{slug}>"
-    )
-    SLACK_RESULTS_READY_MESSAGE = "📈 {window} analysis results are now available"
-    SLACK_ANALYSIS_ERRORS_MESSAGE = "⚠️ Analysis errors detected:\n{error_lines}"
-    SLACK_UNENROLLMENT_SPIKE_MESSAGE = (
-        "⚠️ Unexpectedly large unenrollment in *{experiment}* after {days} days\n"
-        "Primary reason: {reason}\n"
-        "Unenrollment rate: {rate:.1%} (threshold: {threshold:.1%})"
-    )
-    SLACK_SRM_MISMATCH_MESSAGE = (
-        "⚠️ *{experiment}* has a branch ratio mismatch.\n"
-        "Enrollment is not at the expected ratio across branches — "
-        "something may be wrong. Please review the experiment results"
-    )
-    SLACK_ZERO_ENROLLMENT_MESSAGE = (
-        "⚠️ *{experiment}* has enrolled fewer than {client_threshold:,} clients "
-        "after {days} days (current: {total_enrollments:,}).\n"
+    SLACK_ZERO_ENROLLMENT_ACTION = "⚠️ Low enrollment"
+    SLACK_ZERO_ENROLLMENT_DETAILS = (
+        "Fewer than {client_threshold:,} clients enrolled after {days} days "
+        "(current: {total_enrollments:,}).\n"
         "Please review targeting, percentage, and feature conflicts."
     )
-    SLACK_NOT_UNENROLLING_MESSAGE = (
-        "⚠️ *{experiment}* ended {days} days ago but fewer than "
-        "{client_threshold:,} clients have unenrolled (current: {unenrollments:,}).\n"
+    SLACK_NOT_UNENROLLING_ACTION = "⚠️ Clients not unenrolling"
+    SLACK_NOT_UNENROLLING_DETAILS = (
+        "Ended {days} days ago and fewer than {client_threshold:,} clients have "
+        "unenrolled (current: {unenrollments:,}).\n"
         "Recipe deletions may not be reaching clients. Please report in #nimbus-help."
     )
-    SLACK_FEATURE_CONFLICT_MESSAGE = (
-        "⚠️ *{experiment}* has a feature conflict affecting {rate:.1%} of the "
-        "evaluated population.\n"
+    SLACK_FEATURE_CONFLICT_ACTION = "⚠️ Feature conflict"
+    SLACK_FEATURE_CONFLICT_DETAILS = (
+        "Affects {rate:.1%} of the evaluated population.\n"
         "Blocking recipe: {conflict_slugs}"
     )
 

@@ -170,7 +170,7 @@ def handle_rejection(applications, kinto_client):
 
 
 def _send_slack_alert_success_message(
-    experiment, alert_type, message_template, operation_name, log_message_func
+    experiment, alert_type, action_text, operation_name, log_message_func
 ):
     try:
         alert = NimbusAlert.objects.filter(
@@ -183,7 +183,7 @@ def _send_slack_alert_success_message(
             send_threaded_success_message(
                 experiment.id,
                 alert.slack_thread_id,
-                message_template,
+                action_text,
                 operation_name,
                 log_message_func,
             )
