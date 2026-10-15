@@ -121,7 +121,13 @@ def handle_pending_review(applications, collection):
                 experiment.revert_staged_rollout_phase_advance()
                 if experiment.status == experiment.Status.DRAFT:
                     experiment.published_date = None
-                experiment.save()
+                experiment.save(
+                    update_fields=[
+                        "publish_status",
+                        "published_date",
+                        "_updated_date_time",
+                    ]
+                )
 
                 generate_nimbus_changelog(
                     experiment,
@@ -158,7 +164,16 @@ def handle_rejection(applications, kinto_client):
             experiment.revert_staged_rollout_phase_advance()
             if experiment.status == experiment.Status.DRAFT:
                 experiment.published_date = None
-            experiment.save()
+            experiment.save(
+                update_fields=[
+                    "is_rollout_dirty",
+                    "publish_status",
+                    "status_next",
+                    "is_paused",
+                    "published_date",
+                    "_updated_date_time",
+                ]
+            )
 
             generate_nimbus_changelog(
                 experiment,
@@ -216,7 +231,18 @@ def handle_launching_experiments(applications, records, collection):
                 experiment.status_next = None
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.published_dto = published_record
-                experiment.save()
+                if experiment._start_date is None:
+                    experiment._start_date = timezone.now().date()
+                experiment.save(
+                    update_fields=[
+                        "status",
+                        "status_next",
+                        "publish_status",
+                        "published_dto",
+                        "_start_date",
+                        "_updated_date_time",
+                    ]
+                )
 
                 generate_nimbus_changelog(
                     experiment,
@@ -280,7 +306,19 @@ def handle_updating_experiments(applications, records, collection):
                 experiment.status_next = None
                 experiment.published_dto = published_record
                 experiment.is_rollout_dirty = False
-                experiment.save()
+                if experiment.is_paused and experiment._enrollment_end_date is None:
+                    experiment._enrollment_end_date = timezone.now().date()
+                experiment.save(
+                    update_fields=[
+                        "status",
+                        "publish_status",
+                        "status_next",
+                        "published_dto",
+                        "is_rollout_dirty",
+                        "_enrollment_end_date",
+                        "_updated_date_time",
+                    ]
+                )
 
                 generate_nimbus_changelog(
                     experiment,
@@ -347,7 +385,18 @@ def handle_ending_experiments(applications, records, collection):
                 experiment.status_next = None
                 experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
                 experiment.is_rollout_dirty = False
-                experiment.save()
+                if not is_disabling_rollout:
+                    experiment._end_date = timezone.now().date()
+                experiment.save(
+                    update_fields=[
+                        "status",
+                        "status_next",
+                        "publish_status",
+                        "is_rollout_dirty",
+                        "_end_date",
+                        "_updated_date_time",
+                    ]
+                )
 
                 if is_disabling_rollout:
                     experiment.end_current_rollout_phase()
@@ -403,7 +452,15 @@ def handle_waiting_experiments(applications, records, collection):
             kinto_record = records.get(experiment.slug, {})
             experiment.is_paused = kinto_record.get("isEnrollmentPaused", False)
 
-            experiment.save()
+            experiment.save(
+                update_fields=[
+                    "status_next",
+                    "publish_status",
+                    "published_date",
+                    "is_paused",
+                    "_updated_date_time",
+                ]
+            )
 
             generate_nimbus_changelog(
                 experiment,
@@ -443,7 +500,9 @@ def nimbus_push_experiment_to_kinto(collection, experiment_id):
 
         with transaction.atomic():
             experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
-            experiment.save()
+            experiment.save(
+                update_fields=["publish_status", "published_date", "_updated_date_time"]
+            )
 
             generate_nimbus_changelog(
                 experiment,
@@ -481,7 +540,7 @@ def nimbus_update_experiment_in_kinto(collection, experiment_id):
 
         with transaction.atomic():
             experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
-            experiment.save()
+            experiment.save(update_fields=["publish_status", "_updated_date_time"])
 
             generate_nimbus_changelog(
                 experiment,
@@ -528,7 +587,7 @@ def nimbus_end_experiment_in_kinto(collection, experiment_id):
 
         with transaction.atomic():
             experiment.publish_status = NimbusExperiment.PublishStatus.WAITING
-            experiment.save()
+            experiment.save(update_fields=["publish_status", "_updated_date_time"])
 
             generate_nimbus_changelog(
                 experiment,
