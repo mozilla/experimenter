@@ -1060,6 +1060,15 @@ voice-search-in-display-mode:
     enabled:
       type: boolean
       description: If true, voice search is shown in the display toolbar.
+wayback-machine:
+  description: |
+    Feature that shows a "Check Archived Version" button on eligible error pages, linking to the Wayback Machine.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the "Check Archived Version" button is shown on eligible error pages.
 webcompat-interventions:
   description: Experimental controls for webcompat site interventions
   hasExposure: true
