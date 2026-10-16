@@ -151,6 +151,22 @@ const setupHTMXLoadingOverlay = () => {
   });
 };
 
+const setupClearAdvancedTargeting = () => {
+  document.addEventListener("click", (event) => {
+    const clearButton = event.target.closest?.("#clear-advanced-targeting");
+    if (!clearButton) {
+      return;
+    }
+
+    const dropdown = document.getElementById("id_targeting_config_slug");
+    if (!dropdown) {
+      return;
+    }
+
+    $(dropdown).selectpicker("val", "no_targeting");
+  });
+};
+
 $(() => {
   void setupDevtoolsBanner();
   setupThemeSwitcher();
@@ -158,6 +174,7 @@ $(() => {
   setupToasts();
   setupSlugCopyToast();
   setupHTMXLoadingOverlay();
+  setupClearAdvancedTargeting();
   setupReadonlyJsonEditors();
   observeThemeChanges(updateAllViewThemes);
   document.addEventListener("shown.bs.modal", (event) => {
