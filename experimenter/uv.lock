@@ -808,7 +808,7 @@ requires-dist = [
     { name = "markus", specifier = "==3.0.0" },
     { name = "mock", specifier = "==4.0.3" },
     { name = "mozilla-metric-config-parser", specifier = ">=2024.11.1,<2025" },
-    { name = "mozilla-nimbus-schemas", specifier = ">=3004.0.0,<3005" },
+    { name = "mozilla-nimbus-schemas", specifier = ">=3005.2.0,<3006" },
     { name = "nh3", specifier = ">=0.3,<0.4" },
     { name = "packaging", specifier = "==21.3" },
     { name = "parameterized", specifier = "==0.9.0" },
@@ -1312,7 +1312,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/de/cf/e26886c5131a76d39
 
 [[package]]
 name = "mozilla-nimbus-schemas"
-version = "3004.0.0"
+version = "3005.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonschema" },
@@ -1320,9 +1320,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b7/d3/0d883ba32f2cbd67fc1aca3645b76e93a412a3560bfe7a9dca507120e4b3/mozilla_nimbus_schemas-3004.0.0.tar.gz", hash = "sha256:54f121bf756459caccffb16fa99e7f885680c2151d33cf86d666986f7f6c046e", size = 36343, upload-time = "2026-07-02T18:54:07.702Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a8/54/14a39454badbc49992b5f9463db7221998b022389434b55128ba2e2c98fd/mozilla_nimbus_schemas-3005.2.0.tar.gz", hash = "sha256:c6082fbb217c03bd1559a4cf3eec71c1d0e6ea97983300f98fc97e95488daf5a", size = 37843, upload-time = "2026-09-24T21:19:21.14Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4d/20/668a461c82c687eee0500dddc2df98343fc3dc0f7a7e0939713e2833b8f1/mozilla_nimbus_schemas-3004.0.0-py3-none-any.whl", hash = "sha256:5abc1dac2536ae45ecc7b97c8b21bf7aec882fa97f80acf9d6a695a04e69d59d", size = 72354, upload-time = "2026-07-02T18:54:06.284Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/a6/b50ab4e28e69a0c1d604f65ab5633df82750b5681e5beec5e80fb0fecf88/mozilla_nimbus_schemas-3005.2.0-py3-none-any.whl", hash = "sha256:214d3b2b089d6396addf8de34e20e6ea7cb7163f4d9b6a411aacacd39d9e3b16", size = 83512, upload-time = "2026-09-24T21:19:19.709Z" },
 ]
 
 [[package]]
