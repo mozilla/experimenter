@@ -1196,9 +1196,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .order_by("-changed_on")
                 .first()
             ):
-                self._start_date = start_changelog.changed_on.date()
-                self.save()
-                return self._start_date
+                return start_changelog.changed_on.date()
 
     @property
     def release_date(self):
@@ -1226,9 +1224,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .order_by("-changed_on")
                 .first()
             ):
-                self._end_date = end_changelog.changed_on.date()
-                self.save()
-                return self._end_date
+                return end_changelog.changed_on.date()
 
     @property
     def is_setup_complete(self):
@@ -1310,9 +1306,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .values_list("changed_on")
                 .last()
             ):
-                self._enrollment_end_date = last_changed_on[0].date()
-                self.save()
-                return (self._enrollment_end_date - enrollment_start).days
+                return (last_changed_on[0].date() - enrollment_start).days
 
         if self.end_date:
             return self.computed_duration_days
@@ -1338,7 +1332,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def update_computed_end_date(self, end_date=None):
         self._computed_end_date = end_date or self._get_computed_end_date()
-        self.save()
+        self.save(update_fields=["_computed_end_date"])
 
     @property
     def computed_end_date(self):
@@ -1349,9 +1343,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if self.start_date is not None and self._computed_end_date >= self.start_date:
                 return self._computed_end_date
 
-        end_date = self._get_computed_end_date()
-        self.update_computed_end_date(end_date)
-        return end_date
+        return self._get_computed_end_date()
 
     @property
     def computed_draft_days(self):
@@ -1556,7 +1548,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         self.rollout_phase = next_phase
         self.rollout_phase_next = None
         self.population_percent = next_phase.population_percent
-        self.save()
+        self.save(
+            update_fields=["rollout_phase", "rollout_phase_next", "population_percent"]
+        )
 
     def stage_rollout_phase_advance(self):
         if not self.is_rollout_with_phases:
