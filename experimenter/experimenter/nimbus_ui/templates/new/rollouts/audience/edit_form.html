@@ -113,7 +113,15 @@
            class="ms-2"
            style="font-size: 0.9em">Add targeting criteria <i class="fs-6 fa-solid fa-arrow-up-right-from-square ms-1"></i></a>
       </div>
-      {{ form.targeting_config_slug }}
+      <div class="d-flex align-items-center gap-2">
+        <div class="flex-grow-1">{{ form.targeting_config_slug }}</div>
+        <button type="button"
+                id="clear-advanced-targeting"
+                class="btn p-0 border-0 text-secondary flex-shrink-0"
+                aria-label="Clear advanced targeting">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
       {% if form.targeting_config_slug.errors %}
         <div class="text-danger small mt-1">{{ form.targeting_config_slug.errors|join:", " }}</div>
       {% endif %}
