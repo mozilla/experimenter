@@ -42,10 +42,11 @@ JEXL_TO_BQ_COLUMN = {
     "activeWebPushSubscriptionCount": (
         "metrics.quantity.nimbus_targeting_context_active_web_push_subscription_count"
     ),
-    # Nullable on the client, coerced to the string "none" when unplaced. The
-    # sibling alltabsButtonAreaType and fxViewButtonAreaType are not recorded.
+    # Nullable on the client, coerced to the string "none" when unplaced, so
+    # map "none" back to NULL for `forgetButtonAreaType == null`. The sibling
+    # alltabsButtonAreaType and fxViewButtonAreaType are not recorded.
     "forgetButtonAreaType": (
-        "metrics.string.nimbus_targeting_context_forget_button_area_type"
+        "NULLIF(metrics.string.nimbus_targeting_context_forget_button_area_type, 'none')"
     ),
     "profileGroupProfileCount": (
         "metrics.quantity.nimbus_targeting_context_profile_group_profile_count"
