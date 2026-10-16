@@ -79,7 +79,7 @@ services:
       - "443:443"
 
   db:
-    image: postgres:14.8
+    image: postgres:17.11
     environment:
       POSTGRES_PASSWORD: postgres
     ports:
