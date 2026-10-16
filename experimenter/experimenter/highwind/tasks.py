@@ -1,38 +1,32 @@
-import datetime
-
 import markus
 import sentry_sdk
 from celery.utils.log import get_task_logger
-from django.db.models import Q
-from django.utils import timezone
 from pydantic import ValidationError
 
 from experimenter.celery import app
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.highwind.client import get_analysis
+from experimenter.highwind.client import blob_path, get_analysis, list_analysis_blobs
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("highwind.tasks")
 
-# The job selects an experiment for as long as the run date has not passed its end
-# date, so the last blob an experiment ever gets is written on the end date itself and
-# does not change after. A week of slack covers the run that writes it, and any retry,
-# without reading back blobs that have been final for months.
-COMPLETED_LOOKBACK_DAYS = 7
 
+def get_analysis_experiments():
+    """Every experiment the job has written a blob for, whatever state it is in.
 
-def get_analysis_experiments(as_of=None):
-    """The experiments the Highwind job could have written a blob for this run."""
-    as_of = as_of or timezone.now().date()
-    completed_since = as_of - datetime.timedelta(days=COMPLETED_LOOKBACK_DAYS)
+    Which experiments get analysed is the job's rule, so reading its listing rather than
+    filtering on status and dates here keeps that rule in one place, and picks up whatever
+    the job starts analysing next without a change on this side. What makes a blob worth
+    storing is only whether it is newer than the one we hold.
+    """
+    blob_paths = list_analysis_blobs()
+    slugs = [
+        slug
+        for slug in NimbusExperiment.objects.values_list("slug", flat=True)
+        if blob_path(slug) in blob_paths
+    ]
 
-    return NimbusExperiment.objects.filter(
-        Q(status=NimbusExperiment.Status.LIVE)
-        | Q(
-            status=NimbusExperiment.Status.COMPLETE,
-            _computed_end_date__gte=completed_since,
-        )
-    )
+    return NimbusExperiment.objects.filter(slug__in=slugs)
 
 
 def load_experiment_analysis(experiment):
@@ -59,6 +53,17 @@ def load_experiment_analysis(experiment):
 
     if analysis is None:
         metrics.incr("fetch_highwind_data.missing")
+        return
+
+    if analysis.metadata.experiment_slug != experiment.slug:
+        # The blob name replaces hyphens with underscores, so two slugs differing only
+        # there resolve to the same object. The blob names the experiment it analysed, and
+        # that is the one it belongs to.
+        metrics.incr("fetch_highwind_data.mismatched")
+        logger.warning(
+            f"Skipping Highwind analysis at {blob_path(experiment.slug)} for"
+            f" {experiment.slug}: it analysed {analysis.metadata.experiment_slug}"
+        )
         return
 
     generated_at = analysis.metadata.generated_at

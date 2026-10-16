@@ -22,6 +22,12 @@ def blob_path(slug):
     return f"{BLOB_PREFIX}/{slug.replace('-', '_')}.json"
 
 
+def list_analysis_blobs():
+    """Every object the job has written under the prefix, as one listing per run."""
+    _, filenames = analysis_storage.listdir(BLOB_PREFIX)
+    return {f"{BLOB_PREFIX}/{filename}" for filename in filenames}
+
+
 def get_analysis(experiment):
     """The experiment's published analysis, or None if the job has not written one.
 
