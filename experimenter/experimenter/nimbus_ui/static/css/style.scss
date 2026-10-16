@@ -571,3 +571,19 @@ html:has(
   overflow: hidden;
   scrollbar-gutter: stable;
 }
+
+.rollout-card-header {
+  z-index: 1;
+  margin-bottom: 12px;
+
+  &:has(.accordion-button.collapsed) {
+    border-bottom-left-radius: var(--bs-border-radius-xl);
+    border-bottom-right-radius: var(--bs-border-radius-xl);
+    border-bottom: 0 !important;
+    margin-bottom: 0;
+  }
+}
+
+.rollout-card-header + .accordion-collapse {
+  margin-top: -12px;
+}

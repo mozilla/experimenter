@@ -4,7 +4,8 @@
 <div id="rollout-overview-body">
   {% include "new/common/sidebar_setup_refresh.html" %}
 
-  <form hx-post="{% url 'nimbus-ui-new-update-overview' experiment.slug %}"
+  <form id="overview-form"
+        hx-post="{% url 'nimbus-ui-new-update-overview' experiment.slug %}"
         hx-target="#rollout-overview-body"
         hx-swap="outerHTML"
         hx-disabled-elt="#rollout-overview-save"
@@ -105,9 +106,6 @@
       {% include "new/rollouts/overview/subscribers_field.html" with suppress_sidebar_setup_refresh=True %}
 
     </div>
-    {# Action buttons #}
-    {% include "new/common/card_form_actions.html" with card_id="overview" %}
-
   </form>
 </div>
 {% include "new/common/sidebar_links.html" with hx_swap_oob=True %}
