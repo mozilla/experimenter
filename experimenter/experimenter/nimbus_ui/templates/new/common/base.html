@@ -121,7 +121,7 @@
                   </li>
                   <li>
                     <form hx-post="{% url 'nimbus-ui-new-toggle-archive' experiment.slug %}"
-                          class="d-flex align-items-center">
+                          class="d-flex align-items-center confirm-unsaved-changes">
                       {% csrf_token %}
                       <button class="dropdown-item"
                               id="rollout-archive-button"
@@ -228,6 +228,7 @@
           </div>
           <div class="modal-body bg-body-tertiary">
             <form id="cloneForm"
+                  class="confirm-unsaved-changes"
                   hx-post="{% url 'nimbus-ui-new-clone' experiment.slug %}"
                   hx-target="#cloneForm">
               {% csrf_token %}
@@ -265,6 +266,7 @@
               </p>
             </div>
             <form id="promoteToExperimentForm"
+                  class="confirm-unsaved-changes"
                   hx-post="{% url 'nimbus-ui-new-promote-to-experiment' experiment.slug %}"
                   hx-target="#promoteToExperimentForm">
               {% csrf_token %}
