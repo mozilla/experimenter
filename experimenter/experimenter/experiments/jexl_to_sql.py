@@ -39,6 +39,10 @@ JEXL_TO_BQ_COLUMN = {
     "allowedNotificationOrigins": (
         "metrics.quantity.nimbus_targeting_context_allowed_notification_origins"
     ),
+    # Recorded as "none" when the button is not placed, which JEXL sees as null.
+    "forgetButtonAreaType": (
+        "NULLIF(metrics.string.nimbus_targeting_context_forget_button_area_type, 'none')"
+    ),
     "profileGroupProfileCount": (
         "metrics.quantity.nimbus_targeting_context_profile_group_profile_count"
     ),
