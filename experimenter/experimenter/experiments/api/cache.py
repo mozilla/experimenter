@@ -4,14 +4,17 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from django.core.cache import cache
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from rest_framework.compat import SHORT_SEPARATORS
 from rest_framework.renderers import JSONRenderer
 from rest_framework.utils.encoders import JSONEncoder as DRFJSONEncoder
 
+from experimenter.experiments.constants import NimbusConstants
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_STREAM_CHUNK_SIZE = 25
+UNCACHED_STATUSES = {NimbusConstants.Status.LIVE, NimbusConstants.Status.PREVIEW}
 
 
 def get_api_cache_key(view_name, query_params=None):
@@ -74,8 +77,20 @@ def stream_render_queryset(
     )
 
 
-def warm_api_cache(key_prefix, queryset, serializer_class, renderer=None, sort_key=None):
+def warm_api_cache(
+    key_prefix,
+    queryset,
+    serializer_class,
+    renderer=None,
+    sort_key=None,
+    filterset_class=None,
+    params="",
+):
     """Query the DB, serialize, and store the rendered response in the cache."""
+    query_params = QueryDict(params)
+    if filterset_class is not None:
+        queryset = filterset_class(data=query_params, queryset=queryset).qs
+
     if renderer is None:
         renderer = JSONRenderer()
 
@@ -86,9 +101,9 @@ def warm_api_cache(key_prefix, queryset, serializer_class, renderer=None, sort_k
     else:
         rendered = stream_render_queryset(queryset, serializer_class)
 
-    cache_key = get_api_cache_key(key_prefix)
+    cache_key = get_api_cache_key(key_prefix, query_params)
     cache.set(cache_key, rendered, timeout=settings.API_CACHE_WARMING_TTL)
-    logger.info("Warmed cache for %s (%d bytes)", key_prefix, len(rendered))
+    logger.info("Warmed cache for %s %s (%d bytes)", key_prefix, params, len(rendered))
 
 
 class CachedListMixin:
@@ -101,9 +116,29 @@ class CachedListMixin:
 
     cache_key_prefix = ""
     cache_content_type = "application/json"
+    filterset_class = None
+
+    def get_cache_key_params(self, query_params):
+        allowed = set()
+        if self.filterset_class is not None:
+            allowed.update(self.filterset_class.base_filters)
+        paginator = self.paginator
+        if paginator is not None:
+            allowed.update((paginator.page_query_param, paginator.page_size_query_param))
+
+        params = QueryDict(mutable=True)
+        for key, values in query_params.lists():
+            if key in allowed:
+                params.setlist(key, values)
+        return params
 
     def list(self, request, *args, **kwargs):
-        cache_key = get_api_cache_key(self.cache_key_prefix, request.query_params)
+        params = self.get_cache_key_params(request.query_params)
+        statuses = params.getlist("status")
+        if statuses and set(statuses) <= UNCACHED_STATUSES:
+            return super().list(request, *args, **kwargs)
+
+        cache_key = get_api_cache_key(self.cache_key_prefix, params)
         cached = cache.get(cache_key)
         if cached is not None:
             return HttpResponse(cached, content_type=self.cache_content_type)
