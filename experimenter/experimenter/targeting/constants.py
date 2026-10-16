@@ -5983,6 +5983,20 @@ CBWN_DELIVERY_ESTABLISHED_PROFILES = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NO_FORGET_BUTTON = NimbusTargetingConfig(
+    name="Forget button not in toolbar",
+    slug="no_forget_button",
+    description=(
+        "Users who don't have the Forget button in their toolbar or overflow "
+        "menu. Users who add it after enrolling are unenrolled."
+    ),
+    targeting="forgetButtonAreaType == null",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
