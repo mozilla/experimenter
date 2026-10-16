@@ -11,7 +11,8 @@
        target="_blank"
        rel="noopener noreferrer"><i class="fa-solid fa-users me-2"></i>Explore matching audiences</a>
   </div>
-  <form hx-post="{% url 'nimbus-ui-new-update-audience' experiment.slug %}"
+  <form id="audience-form"
+        hx-post="{% url 'nimbus-ui-new-update-audience' experiment.slug %}"
         hx-target="#rollout-audience-body"
         hx-swap="outerHTML"
         hx-disabled-elt="#rollout-audience-save"
@@ -212,9 +213,6 @@
       {% endif %}
     </div>
   </div>
-  {# Action buttons #}
-  {% include "new/common/card_form_actions.html" with card_id="audience" submit_name="save" %}
-
 </form>
 </div>
 {% block extrascripts %}

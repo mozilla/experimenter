@@ -4,7 +4,8 @@
 <div id="rollout-qa-body">
   {% include "new/common/sidebar_setup_refresh.html" %}
 
-  <form hx-post="{% url 'nimbus-ui-new-update-qa' experiment.slug %}"
+  <form id="qa-form"
+        hx-post="{% url 'nimbus-ui-new-update-qa' experiment.slug %}"
         hx-target="#rollout-qa-body"
         hx-swap="outerHTML"
         hx-disabled-elt="#rollout-qa-save"
@@ -46,8 +47,5 @@
 
       </div>
     </div>
-    {# Action buttons #}
-    {% include "new/common/card_form_actions.html" with card_id="qa" %}
-
   </form>
 </div>

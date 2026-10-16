@@ -2,7 +2,8 @@
 <div id="rollout-signoff-body">
   {% include "new/common/sidebar_setup_refresh.html" %}
 
-  <form hx-post="{% url 'nimbus-ui-new-update-signoff' experiment.slug %}"
+  <form id="signoff-form"
+        hx-post="{% url 'nimbus-ui-new-update-signoff' experiment.slug %}"
         hx-target="#rollout-signoff-body"
         hx-swap="outerHTML"
         hx-disabled-elt="#rollout-signoff-save"
@@ -46,8 +47,5 @@
       {% include "new/common/validation_errors.html" with errors=validation_errors.legal_signoff %}
 
     </div>
-    {# Action buttons #}
-    {% include "new/common/card_form_actions.html" with card_id="signoff" %}
-
   </form>
 </div>

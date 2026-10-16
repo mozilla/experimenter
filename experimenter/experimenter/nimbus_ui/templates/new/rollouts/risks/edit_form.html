@@ -2,7 +2,8 @@
 <div id="rollout-risks-body">
   {% include "new/common/sidebar_setup_refresh.html" %}
 
-  <form hx-post="{% url 'nimbus-ui-new-update-risks' experiment.slug %}"
+  <form id="risks-form"
+        hx-post="{% url 'nimbus-ui-new-update-risks' experiment.slug %}"
         hx-target="#rollout-risks-body"
         hx-swap="outerHTML"
         hx-disabled-elt="#rollout-risks-save"
@@ -80,8 +81,5 @@
 
       </div>
     </div>
-    {# Action buttons #}
-    {% include "new/common/card_form_actions.html" with card_id="risks" %}
-
   </form>
 </div>
