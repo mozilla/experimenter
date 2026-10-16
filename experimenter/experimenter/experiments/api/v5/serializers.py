@@ -1765,6 +1765,65 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    @staticmethod
+    def _is_desktop_messaging_feature(feature_config):
+        slug = feature_config.slug
+        return slug in NimbusConstants.DESKTOP_MESSAGING_FEATURE_SLUGS or slug.startswith(
+            NimbusConstants.DESKTOP_FXMS_MESSAGE_PLACEHOLDER_PREFIX
+        )
+
+    @staticmethod
+    def _desktop_messages(value):
+        json_value = json.loads(value)
+        messages = [json_value]
+        if (
+            isinstance(json_value, dict)
+            and json_value.get("template")
+            == NimbusConstants.DESKTOP_MESSAGING_MULTI_TEMPLATE
+        ):
+            messages = json_value.get("messages") or []
+        return [
+            message
+            for message in messages
+            if isinstance(message, dict) and message.get("id")
+        ]
+
+    @classmethod
+    def _branch_desktop_messages(cls, branch, feature_config):
+        return [
+            message
+            for feature_value in branch["feature_values"]
+            if feature_value["feature_config"] == feature_config
+            for message in cls._desktop_messages(feature_value["value"])
+        ]
+
+    def _validate_desktop_messaging_control_message(self, data):
+        if data.get("is_rollout"):
+            return data
+
+        reference_branch = data.get("reference_branch", {})
+        treatment_branches = data.get("treatment_branches", [])
+
+        feature_slugs = sorted(
+            feature_config.slug
+            for feature_config in data.get("feature_configs", [])
+            if self._is_desktop_messaging_feature(feature_config)
+            and not self._branch_desktop_messages(reference_branch, feature_config)
+            and any(
+                self._branch_desktop_messages(branch, feature_config)
+                for branch in treatment_branches
+            )
+        )
+
+        if feature_slugs:
+            self.warnings["messaging_control_no_message"] = [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_NO_MESSAGE.format(
+                    feature_slugs=", ".join(feature_slugs)
+                )
+            ]
+
+        return data
+
     @classmethod
     def _validate_mobile_messaging(cls, value: str):
         json_value = None
@@ -2083,6 +2142,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_desktop_pref_flips(data)
             data = self._validate_desktop_multichannel(data)
             data = self._validate_desktop_fxms_message_coenrollment(data)
+            data = self._validate_desktop_messaging_control_message(data)
         return data
 
 
