@@ -54,7 +54,7 @@ dependencies = [
     "parameterized==0.9.0",
     "pillow>=12.3.0,<13",
     "psycopg2>=2.9.10,<3",
-    "pydantic>=2,<3",
+    "pydantic>=2.14.0,<3",
     "pyjexl>=0.3.0,<0.4",
     "pyparsing==2.4.7",
     "pyright>=1.1.291,<2",
