@@ -286,5 +286,11 @@
     "shipit_release": "newtab-160.2.0-build1",
     "xpi_revision": "35e9882",
     "created": "2026-10-16T18:53:11.651000Z"
+  },
+  {
+    "version": "160.3.20261019.200344",
+    "shipit_release": "newtab-160.3.0-build1",
+    "xpi_revision": "81d10bc",
+    "created": "2026-10-19T20:10:53.082000Z"
   }
 ]
