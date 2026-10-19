@@ -893,6 +893,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
             {"id": updated_experiment.slug},
         )
         self.assertFalse(updated_experiment.is_rollout_dirty)
+        self.assertEqual(updated_experiment._enrollment_end_date, timezone.now().date())
         self.assertEqual(
             updated_experiment.computed_end_date, updated_experiment.proposed_end_date
         )
@@ -1108,6 +1109,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertEqual(
             launching_experiment.published_dto, {"id": launching_experiment.slug}
         )
+        self.assertEqual(launching_experiment._start_date, timezone.now().date())
         self.assertEqual(
             launching_experiment.computed_end_date, launching_experiment.proposed_end_date
         )
@@ -1429,6 +1431,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertIsNone(experiment.status_next)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
         self.assertEqual(current_phase.end_date, timezone.now().date())
+        self.assertIsNone(experiment._end_date)
         self.assertEqual(
             mock_send_message.call_args.args[:4],
             (
@@ -1459,6 +1462,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertEqual(experiment.status, NimbusExperiment.Status.COMPLETE)
         self.assertIsNone(experiment.status_next)
         self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertEqual(experiment._end_date, timezone.now().date())
         self.assertTrue(
             experiment.changes.filter(message=NimbusChangeLog.Messages.COMPLETED).exists()
         )
@@ -1467,6 +1471,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
     def test_remote_settings_reenable_approval_advances_phase_and_sets_live(
         self, mock_send_message
     ):
+        start_date = datetime.date(2022, 1, 1)
         experiment = NimbusExperimentFactory.create(
             status=NimbusExperiment.Status.DISABLED,
             status_next=NimbusExperiment.Status.LIVE,
@@ -1474,6 +1479,7 @@ class TestNimbusCheckKintoPushQueueByCollection(
             application=NimbusExperiment.Application.DESKTOP,
             is_rollout=True,
             published_dto={"id": "previous-record"},
+            _start_date=start_date,
         )
         current_phase = NimbusRolloutPhaseFactory.create(
             experiment=experiment, population_percent=10
@@ -1510,6 +1516,8 @@ class TestNimbusCheckKintoPushQueueByCollection(
         self.assertIsNone(experiment.status_next)
         self.assertEqual(experiment.rollout_phase, next_phase)
         self.assertIsNone(experiment.rollout_phase_next)
+        self.assertEqual(experiment.population_percent, 25)
+        self.assertEqual(experiment._start_date, start_date)
         self.assertEqual(next_phase.actual_start_date, timezone.now().date())
         self.assertEqual(
             mock_send_message.call_args.args[:4],
@@ -1565,6 +1573,40 @@ class TestNimbusCheckKintoPushQueueByCollection(
             paused_experiment.publish_status, NimbusExperiment.PublishStatus.IDLE
         )
 
+    @parameterized.expand(
+        [
+            (
+                NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+                datetime.date(2022, 1, 5),
+            ),
+            (NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING, None),
+        ]
+    )
+    def test_updating_experiment_keeps_enrollment_end_date_unless_pause_lands(
+        self, lifecycle, enrollment_end_date
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            application=NimbusExperiment.Application.DESKTOP,
+            published_dto={"id": "previous-record"},
+            _enrollment_end_date=enrollment_end_date,
+        )
+
+        tasks.handle_updating_experiments(
+            [NimbusExperiment.Application.DESKTOP],
+            {
+                experiment.slug: {
+                    "id": experiment.slug,
+                    "last_modified": 1,
+                }
+            },
+            experiment.kinto_collection,
+        )
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertEqual(experiment._enrollment_end_date, enrollment_end_date)
+
     @parameterized.expand(PREFFLIPS_PARAMETERIZED_CASES)
     def test_ending_experiment_completed_when_record_is_not_in_main(
         self, feature_slug, target_collection, alternate_collection
@@ -1605,6 +1647,8 @@ class TestNimbusCheckKintoPushQueueByCollection(
                 "message": NimbusChangeLog.Messages.COMPLETED,
             },
         )
+        self.assertIsNone(experiment2.status_next)
+        self.assertEqual(experiment2._end_date, timezone.now().date())
         self.assertEqual(experiment1.computed_end_date, experiment1.proposed_end_date)
         self.assertEqual(experiment2.computed_end_date, experiment2.end_date)
 

@@ -2135,6 +2135,34 @@ class TestNimbusExperiment(TestCase):
             experiment.proposed_enrollment,
         )
 
+    def test_computed_dates_on_stale_instance_do_not_overwrite_status(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+            is_first_run=False,
+        )
+        stale_experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        experiment.status_next = None
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner, "updated in kinto")
+
+        self.assertIsNone(stale_experiment._enrollment_end_date)
+        start_date = stale_experiment.start_date
+        self.assertIsNotNone(start_date)
+        self.assertEqual(
+            stale_experiment.computed_enrollment_days,
+            (timezone.now().date() - start_date).days,
+        )
+        self.assertFalse(stale_experiment.results_ready)
+        self.assertIsNotNone(stale_experiment.computed_end_date)
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertIsNone(experiment.status_next)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertIsNone(experiment._enrollment_end_date)
+
     @parameterized.expand(
         [
             (NimbusExperimentFactory.Lifecycles.PAUSING_REVIEW_REQUESTED,),
