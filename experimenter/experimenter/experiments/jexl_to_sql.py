@@ -115,7 +115,8 @@ _ENROLLMENTS_MAP_COL = "metrics.object.nimbus_targeting_context_enrollments_map"
 
 
 def _sql_string(value: str) -> str:
-    return "'" + value.replace("'", "\\'") + "'"
+    escaped = value.replace("'", "\\'")
+    return f"'{escaped}'"
 
 
 def _enrollment_branch_sql(slug: str) -> str:

@@ -347,7 +347,9 @@ class TestJEXLToSQL(TestCase):
         self.assertIn("IS NULL", result.sql)
         self.assertEqual(result.warnings, [])
 
-    def test_in_enrollments(self):
+    def test_in_enrollments_matches_any_branch(self):
+        """`'slug' in enrollments` matches on experimentSlug alone, so it is true
+        for an enrolled client regardless of which branch it landed on."""
         result = jexl_to_sql("'other-exp' in enrollments")
         self.assertEqual(
             result.sql,
