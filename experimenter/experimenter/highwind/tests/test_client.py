@@ -6,8 +6,16 @@ from django.utils import timezone
 from pydantic import ValidationError
 
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.highwind.client import blob_path, get_analysis, list_analysis_blobs
-from experimenter.highwind.tests.factories import build_analysis
+from experimenter.highwind.client import (
+    UnsupportedSchemaError,
+    blob_path,
+    get_analysis,
+    list_analysis_blobs,
+)
+from experimenter.highwind.tests.factories import (
+    build_analysis,
+    build_legacy_analysis_json,
+)
 
 
 class TestBlobPath(TestCase):
@@ -61,9 +69,31 @@ class TestGetAnalysis(TestCase):
         self.assertEqual(analysis.metadata.experiment_slug, "test-experiment")
         self.assertEqual(analysis.metadata.generated_at, self.generated_at)
 
-    def test_raises_for_a_blob_that_does_not_conform(self, mock_storage):
+    def test_raises_unsupported_for_a_blob_from_before_the_schema(self, mock_storage):
         mock_storage.exists.return_value = True
-        mock_storage.open.return_value = io.StringIO('{"metadata": {}}')
+        mock_storage.open.return_value = io.StringIO(
+            build_legacy_analysis_json("test-experiment")
+        )
+
+        with self.assertRaises(UnsupportedSchemaError):
+            get_analysis(self.experiment)
+
+    def test_raises_unsupported_for_a_blob_declaring_another_version(self, mock_storage):
+        mock_storage.exists.return_value = True
+        mock_storage.open.return_value = io.StringIO(
+            '{"metadata": {"schema_version": 2}}'
+        )
+
+        with self.assertRaises(UnsupportedSchemaError):
+            get_analysis(self.experiment)
+
+    def test_raises_validation_error_for_a_versioned_blob_that_does_not_conform(
+        self, mock_storage
+    ):
+        mock_storage.exists.return_value = True
+        mock_storage.open.return_value = io.StringIO(
+            '{"metadata": {"schema_version": 1}}'
+        )
 
         with self.assertRaises(ValidationError):
             get_analysis(self.experiment)

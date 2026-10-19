@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.core.files.storage import storages
@@ -11,6 +12,15 @@ analysis_storage = storages["analysis"]
 # the enrollment funnel already come from, so the analysis storage reaches it with only a
 # prefix added.
 BLOB_PREFIX = "highwind"
+
+# The schema version the job stamps on every blob it writes. The prefix also holds blobs
+# from before the schema existed, which carry no version at all, and the job will not
+# rewrite one for an experiment whose end date has passed.
+SCHEMA_VERSION = 1
+
+
+class UnsupportedSchemaError(Exception):
+    """A blob written against a schema this does not know how to read."""
 
 
 def blob_path(slug):
@@ -31,8 +41,10 @@ def list_analysis_blobs():
 def get_analysis(experiment):
     """The experiment's published analysis, or None if the job has not written one.
 
-    Raises ValidationError if the blob does not conform to the published schema, which the
-    caller treats as a reason to leave the stored analysis alone rather than overwrite it.
+    Raises UnsupportedSchemaError for a blob that does not claim the version we read,
+    and ValidationError for one that claims it but does not conform. The caller leaves the
+    stored analysis alone either way, and only the second is worth reporting: a blob the
+    job will never rewrite cannot be fixed by looking at it again next hour.
     """
     path = blob_path(experiment.slug)
 
@@ -40,4 +52,16 @@ def get_analysis(experiment):
         return None
 
     with analysis_storage.open(path) as blob:
-        return HighwindAnalysis.model_validate_json(blob.read())
+        payload = json.load(blob)
+
+    metadata = payload.get("metadata") if isinstance(payload, dict) else None
+    schema_version = (
+        metadata.get("schema_version") if isinstance(metadata, dict) else None
+    )
+    if schema_version != SCHEMA_VERSION:
+        raise UnsupportedSchemaError(
+            f"{path} declares schema version {schema_version!r},"
+            f" and this reads version {SCHEMA_VERSION}"
+        )
+
+    return HighwindAnalysis.model_validate(payload)
