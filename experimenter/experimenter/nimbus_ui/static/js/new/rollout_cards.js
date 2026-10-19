@@ -103,6 +103,58 @@ document.addEventListener("htmx:afterSettle", () => {
 
 document.addEventListener("DOMContentLoaded", syncCardEditActions);
 
+const hasUnsavedChanges = () => !!document.querySelector(".card-edit-form");
+
+let confirmedTrigger = null;
+let allowUnload = false;
+
+window.addEventListener("beforeunload", (event) => {
+  if (hasUnsavedChanges() && !allowUnload) {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
+
+document.addEventListener("htmx:confirm", (event) => {
+  const trigger = event.detail.elt;
+
+  if (!hasUnsavedChanges() || !trigger.closest?.(".confirm-unsaved-changes")) {
+    return;
+  }
+
+  event.preventDefault();
+
+  if (
+    !window.confirm(
+      "You may have unsaved changes. If you continue, any unsaved changes will be lost.",
+    )
+  ) {
+    return;
+  }
+
+  confirmedTrigger = trigger;
+  event.detail.issueRequest(true);
+});
+
+document.addEventListener("htmx:beforeOnLoad", (event) => {
+  if (event.detail.elt !== confirmedTrigger) {
+    return;
+  }
+  const xhr = event.detail.xhr;
+
+  allowUnload =
+    xhr.getResponseHeader("HX-Refresh") === "true" ||
+    !!xhr.getResponseHeader("HX-Redirect");
+
+  confirmedTrigger = null;
+});
+
+document.addEventListener("htmx:afterRequest", (event) => {
+  if (event.detail.elt === confirmedTrigger) {
+    confirmedTrigger = null;
+  }
+});
+
 const toggleAllCards = (button) => {
   const cards = document.querySelectorAll(".rollout-card");
   const shouldExpand = button.getAttribute("aria-expanded") !== "true";

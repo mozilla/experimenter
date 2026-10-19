@@ -170,7 +170,10 @@ Optional - We expect this to <describe impact> on <core metric>.
         "proposed_release_date": "Release date set on a non-first-run experiment",
     }
 
-    REVIEW_WARNING_MESSAGE_AS_LABEL = {"fxms_message_coenrollment"}
+    REVIEW_WARNING_MESSAGE_AS_LABEL = {
+        "fxms_message_coenrollment",
+        "messaging_control_no_message",
+    }
 
     REVIEW_WARNING_LEARN_MORE = {
         "firefox_min_version": (
@@ -465,10 +468,6 @@ Optional - We expect this to <describe impact> on <core metric>.
     ROLLOUT_PREVIEW_UNSUPPORTED_TOOLTIP = (
         "This rollout uses features that prevent it from being launched to preview. "
         "We highly recommend QAing this rollout on stage first."
-    )
-    ROLLOUT_UNSAVED_CHANGES_CONFIRM = (
-        "A section is still open for editing. Click OK to continue and discard "
-        "those changes, or Cancel to go back and save them first."
     )
     ROLLOUT_LIVE_MESSAGE = (
         "This rollout is live. You can advance to the next phase to adjust its "

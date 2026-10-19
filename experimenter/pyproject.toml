@@ -48,7 +48,7 @@ dependencies = [
     "markus==3.0.0",
     "mock==4.0.3",
     "mozilla-metric-config-parser>=2024.11.1,<2025",
-    "mozilla-nimbus-schemas>=3004.0.0,<3005",
+    "mozilla-nimbus-schemas>=3005.2.0,<3006",
     "nh3>=0.3,<0.4",
     "packaging==21.3",
     "parameterized==0.9.0",

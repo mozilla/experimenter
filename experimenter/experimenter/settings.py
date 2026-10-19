@@ -100,6 +100,7 @@ INSTALLED_APPS = [
     "experimenter.experiments",
     "experimenter.features",
     "experimenter.glean",
+    "experimenter.highwind",
     "experimenter.jetstream",
     "experimenter.kinto",
     "experimenter.legacy.legacy_experiments",
@@ -409,6 +410,13 @@ CELERY_BEAT_SCHEDULE = {
     "fetch_jetstream_data": {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
         "schedule": crontab(minute=0, hour="*/2"),
+    },
+    # The Highwind job writes once a day, so an hourly check is only to pick its blobs up
+    # promptly. Offset off the top of the hour, which the Jetstream fetch and the Remote
+    # Settings sync already share.
+    "fetch_highwind_data": {
+        "task": "experimenter.highwind.tasks.fetch_highwind_data",
+        "schedule": crontab(minute=15, hour="*"),
     },
     "fetch_population_sizing_data": {
         "task": "experimenter.jetstream.tasks.fetch_population_sizing_data",
