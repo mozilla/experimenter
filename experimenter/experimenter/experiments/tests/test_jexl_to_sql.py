@@ -50,6 +50,7 @@ _PREF = "metrics.object.nimbus_targeting_environment_pref_values"
 _USER_PREFS = "metrics.object.nimbus_targeting_environment_user_set_prefs"
 _UMA = "metrics.object.nimbus_targeting_context_user_monthly_activity"
 _FF = "metrics.quantity.nimbus_targeting_context_firefox_version"
+_EM = "metrics.object.nimbus_targeting_context_enrollments_map"
 
 
 class TestJEXLToSQL(TestCase):
@@ -327,6 +328,61 @@ class TestJEXLToSQL(TestCase):
         """The siblings that are recorded must keep working."""
         result = jexl_to_sql(attribute)
         self.assertIsNotNone(result.sql)
+        self.assertEqual(result.warnings, [])
+
+    def test_enrollments_map_eq_branch(self):
+        result = jexl_to_sql("enrollmentsMap['other-exp'] == 'treatment'")
+        self.assertEqual(
+            result.sql,
+            f"(SELECT JSON_VALUE(e, '$.branchSlug') FROM UNNEST("
+            f"JSON_QUERY_ARRAY({_EM})) e WHERE JSON_VALUE(e, '$.experimentSlug')"
+            f" = 'other-exp') = 'treatment'",
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_enrollments_map_eq_null_means_not_enrolled(self):
+        """The scalar subquery yields NULL when not enrolled, so == null works
+        through the normal IS NULL handling."""
+        result = jexl_to_sql("enrollmentsMap['other-exp'] == null")
+        self.assertIn("IS NULL", result.sql)
+        self.assertEqual(result.warnings, [])
+
+    def test_in_enrollments_matches_any_branch(self):
+        """`'slug' in enrollments` matches on experimentSlug alone, so it is true
+        for an enrolled client regardless of which branch it landed on."""
+        result = jexl_to_sql("'other-exp' in enrollments")
+        self.assertEqual(
+            result.sql,
+            f"EXISTS(SELECT 1 FROM UNNEST(JSON_QUERY_ARRAY({_EM})) e"
+            f" WHERE JSON_VALUE(e, '$.experimentSlug') = 'other-exp')",
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_nested_comparison_is_parenthesised(self):
+        """(enrollmentsMap[x] == 'y') == false would otherwise emit
+        `a = 'y' = FALSE`, which BigQuery rejects."""
+        result = jexl_to_sql("(enrollmentsMap['other-exp'] == 'treatment') == false")
+        self.assertIsNotNone(result.sql)
+        self.assertRegex(result.sql, r"^\(.+ = 'treatment'\) = FALSE$")
+        self.assertEqual(result.warnings, [])
+
+    def test_nested_comparison_is_parenthesised_when_reversed(self):
+        result = jexl_to_sql("false == (enrollmentsMap['other-exp'] == 'treatment')")
+        self.assertIsNotNone(result.sql)
+        self.assertRegex(result.sql, r"^FALSE = \(.+ = 'treatment'\)$")
+        self.assertEqual(result.warnings, [])
+
+    def test_bare_enrollments_still_warns(self):
+        """Only the supported forms translate; `enrollments` has no column of
+        its own, so referencing it bare must still warn."""
+        result = jexl_to_sql("enrollments")
+        self.assertIsNone(result.sql)
+        self.assertIn("enrollments", result.warnings)
+
+    def test_sticky_enrollment_reduces_to_the_real_targeting(self):
+        result = jexl_to_sql("('me' in enrollments) || region == 'US'")
+        self.assertIn("EXISTS(", result.sql)
+        self.assertIn("nimbus_targeting_context_region", result.sql)
         self.assertEqual(result.warnings, [])
 
     def test_partial_translation_still_returns_sql(self):
