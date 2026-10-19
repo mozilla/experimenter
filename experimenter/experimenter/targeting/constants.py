@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 
 from django.db import models
@@ -8,6 +9,11 @@ from experimenter.experiments.constants import Application, NimbusConstants
 # here: https://searchfox.org/mozilla-central/source/browser/components/newtab/lib/ASRouterTargeting.jsm#526
 # and here:
 # https://searchfox.org/mozilla-central/source/toolkit/components/nimbus/lib/ExperimentManager.sys.mjs#94`
+
+PREFERENCE_TARGETING_TRANSFORM_PATTERN = re.compile(
+    r"""['"]([^'"]+)['"]\s*\|\s*(?:preferenceValue|preferenceIsUserSet"""
+    r"""|preferenceExists|preferenceIsLocked)\b"""
+)
 
 
 @dataclass
@@ -25,6 +31,10 @@ class NimbusTargetingConfig:
 
     def __post_init__(self):
         self.targeting_configs.append(self)
+
+    @property
+    def targeting_preferences(self):
+        return set(PREFERENCE_TARGETING_TRANSFORM_PATTERN.findall(self.targeting))
 
 
 PRESERVED_TARGETING_KEYS_BY_APPLICATION = {

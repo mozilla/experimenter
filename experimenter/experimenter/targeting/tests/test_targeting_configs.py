@@ -1,3 +1,5 @@
+from unittest import mock
+
 from django.test import TestCase
 from parameterized import parameterized
 
@@ -17,6 +19,7 @@ from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.targeting.constants import (
     PRESERVED_TARGETING_KEYS_BY_APPLICATION,
     TRANSFORMS_BY_APPLICATION,
+    NimbusTargetingConfig,
     TargetingConstants,
 )
 from experimenter.targeting.targeting_context_parser import TargetingContextFields
@@ -213,3 +216,57 @@ class TestTargetingConfigs(TestCase):
                 unknown_fields,
                 f"Unknown targeting fields in {targeting_config.slug}: {unknown_fields}",
             )
+
+
+class TestNimbusTargetingConfigPreferences(TestCase):
+    def build_targeting_config(self, targeting):
+        with mock.patch.object(NimbusTargetingConfig, "targeting_configs", []):
+            return NimbusTargetingConfig(
+                name="test",
+                slug="test",
+                description="",
+                targeting=targeting,
+                desktop_telemetry="",
+                sticky_required=False,
+                is_first_run_required=False,
+                application_choice_names=(Application.DESKTOP.name,),
+            )
+
+    @parameterized.expand(
+        [
+            (
+                "'browser.foo.enabled'|preferenceValue",
+                {"browser.foo.enabled"},
+            ),
+            (
+                '"browser.bar.set"|preferenceIsUserSet',
+                {"browser.bar.set"},
+            ),
+            (
+                "'browser.baz.exists'|preferenceExists",
+                {"browser.baz.exists"},
+            ),
+            (
+                "'browser.qux.locked' | preferenceIsLocked",
+                {"browser.qux.locked"},
+            ),
+            (
+                (
+                    "'browser.foo.enabled'|preferenceValue && "
+                    "'browser.bar.set'|preferenceIsUserSet"
+                ),
+                {"browser.foo.enabled", "browser.bar.set"},
+            ),
+            (
+                "true",
+                set(),
+            ),
+            (
+                "",
+                set(),
+            ),
+        ]
+    )
+    def test_targeting_preferences(self, targeting, expected_prefs):
+        targeting_config = self.build_targeting_config(targeting)
+        self.assertEqual(targeting_config.targeting_preferences, expected_prefs)
