@@ -1212,6 +1212,14 @@ features:
           Disable overriding the loadType during same document navigation on the domain specified by this URI.
         type: String
         default: ''
+  search-config-v3:
+    description: Feature to read search configuration from the search-config-v3 collection.
+    variables:
+      enabled:
+        description: |
+          Reads search configuration from the `search-config-v3` Remote Settings collection instead of `search-config-v2`.
+        type: Boolean
+        default: false
   search-extra-params:
     description: A feature that provides additional args for search.
     variables:
@@ -1504,7 +1512,7 @@ features:
         description: |
           Whether or not to enable the universal edge-to-edge wallpaper treatment.
         type: Boolean
-        default: false
+        default: true
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:

@@ -755,6 +755,15 @@ same-document-navigation-overrides-load-type:
       type: string
       description: |
         Disable overriding the loadType during same document navigation on the domain specified by this URI.
+search-config-v3:
+  description: Feature to read search configuration from the search-config-v3 collection.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Reads search configuration from the `search-config-v3` Remote Settings collection instead of `search-config-v2`.
 search-extra-params:
   description: A feature that provides additional args for search.
   hasExposure: true
