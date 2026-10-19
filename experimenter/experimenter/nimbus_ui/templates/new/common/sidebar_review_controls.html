@@ -62,7 +62,7 @@
             {% if experiment.latest_review_requested_by == user.email %}
               <button type="button"
                       id="rollout-review-cancel-btn"
-                      class="btn btn-secondary btn-sm w-100 mb-2 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
+                      class="btn btn-secondary btn-sm w-100 mb-2 d-flex align-items-center justify-content-center gap-2 sidebar-action-button confirm-unsaved-changes"
                       hx-post="{% url controls.reject_url experiment.slug %}"
                       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                       hx-disabled-elt=".sidebar-action-button"
@@ -93,7 +93,7 @@
                 </button>
                 <button type="button"
                         id="rollout-review-approve-btn"
-                        class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2{% if controls.approval_blocked_by_setup_issues and setup_issues_count %} opacity-50{% else %} sidebar-action-button{% endif %}"
+                        class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 confirm-unsaved-changes{% if controls.approval_blocked_by_setup_issues and setup_issues_count %} opacity-50{% else %} sidebar-action-button{% endif %}"
                         {% if controls.approval_blocked_by_setup_issues and setup_issues_count %} disabled aria-disabled="true" {% else %} hx-post="{% url controls.approve_url experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt=".sidebar-action-button" {% endif %}>
                   {% include "new/common/sidebar_transition_spinner.html" %}
 
@@ -112,7 +112,7 @@
                           rows="3"></textarea>
                 <button type="button"
                         id="rollout-review-submit-reject-btn"
-                        class="btn btn-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
+                        class="btn btn-danger btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button confirm-unsaved-changes"
                         hx-post="{% url controls.reject_url experiment.slug %}"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                         hx-disabled-elt=".sidebar-action-button"
