@@ -2354,6 +2354,34 @@ autofill-suppress-unrecognized-autocomplete:
         unclassified: it is offered no dropdown of its own, and it is not
         filled when autofill is triggered from another field in the same form.
 
+autofill-addresses-rust-storage:
+  description: Application Services (Rust) storage backend for saved addresses
+  owner: dlee@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        If true, saved addresses are migrated to and served from the Rust
+        autofill store. If false, they are served from the JSON store.
+      type: boolean
+      setPref:
+        branch: user
+        pref: extensions.formautofill.addresses.storage.rust.enabled
+
+autofill-credit-cards-rust-storage:
+  description: Application Services (Rust) storage backend for saved credit cards
+  owner: dlee@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        If true, saved credit cards are migrated to and served from the Rust
+        autofill store. If false, they are served from the JSON store.
+      type: boolean
+      setPref:
+        branch: user
+        pref: extensions.formautofill.creditCards.storage.rust.enabled
+
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
   owner: desktop-integrations@mozilla.com
@@ -2443,6 +2471,13 @@ cfr:
   schema:
     uri: "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json"
     path: "browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json"
+  variables: {}
+
+includeForWebPush:
+  description: "Marker feature with no configuration. Recipes that should be re-evaluated once the web push service starts include it alongside their real feature."
+  owner: omc-core@mozilla.com
+  hasExposure: false
+  allowCoenrollment: true
   variables: {}
 
 infobar:
@@ -5852,6 +5887,34 @@ deletePrivate:
         pref: browser.download.enableDeletePrivate
       description: Whether the setting for deleting files downloaded in private browsing is available to the user
 
+fireButton:
+  description: Controls the fire button, a navbar button that clears the whole browsing session and replaces all open windows with a fresh one
+  owner: hthai@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Recorded at the first startup after enrollment, in every branch, and once
+    per startup after that. That is when the enabled variable first decides
+    whether the button is in the toolbar.
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.fireButton.enabled
+      description: >-
+        Whether the fire button is available. At startup, if this is true, the
+        button is added to the navigation toolbar if it has not already been
+        added during a previous startup. A button the user removed is not added
+        back.
+    flow:
+      type: string
+      enum: ["panel", "direct"]
+      fallbackPref: browser.fireButton.flow
+      description: >-
+        What pressing the fire button does. "panel" shows a confirmation panel
+        that can delete everything or open the clear browsing data dialog.
+        "direct" opens the clear browsing data dialog.
+
 ipProtection:
   description: Prefs to control IP Protection feature
   owner: fchasen@mozilla.com
@@ -6194,6 +6257,13 @@ smartWindow:
         suggestions ("pick up where you left off") when true.
         Set to false to disable them without affecting the regular
         conversation starters.
+    aiTabEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.smartwindow.aitab.enabled
+      description: >-
+        Enables Smart Pages (AI Tab, about:smartpage) when true.
 
 smartWindowAgentWatch:
   description: >-
@@ -6254,6 +6324,14 @@ autoTabGrouping:
       description: >-
         Minimum candidate tabs a window must have before grouping is attempted.
         Lower = grouping runs on smaller windows (more coverage).
+    maxCandidateTabs:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.maxCandidateTabs
+      description: >-
+        Maximum tabs clustered per run. Larger windows only group their most
+        recently used tabs, which bounds how long a run takes.
     minTabsPerGroup:
       type: int
       setPref:
