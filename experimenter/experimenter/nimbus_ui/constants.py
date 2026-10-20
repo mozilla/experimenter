@@ -174,6 +174,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         "fxms_message_coenrollment",
         "messaging_control_no_message",
         "messaging_control_mismatch",
+        "messaging_active_notifications",
     }
 
     REVIEW_WARNING_LEARN_MORE = {

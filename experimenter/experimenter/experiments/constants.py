@@ -564,6 +564,10 @@ class NimbusConstants:
         "fxms_bmb_button",
     )
     DESKTOP_MESSAGING_MULTI_TEMPLATE = "multi"
+    DESKTOP_MESSAGING_SKIPPED_TEMPLATES = (
+        "toast_notification",
+        "menu_message",
+    )
 
     MOBILE_MESSAGING_SLUG = "messaging"
     MOBILE_MESSAGING_MESSAGES_FIELD = "messages"
@@ -955,6 +959,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "{feature_slug} {noun} {message_ids}, so control clients will not record "
         "exposure under the same conditions as treatment. Give each treatment "
         "message a control message with the same trigger and targeting."
+    )
+    WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS = (
+        "The targeting for {feature_slug} {noun} {message_ids} does not check "
+        "!activeNotifications, so it can show while another notification is already "
+        "on screen. Add !activeNotifications unless it is meant to show alongside "
+        "other messages."
     )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"
