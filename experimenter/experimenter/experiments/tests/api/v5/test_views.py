@@ -4,10 +4,12 @@ import json
 import yaml
 from django.conf import settings
 from django.core.cache import cache
+from django.http import QueryDict
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from experimenter.base.models import Country, Language, Locale
+from experimenter.experiments.api.cache import get_api_cache_key
 from experimenter.experiments.api.v5.serializers import NimbusExperimentCsvSerializer
 from experimenter.experiments.api.v5.views import NimbusExperimentCsvRenderer
 from experimenter.experiments.models import NimbusExperiment, Tag
@@ -545,6 +547,20 @@ class TestNimbusExperimentYamlListView(TestCase):
                 self.assertEqual(len(page1_slugs & page2_slugs), 0)
             finally:
                 YamlExportPagination.page_size = original_page_size
+
+    def test_page_param_stays_in_cache_key_and_unknown_params_are_dropped(self):
+        response = self.client.get(
+            reverse("nimbus-experiments-yaml"),
+            {"page": "1", "cb": "123"},
+            **{settings.OPENIDC_EMAIL_HEADER: "user@example.com"},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        self.assertIsNotNone(cache.get(get_api_cache_key("v5:yaml", QueryDict("page=1"))))
+        self.assertIsNone(
+            cache.get(get_api_cache_key("v5:yaml", QueryDict("page=1&cb=123")))
+        )
+        self.assertIsNone(cache.get(get_api_cache_key("v5:yaml")))
 
     def test_results_data_filters_to_overall_significant_only(self):
         """Results data should only include overall window and significant metrics."""
