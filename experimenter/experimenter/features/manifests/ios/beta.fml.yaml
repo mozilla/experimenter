@@ -948,6 +948,11 @@ features:
           The type of layout of the toolbars.
         type: Option<ToolbarLayoutType>
         default: version1
+      search_term_in_address_bar:
+        description: |
+          Shows the search term instead of the URL in the address bar when the current page is a search results page of the default search engine.
+        type: Boolean
+        default: false
       tab_tray_button_type:
         description: |
           The style of the tab tray button in the toolbar.

@@ -573,6 +573,10 @@ toolbar-refactor-feature:
       type: string
       description: |
         The type of layout of the toolbars.
+    search_term_in_address_bar:
+      type: boolean
+      description: |
+        Shows the search term instead of the URL in the address bar when the current page is a search results page of the default search engine.
     tab_tray_button_type:
       type: string
       description: |
