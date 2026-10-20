@@ -1469,6 +1469,27 @@ newtabPrivatePing:
         pref: browser.newtabpage.activity-stream.telemetry.privatePing.maxSubmissionDelayMs
       description: >-
         The maximum range for the random delay from scheduling the newtab-content ping to actually sending it. The minimum is 1000 by default. This is in milliseconds.
+    minSubmissionDelayMs:
+      type: int
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.minSubmissionDelayMs
+      description: >-
+        The bottom of the range for the random delay from scheduling the newtab-content ping to actually sending it. Values below 1000 are raised to 1000, and the maximum is raised to at least 5000 above whichever minimum is used. This is in milliseconds.
+    dwellTimeEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.dwellTime.enabled
+      description: >-
+        Adds a dwell_time to organic story clicks in the newtab-content ping, reporting roughly how long the user read the story they opened.
+    dwellTimeNoiseScale:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.dwellTime.noiseScale
+      description: >-
+        The scale b of the Laplace noise applied to dwell_time, which reports dwell * (1 + Laplace(b)). A decimal number as a string, such as "0.05". Values that are not a positive number fall back to 0.05, so the noise can not be turned off.
 newtabPublisherFavicons:
   description: Enabled publihser favicons on cards in newtab
   owner: nbarrett@mozilla.com
@@ -3006,6 +3027,23 @@ privateWindowRedesign:
         pref: "browser.privateWindowRedesign.enabled"
       description: >-
         Enables the new private browsing window redesign, including updated styling, promotions, animation and other visual improvements.
+
+protectionsPanelRedesign:
+  description: "Experimental features for the protections panel redesign"
+  owner: omc-core@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Recorded when the redesigned protections panel renders, so results can
+    be limited to users who were actually shown the treatment.
+  variables:
+    protectionsPanelRedesignGate:
+      type: boolean
+      setPref:
+        branch: default
+        pref: "browser.protectionsPanelRedesign.enabled"
+      description: >-
+        Enables the new protections panel redesign, including updated purple theme,
+        favicon display for top trackers, and improved tracker details UI.
 
 backgroundTaskMessage:
   description: "A Firefox Messaging System message for the background task message channel"
