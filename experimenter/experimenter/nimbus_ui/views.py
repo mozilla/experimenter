@@ -21,6 +21,7 @@ from experimenter.experiments.models import (
     NimbusVersionedSchema,
     Tag,
 )
+from experimenter.highwind.results import HighwindResultsManager
 from experimenter.jetstream.models import Metric
 from experimenter.jetstream.results_manager import ExperimentResultsManager
 from experimenter.nimbus_ui.constants import (
@@ -977,6 +978,38 @@ class ResultsView(PrefetchExperimentQuerysetMixin, NimbusExperimentViewMixin, De
         context["all_daily_metric_data"] = results_manager.build_window_metric_breakdown(
             analysis_basis, selected_segment, selected_reference_branch, "daily"
         )
+
+        return context
+
+
+class HighwindResultsView(
+    PrefetchExperimentQuerysetMixin, NimbusExperimentViewMixin, DetailView
+):
+    # Deliberately not reachable from the experiment navigation: this exists so Highwind's
+    # results can be read beside Jetstream's during validation, without changing the page
+    # anyone is using today.
+    template_name = "nimbus_experiments/highwind_results.html"
+
+    def get_template_names(self):
+        if self.request.headers.get("HX-Request"):
+            return ["nimbus_experiments/highwind_results-fragment.html"]
+        return [self.template_name]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        experiment = self.get_object()
+        results_manager = HighwindResultsManager(experiment)
+
+        context["experiment_context"] = build_experiment_context(self.object)
+        context["has_analysis"] = results_manager.has_analysis
+        context["analysis_last_updated"] = experiment.analysis_last_updated
+        context["analysis_errors"] = results_manager.errors
+        context["branch_data"] = results_manager.get_branch_data()
+        context["branch_leading_screenshot_forms"] = {
+            branch.slug: BranchLeadingScreenshotForm(instance=branch.screenshots.first())
+            for branch in experiment.branches.all()
+        }
+        context["ask_experimenter_slack_link"] = settings.ASK_EXPERIMENTER_SLACK_LINK
 
         return context
 

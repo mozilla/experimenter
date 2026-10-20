@@ -1,3 +1,4 @@
+from django.utils import timezone
 from mozilla_nimbus_schemas.highwind import (
     HighwindAnalysis,
     HighwindAnalysisUnit,
@@ -66,12 +67,8 @@ class HighwindMetadataFactory(ModelFactory[HighwindMetadata]):
 
 
 class HighwindAnalysisFactory(ModelFactory[HighwindAnalysis]):
-    """A run that produced no results, which is what a test wants unless it says so.
-
-    The pieces a filled-in analysis is built from each have a factory above, so a test
-    that needs results passes them in rather than writing the shape out by hand.
-    """
-
+    # Defaults to a run that produced no results. A test needing results passes in the
+    # pieces built from the factories above.
     __model__ = HighwindAnalysis
 
     metadata = HighwindMetadataFactory
@@ -81,10 +78,19 @@ class HighwindAnalysisFactory(ModelFactory[HighwindAnalysis]):
 
 
 def build_analysis(slug, generated_at, **kwargs):
-    """The analysis one experiment's run published, keyed to that experiment."""
     return HighwindAnalysisFactory.build(
         metadata=HighwindMetadataFactory.build(
             experiment_slug=slug, generated_at=generated_at
         ),
         **kwargs,
     )
+
+
+def build_analysis_data(slug="test-experiment", generated_at=None, **overrides):
+    analysis = HighwindAnalysisFactory.build(
+        metadata=HighwindMetadataFactory.build(
+            experiment_slug=slug,
+            generated_at=generated_at or timezone.now(),
+        )
+    )
+    return {**analysis.model_dump(mode="json"), **overrides}
