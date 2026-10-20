@@ -19,7 +19,7 @@ export interface HighwindAnalysis {
   errors: HighwindError[];
 }
 export interface HighwindMetadata {
-  schema_version: number;
+  schema_version: string;
   experiment_slug: string;
   as_of_date: string;
   generated_at: string;
