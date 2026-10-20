@@ -453,11 +453,16 @@ def _binary_to_sql(
     if op == "in" and column_map is JEXL_TO_BQ_COLUMN:
         attribute = _identifier_path(node.right)
         if attribute in _ACTIVE_SLUG_COLS:
-            # experiment.slug is the slug being sized. A Draft has not launched,
-            # so nobody is enrolled in it and the sticky-enrollment idiom
+            # experiment.slug is the slug being sized, and sizing runs only on
+            # Drafts, so nobody is enrolled and the sticky-enrollment idiom
             # `(experiment.slug in activeExperiments) || (<targeting>)` reduces
-            # to the targeting. No use sits under a pure AND, where this would
-            # instead force the estimate to zero.
+            # to the targeting. Two things this relies on, both verified:
+            # no use sits under a pure AND, where FALSE would force the estimate
+            # to zero; and no Draft slug appears in the recorded arrays.
+            #
+            # Only valid while sizing is Draft-only. Extended to a live
+            # experiment this silently undercounts, dropping the clients who
+            # enrolled, drifted out of the targeting, and stay enrolled.
             if _identifier_path(node.left) == "experiment.slug":
                 return "FALSE"
             if isinstance(node.left, Literal) and isinstance(node.left.value, str):
