@@ -1031,7 +1031,7 @@ features:
       campaign-utm-content:
         description: The "utm_content" value used to identify installs from the pairing campaign.
         type: String
-        default: ''
+        default: DTM_SYNC_PAIR_V2
       enabled:
         description: Whether the Sync sign-in card can be shown during initial onboarding.
         type: Boolean
