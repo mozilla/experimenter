@@ -408,6 +408,22 @@ class TestJEXLToSQL(TestCase):
         self.assertRegex(result.sql, r"^FALSE = \(.+ = 'treatment'\)$")
         self.assertEqual(result.warnings, [])
 
+    @parameterized.expand(
+        [
+            (
+                "transform_subject",
+                "locale == 'en-US' && userMonthlyActivity|mapToProperty('1')[0] != null",
+                "|mapToProperty",
+            ),
+            ("array_literal_subject", "['a','b'][0] == 'a'", "filter expression"),
+        ]
+    )
+    def test_filter_on_non_identifier_warns(self, _name, jexl, expected_warning):
+        """A filter whose subject is not an identifier chain has no path to warn
+        about, so it must fall back to a name rather than drop the clause."""
+        result = jexl_to_sql(jexl)
+        self.assertIn(expected_warning, result.warnings)
+
     def test_bare_enrollments_still_warns(self):
         """Only the supported forms translate; `enrollments` has no column of
         its own, so referencing it bare must still warn."""

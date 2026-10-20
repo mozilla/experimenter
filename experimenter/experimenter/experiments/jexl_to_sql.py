@@ -423,7 +423,14 @@ def _node_to_sql(node, warnings: list[str], column_map: dict[str, str]) -> Optio
             if isinstance(addon_id, str):
                 # Wrap in parens so result can be used in comparisons: (...) != NULL
                 return f"('{addon_id}' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons')))"
-        _add_warning(warnings, subject_path or _identifier_path(node.subject))
+        # subject_path is empty unless the subject is an identifier chain, and
+        # _add_warning ignores an empty attribute, so fall back to a real name.
+        if subject_path:
+            _add_warning(warnings, subject_path)
+        elif isinstance(node.subject, Transform):
+            _add_warning(warnings, f"|{node.subject.name}")
+        else:
+            _add_warning(warnings, "filter expression")
         return None
     return None
 
