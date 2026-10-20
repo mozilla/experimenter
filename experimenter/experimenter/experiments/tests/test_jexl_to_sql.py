@@ -51,6 +51,8 @@ _USER_PREFS = "metrics.object.nimbus_targeting_environment_user_set_prefs"
 _UMA = "metrics.object.nimbus_targeting_context_user_monthly_activity"
 _FF = "metrics.quantity.nimbus_targeting_context_firefox_version"
 _EM = "metrics.object.nimbus_targeting_context_enrollments_map"
+_AE = "metrics.object.nimbus_targeting_context_active_experiments"
+_AR = "metrics.object.nimbus_targeting_context_active_rollouts"
 
 
 class TestJEXLToSQL(TestCase):
@@ -346,6 +348,40 @@ class TestJEXLToSQL(TestCase):
         result = jexl_to_sql("enrollmentsMap['other-exp'] == null")
         self.assertIn("IS NULL", result.sql)
         self.assertEqual(result.warnings, [])
+
+    @parameterized.expand(
+        [
+            ("active_experiments", "activeExperiments", _AE),
+            ("active_rollouts", "activeRollouts", _AR),
+        ]
+    )
+    def test_slug_in_active_arrays(self, _name, attribute, column):
+        result = jexl_to_sql(f"'other-exp' in {attribute}")
+        self.assertEqual(
+            result.sql, f"('other-exp' IN UNNEST(JSON_VALUE_ARRAY({column})))"
+        )
+        self.assertEqual(result.warnings, [])
+
+    @parameterized.expand(
+        [("experiments", "activeExperiments"), ("rollouts", "activeRollouts")]
+    )
+    def test_sticky_enrollment_reduces_to_the_targeting(self, _name, attribute):
+        """experiment.slug is the slug being sized, and a Draft has not launched,
+        so the sticky idiom contributes nobody and leaves the targeting alone."""
+        result = jexl_to_sql(f"(experiment.slug in {attribute}) || (locale == 'en-US')")
+        self.assertEqual(
+            result.sql,
+            "(FALSE OR metrics.string.nimbus_targeting_context_locale = 'en-US')",
+        )
+        self.assertEqual(result.warnings, [])
+
+    @parameterized.expand([("fenix", FENIX_APP), ("ios", IOS_APP)])
+    def test_active_arrays_are_desktop_only(self, _name, app):
+        """Mobile records no enrollment state."""
+        for attribute in ("activeExperiments", "activeRollouts"):
+            result = jexl_to_sql(f"'other-exp' in {attribute}", app=app)
+            self.assertIsNone(result.sql)
+            self.assertIn(attribute, result.warnings)
 
     def test_in_enrollments_matches_any_branch(self):
         """`'slug' in enrollments` matches on experimentSlug alone, so it is true

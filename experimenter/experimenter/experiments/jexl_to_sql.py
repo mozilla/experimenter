@@ -146,6 +146,19 @@ def _enrolled_in_sql(slug: str) -> str:
     )
 
 
+# Arrays of slug strings. Desktop only.
+_ACTIVE_SLUG_COLS = {
+    "activeExperiments": "metrics.object.nimbus_targeting_context_active_experiments",
+    "activeRollouts": "metrics.object.nimbus_targeting_context_active_rollouts",
+}
+
+
+def _active_slug_in_sql(slug: str, attribute: str) -> str:
+    """'slug' in activeExperiments / activeRollouts."""
+    col = _ACTIVE_SLUG_COLS[attribute]
+    return f"({_sql_string(slug)} IN UNNEST(JSON_VALUE_ARRAY({col})))"
+
+
 _PREF_VALUES_COL = "metrics.object.nimbus_targeting_environment_pref_values"
 _USER_SET_PREFS_COL = "metrics.object.nimbus_targeting_environment_user_set_prefs"
 _USER_MONTHLY_ACTIVITY_COL = (
@@ -265,10 +278,12 @@ KNOWN_UNTRANSLATABLE = {
     "isFirstRun",  # Desktop uses isFirstStartup; also mobile-only
     "is_first_run",
     "isNonStubFirstRun",
+    # These four are handled as membership tests before the warning path. They
+    # stay listed because a bare reference, outside `x in <attr>`, has no column.
     "enrollments",
     "enrollmentsMap",
-    "activeExperiments",  # circular
-    "activeRollouts",  # circular
+    "activeExperiments",
+    "activeRollouts",
     "newtabSettings",
     "searchEngines",
     "addonsInfo",  # parent blocked; specific sub-fields mapped above
@@ -433,6 +448,20 @@ def _binary_to_sql(
         and isinstance(node.left.value, str)
     ):
         return _enrolled_in_sql(node.left.value)
+
+    # x in activeExperiments / activeRollouts — Desktop only.
+    if op == "in" and column_map is JEXL_TO_BQ_COLUMN:
+        attribute = _identifier_path(node.right)
+        if attribute in _ACTIVE_SLUG_COLS:
+            # experiment.slug is the slug being sized. A Draft has not launched,
+            # so nobody is enrolled in it and the sticky-enrollment idiom
+            # `(experiment.slug in activeExperiments) || (<targeting>)` reduces
+            # to the targeting. No use sits under a pure AND, where this would
+            # instead force the estimate to zero.
+            if _identifier_path(node.left) == "experiment.slug":
+                return "FALSE"
+            if isinstance(node.left, Literal) and isinstance(node.left.value, str):
+                return _active_slug_in_sql(node.left.value, attribute)
 
     if op in ("&&", "||"):
         left = _node_to_sql(node.left, warnings, column_map)
