@@ -4795,6 +4795,28 @@ scriptloader:
         branch: user
         pref: "dom.script_loader.experimental.navigation_cache"
 
+speculationRulesPrefetch:
+  description: >-
+    Speculation Rules prefetch, and the measurement-only control branch that
+    records prefetch candidates without fetching them.
+  owner: acreskey@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: Whether Speculation Rules are processed.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.speculation_rules.enabled"
+    dryRun:
+      description: >-
+        Record prefetch candidates but never fetch them, so a navigation can be
+        reported as one that would have been prefetched. Control branch only.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.speculation_rules.prefetch.dry_run"
+
 opaqueResponseBlocking:
   description: Prefs to enable Opaque Response Blocking
   owner: farre@mozilla.com
