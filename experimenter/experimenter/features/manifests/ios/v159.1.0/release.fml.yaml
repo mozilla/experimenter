@@ -160,11 +160,16 @@ features:
         default: {}
   google-lens-feature:
     description: |
-      The feature flag to manage the rollout of Google Lens entry points.
+      The feature flag to manage the rollout of Google Lens.
     variables:
       enabled:
         description: |
           Enables Google Lens entry points.
+        type: Boolean
+        default: false
+      search-interstitial-enabled:
+        description: |
+          Enables the Google Lens search interstitial.
         type: Boolean
         default: false
   homepage-redesign-feature:
