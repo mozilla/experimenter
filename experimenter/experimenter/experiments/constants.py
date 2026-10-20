@@ -950,6 +950,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "will not record exposure events. Add a message with the same trigger and "
         "targeting as the treatment message and no template or content."
     )
+    WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH = (
+        "The control branch has no message with the same trigger and targeting as "
+        "{feature_slug} {noun} {message_ids}, so control clients will not record "
+        "exposure under the same conditions as treatment. Give each treatment "
+        "message a control message with the same trigger and targeting."
+    )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"
 
