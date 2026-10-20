@@ -366,8 +366,7 @@ class TestJEXLToSQL(TestCase):
         [("experiments", "activeExperiments"), ("rollouts", "activeRollouts")]
     )
     def test_sticky_enrollment_reduces_to_the_targeting(self, _name, attribute):
-        """experiment.slug is the slug being sized, and a Draft has not launched,
-        so the sticky idiom contributes nobody and leaves the targeting alone."""
+        # A Draft has not launched, so the sticky idiom contributes nobody.
         result = jexl_to_sql(f"(experiment.slug in {attribute}) || (locale == 'en-US')")
         self.assertEqual(
             result.sql,
@@ -377,7 +376,6 @@ class TestJEXLToSQL(TestCase):
 
     @parameterized.expand([("fenix", FENIX_APP), ("ios", IOS_APP)])
     def test_active_arrays_are_desktop_only(self, _name, app):
-        """Mobile records no enrollment state."""
         for attribute in ("activeExperiments", "activeRollouts"):
             result = jexl_to_sql(f"'other-exp' in {attribute}", app=app)
             self.assertIsNone(result.sql)
@@ -419,8 +417,6 @@ class TestJEXLToSQL(TestCase):
         ]
     )
     def test_filter_on_non_identifier_warns(self, _name, jexl, expected_warning):
-        """A filter whose subject is not an identifier chain has no path to warn
-        about, so it must fall back to a name rather than drop the clause."""
         result = jexl_to_sql(jexl)
         self.assertIn(expected_warning, result.warnings)
 
