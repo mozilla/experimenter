@@ -2687,14 +2687,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         }
 
     @property
+    def home_type(self):
+        if self.is_firefox_labs_opt_in:
+            return NimbusConstants.HomeTypeChoices.LABS
+        if self.is_rollout:
+            return NimbusConstants.HomeTypeChoices.ROLLOUT
+        return NimbusConstants.HomeTypeChoices.EXPERIMENT
+
+    @property
     def home_type_choice(self):
-        match (self.is_firefox_labs_opt_in, self.is_rollout):
-            case (True, _):
-                return NimbusConstants.HomeTypeChoices.LABS.label
-            case (False, True):
-                return NimbusConstants.HomeTypeChoices.ROLLOUT.label
-            case (False, False):
-                return NimbusConstants.HomeTypeChoices.EXPERIMENT.label
+        return self.home_type.label
+
+    @property
+    def type_icon_info(self):
+        return NimbusConstants.HomeTypeChoices.get_icon_info(self.home_type)
 
     @property
     def qa_status_icon_info(self):

@@ -586,6 +586,14 @@ class NimbusConstants:
         EXPERIMENT = "Experiment", "🔬 Experiment"
         LABS = "Labs", "🧪 Labs"
 
+        @staticmethod
+        def get_icon_info(home_type):
+            from experimenter.nimbus_ui.constants import TYPE_ICON_MAP
+
+            return TYPE_ICON_MAP.get(
+                home_type, TYPE_ICON_MAP[NimbusConstants.HomeTypeChoices.EXPERIMENT]
+            )
+
     Version = Version
 
     class EmailType(models.TextChoices):
