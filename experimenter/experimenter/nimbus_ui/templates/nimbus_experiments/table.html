@@ -42,7 +42,16 @@
       {% for experiment in experiments %}
         <tr>
           <th scope="row">
-            <a href="{{ experiment.get_detail_url }}" class="d-block mb-1">{{ experiment.name }}</a>
+            {% with icon_info=experiment.type_icon_info %}
+              <div class="d-flex align-items-start gap-1 mb-1">
+                <span class="type-icon-circle d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0 {{ icon_info.bg }} {{ icon_info.color }}"
+                      data-bs-toggle="tooltip"
+                      title="{{ icon_info.label }}">
+                  <i class="{{ icon_info.icon }}"></i>
+                </span>
+                <a href="{{ experiment.get_detail_url }}">{{ experiment.name }}</a>
+              </div>
+            {% endwith %}
             {% include "nimbus_experiments/experiment_tags.html" with hide_no_tags=True %}
 
             {% if active_status == "MyExperiments" %}
