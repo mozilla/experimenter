@@ -146,6 +146,19 @@ def _enrolled_in_sql(slug: str) -> str:
     )
 
 
+# Arrays of slug strings. Desktop only.
+_ACTIVE_SLUG_COLS = {
+    "activeExperiments": "metrics.object.nimbus_targeting_context_active_experiments",
+    "activeRollouts": "metrics.object.nimbus_targeting_context_active_rollouts",
+}
+
+
+def _active_slug_in_sql(slug: str, attribute: str) -> str:
+    """'slug' in activeExperiments / activeRollouts."""
+    col = _ACTIVE_SLUG_COLS[attribute]
+    return f"({_sql_string(slug)} IN UNNEST(JSON_VALUE_ARRAY({col})))"
+
+
 _PREF_VALUES_COL = "metrics.object.nimbus_targeting_environment_pref_values"
 _USER_SET_PREFS_COL = "metrics.object.nimbus_targeting_environment_user_set_prefs"
 _USER_MONTHLY_ACTIVITY_COL = (
@@ -273,10 +286,12 @@ KNOWN_UNTRANSLATABLE = {
     "isFirstRun",  # Desktop uses isFirstStartup; also mobile-only
     "is_first_run",
     "isNonStubFirstRun",
+    # These four are handled as membership tests before the warning path. They
+    # stay listed because a bare reference, outside `x in <attr>`, has no column.
     "enrollments",
     "enrollmentsMap",
-    "activeExperiments",  # circular
-    "activeRollouts",  # circular
+    "activeExperiments",
+    "activeRollouts",
     "newtabSettings",
     "searchEngines",
     "addonsInfo",  # parent blocked; specific sub-fields mapped above
@@ -416,7 +431,14 @@ def _node_to_sql(node, warnings: list[str], column_map: dict[str, str]) -> Optio
             if isinstance(addon_id, str):
                 # Wrap in parens so result can be used in comparisons: (...) != NULL
                 return f"('{addon_id}' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons')))"
-        _add_warning(warnings, subject_path or _identifier_path(node.subject))
+        # subject_path is empty unless the subject is an identifier chain, and
+        # _add_warning ignores an empty attribute, so fall back to a real name.
+        if subject_path:
+            _add_warning(warnings, subject_path)
+        elif isinstance(node.subject, Transform):
+            _add_warning(warnings, f"|{node.subject.name}")
+        else:
+            _add_warning(warnings, "filter expression")
         return None
     return None
 
@@ -451,6 +473,25 @@ def _binary_to_sql(
         and isinstance(node.left.value, str)
     ):
         return _addon_installed_sql(node.left.value)
+
+    # x in activeExperiments / activeRollouts — Desktop only.
+    if op == "in" and column_map is JEXL_TO_BQ_COLUMN:
+        attribute = _identifier_path(node.right)
+        if attribute in _ACTIVE_SLUG_COLS:
+            # experiment.slug is the slug being sized, and sizing runs only on
+            # Drafts, so nobody is enrolled and the sticky-enrollment idiom
+            # `(experiment.slug in activeExperiments) || (<targeting>)` reduces
+            # to the targeting. Two things this relies on, both verified:
+            # no use sits under a pure AND, where FALSE would force the estimate
+            # to zero; and no Draft slug appears in the recorded arrays.
+            #
+            # Only valid while sizing is Draft-only. Extended to a live
+            # experiment this silently undercounts, dropping the clients who
+            # enrolled, drifted out of the targeting, and stay enrolled.
+            if _identifier_path(node.left) == "experiment.slug":
+                return "FALSE"
+            if isinstance(node.left, Literal) and isinstance(node.left.value, str):
+                return _active_slug_in_sql(node.left.value, attribute)
 
     if op in ("&&", "||"):
         left = _node_to_sql(node.left, warnings, column_map)
