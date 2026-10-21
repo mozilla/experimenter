@@ -160,6 +160,13 @@ def _active_slug_in_sql(slug: str, attribute: str) -> str:
 
 
 _PREF_VALUES_COL = "metrics.object.nimbus_targeting_environment_pref_values"
+
+
+def _normalize_pref_name(pref: str) -> str:
+    # Mirror of normalizePrefName in TargetingContextRecorder.sys.mjs.
+    return pref.replace("-", "_").replace(".", "__")
+
+
 _USER_SET_PREFS_COL = "metrics.object.nimbus_targeting_environment_user_set_prefs"
 _USER_MONTHLY_ACTIVITY_COL = (
     "metrics.object.nimbus_targeting_context_user_monthly_activity"
@@ -707,11 +714,11 @@ def _transform_to_sql(
         if column_map is not JEXL_TO_BQ_COLUMN:
             _add_warning(warnings, "|preferenceValue")
             return None
-        # Pref names stored with dots replaced by __ in BigQuery.
         pref_name = _literal_value(node.subject)
         if pref_name:
-            bq_key = pref_name.replace(".", "__")
-            return f"JSON_VALUE({_PREF_VALUES_COL}, '$.{bq_key}')"
+            return (
+                f"JSON_VALUE({_PREF_VALUES_COL}, '$.{_normalize_pref_name(pref_name)}')"
+            )
         _add_warning(warnings, "|preferenceValue")
         return None
 
