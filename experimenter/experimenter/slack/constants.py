@@ -111,12 +111,6 @@ class SlackConstants:
         "(current: {total_enrollments:,}).\n"
         "Please review targeting, percentage, and feature conflicts."
     )
-    SLACK_NOT_UNENROLLING_ACTION = "⚠️ Clients not unenrolling"
-    SLACK_NOT_UNENROLLING_DETAILS = (
-        "Ended {days} days ago and fewer than {client_threshold:,} clients have "
-        "unenrolled (current: {unenrollments:,}).\n"
-        "Recipe deletions may not be reaching clients. Please report in #nimbus-help."
-    )
     SLACK_FEATURE_CONFLICT_ACTION = "⚠️ Feature conflict"
     SLACK_FEATURE_CONFLICT_DETAILS = (
         "Affects {rate:.1%} of the evaluated population.\n"
@@ -209,12 +203,6 @@ class SlackConstants:
     )
     SLACK_LOG_FAILED_SEND_ZERO_ENROLLMENT = (
         "Failed to send zero enrollment alert for experiment {experiment}"
-    )
-    SLACK_LOG_NOT_UNENROLLING_SENT = (
-        "Sent not unenrolling alert for experiment {experiment}"
-    )
-    SLACK_LOG_FAILED_SEND_NOT_UNENROLLING = (
-        "Failed to send not unenrolling alert for experiment {experiment}"
     )
     SLACK_LOG_FEATURE_CONFLICT_SENT = (
         "Sent feature conflict alert for experiment {experiment}"
