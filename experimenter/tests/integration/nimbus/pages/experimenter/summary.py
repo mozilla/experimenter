@@ -180,11 +180,11 @@ class SummaryPage(ExperimenterBase):
         return self.RequestReview(self)
 
     def approve(self):
-        self.click_element(self._approve_request_button_locator)
+        self.click_until_removed(self._approve_request_button_locator)
 
     def request_update_and_approve(self):
         self.request_update()
-        self.click_element(self._approve_request_button_locator)
+        self.click_until_removed(self._approve_request_button_locator)
 
     def request_update_and_reject(self):
         self.request_update()

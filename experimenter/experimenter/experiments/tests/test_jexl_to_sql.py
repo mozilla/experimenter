@@ -40,6 +40,9 @@ _M_UTM_SOURCE = _ctx("install_referrer_response_utm_source")
 _M_EVENT_QUERY = _ctx("event_query_values.days_opened_in_last_28", "INT64")
 _M_DEFAULT_BROWSER = _ctx("is_default_browser", "BOOL")
 _M_PHONE = _ctx("is_phone", "BOOL")
+_M_ADDON_UBLOCK = (
+    "('uBlock0@raymondhill.net' IN UNNEST(JSON_VALUE_ARRAY(context, '$.addon_ids')))"
+)
 
 _OS = "metrics.object.nimbus_targeting_context_os"
 _BS = "metrics.object.nimbus_targeting_context_browser_settings"
@@ -809,20 +812,6 @@ class TestJEXLToSQLMobile(TestCase):
         self.assertIsNotNone(result.sql)
         self.assertEqual(result.warnings, [])
 
-    def test_addon_ids_in_fenix(self):
-        # addonIds not yet in the Fenix BQ table (EXP-7326) — untranslatable.
-        result = jexl_to_sql("'uBlock0@raymondhill.net' in addon_ids", app=FENIX_APP)
-        self.assertIsNone(result.sql)
-        self.assertIn("addon_ids", result.warnings)
-
-    def test_addon_ids_not_in_fenix(self):
-        # addonIds not yet in the Fenix BQ table (EXP-7326) — untranslatable.
-        result = jexl_to_sql(
-            "('uBlock0@raymondhill.net' in addon_ids) == false", app=FENIX_APP
-        )
-        self.assertIsNone(result.sql)
-        self.assertIn("addon_ids", result.warnings)
-
     def test_real_config_fenix_first_run_region(self):
         result = jexl_to_sql("isFirstRun && region == 'US'", app=FENIX_APP)
         self.assertEqual(result.sql, f"({_M_FIRST_RUN} AND {_M_REGION} = 'US')")
@@ -944,6 +933,26 @@ class TestJEXLToSQLMobile(TestCase):
             result = jexl_to_sql("isReviewCheckerEnabled == true", app=app)
             self.assertIsNone(result.sql, app)
             self.assertIn("isReviewCheckerEnabled", result.warnings)
+
+    def test_addon_id_in_addon_ids(self):
+        result = jexl_to_sql("'uBlock0@raymondhill.net' in addon_ids", app=FENIX_APP)
+        self.assertEqual(result.sql, _M_ADDON_UBLOCK)
+        self.assertEqual(result.warnings, [])
+
+    def test_addon_id_membership_negated(self):
+        """The Android ToU configs spell exclusion as (x in addon_ids) == false."""
+        result = jexl_to_sql(
+            "('uBlock0@raymondhill.net' in addon_ids) == false", app=FENIX_APP
+        )
+        self.assertEqual(result.sql, f"{_M_ADDON_UBLOCK} = FALSE")
+        self.assertEqual(result.warnings, [])
+
+    def test_addon_ids_is_fenix_only(self):
+        """iOS does not record add-on IDs, and Desktop uses addonsInfo.addons."""
+        for app in (IOS_APP, None):
+            result = jexl_to_sql("'uBlock0@raymondhill.net' in addon_ids", app=app)
+            self.assertIsNone(result.sql)
+            self.assertIn("addon_ids", result.warnings)
 
     def test_tou_attributes_stay_untranslatable_on_desktop(self):
         """Mobile-only context keys; Desktop records none of them."""

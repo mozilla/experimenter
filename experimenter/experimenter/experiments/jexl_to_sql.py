@@ -242,6 +242,14 @@ JEXL_TO_BQ_COLUMN_FENIX = {
     **_both("noShortcutsOrStoriesOptOuts", "no_shortcuts_or_stories_opt_outs", "BOOL"),
 }
 
+
+def _addon_installed_sql(addon_id: str) -> str:
+    """'addon-id' in addon_ids — Fenix records installed add-on IDs as an array."""
+    return (
+        f"({_sql_string(addon_id)} IN UNNEST(JSON_VALUE_ARRAY(context, '$.addon_ids')))"
+    )
+
+
 # iOS (Firefox for iOS)
 JEXL_TO_BQ_COLUMN_IOS = {
     **_SHARED_MOBILE_COLUMNS,
@@ -455,6 +463,16 @@ def _binary_to_sql(
         and isinstance(node.left.value, str)
     ):
         return _enrolled_in_sql(node.left.value)
+
+    # 'addon-id' in addon_ids — Fenix only; iOS does not record add-on IDs.
+    if (
+        op == "in"
+        and column_map is JEXL_TO_BQ_COLUMN_FENIX
+        and _identifier_path(node.right) == "addon_ids"
+        and isinstance(node.left, Literal)
+        and isinstance(node.left.value, str)
+    ):
+        return _addon_installed_sql(node.left.value)
 
     # x in activeExperiments / activeRollouts — Desktop only.
     if op == "in" and column_map is JEXL_TO_BQ_COLUMN:

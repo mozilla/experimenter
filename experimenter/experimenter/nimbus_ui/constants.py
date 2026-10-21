@@ -174,6 +174,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         "fxms_message_coenrollment",
         "messaging_control_no_message",
         "messaging_control_mismatch",
+        "messaging_active_notifications",
     }
 
     REVIEW_WARNING_LEARN_MORE = {
@@ -824,6 +825,31 @@ def _get_status_icon_map():
     }
 
 
+def _get_type_icon_map():
+    from experimenter.experiments.constants import NimbusConstants
+
+    return {
+        NimbusConstants.HomeTypeChoices.EXPERIMENT: {
+            "icon": "fa-solid fa-chart-line",
+            "color": "text-primary",
+            "bg": "bg-primary-subtle",
+            "label": NimbusConstants.HomeTypeChoices.EXPERIMENT.value,
+        },
+        NimbusConstants.HomeTypeChoices.ROLLOUT: {
+            "icon": "fa-solid fa-rocket",
+            "color": "text-success",
+            "bg": "bg-success-subtle",
+            "label": NimbusConstants.HomeTypeChoices.ROLLOUT.value,
+        },
+        NimbusConstants.HomeTypeChoices.LABS: {
+            "icon": "fa-solid fa-flask",
+            "color": "text-warning-emphasis",
+            "bg": "bg-warning-subtle",
+            "label": NimbusConstants.HomeTypeChoices.LABS.value,
+        },
+    }
+
+
 def _get_schema_diff_size_config():
     return {
         "thresholds": {
@@ -859,6 +885,7 @@ QA_STATUS_ICON_MAP = _get_qa_status_icon_map()
 CHANNEL_ICON_MAP = _get_channel_icon_map()
 APPLICATION_ICON_MAP = _get_application_icon_map()
 STATUS_ICON_MAP = _get_status_icon_map()
+TYPE_ICON_MAP = _get_type_icon_map()
 SCHEMA_DIFF_SIZE_CONFIG = _get_schema_diff_size_config()
 
 # Icon filter type constants for template tags

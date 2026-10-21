@@ -5424,6 +5424,28 @@ WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_1_TRAINHOP_MAX = (
     )
 )
 
+WIDGETS_POTD_INTERACTED_NOT_TURNED_OFF = NimbusTargetingConfig(
+    name="New Tab Picture of the Day Interaction, Widget Not Turned Off",
+    slug="widgets-potd-interacted-not-turned-off",
+    description=(
+        "Users who have interacted with the Picture of the Day widget and have "
+        "not turned it off"
+    ),
+    targeting=(
+        "("
+        "'browser.newtabpage.activity-stream.widgets.pictureOfTheDay.interaction'"
+        "|preferenceValue) && !(("
+        "'browser.newtabpage.activity-stream.widgets.pictureOfTheDay.enabled'"
+        "|preferenceIsUserSet) && !("
+        "'browser.newtabpage.activity-stream.widgets.pictureOfTheDay.enabled'"
+        "|preferenceValue))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     name="Engaged with Sports/Clocks/Lists/Timer widget, that widget not disabled",
     slug="widgets-any-four-engaged",
@@ -5976,6 +5998,26 @@ CBWN_DELIVERY_ESTABLISHED_PROFILES = NimbusTargetingConfig(
         f"{PROFILE28DAYS} && "
         f"{NO_ENTERPRISE.targeting} && "
         f"{HAS_ALLOWED_NOTIFICATIONS.targeting}"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_WEB_PUSH_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Existing user, active web push subscription, no enterprise policies",
+    slug="existing_user_web_push_no_enterprise",
+    description=(
+        "Users with profiles 28 days or older, without active enterprise "
+        "policies, who have at least one active web push subscription. "
+        "Requires Firefox 160+; include the includeForWebPush feature so "
+        "targeting is re-checked once the web push service starts"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && "
+        f"{NO_ENTERPRISE.targeting} && "
+        "activeWebPushSubscriptionCount > 0"
     ),
     desktop_telemetry="",
     sticky_required=True,
