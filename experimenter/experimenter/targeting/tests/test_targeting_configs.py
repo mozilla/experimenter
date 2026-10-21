@@ -19,13 +19,17 @@ from experimenter.targeting.constants import (
     TRANSFORMS_BY_APPLICATION,
     TargetingConstants,
 )
-from experimenter.targeting.targeting_context_parser import TargetingContextFields
+from experimenter.targeting.targeting_context_parser import (
+    RecordedPrefs,
+    TargetingContextFields,
+)
 
 
 class TestTargetingConfigs(TestCase):
     def setUp(self):
         super().setUp()
         TargetingContextFields.clear_cache()
+        RecordedPrefs.clear_cache()
 
     def test_all_targeting_configs_defined_in_constants(self):
         self.assertEqual(
@@ -57,7 +61,7 @@ class TestTargetingConfigs(TestCase):
             return
         result = jexl_to_sql(targeting_config.targeting)
         for warning in result.warnings:
-            if warning.startswith("|"):
+            if "|" in warning:
                 continue
             parts = warning.split(".")
             self.assertTrue(
@@ -105,7 +109,7 @@ class TestTargetingConfigs(TestCase):
             return
         result = jexl_to_sql(targeting_config.targeting, app="fenix")
         for warning in result.warnings:
-            if warning.startswith("|"):
+            if "|" in warning:
                 continue
             parts = warning.split(".")
             self.assertTrue(
@@ -131,7 +135,7 @@ class TestTargetingConfigs(TestCase):
             return
         result = jexl_to_sql(targeting_config.targeting, app="ios")
         for warning in result.warnings:
-            if warning.startswith("|"):
+            if "|" in warning:
                 continue
             parts = warning.split(".")
             self.assertTrue(
@@ -176,6 +180,16 @@ class TestTargetingConfigs(TestCase):
             f"or KNOWN_UNTRANSLATABLE: {unmapped}. "
             f"Add a mapping in jexl_to_sql.py or add to KNOWN_UNTRANSLATABLE.",
         )
+
+    def test_recorded_prefs_parses_the_recorder_list(self):
+        # Guards the parser against a reformat of the PREFS block. An empty
+        # result would silently mark every pref unrecorded.
+        prefs = RecordedPrefs.for_desktop()
+        self.assertTrue(prefs)
+        self.assertIn("browser.newtabpage.activity-stream.feeds.topsites", prefs)
+        for pref in prefs:
+            self.assertNotIn('"', pref)
+            self.assertNotIn(":", pref)
 
     @parameterized.expand([(t,) for t in TargetingConstants.TARGETING_CONFIGS.values()])
     def test_validate_targeting_config_fields(self, targeting_config):
