@@ -5983,6 +5983,26 @@ CBWN_DELIVERY_ESTABLISHED_PROFILES = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_USER_WEB_PUSH_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Existing user, active web push subscription, no enterprise policies",
+    slug="existing_user_web_push_no_enterprise",
+    description=(
+        "Users with profiles 28 days or older, without active enterprise "
+        "policies, who have at least one active web push subscription. "
+        "Requires Firefox 160+; include the includeForWebPush feature so "
+        "targeting is re-checked once the web push service starts"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && "
+        f"{NO_ENTERPRISE.targeting} && "
+        "activeWebPushSubscriptionCount > 0"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NO_FORGET_BUTTON = NimbusTargetingConfig(
     name="Forget button not in toolbar",
     slug="no_forget_button",
