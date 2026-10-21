@@ -174,13 +174,13 @@ class TestJEXLToSQL(TestCase):
             ),
             (
                 "pref_value_eq_bool_false",
-                "'browser.shell.checkDefaultBrowser'|preferenceValue == false",
-                f"JSON_VALUE({_PREF}, '$.browser__shell__checkDefaultBrowser') = 'false'",
+                "'browser.newtabpage.enabled'|preferenceValue == false",
+                f"JSON_VALUE({_PREF}, '$.browser__newtabpage__enabled') = 'false'",
             ),
             (
                 "pref_value_eq_bool_true",
-                "'app.normandy.enabled'|preferenceValue == true",
-                f"JSON_VALUE({_PREF}, '$.app__normandy__enabled') = 'true'",
+                "'browser.profiles.created'|preferenceValue == true",
+                f"JSON_VALUE({_PREF}, '$.browser__profiles__created') = 'true'",
             ),
             (
                 # The recorder maps - to _ as well as . to __, so a hyphenated
@@ -199,33 +199,33 @@ class TestJEXLToSQL(TestCase):
             ),
             (
                 "pref_value_eq_bool_reversed",
-                "false == 'browser.shell.checkDefaultBrowser'|preferenceValue",
-                f"'false' = JSON_VALUE({_PREF}, '$.browser__shell__checkDefaultBrowser')",
+                "false == 'browser.newtabpage.enabled'|preferenceValue",
+                f"'false' = JSON_VALUE({_PREF}, '$.browser__newtabpage__enabled')",
             ),
             (
                 "pref_value_neq_bool_false",
                 # null != false is true in JEXL — unset prefs (NULL) must pass
-                "'app.shield.optoutstudies.enabled'|preferenceValue != false",
+                "'termsofuse.bypassNotification'|preferenceValue != false",
                 (
-                    f"(JSON_VALUE({_PREF}, '$.app__shield__optoutstudies__enabled')"
+                    f"(JSON_VALUE({_PREF}, '$.termsofuse__bypassNotification')"
                     f" IS NULL OR JSON_VALUE({_PREF},"
-                    f" '$.app__shield__optoutstudies__enabled') != 'false')"
+                    f" '$.termsofuse__bypassNotification') != 'false')"
                 ),
             ),
             (
                 "pref_value_neq_bool_true",
-                "'some.pref'|preferenceValue != true",
+                "'network.trr.mode'|preferenceValue != true",
                 (
-                    f"(JSON_VALUE({_PREF}, '$.some__pref') IS NULL"
-                    f" OR JSON_VALUE({_PREF}, '$.some__pref') != 'true')"
+                    f"(JSON_VALUE({_PREF}, '$.network__trr__mode') IS NULL"
+                    f" OR JSON_VALUE({_PREF}, '$.network__trr__mode') != 'true')"
                 ),
             ),
             (
                 "pref_value_neq_bool_reversed",
-                "false != 'app.normandy.enabled'|preferenceValue",
+                "false != 'browser.profiles.created'|preferenceValue",
                 (
-                    f"(JSON_VALUE({_PREF}, '$.app__normandy__enabled') IS NULL"
-                    f" OR 'false' != JSON_VALUE({_PREF}, '$.app__normandy__enabled'))"
+                    f"(JSON_VALUE({_PREF}, '$.browser__profiles__created') IS NULL"
+                    f" OR 'false' != JSON_VALUE({_PREF}, '$.browser__profiles__created'))"
                 ),
             ),
         ]
@@ -500,6 +500,28 @@ class TestJEXLToSQL(TestCase):
         self.assertIn("NOT", result.sql)
         self.assertIn(_USER_PREFS, result.sql)
 
+    @parameterized.expand(
+        [
+            ("bare", "'browser.nova.enabled'|preferenceValue"),
+            # A default only applies when the pref is unset, and the data cannot
+            # say which clients set it, so it does not make the clause sizable.
+            ("with_default", "'browser.nova.enabled'|preferenceValue('')"),
+        ]
+    )
+    def test_unrecorded_pref_warns_by_name(self, _name, jexl):
+        result = jexl_to_sql(jexl)
+        self.assertIsNone(result.sql)
+        self.assertEqual(result.warnings, ["'browser.nova.enabled'|preferenceValue"])
+
+    def test_unrecorded_pref_drops_only_its_own_clause(self):
+        result = jexl_to_sql(
+            "locale == 'en-US' && 'browser.nova.enabled'|preferenceValue"
+        )
+        self.assertEqual(
+            result.sql, "metrics.string.nimbus_targeting_context_locale = 'en-US'"
+        )
+        self.assertEqual(result.warnings, ["'browser.nova.enabled'|preferenceValue"])
+
     def test_preference_is_user_set_keeps_raw_pref_name(self):
         # userSetPrefs stores raw names; only prefValues keys are normalized.
         result = jexl_to_sql("'nimbus.qa.pref-1'|preferenceIsUserSet")
@@ -544,9 +566,9 @@ class TestJEXLToSQL(TestCase):
         self.assertIn("!= 'false'", result)
 
     def test_preference_value_dots_to_underscores(self):
-        result = jexl_to_sql("'browser.urlbar.quicksuggest'|preferenceValue")
+        result = jexl_to_sql("'browser.startup.page'|preferenceValue")
         self.assertIn(_PREF, result.sql)
-        self.assertIn("browser__urlbar__quicksuggest", result.sql)
+        self.assertIn("browser__startup__page", result.sql)
         self.assertEqual(result.warnings, [])
 
     def test_preference_value_compared_with_integer_casts_to_float(self):

@@ -13,6 +13,7 @@ from pyjexl.parser import (
 )
 
 from experimenter.experiments.jexl_utils import JEXLParser
+from experimenter.targeting.targeting_context_parser import RecordedPrefs
 
 _OS = "metrics.object.nimbus_targeting_context_os"
 _BS = "metrics.object.nimbus_targeting_context_browser_settings"
@@ -716,6 +717,14 @@ def _transform_to_sql(
             return None
         pref_name = _literal_value(node.subject)
         if pref_name:
+            # Only the prefs in the recorder's PREFS list are written to
+            # pref_values. Any other resolves to NULL and matches nobody, so
+            # surface it rather than returning a confident zero. A supplied
+            # default does not help: it only applies when the pref is unset,
+            # and we cannot tell which clients have set it.
+            if pref_name not in RecordedPrefs.for_desktop():
+                _add_warning(warnings, f"'{pref_name}'|preferenceValue")
+                return None
             return (
                 f"JSON_VALUE({_PREF_VALUES_COL}, '$.{_normalize_pref_name(pref_name)}')"
             )
