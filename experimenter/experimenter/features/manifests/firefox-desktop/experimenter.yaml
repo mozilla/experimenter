@@ -465,42 +465,6 @@ urlbar:
       description: >-
         Whether or not use the Nova icon size for AMP suggestion.
         Otherwise, use standard rich-suggestion size.
-    quickSuggestContextualOptInEnabled:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn
-      description: Whether the Firefox Suggest contextual opt-in result is enabled.
-    quickSuggestContextualOptInFirstReshowAfterPeriodDays:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.firstReshowAfterPeriodDays
-      description: Period until reshow the Firefox Suggest contextual opt-in result when first dismissed.
-    quickSuggestContextualOptInSecondReshowAfterPeriodDays:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.secondReshowAfterPeriodDays
-      description: Period until reshow the Firefox Suggest contextual opt-in result when second dismissed.
-    quickSuggestContextualOptInThirdReshowAfterPeriodDays:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.thirdReshowAfterPeriodDays
-      description: Period until reshow the Firefox Suggest contextual opt-in result when third dismissed.
-    quickSuggestContextualOptInImpressionLimit:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.impressionLimit
-      description: Limit for impression to dismiss the Firefox Suggest contextual opt-in result.
-    quickSuggestContextualOptInImpressionDaysLimit:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.impressionDaysLimit
-      description: Days until dismiss the Firefox Suggest contextual opt-in result after first impression.
     quickSuggestDynamicSuggestionTypes:
       type: string
       setPref:
@@ -6324,6 +6288,15 @@ smartWindow:
         pref: browser.smartwindow.aitab.enabled
       description: >-
         Enables Smart Pages (AI Tab, about:smartpage) when true.
+    aiTabMenus:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.smartwindow.aitab.menus
+      description: >-
+        Enables Smart Page creation entries in the page, tab, and tab group
+        context menus. Existing Smart Window and AI Tab eligibility checks
+        still apply.
 
 smartWindowAgentWatch:
   description: >-
