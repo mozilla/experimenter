@@ -1876,6 +1876,45 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    def _validate_desktop_messaging_active_notifications(self, data):
+        branches = [data.get("reference_branch", {}), *data.get("treatment_branches", [])]
+
+        warnings = []
+        for feature_config in sorted(
+            data.get("feature_configs", []),
+            key=lambda feature_config: feature_config.slug,
+        ):
+            if not self._is_desktop_messaging_feature(feature_config):
+                continue
+
+            message_ids = sorted(
+                {
+                    message["id"]
+                    for branch in branches
+                    for message in self._branch_desktop_messages(branch, feature_config)
+                    if message.get("template")
+                    and message["template"]
+                    not in NimbusConstants.DESKTOP_MESSAGING_SKIPPED_TEMPLATES
+                    and (
+                        not isinstance(message.get("targeting"), str)
+                        or "activeNotifications" not in message["targeting"]
+                    )
+                }
+            )
+            if message_ids:
+                warnings.append(
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                        feature_slug=feature_config.slug,
+                        noun="message" if len(message_ids) == 1 else "messages",
+                        message_ids=", ".join(message_ids),
+                    )
+                )
+
+        if warnings:
+            self.warnings["messaging_active_notifications"] = warnings
+
+        return data
+
     @classmethod
     def _validate_mobile_messaging(cls, value: str):
         json_value = None
@@ -2196,6 +2235,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_desktop_fxms_message_coenrollment(data)
             data = self._validate_desktop_messaging_control_message(data)
             data = self._validate_desktop_messaging_control_mismatch(data)
+            data = self._validate_desktop_messaging_active_notifications(data)
         return data
 
 

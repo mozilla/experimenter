@@ -2272,6 +2272,153 @@ class TestNimbusReviewSerializerSingleFeature(
 
         self.assertNotIn("messaging_control_mismatch", warnings)
 
+    def test_messaging_active_notifications_warning(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, TREATMENT_MESSAGE)}
+        )
+
+        self.assertEqual(
+            warnings["messaging_active_notifications"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="spotlight",
+                    noun="message",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_active_notifications_warning_missing_targeting(self):
+        treatment_value = {
+            key: value for key, value in TREATMENT_MESSAGE.items() if key != "targeting"
+        }
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertEqual(
+            warnings["messaging_active_notifications"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="spotlight",
+                    noun="message",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_active_notifications_no_warning_with_active_notifications(self):
+        treatment_value = {**TREATMENT_MESSAGE, "targeting": "!activeNotifications"}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertNotIn("messaging_active_notifications", warnings)
+
+    @parameterized.expand(
+        [
+            ("toast_notification",),
+            ("menu_message",),
+        ]
+    )
+    def test_messaging_active_notifications_no_warning_for_skipped_template(
+        self, template
+    ):
+        treatment_value = {**TREATMENT_MESSAGE, "template": template}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertNotIn("messaging_active_notifications", warnings)
+
+    def test_messaging_active_notifications_no_warning_without_template(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, CONTROL_DUMMY_MESSAGE)}
+        )
+
+        self.assertNotIn("messaging_active_notifications", warnings)
+
+    def test_messaging_active_notifications_no_warning_for_non_messaging_feature(self):
+        warnings = self._messaging_control_warnings(
+            {"some-other-feature": ({}, TREATMENT_MESSAGE)}
+        )
+
+        self.assertNotIn("messaging_active_notifications", warnings)
+
+    def test_messaging_active_notifications_warning_for_rollout(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": (TREATMENT_MESSAGE, {})},
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            warnings["messaging_active_notifications"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="spotlight",
+                    noun="message",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_active_notifications_warning_multi_lists_offenders_only(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "fxms-message": (
+                    {},
+                    {
+                        "template": "multi",
+                        "messages": [
+                            {**TREATMENT_MESSAGE, "id": "treatment-a"},
+                            {
+                                **TREATMENT_MESSAGE,
+                                "id": "treatment-b",
+                                "targeting": "!activeNotifications",
+                            },
+                            {**TREATMENT_MESSAGE, "id": "treatment-c"},
+                        ],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_active_notifications"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="fxms-message",
+                    noun="messages",
+                    message_ids="treatment-a, treatment-c",
+                )
+            ],
+        )
+
+    def test_messaging_active_notifications_warning_lists_each_feature(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": ({}, TREATMENT_MESSAGE),
+                "cfr": (
+                    {},
+                    {**TREATMENT_MESSAGE, "id": "cfr-message", "template": "cfr"},
+                ),
+                "infobar": (
+                    {},
+                    {**TREATMENT_MESSAGE, "targeting": "!activeNotifications"},
+                ),
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_active_notifications"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="cfr",
+                    noun="message",
+                    message_ids="cfr-message",
+                ),
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="spotlight",
+                    noun="message",
+                    message_ids="treatment-message",
+                ),
+            ],
+        )
+
     def test_substitute_localizations(self):
         value = {
             "foo": {
