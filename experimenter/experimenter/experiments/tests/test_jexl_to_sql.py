@@ -181,6 +181,21 @@ class TestJEXLToSQL(TestCase):
                 f"JSON_VALUE({_PREF}, '$.app__normandy__enabled') = 'true'",
             ),
             (
+                # The recorder maps - to _ as well as . to __, so a hyphenated
+                # pref looked up under its raw name matches nobody.
+                "pref_value_hyphenated_name",
+                "'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue",
+                (
+                    f"JSON_VALUE({_PREF},"
+                    " '$.browser__newtabpage__activity_stream__feeds__topsites')"
+                ),
+            ),
+            (
+                "pref_value_hyphen_only",
+                "'nimbus.qa.pref-1'|preferenceValue == 'x'",
+                f"JSON_VALUE({_PREF}, '$.nimbus__qa__pref_1') = 'x'",
+            ),
+            (
                 "pref_value_eq_bool_reversed",
                 "false == 'browser.shell.checkDefaultBrowser'|preferenceValue",
                 f"'false' = JSON_VALUE({_PREF}, '$.browser__shell__checkDefaultBrowser')",
@@ -436,6 +451,12 @@ class TestJEXLToSQL(TestCase):
         result = jexl_to_sql("!('browser.startup.homepage'|preferenceIsUserSet)")
         self.assertIn("NOT", result.sql)
         self.assertIn(_USER_PREFS, result.sql)
+
+    def test_preference_is_user_set_keeps_raw_pref_name(self):
+        # userSetPrefs stores raw names; only prefValues keys are normalized.
+        result = jexl_to_sql("'nimbus.qa.pref-1'|preferenceIsUserSet")
+        self.assertIn("'nimbus.qa.pref-1' IN UNNEST", result.sql)
+        self.assertEqual(result.warnings, [])
 
     def test_os_is_windows_derived_from_not_mac_not_linux(self):
         result = jexl_to_sql("os.isWindows")
