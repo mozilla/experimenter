@@ -54,6 +54,10 @@ JEXL_TO_BQ_COLUMN = {
     "profileAgeCreated": (
         "metrics.quantity.nimbus_targeting_context_profile_age_created"
     ),
+    "profileLastUse": "metrics.quantity.nimbus_targeting_context_profile_last_use",
+    "previousSessionEnd": (
+        "metrics.quantity.nimbus_targeting_context_previous_session_end"
+    ),
     "isFirstStartup": "metrics.boolean.nimbus_targeting_context_is_first_startup",
     "isDefaultBrowser": ("metrics.boolean.nimbus_targeting_context_is_default_browser"),
     "isFxAEnabled": "metrics.boolean.nimbus_targeting_context_is_fx_a_enabled",
