@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import escape
 from parameterized import parameterized
 from PIL import Image
@@ -37,6 +38,7 @@ from experimenter.experiments.tests.factories import (
     NimbusVersionedSchemaFactory,
     TagFactory,
 )
+from experimenter.highwind.tests.factories import build_analysis
 from experimenter.jetstream.models import Metric
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -4908,6 +4910,137 @@ class TestResultsView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["displayed_window"], expected_window)
+
+
+class TestHighwindResultsView(AuthTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Outcomes.clear_cache()
+
+    def create_experiment(self, analysis=None, analysis_last_updated=None):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+        if analysis is not None:
+            experiment.analysis_data = analysis.model_dump(mode="json")
+            experiment.analysis_last_updated = analysis_last_updated or timezone.now()
+            experiment.save()
+        return experiment
+
+    def get_page(self, experiment):
+        return self.client.get(
+            reverse("nimbus-ui-highwind-results", kwargs={"slug": experiment.slug}),
+        )
+
+    def test_render_to_response(self):
+        experiment = self.create_experiment()
+
+        response = self.get_page(experiment)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["experiment"], experiment)
+        self.assertTemplateUsed(response, "nimbus_experiments/highwind_results.html")
+
+    def test_renders_with_no_analysis_loaded(self):
+        experiment = self.create_experiment()
+
+        response = self.get_page(experiment)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["has_analysis"])
+        self.assertIsNone(response.context["analysis_last_updated"])
+        self.assertEqual(response.context["analysis_errors"], [])
+
+    def test_shows_when_the_analysis_was_generated(self):
+        generated_at = timezone.now()
+        experiment = self.create_experiment(
+            analysis=build_analysis(), analysis_last_updated=generated_at
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertTrue(response.context["has_analysis"])
+        self.assertEqual(response.context["analysis_last_updated"], generated_at)
+
+    def test_branch_cards_carry_enrolled_counts(self):
+        experiment = self.create_experiment()
+        branches = list(experiment.get_sorted_branches())
+        experiment.analysis_data = build_analysis(
+            segments=[
+                {
+                    "slug": "all_enrolled",
+                    "friendly_name": "All enrolled",
+                    "description": None,
+                    "branches": [
+                        {"branch": branch.slug, "units": 100 * (index + 1)}
+                        for index, branch in enumerate(branches)
+                    ],
+                }
+            ]
+        ).model_dump(mode="json")
+        experiment.analysis_last_updated = timezone.now()
+        experiment.save()
+
+        response = self.get_page(experiment)
+
+        counts = {
+            branch["slug"]: branch["num_enrolled_clients"]
+            for branch in response.context["branch_data"]
+        }
+        self.assertEqual(
+            counts,
+            {branch.slug: 100 * (index + 1) for index, branch in enumerate(branches)},
+        )
+
+    def test_branches_with_no_counts_report_zero(self):
+        experiment = self.create_experiment(analysis=build_analysis())
+
+        response = self.get_page(experiment)
+
+        for branch in response.context["branch_data"]:
+            self.assertEqual(branch["num_enrolled_clients"], 0)
+            self.assertIsNone(branch["percentage"])
+
+    def test_errors_render_newest_first(self):
+        experiment = self.create_experiment(
+            analysis=build_analysis(
+                errors=[
+                    {
+                        "timestamp": "2026-10-01T00:00:00Z",
+                        "log_level": "ERROR",
+                        "message": "older",
+                        "exception_type": "ValueError",
+                        "exception": None,
+                        "filename": "analysis.py",
+                        "func_name": "run",
+                        "metric": None,
+                        "segment": None,
+                        "window": None,
+                    },
+                    {
+                        "timestamp": "2026-10-02T00:00:00Z",
+                        "log_level": "WARNING",
+                        "message": "newer",
+                        "exception_type": None,
+                        "exception": None,
+                        "filename": "analysis.py",
+                        "func_name": "run",
+                        "metric": "days_of_use",
+                        "segment": None,
+                        "window": None,
+                    },
+                ]
+            )
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertEqual(
+            [error["message"] for error in response.context["analysis_errors"]],
+            ["newer", "older"],
+        )
+        self.assertContains(response, "days_of_use metric encountered issues.")
 
 
 class TestResultsExportView(AuthTestCase):

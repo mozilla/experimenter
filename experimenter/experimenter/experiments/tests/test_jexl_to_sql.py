@@ -99,6 +99,16 @@ class TestJEXLToSQL(TestCase):
                 "metrics.quantity.nimbus_targeting_context_allowed_notification_origins",
             ),
             (
+                "profile_last_use",
+                "profileLastUse",
+                "metrics.quantity.nimbus_targeting_context_profile_last_use",
+            ),
+            (
+                "previous_session_end",
+                "previousSessionEnd",
+                "metrics.quantity.nimbus_targeting_context_previous_session_end",
+            ),
+            (
                 "os_is_mac",
                 "os.isMac",
                 f"CAST(JSON_VALUE({_OS}, '$.isMac') AS BOOL)",
