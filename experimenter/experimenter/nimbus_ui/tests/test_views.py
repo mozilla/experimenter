@@ -44,7 +44,7 @@ from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
-from experimenter.nimbus_ui.constants import NimbusUIConstants
+from experimenter.nimbus_ui.constants import TYPE_ICON_MAP, NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     FeaturesPageSortChoices,
     MyDeliveriesChoices,
@@ -1196,6 +1196,24 @@ class NimbusExperimentsListViewTest(AuthTestCase):
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": labs.slug}),
         )
 
+    def test_new_delivery_menu_renders_icons_from_type_icon_map(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+
+        response = self.client.get(reverse("nimbus-list"))
+
+        for home_type in (
+            NimbusConstants.HomeTypeChoices.EXPERIMENT,
+            NimbusConstants.HomeTypeChoices.ROLLOUT,
+            NimbusConstants.HomeTypeChoices.LABS,
+        ):
+            icon_info = TYPE_ICON_MAP[home_type]
+            self.assertContains(response, icon_info["icon"])
+            self.assertContains(response, icon_info["bg"])
+            self.assertContains(response, icon_info["color"])
+
 
 class NimbusExperimentsListTableViewTest(AuthTestCase):
     def test_render_to_response(self):
@@ -1208,6 +1226,35 @@ class NimbusExperimentsListTableViewTest(AuthTestCase):
             {"status": "test"},
         )
         self.assertEqual(response.headers["HX-Push"], "?status=test")
+
+    @parameterized.expand(
+        [
+            ({}, NimbusConstants.HomeTypeChoices.EXPERIMENT),
+            ({"is_rollout": True}, NimbusConstants.HomeTypeChoices.ROLLOUT),
+            (
+                {
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_title": "title",
+                    "firefox_labs_description": "description",
+                    "firefox_labs_group": (
+                        NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING
+                    ),
+                },
+                NimbusConstants.HomeTypeChoices.LABS,
+            ),
+        ]
+    )
+    def test_renders_type_icon_for_type(self, experiment_kwargs, home_type):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, **experiment_kwargs
+        )
+
+        response = self.client.get(reverse("nimbus-ui-table"))
+
+        self.assertEqual(response.status_code, 200)
+        icon_info = TYPE_ICON_MAP[home_type]
+        self.assertContains(response, icon_info["icon"])
+        self.assertContains(response, icon_info["bg"])
 
 
 class NimbusExperimentDetailViewTest(AuthTestCase):
@@ -5474,6 +5521,33 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
     ):
         experiment = NimbusExperimentFactory.create(owner=self.user, **experiment_kwargs)
         self.assertEqual(experiment.home_type_choice, expected_label)
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_title": "title",
+                    "firefox_labs_description": "description",
+                    "firefox_labs_group": (
+                        NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING
+                    ),
+                },
+                NimbusConstants.HomeTypeChoices.LABS,
+            ),
+            (
+                {"is_rollout": True},
+                NimbusConstants.HomeTypeChoices.ROLLOUT,
+            ),
+            (
+                {},
+                NimbusConstants.HomeTypeChoices.EXPERIMENT,
+            ),
+        ]
+    )
+    def test_type_icon_info_returns_icon_for_type(self, experiment_kwargs, home_type):
+        experiment = NimbusExperimentFactory.create(owner=self.user, **experiment_kwargs)
+        self.assertEqual(experiment.type_icon_info, TYPE_ICON_MAP[home_type])
 
 
 class TestSlugRedirectToSummary(AuthTestCase):

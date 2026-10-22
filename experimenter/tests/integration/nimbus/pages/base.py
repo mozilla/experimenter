@@ -216,6 +216,26 @@ class Base(Page):
         )
         logger.info("click_element: done")
 
+    def click_until_removed(self, locator, confirm_timeout=5, overall_timeout=30):
+        logger.info(f"click_until_removed: {locator}")
+        deadline = time.time() + overall_timeout
+        while True:
+            self.click_element(locator)
+            try:
+                WebDriverWait(self.selenium, confirm_timeout).until_not(
+                    EC.presence_of_element_located(locator)
+                )
+            except TimeoutException as e:
+                logger.info(f"click_until_removed: {locator} still present after click")
+                if time.time() >= deadline:
+                    raise Exception(
+                        f"{self.PAGE_TITLE}: {locator} still present after "
+                        f"{overall_timeout}s of retried clicks"
+                    ) from e
+                continue
+            logger.info(f"click_until_removed: {locator} removed")
+            return
+
     def js_click(self, elem):
         logger.info("js_click")
         self.wait_for_htmx()
