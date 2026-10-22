@@ -2782,11 +2782,15 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_frequency_group"],
             [
-                (
-                    "The spotlight message welcome-1 is not in a frequency group, "
-                    "so nothing caps how often it shows alongside other messages. "
-                    "Add it to a group such as cfr, or check the user's messaging "
-                    "preference in its targeting."
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP.format(
+                    feature_slug="spotlight",
+                    noun="message",
+                    message_ids="welcome-1",
+                    verb="is",
+                    subject_pronoun="it",
+                    show_verb="shows",
+                    object_pronoun="it",
+                    possessive_pronoun="its",
                 )
             ],
         )
@@ -2810,11 +2814,15 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_frequency_group"],
             [
-                (
-                    "The spotlight messages a, b are not in a frequency group, so "
-                    "nothing caps how often they show alongside other messages. "
-                    "Add them to a group such as cfr, or check the user's "
-                    "messaging preference in their targeting."
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP.format(
+                    feature_slug="spotlight",
+                    noun="messages",
+                    message_ids="a, b",
+                    verb="are",
+                    subject_pronoun="they",
+                    show_verb="show",
+                    object_pronoun="them",
+                    possessive_pronoun="their",
                 )
             ],
         )
