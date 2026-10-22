@@ -2763,6 +2763,23 @@ EXISTING_USER_NEED_PIN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+EXISTING_USER_NEED_PIN_WIN11_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Existing Windows 11 user (need pin, no enterprise policies)",
+    slug="existing_user_need_pin_win11_no_enterprise",
+    description=(
+        "Windows 11 users with profiles older than 28 days who have not pinned, "
+        "excluding users with enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && doesAppNeedPin && !hasActiveEnterprisePolicies && "
+        "os.isWindows && os.windowsBuildNumber >= 22000"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EXISTING_USER_NEED_DEFAULT = NimbusTargetingConfig(
     name="Existing user (need default)",
     slug="existing_user_need_default",
