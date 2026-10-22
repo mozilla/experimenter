@@ -1,6 +1,15 @@
 {% load nimbus_extras %}
 
 <div class="d-flex flex-column gap-3 mt-4" id="highwind-results-page">
+  <div class="alert alert-danger p-4 mb-0 rounded-4 border-2"
+       id="highwind-validation-warning"
+       role="alert">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <i class="fa-solid fa-triangle-exclamation fs-4"></i>
+      <h4 class="mb-0 text-uppercase fw-bold">Validation in progress</h4>
+    </div>
+    <p class="mb-0">{{ NimbusUIConstants.HIGHWIND_VALIDATION_MESSAGE|sanitize_html }}</p>
+  </div>
   <div class="info-cards-container">
     {% if analysis_errors %}
       <div class="alert p-4 py-3 mb-0 rounded-4 alert-warning" role="alert">

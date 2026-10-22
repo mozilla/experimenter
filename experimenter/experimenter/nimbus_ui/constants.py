@@ -368,6 +368,11 @@ Optional - We expect this to <describe impact> on <core metric>.
         ),
     }
 
+    HIGHWIND_VALIDATION_MESSAGE = """Do not rely on these results. They come from an
+    analysis pipeline that is still being validated against Jetstream, and any figure on
+    this page may change or turn out to be wrong. Jetstream remains the system of
+    record."""
+
     COMPLETE_EXPERIMENT_ERROR_MESSAGE = """Your experiment is complete, but there were
     issues computing some results. Contact Experimenter support using the button below
     for help resolving analysis errors."""
