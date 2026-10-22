@@ -5,7 +5,12 @@ from pydantic import ValidationError
 
 from experimenter.celery import app
 from experimenter.experiments.models import NimbusExperiment
-from experimenter.highwind.client import blob_path, get_analysis, list_analysis_blobs
+from experimenter.highwind.client import (
+    UnsupportedSchemaError,
+    blob_path,
+    get_analysis,
+    list_analysis_blobs,
+)
 
 logger = get_task_logger(__name__)
 metrics = markus.get_metrics("highwind.tasks")
@@ -33,6 +38,13 @@ def load_experiment_analysis(experiment):
     """Store the experiment's published analysis if it is newer than what we hold."""
     try:
         analysis = get_analysis(experiment)
+    except UnsupportedSchemaError as e:
+        # Not reported: the prefix still holds blobs from before the schema existed, and
+        # the job does not rewrite one for an experiment whose end date has passed, so
+        # there is nothing a later run can resolve and nothing for anyone to act on.
+        metrics.incr("fetch_highwind_data.unsupported")
+        logger.warning(f"Skipping Highwind analysis for {experiment.slug}: {e}")
+        return
     except ValidationError as e:
         # The stored analysis is left alone: a blob we cannot read says nothing about
         # whether what we already have is still good.

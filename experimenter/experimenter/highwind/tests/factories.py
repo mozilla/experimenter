@@ -1,3 +1,5 @@
+import json
+
 from mozilla_nimbus_schemas.highwind import (
     HighwindAnalysis,
     HighwindAnalysisUnit,
@@ -14,6 +16,8 @@ from mozilla_nimbus_schemas.highwind import (
     HighwindWindowResult,
 )
 from polyfactory.factories.pydantic_factory import ModelFactory
+
+from experimenter.highwind.client import SCHEMA_VERSION
 
 
 class HighwindIntervalFactory(ModelFactory[HighwindInterval]):
@@ -59,7 +63,7 @@ class HighwindErrorFactory(ModelFactory[HighwindError]):
 class HighwindMetadataFactory(ModelFactory[HighwindMetadata]):
     __model__ = HighwindMetadata
 
-    schema_version = 1
+    schema_version = SCHEMA_VERSION
     analysis_unit = HighwindAnalysisUnit.CLIENT_ID
     reference_branch = "control"
     branches = ["control", "treatment"]
@@ -78,6 +82,24 @@ class HighwindAnalysisFactory(ModelFactory[HighwindAnalysis]):
     segments = []
     metrics = []
     errors = []
+
+
+def build_legacy_analysis_json(slug):
+    """A blob from before the results schema, which the job will not rewrite.
+
+    The prefix still holds these for experiments that ended during the proof of concept.
+    They carry no schema version, and nothing in them matches the published model.
+    """
+    return json.dumps(
+        {
+            "metrics_metadata": {
+                "experiment_slug": slug,
+                "branches": ["control", "treatment"],
+            },
+            "statistics": [{"metric": "days_of_use", "branch": "control"}],
+            "errors": [],
+        }
+    )
 
 
 def build_analysis(slug, generated_at, **kwargs):

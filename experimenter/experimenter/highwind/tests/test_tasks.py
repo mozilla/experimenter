@@ -7,7 +7,7 @@ from pydantic import ValidationError
 
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.highwind.client import blob_path
+from experimenter.highwind.client import UnsupportedSchemaError, blob_path
 from experimenter.highwind.tasks import (
     fetch_highwind_data,
     get_analysis_experiments,
@@ -150,6 +150,24 @@ class TestFetchHighwindData(TestCase):
         self.experiment.refresh_from_db()
         self.assertIsNone(self.experiment.analysis_data)
         self.assertIsNone(self.experiment.analysis_last_updated)
+
+    @mock.patch("experimenter.highwind.tasks.sentry_sdk.capture_exception")
+    def test_unsupported_schema_is_not_reported(
+        self, mock_capture, mock_list, mock_get_analysis
+    ):
+        stored = {"metadata": {"experiment_slug": self.experiment.slug}}
+        self.experiment.analysis_data = stored
+        self.experiment.analysis_last_updated = self.generated_at
+        self.experiment.save()
+        mock_list.return_value = self.written(self.experiment)
+        mock_get_analysis.side_effect = UnsupportedSchemaError("no schema version")
+
+        fetch_highwind_data()
+
+        self.experiment.refresh_from_db()
+        self.assertEqual(self.experiment.analysis_data, stored)
+        self.assertEqual(self.experiment.analysis_last_updated, self.generated_at)
+        mock_capture.assert_not_called()
 
     @mock.patch("experimenter.highwind.tasks.sentry_sdk.capture_exception")
     def test_validation_failure_reports_without_overwriting(
