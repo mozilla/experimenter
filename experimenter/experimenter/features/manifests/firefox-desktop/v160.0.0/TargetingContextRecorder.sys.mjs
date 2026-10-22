@@ -164,9 +164,11 @@ export const ATTRIBUTE_TRANSFORMS = Object.freeze({
     "windowsBuildNumber",
     "windowsVersion"
   ),
+  previousSessionEnd: typeAssertions.quantity,
   primaryResolution: pick("height", "width"),
   profileAgeCreated: typeAssertions.quantity,
   profileGroupProfileCount: typeAssertions.quantity,
+  profileLastUse: typeAssertions.quantity,
   region: typeAssertions.string,
   totalBookmarksCount: typeAssertions.quantity,
   userMonthlyActivity: userMonthlyActivity =>
