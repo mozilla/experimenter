@@ -939,6 +939,18 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ERROR_CANNOT_PUBLISH_TO_PREVIEW = "This experiment cannot be published to preview."
 
+    STICKY_ENROLLMENT_PREF_CONFLICT_REASON = (
+        "the {feature} feature sets '{pref}' (variable '{variable}')"
+    )
+    STICKY_ENROLLMENT_PREF_CONFLICT_PREFFLIPS_REASON = (
+        f"the {DESKTOP_PREFFLIPS_SLUG} feature sets '{{pref}}'"
+    )
+    ERROR_STICKY_ENROLLMENT_PREF_CONFLICT = (
+        "Sticky enrollment is required because {reasons}, which the "
+        '"{targeting_config}" targeting also checks. Without sticky enrollment, '
+        "clients would unenroll as soon as they enroll."
+    )
+
     ERROR_DESKTOP_PREFFLIPS_128_ESR_ONLY = (
         "The prefFlips feature is only available on Firefox 128 on the ESR branch."
     )

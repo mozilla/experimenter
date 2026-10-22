@@ -1643,6 +1643,28 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
+            ("not json",),
+            (json.dumps(["list", "not", "dict"]),),
+            (json.dumps({"prefs": "not a dict"}),),
+        ]
+    )
+    def test_get_branch_pref_flips_prefs_ignores_malformed_values(self, value):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[prefflips_feature],
+        )
+
+        for branch in experiment.branches.all():
+            feature_value = branch.feature_values.get(feature_config=prefflips_feature)
+            feature_value.value = value
+            feature_value.save()
+
+        self.assertEqual(experiment.get_branch_pref_flips_prefs(), set())
+
+    @parameterized.expand(
+        [
             (application, require, exclude, expected_targeting)
             for (application, (require, exclude, expected_targeting)) in [
                 *product(

@@ -1501,6 +1501,37 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 }
             )
 
+        if not is_sticky:
+            targeted_prefs = targeting_config.targeting_preferences
+            reasons = set()
+
+            for feature_slug, variable, pref in self.instance.get_branch_feature_prefs():
+                if pref in targeted_prefs:
+                    reasons.add(
+                        NimbusConstants.STICKY_ENROLLMENT_PREF_CONFLICT_REASON.format(
+                            feature=feature_slug, pref=pref, variable=variable
+                        )
+                    )
+
+            pref_flips_reason = (
+                NimbusConstants.STICKY_ENROLLMENT_PREF_CONFLICT_PREFFLIPS_REASON
+            )
+            for _, pref in self.instance.get_branch_pref_flips_prefs():
+                if pref in targeted_prefs:
+                    reasons.add(pref_flips_reason.format(pref=pref))
+
+            if reasons:
+                raise serializers.ValidationError(
+                    {
+                        "is_sticky": (
+                            NimbusConstants.ERROR_STICKY_ENROLLMENT_PREF_CONFLICT.format(
+                                reasons=", ".join(sorted(reasons)),
+                                targeting_config=targeting_config.name,
+                            )
+                        )
+                    }
+                )
+
         return data
 
     def _validate_localizations(self, data):
