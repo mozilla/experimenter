@@ -568,6 +568,11 @@ class NimbusConstants:
         "toast_notification",
         "menu_message",
     )
+    DESKTOP_MESSAGING_FREQUENCY_GROUP_PREFERENCE_CHECKS = (
+        "userPrefs.cfrFeatures",
+        "userPrefs.cfrAddons",
+        "messaging-system.askForFeedback",
+    )
 
     MOBILE_MESSAGING_SLUG = "messaging"
     MOBILE_MESSAGING_MESSAGES_FIELD = "messages"
@@ -972,6 +977,12 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "!activeNotifications, so it can show while another notification is already "
         "on screen. Add !activeNotifications unless it is meant to show alongside "
         "other messages."
+    )
+    WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP = (
+        "The {feature_slug} {noun} {message_ids} {verb} not in a frequency group, so "
+        "nothing caps how often {subject_pronoun} {show_verb} alongside other "
+        "messages. Add {object_pronoun} to a group such as cfr, or check the user's "
+        "messaging preference in {possessive_pronoun} targeting."
     )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"
