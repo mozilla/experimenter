@@ -1,3 +1,11 @@
+account-sync-decouple:
+  description: Control the "sync & account decoupling" feature
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the flows for enabling sync & account decoupling are enabled.
 account-sync-decouple-m1:
   description: Control whether the new UI for Account Sync is shown.
   hasExposure: true
