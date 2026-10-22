@@ -115,10 +115,6 @@
         </div>
       </div>
     {% endif %}
-    {% if experiment.is_enrolling or experiment.is_observation %}
-      {% include "nimbus_experiments/launch_controls_v2.html" %}
-
-    {% endif %}
   </div>
   {% include "nimbus_experiments/highwind_results-inner.html" %}
 

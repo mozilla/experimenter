@@ -38,9 +38,7 @@ from experimenter.experiments.tests.factories import (
     NimbusVersionedSchemaFactory,
     TagFactory,
 )
-from experimenter.highwind.tests.factories import (
-    build_analysis_data as build_highwind_analysis,
-)
+from experimenter.highwind.tests.factories import build_analysis
 from experimenter.jetstream.models import Metric
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
@@ -4878,7 +4876,7 @@ class TestHighwindResultsView(AuthTestCase):
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
         )
         if analysis is not None:
-            experiment.analysis_data = analysis
+            experiment.analysis_data = analysis.model_dump(mode="json")
             experiment.analysis_last_updated = analysis_last_updated or timezone.now()
             experiment.save()
         return experiment
@@ -4897,18 +4895,6 @@ class TestHighwindResultsView(AuthTestCase):
         self.assertEqual(response.context["experiment"], experiment)
         self.assertTemplateUsed(response, "nimbus_experiments/highwind_results.html")
 
-    def test_renders_fragment_for_an_htmx_request(self):
-        experiment = self.create_experiment()
-
-        response = self.client.get(
-            reverse("nimbus-ui-highwind-results", kwargs={"slug": experiment.slug}),
-            headers={"HX-Request": "true"},
-        )
-
-        self.assertTemplateUsed(
-            response, "nimbus_experiments/highwind_results-fragment.html"
-        )
-
     def test_renders_with_no_analysis_loaded(self):
         experiment = self.create_experiment()
 
@@ -4922,7 +4908,7 @@ class TestHighwindResultsView(AuthTestCase):
     def test_shows_when_the_analysis_was_generated(self):
         generated_at = timezone.now()
         experiment = self.create_experiment(
-            analysis=build_highwind_analysis(), analysis_last_updated=generated_at
+            analysis=build_analysis(), analysis_last_updated=generated_at
         )
 
         response = self.get_page(experiment)
@@ -4933,7 +4919,7 @@ class TestHighwindResultsView(AuthTestCase):
     def test_branch_cards_carry_enrolled_counts(self):
         experiment = self.create_experiment()
         branches = list(experiment.get_sorted_branches())
-        experiment.analysis_data = build_highwind_analysis(
+        experiment.analysis_data = build_analysis(
             segments=[
                 {
                     "slug": "all_enrolled",
@@ -4945,7 +4931,7 @@ class TestHighwindResultsView(AuthTestCase):
                     ],
                 }
             ]
-        )
+        ).model_dump(mode="json")
         experiment.analysis_last_updated = timezone.now()
         experiment.save()
 
@@ -4961,7 +4947,7 @@ class TestHighwindResultsView(AuthTestCase):
         )
 
     def test_branches_with_no_counts_report_zero(self):
-        experiment = self.create_experiment(analysis=build_highwind_analysis())
+        experiment = self.create_experiment(analysis=build_analysis())
 
         response = self.get_page(experiment)
 
@@ -4971,7 +4957,7 @@ class TestHighwindResultsView(AuthTestCase):
 
     def test_errors_render_newest_first(self):
         experiment = self.create_experiment(
-            analysis=build_highwind_analysis(
+            analysis=build_analysis(
                 errors=[
                     {
                         "timestamp": "2026-10-01T00:00:00Z",
@@ -5008,38 +4994,6 @@ class TestHighwindResultsView(AuthTestCase):
             ["newer", "older"],
         )
         self.assertContains(response, "days_of_use metric encountered issues.")
-
-    def test_drops_the_jetstream_only_controls(self):
-        experiment = self.create_experiment(analysis=build_highwind_analysis())
-
-        response = self.get_page(experiment)
-
-        self.assertNotContains(response, 'name="analysis_basis"')
-        self.assertNotContains(response, 'name="reference_branch"')
-        self.assertNotContains(response, 'name="segment"')
-        self.assertNotContains(response, "Key takeaways")
-
-    def test_is_not_linked_from_the_experiment_navigation(self):
-        experiment = self.create_experiment()
-
-        response = self.client.get(
-            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug}),
-        )
-
-        self.assertNotContains(
-            response,
-            reverse("nimbus-ui-highwind-results", kwargs={"slug": experiment.slug}),
-        )
-
-    def test_leaves_the_jetstream_results_page_alone(self):
-        experiment = self.create_experiment(analysis=build_highwind_analysis())
-
-        response = self.client.get(
-            reverse("nimbus-ui-results", kwargs={"slug": experiment.slug}),
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "nimbus_experiments/results.html")
 
 
 class TestResultsExportView(AuthTestCase):

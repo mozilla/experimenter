@@ -67,30 +67,16 @@ class HighwindMetadataFactory(ModelFactory[HighwindMetadata]):
 
 
 class HighwindAnalysisFactory(ModelFactory[HighwindAnalysis]):
-    # Defaults to a run that produced no results. A test needing results passes in the
-    # pieces built from the factories above.
     __model__ = HighwindAnalysis
 
-    metadata = HighwindMetadataFactory
-    segments = []
-    metrics = []
-    errors = []
 
-
-def build_analysis(slug, generated_at, **kwargs):
+def build_analysis(slug="test-experiment", generated_at=None, **kwargs):
+    # Empty by default, so a test only carries the part it is about. These are passed
+    # rather than declared on the factory, since a value declared there wins over the
+    # one a caller passes to build().
     return HighwindAnalysisFactory.build(
         metadata=HighwindMetadataFactory.build(
-            experiment_slug=slug, generated_at=generated_at
+            experiment_slug=slug, generated_at=generated_at or timezone.now()
         ),
-        **kwargs,
+        **{"segments": [], "metrics": [], "errors": [], **kwargs},
     )
-
-
-def build_analysis_data(slug="test-experiment", generated_at=None, **overrides):
-    analysis = HighwindAnalysisFactory.build(
-        metadata=HighwindMetadataFactory.build(
-            experiment_slug=slug,
-            generated_at=generated_at or timezone.now(),
-        )
-    )
-    return {**analysis.model_dump(mode="json"), **overrides}

@@ -990,11 +990,6 @@ class HighwindResultsView(
     # anyone is using today.
     template_name = "nimbus_experiments/highwind_results.html"
 
-    def get_template_names(self):
-        if self.request.headers.get("HX-Request"):
-            return ["nimbus_experiments/highwind_results-fragment.html"]
-        return [self.template_name]
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         experiment = self.get_object()
