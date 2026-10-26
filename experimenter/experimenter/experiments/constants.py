@@ -990,11 +990,16 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "on screen. Add !activeNotifications unless it is meant to show alongside "
         "other messages."
     )
-    WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP = (
-        "The {feature_slug} {noun} {message_ids} {verb} not in a frequency group, so "
-        "nothing caps how often {subject_pronoun} {show_verb} alongside other "
-        "messages. Add {object_pronoun} to a group such as cfr, or check the user's "
-        "messaging preference in {possessive_pronoun} targeting."
+    WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR = (
+        "The {feature_slug} message {message_ids} is not in a frequency group, so "
+        "nothing caps how often it shows alongside other messages. Add it to a group "
+        "such as cfr, or check the user's messaging preference in its targeting."
+    )
+    WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_PLURAL = (
+        "The {feature_slug} messages {message_ids} are not in a frequency group, so "
+        "nothing caps how often they show alongside other messages. Add them to a "
+        "group such as cfr, or check the user's messaging preference in their "
+        "targeting."
     )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"

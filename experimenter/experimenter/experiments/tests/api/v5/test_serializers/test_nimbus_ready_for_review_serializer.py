@@ -2607,15 +2607,9 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_frequency_group"],
             [
-                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP.format(
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
                     feature_slug="spotlight",
-                    noun="message",
                     message_ids="treatment-message",
-                    verb="is",
-                    subject_pronoun="it",
-                    show_verb="shows",
-                    object_pronoun="it",
-                    possessive_pronoun="its",
                 )
             ],
         )
@@ -2627,15 +2621,9 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_frequency_group"],
             [
-                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP.format(
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
                     feature_slug="spotlight",
-                    noun="message",
                     message_ids="treatment-message",
-                    verb="is",
-                    subject_pronoun="it",
-                    show_verb="shows",
-                    object_pronoun="it",
-                    possessive_pronoun="its",
                 )
             ],
         )
@@ -2684,15 +2672,9 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_frequency_group"],
             [
-                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP.format(
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
                     feature_slug="spotlight",
-                    noun="message",
                     message_ids="treatment-message",
-                    verb="is",
-                    subject_pronoun="it",
-                    show_verb="shows",
-                    object_pronoun="it",
-                    possessive_pronoun="its",
                 )
             ],
         )
@@ -2721,15 +2703,9 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_frequency_group"],
             [
-                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP.format(
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_PLURAL.format(
                     feature_slug="fxms-message",
-                    noun="messages",
                     message_ids="treatment-a, treatment-c",
-                    verb="are",
-                    subject_pronoun="they",
-                    show_verb="show",
-                    object_pronoun="them",
-                    possessive_pronoun="their",
                 )
             ],
         )
@@ -2752,25 +2728,13 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_frequency_group"],
             [
-                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP.format(
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
                     feature_slug="cfr",
-                    noun="message",
                     message_ids="cfr-message",
-                    verb="is",
-                    subject_pronoun="it",
-                    show_verb="shows",
-                    object_pronoun="it",
-                    possessive_pronoun="its",
                 ),
-                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP.format(
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
                     feature_slug="spotlight",
-                    noun="message",
                     message_ids="treatment-message",
-                    verb="is",
-                    subject_pronoun="it",
-                    show_verb="shows",
-                    object_pronoun="it",
-                    possessive_pronoun="its",
                 ),
             ],
         )
@@ -2782,15 +2746,9 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_frequency_group"],
             [
-                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP.format(
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
                     feature_slug="spotlight",
-                    noun="message",
                     message_ids="welcome-1",
-                    verb="is",
-                    subject_pronoun="it",
-                    show_verb="shows",
-                    object_pronoun="it",
-                    possessive_pronoun="its",
                 )
             ],
         )
@@ -2814,15 +2772,9 @@ class TestNimbusReviewSerializerSingleFeature(
         self.assertEqual(
             warnings["messaging_frequency_group"],
             [
-                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP.format(
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_PLURAL.format(
                     feature_slug="spotlight",
-                    noun="messages",
                     message_ids="a, b",
-                    verb="are",
-                    subject_pronoun="they",
-                    show_verb="show",
-                    object_pronoun="them",
-                    possessive_pronoun="their",
                 )
             ],
         )

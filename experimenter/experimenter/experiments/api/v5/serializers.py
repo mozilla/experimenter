@@ -1983,17 +1983,15 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 }
             )
             if message_ids:
-                singular = len(message_ids) == 1
+                warning = (
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR
+                    if len(message_ids) == 1
+                    else NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_PLURAL
+                )
                 warnings.append(
-                    NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP.format(
+                    warning.format(
                         feature_slug=feature_config.slug,
-                        noun="message" if singular else "messages",
                         message_ids=", ".join(message_ids),
-                        verb="is" if singular else "are",
-                        subject_pronoun="it" if singular else "they",
-                        show_verb="shows" if singular else "show",
-                        object_pronoun="it" if singular else "them",
-                        possessive_pronoun="its" if singular else "their",
                     )
                 )
 
