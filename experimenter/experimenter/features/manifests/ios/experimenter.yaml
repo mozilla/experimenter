@@ -154,9 +154,21 @@ glean-server-knobs:
   hasExposure: true
   exposureDescription: ''
   variables:
-    metrics-enabled:
+    delay-ping-lifetime-io:
+      type: boolean
+      description: Glean will delay io for ping lifetime metrics
+    enable-event-timestamps:
+      type: boolean
+      description: Enables precise event timestamps for Glean events
+    gleanMetricConfiguration:
       type: json
-      description: A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric.
+      description: Configuration for Glean Server Knobs
+    ping-lifetime-max-time:
+      type: int
+      description: After what time to auto-flush
+    ping-lifetime-threshold:
+      type: int
+      description: Write count threshold when to auto-flush
 google-lens-feature:
   description: |
     The feature flag to manage the rollout of Google Lens.
