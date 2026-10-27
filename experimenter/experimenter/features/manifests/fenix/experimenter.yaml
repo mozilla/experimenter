@@ -51,6 +51,16 @@ app-links:
     show-new-prompt:
       type: boolean
       description: Whether to show the new AppLinksPromptFragment dialog when an app link is detected. If false, the old dialog is used.
+automotive-sensitive-data:
+  description: |
+    Enables or disables autofill, password management, and password and credit card sync on Android Automotive OS.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether password and credit card autofill, password management, and password and credit card sync are enabled on Android Automotive OS. Address autofill is also controlled by this flag. Has no effect on other devices.
 awesomebar-suggestion-provider:
   description: Configuration for the Firefox Suggest awesomebar suggestion provider.
   hasExposure: true

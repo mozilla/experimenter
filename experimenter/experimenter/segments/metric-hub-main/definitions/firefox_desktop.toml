@@ -1580,14 +1580,25 @@ description = """
 [metrics.active_in_last_3_days]
 select_expression = "COALESCE(MIN(days_since_desktop_active), 30) < 3"
 data_source = "firefox_desktop_baseline_active_users_view"
-friendly_name = "3 Days Retention"
-description = "Records whether a client submitted any pings (i.e. used Firefox) on any of the last 3 days."
+friendly_name = "First 3 Days Retention (Glean)"
+description = """
+    Whether an enrolled client qualified as DAU on at least one of the three days
+    ending on the analysis day. Read at day 4 in Experimenter, this covers the three
+    days immediately after enrollment, a critical window for new-profile engagement
+    and activation and a more robust signal than retention on exactly the third day.
+"""
 
 [metrics.active_in_last_3_days_legacy]
 select_expression = "COALESCE(MIN(mozfun.bits28.days_since_seen(days_active_bits)), 30) < 3"
 data_source = "firefox_desktop_active_users_view"
-friendly_name = "3 Days Retention"
-description = "Records whether a client submitted any pings (i.e. used Firefox) on any of the last 3 days. Uses legacy telemetry."
+friendly_name = "First 3 Days Retention"
+description = """
+    Whether an enrolled client qualified as DAU on at least one of the three days
+    ending on the analysis day. Read at day 4 in Experimenter, this covers the three
+    days immediately after enrollment, a critical window for new-profile engagement
+    and activation and a more robust signal than retention on exactly the third day.
+    Uses Legacy telemetry.
+"""
 
 [metrics.non_ssl_loads_v1]
 select_expression = """SUM(
