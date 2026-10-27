@@ -83,7 +83,7 @@ class TestGetAnalysis(TestCase):
     def test_raises_unsupported_for_a_blob_declaring_another_version(self, mock_storage):
         mock_storage.exists.return_value = True
         mock_storage.open.return_value = io.StringIO(
-            json.dumps({"metadata": {"schema_version": "1.0.0"}})
+            json.dumps({"metadata": {"schema_version": f"{SCHEMA_VERSION}.1"}})
         )
 
         with self.assertRaises(UnsupportedSchemaError):
