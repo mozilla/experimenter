@@ -3,8 +3,34 @@ description = """
     Measures changes to metrics we want to drive 
     through onboarding, such as import rates of 
     history and bookmarks, default & pin rates, 
-    and FxA sign-in rates. 
+    FxA sign-in rates, and returning activity in 
+    the critical period just after the first day. 
 """
+
+# Analysis windows per metric. 3-day retention is only meaningful in the daily
+# window (Experimenter reads it at day 4); the remaining metrics keep the
+# historical outcome behavior of weekly + overall.
+daily = [
+  "active_in_last_3_days_legacy",
+]
+
+weekly = [
+  "is_default_browser",
+  "is_pinned",
+  "imported_bookmarks",
+  "imported_logins",
+  "imported_history",
+  "fxa_signed_in",
+]
+
+overall = [
+  "is_default_browser",
+  "is_pinned",
+  "imported_bookmarks",
+  "imported_logins",
+  "imported_history",
+  "fxa_signed_in",
+]
 
 [metrics.is_default_browser.statistics.binomial]
 [metrics.is_pinned.statistics.binomial]
@@ -14,3 +40,8 @@ description = """
 [metrics.imported_history.statistics.binomial]
 
 [metrics.fxa_signed_in.statistics.binomial]
+
+# Moved here from the Desktop defaults: 3-day retention behaves as a new-user
+# metric rather than a general default. Uses legacy telemetry, matching how
+# Desktop DAU is still measured.
+[metrics.active_in_last_3_days_legacy.statistics.binomial]
