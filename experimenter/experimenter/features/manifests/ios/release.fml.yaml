@@ -154,17 +154,42 @@ features:
   glean-server-knobs:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     variables:
-      metrics-enabled:
-        description: A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric.
-        type: Map<String, Boolean>
-        default: {}
+      delay-ping-lifetime-io:
+        description: Glean will delay io for ping lifetime metrics
+        type: Boolean
+        default: true
+      enable-event-timestamps:
+        description: Enables precise event timestamps for Glean events
+        type: Boolean
+        default: true
+      gleanMetricConfiguration:
+        description: Configuration for Glean Server Knobs
+        type: GleanServerKnobsConfiguration
+        default:
+          event_threshold: null
+          metrics_enabled: {}
+          pings_enabled: {}
+      ping-lifetime-max-time:
+        description: After what time to auto-flush
+        type: Int
+        default: 2000
+      ping-lifetime-threshold:
+        description: Write count threshold when to auto-flush
+        type: Int
+        default: 1000
+    allow-coenrollment: true
   google-lens-feature:
     description: |
-      The feature flag to manage the rollout of Google Lens entry points.
+      The feature flag to manage the rollout of Google Lens.
     variables:
       enabled:
         description: |
           Enables Google Lens entry points.
+        type: Boolean
+        default: true
+      search-interstitial-enabled:
+        description: |
+          Enables the Google Lens search interstitial.
         type: Boolean
         default: false
   homepage-redesign-feature:
@@ -758,6 +783,11 @@ features:
           Which provider model backs Quick Answers.
         type: QuickAnswersModel
         default: exa
+      optInRedesign:
+        description: |
+          Shows the redesigned opt-in as a sheet over the browser.
+        type: Boolean
+        default: false
   recent-searches-feature:
     description: |
       Enables recent searches.
@@ -929,6 +959,11 @@ features:
           The type of layout of the toolbars.
         type: Option<ToolbarLayoutType>
         default: version1
+      search_term_in_address_bar:
+        description: |
+          Shows the search term instead of the URL in the address bar when the current page is a search results page of the default search engine.
+        type: Boolean
+        default: false
       tab_tray_button_type:
         description: |
           The style of the tab tray button in the toolbar.
@@ -1316,6 +1351,21 @@ objects:
         description: Search in the open tab's text content when typing.
         type: Boolean
         default: false
+  GleanServerKnobsConfiguration:
+    description: A configuration object for Glean server knobs.
+    fields:
+      event_threshold:
+        description: The threshold of events that will be buffered before an events ping is collected and submitted.
+        type: Option<Int>
+        default: null
+      metrics_enabled:
+        description: A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric.
+        type: Map<String, Boolean>
+        default: {}
+      pings_enabled:
+        description: A map of ping names to booleans representing the state of the 'enabled' flag for that ping.
+        type: Map<String, Boolean>
+        default: {}
   MessageData:
     description: |
       An object to describe a message. It uses human readable strings to describe the triggers, action and style of the message as well as the text of the message and call to action.

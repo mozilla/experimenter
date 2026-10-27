@@ -191,10 +191,12 @@ def _verify_url(request, base_url):
 
 
 @pytest.fixture
-def kinto_client(default_data):
+def kinto_client(default_data, experiment_slug):
     def _kinto_client(collection=APPLICATION_KINTO_COLLECTION[default_data.application]):
         kinto_url = os.getenv("INTEGRATION_TEST_KINTO_URL", "http://kinto:8888/v1")
-        return KintoClient(collection=collection, server_url=kinto_url)
+        return KintoClient(
+            collection=collection, server_url=kinto_url, slug=experiment_slug
+        )
 
     return _kinto_client
 

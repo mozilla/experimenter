@@ -1,5 +1,8 @@
+from unittest import mock
+
 from django.test import TestCase
 from parameterized import parameterized
+from pyjexl.parser import ArrayLiteral, Literal, ObjectLiteral
 
 from experimenter.experiments.constants import Application
 from experimenter.experiments.jexl_to_sql import (
@@ -10,6 +13,7 @@ from experimenter.experiments.jexl_to_sql import (
     jexl_to_sql,
 )
 from experimenter.experiments.jexl_utils import (
+    JEXLParser,
     extract_targeting_fields,
     extract_transform_names,
 )
@@ -17,15 +21,41 @@ from experimenter.experiments.tests.jexl_utils import validate_jexl_expr
 from experimenter.targeting.constants import (
     PRESERVED_TARGETING_KEYS_BY_APPLICATION,
     TRANSFORMS_BY_APPLICATION,
+    NimbusTargetingConfig,
     TargetingConstants,
 )
-from experimenter.targeting.targeting_context_parser import TargetingContextFields
+from experimenter.targeting.targeting_context_parser import (
+    RecordedPrefs,
+    TargetingContextFields,
+)
+
+
+def collect_string_literals(expression):
+    nodes = [JEXLParser().parse(expression)]
+    literals = []
+
+    while nodes:
+        node = nodes.pop()
+
+        if isinstance(node, Literal) and isinstance(node.value, str):
+            literals.append(node.value)
+
+        children = list(node.children)
+        if isinstance(node, ArrayLiteral):
+            children.extend(node.value)
+        elif isinstance(node, ObjectLiteral):
+            children.extend(node.value.values())
+
+        nodes += children
+
+    return literals
 
 
 class TestTargetingConfigs(TestCase):
     def setUp(self):
         super().setUp()
         TargetingContextFields.clear_cache()
+        RecordedPrefs.clear_cache()
 
     def test_all_targeting_configs_defined_in_constants(self):
         self.assertEqual(
@@ -52,12 +82,29 @@ class TestTargetingConfigs(TestCase):
                 ) from e
 
     @parameterized.expand([(t,) for t in TargetingConstants.TARGETING_CONFIGS.values()])
+    def test_targeting_config_jexl_string_literals_have_no_control_whitespace(
+        self, targeting_config
+    ):
+        if not targeting_config.targeting:
+            return
+
+        for literal in collect_string_literals(targeting_config.targeting):
+            self.assertFalse(
+                set(literal) & {"\t", "\n", "\r"},
+                f"JEXL string literal {literal!r} in {targeting_config.name} "
+                "contains a tab, newline, or carriage return. Desktop's "
+                "FilterExpressions replaces these with spaces before "
+                "evaluating targeting, which would silently change the "
+                "value being compared.",
+            )
+
+    @parameterized.expand([(t,) for t in TargetingConstants.TARGETING_CONFIGS.values()])
     def test_targeting_config_jexl_attributes_are_known(self, targeting_config):
         if not targeting_config.targeting or targeting_config.targeting == "true":
             return
         result = jexl_to_sql(targeting_config.targeting)
         for warning in result.warnings:
-            if warning.startswith("|"):
+            if "|" in warning:
                 continue
             parts = warning.split(".")
             self.assertTrue(
@@ -105,7 +152,7 @@ class TestTargetingConfigs(TestCase):
             return
         result = jexl_to_sql(targeting_config.targeting, app="fenix")
         for warning in result.warnings:
-            if warning.startswith("|"):
+            if "|" in warning:
                 continue
             parts = warning.split(".")
             self.assertTrue(
@@ -131,7 +178,7 @@ class TestTargetingConfigs(TestCase):
             return
         result = jexl_to_sql(targeting_config.targeting, app="ios")
         for warning in result.warnings:
-            if warning.startswith("|"):
+            if "|" in warning:
                 continue
             parts = warning.split(".")
             self.assertTrue(
@@ -177,6 +224,16 @@ class TestTargetingConfigs(TestCase):
             f"Add a mapping in jexl_to_sql.py or add to KNOWN_UNTRANSLATABLE.",
         )
 
+    def test_recorded_prefs_parses_the_recorder_list(self):
+        # Guards the parser against a reformat of the PREFS block. An empty
+        # result would silently mark every pref unrecorded.
+        prefs = RecordedPrefs.for_desktop()
+        self.assertTrue(prefs)
+        self.assertIn("browser.newtabpage.activity-stream.feeds.topsites", prefs)
+        for pref in prefs:
+            self.assertNotIn('"', pref)
+            self.assertNotIn(":", pref)
+
     @parameterized.expand([(t,) for t in TargetingConstants.TARGETING_CONFIGS.values()])
     def test_validate_targeting_config_fields(self, targeting_config):
         valid_fields = set()
@@ -213,3 +270,70 @@ class TestTargetingConfigs(TestCase):
                 unknown_fields,
                 f"Unknown targeting fields in {targeting_config.slug}: {unknown_fields}",
             )
+
+
+class TestNimbusTargetingConfigPreferences(TestCase):
+    def build_targeting_config(self, targeting):
+        with mock.patch.object(NimbusTargetingConfig, "targeting_configs", []):
+            return NimbusTargetingConfig(
+                name="test",
+                slug="test",
+                description="",
+                targeting=targeting,
+                desktop_telemetry="",
+                sticky_required=False,
+                is_first_run_required=False,
+                application_choice_names=(Application.DESKTOP.name,),
+            )
+
+    @parameterized.expand(
+        [
+            (
+                "'browser.foo.enabled'|preferenceValue",
+                {"browser.foo.enabled"},
+            ),
+            (
+                '"browser.bar.set"|preferenceIsUserSet',
+                {"browser.bar.set"},
+            ),
+            (
+                "'browser.baz.exists'|preferenceExists",
+                {"browser.baz.exists"},
+            ),
+            (
+                "'browser.qux.locked' | preferenceIsLocked",
+                {"browser.qux.locked"},
+            ),
+            (
+                (
+                    "'browser.foo.enabled'|preferenceValue && "
+                    "'browser.bar.set'|preferenceIsUserSet"
+                ),
+                {"browser.foo.enabled", "browser.bar.set"},
+            ),
+            (
+                "true",
+                set(),
+            ),
+            (
+                "",
+                set(),
+            ),
+        ]
+    )
+    def test_targeting_preferences(self, targeting, expected_prefs):
+        targeting_config = self.build_targeting_config(targeting)
+        self.assertEqual(targeting_config.targeting_preferences, expected_prefs)
+
+
+class TestCollectStringLiterals(TestCase):
+    def test_finds_a_backslash_n_escape_inside_a_string_literal(self):
+        self.assertEqual(collect_string_literals("a == 'x\\ny'"), ["x\ny"])
+
+    def test_finds_a_raw_tab_inside_a_string_literal(self):
+        self.assertEqual(collect_string_literals("a == 'x\ty'"), ["x\ty"])
+
+    def test_allows_a_newline_between_tokens(self):
+        self.assertCountEqual(
+            collect_string_literals("a == 'x' &&\n b == 'y'"), ["x", "y"]
+        )

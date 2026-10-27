@@ -806,32 +806,67 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return expressions
 
-    def _get_targeting_pref_conflicts(self):
-        prefs = []
+    def get_branch_feature_prefs(self):
+        branch_prefs = set()
 
-        if self.prevent_pref_conflicts:
-            for feature_config in self.feature_configs.all():
-                feature_prefs = feature_config.schemas.get(version=None).set_pref_vars
-                feature_values = NimbusBranchFeatureValue.objects.filter(
-                    branch__experiment=self, feature_config=feature_config
-                ).values_list("value", flat=True)
+        for feature_config in self.feature_configs.all():
+            feature_prefs = feature_config.schemas.get(version=None).set_pref_vars
+            feature_values = NimbusBranchFeatureValue.objects.filter(
+                branch__experiment=self, feature_config=feature_config
+            ).values_list("value", flat=True)
 
-                if feature_prefs and feature_values:
-                    try:
-                        branch_variables = {
-                            key for value in feature_values for key in json.loads(value)
-                        }
-                    except json.JSONDecodeError:
-                        continue
-
-                    branch_prefs = {
-                        feature_prefs[variable]
-                        for variable in branch_variables
-                        if variable in feature_prefs
+            if feature_prefs and feature_values:
+                try:
+                    branch_variables = {
+                        key for value in feature_values for key in json.loads(value)
                     }
-                    prefs.extend(branch_prefs)
+                except json.JSONDecodeError:
+                    continue
 
-        return prefs
+                branch_prefs.update(
+                    (feature_config.slug, variable, feature_prefs[variable])
+                    for variable in branch_variables
+                    if variable in feature_prefs
+                )
+
+        return branch_prefs
+
+    def get_branch_pref_flips_prefs(self):
+        pref_flips_prefs = set()
+
+        pref_flips_feature = self.feature_configs.filter(
+            slug=self.DESKTOP_PREFFLIPS_SLUG
+        ).first()
+
+        if pref_flips_feature is not None:
+            feature_values = NimbusBranchFeatureValue.objects.filter(
+                branch__experiment=self, feature_config=pref_flips_feature
+            ).values_list("value", flat=True)
+
+            for value in feature_values:
+                try:
+                    parsed_value = json.loads(value)
+                except json.JSONDecodeError:
+                    continue
+
+                if not isinstance(parsed_value, dict):
+                    continue
+
+                pref_names = parsed_value.get("prefs", {})
+                if not isinstance(pref_names, dict):
+                    continue
+
+                pref_flips_prefs.update(
+                    (pref_flips_feature.slug, pref) for pref in pref_names
+                )
+
+        return pref_flips_prefs
+
+    def _get_targeting_pref_conflicts(self):
+        if self.prevent_pref_conflicts:
+            return list({pref for _, _, pref in self.get_branch_feature_prefs()})
+
+        return []
 
     # This is the full JEXL expression processed by clients
     @property
@@ -2687,14 +2722,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         }
 
     @property
+    def home_type(self):
+        if self.is_firefox_labs_opt_in:
+            return NimbusConstants.HomeTypeChoices.LABS
+        if self.is_rollout:
+            return NimbusConstants.HomeTypeChoices.ROLLOUT
+        return NimbusConstants.HomeTypeChoices.EXPERIMENT
+
+    @property
     def home_type_choice(self):
-        match (self.is_firefox_labs_opt_in, self.is_rollout):
-            case (True, _):
-                return NimbusConstants.HomeTypeChoices.LABS.label
-            case (False, True):
-                return NimbusConstants.HomeTypeChoices.ROLLOUT.label
-            case (False, False):
-                return NimbusConstants.HomeTypeChoices.EXPERIMENT.label
+        return self.home_type.label
+
+    @property
+    def type_icon_info(self):
+        return NimbusConstants.HomeTypeChoices.get_icon_info(self.home_type)
 
     @property
     def qa_status_icon_info(self):

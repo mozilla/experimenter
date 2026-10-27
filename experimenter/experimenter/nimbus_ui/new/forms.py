@@ -60,6 +60,23 @@ class InlineRadioSelect(forms.RadioSelect):
     option_template_name = "common/widgets/inline_radio_option.html"
 
 
+class SingleSelectWidget(SelectedFirstMixin, forms.Select):
+    class_attrs = "selectpicker form-control"
+
+    def __init__(self, *args, attrs=None, **kwargs):
+        attrs = attrs or {}
+        attrs.update(
+            {
+                "class": self.class_attrs,
+                "data-live-search": "true",
+                "data-live-search-placeholder": "Search",
+                "data-max-options": 1,
+            }
+        )
+        attrs.setdefault("data-allow-clear", "true")
+        super().__init__(*args, attrs=attrs, **kwargs)
+
+
 class MultiSelectWidget(SelectedFirstMixin, forms.SelectMultiple):
     class_attrs = "selectpicker form-control"
 
@@ -167,7 +184,11 @@ class NimbusDocumentationLinkForm(forms.ModelForm):
     title = forms.ChoiceField(
         choices=NimbusExperiment.DocumentationLink.choices,
         required=False,
-        widget=forms.Select(attrs={"class": "form-select"}),
+        widget=SingleSelectWidget(
+            attrs={
+                "data-allow-clear": "false",
+            }
+        ),
     )
     link = forms.CharField(
         required=False,
@@ -185,23 +206,6 @@ class NimbusDocumentationLinkForm(forms.ModelForm):
 
     def _get_validation_exclusions(self):
         return super()._get_validation_exclusions() | {"title", "link"}
-
-
-class SingleSelectWidget(SelectedFirstMixin, forms.Select):
-    class_attrs = "selectpicker form-control"
-
-    def __init__(self, *args, attrs=None, **kwargs):
-        attrs = attrs or {}
-        attrs.update(
-            {
-                "class": self.class_attrs,
-                "data-live-search": "true",
-                "data-live-search-placeholder": "Search",
-                "data-max-options": 1,
-            }
-        )
-
-        super().__init__(*args, attrs=attrs, **kwargs)
 
 
 class FeatureConfigMultiSelectWidget(MultiSelectWidget):
@@ -687,11 +691,7 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         required=False,
         label="",
         choices=NimbusExperiment.Channel.choices,
-        widget=forms.widgets.Select(
-            attrs={
-                "class": "form-select",
-            },
-        ),
+        widget=SingleSelectWidget(),
     )
     channels = forms.MultipleChoiceField(
         required=False,
@@ -703,31 +703,19 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         required=False,
         label="",
         choices=get_version_choices,
-        widget=forms.widgets.Select(
-            attrs={
-                "class": "form-select",
-            },
-        ),
+        widget=SingleSelectWidget(),
     )
     firefox_max_version = forms.ChoiceField(
         required=False,
         label="",
         choices=get_version_choices,
-        widget=forms.widgets.Select(
-            attrs={
-                "class": "form-select",
-            },
-        ),
+        widget=SingleSelectWidget(),
     )
     newtab_addon_min_version = forms.ChoiceField(
         required=False,
         label="",
         choices=get_newtab_addon_version_choices,
-        widget=forms.widgets.Select(
-            attrs={
-                "class": "form-select",
-            },
-        ),
+        widget=SingleSelectWidget(),
     )
     locales = forms.ModelMultipleChoiceField(
         required=False,
@@ -921,6 +909,12 @@ class RolloutAudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
         if not cleaned_data.get("is_first_run"):
             cleaned_data["proposed_release_date"] = None
         return cleaned_data
+
+    def clean_targeting_config_slug(self):
+        return (
+            self.cleaned_data["targeting_config_slug"]
+            or NimbusExperiment.TargetingConfig.NO_TARGETING
+        )
 
     @transaction.atomic
     def save(self, *args, **kwargs):
@@ -1148,7 +1142,7 @@ class RolloutQAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
             "qa_run_testrail_url",
         ]
         widgets = {
-            "qa_status": forms.Select(choices=NimbusExperiment.QAStatus),
+            "qa_status": SingleSelectWidget(),
             "qa_comment": forms.Textarea(
                 attrs={
                     "class": "form-control",
@@ -1162,6 +1156,7 @@ class RolloutQAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["qa_status"].required = False
         self._initial_qa_status = self.instance.qa_status if self.instance.pk else None
 
     @transaction.atomic
@@ -1172,6 +1167,9 @@ class RolloutQAStatusForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 self.instance.qa_run_date = timezone.now().date()
 
         return super().save(*args, **kwargs)
+
+    def clean_qa_status(self):
+        return self.cleaned_data["qa_status"] or NimbusExperiment.QAStatus.NOT_SET
 
     def get_changelog_message(self):
         return f"{self.request.user} updated QA"
@@ -1801,7 +1799,11 @@ class RolloutPhaseForm(forms.ModelForm):
 class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
     rollout_plan = forms.ChoiceField(
         required=False,
-        widget=forms.Select(attrs={"class": "form-select"}),
+        widget=SingleSelectWidget(
+            attrs={
+                "data-allow-clear": "false",
+            }
+        ),
     )
     template_name = forms.CharField(
         required=False,
@@ -1872,6 +1874,7 @@ class RolloutScheduleForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 "hx-target": "#rollout-schedule-body",
                 "hx-swap": "outerHTML",
                 "hx-include": "closest form",
+                "hx-indicator": "closest form",
             }
         )
 

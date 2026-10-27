@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import escape
 from parameterized import parameterized
 from PIL import Image
@@ -37,12 +38,13 @@ from experimenter.experiments.tests.factories import (
     NimbusVersionedSchemaFactory,
     TagFactory,
 )
+from experimenter.highwind.tests.factories import build_analysis
 from experimenter.jetstream.models import Metric
 from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
-from experimenter.nimbus_ui.constants import NimbusUIConstants
+from experimenter.nimbus_ui.constants import TYPE_ICON_MAP, NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     FeaturesPageSortChoices,
     MyDeliveriesChoices,
@@ -1194,6 +1196,24 @@ class NimbusExperimentsListViewTest(AuthTestCase):
             reverse("new-nimbus-ui-rollout-detail", kwargs={"slug": labs.slug}),
         )
 
+    def test_new_delivery_menu_renders_icons_from_type_icon_map(self):
+        SiteFlag.objects.create(
+            name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,
+            value=True,
+        )
+
+        response = self.client.get(reverse("nimbus-list"))
+
+        for home_type in (
+            NimbusConstants.HomeTypeChoices.EXPERIMENT,
+            NimbusConstants.HomeTypeChoices.ROLLOUT,
+            NimbusConstants.HomeTypeChoices.LABS,
+        ):
+            icon_info = TYPE_ICON_MAP[home_type]
+            self.assertContains(response, icon_info["icon"])
+            self.assertContains(response, icon_info["bg"])
+            self.assertContains(response, icon_info["color"])
+
 
 class NimbusExperimentsListTableViewTest(AuthTestCase):
     def test_render_to_response(self):
@@ -1206,6 +1226,35 @@ class NimbusExperimentsListTableViewTest(AuthTestCase):
             {"status": "test"},
         )
         self.assertEqual(response.headers["HX-Push"], "?status=test")
+
+    @parameterized.expand(
+        [
+            ({}, NimbusConstants.HomeTypeChoices.EXPERIMENT),
+            ({"is_rollout": True}, NimbusConstants.HomeTypeChoices.ROLLOUT),
+            (
+                {
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_title": "title",
+                    "firefox_labs_description": "description",
+                    "firefox_labs_group": (
+                        NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING
+                    ),
+                },
+                NimbusConstants.HomeTypeChoices.LABS,
+            ),
+        ]
+    )
+    def test_renders_type_icon_for_type(self, experiment_kwargs, home_type):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING, **experiment_kwargs
+        )
+
+        response = self.client.get(reverse("nimbus-ui-table"))
+
+        self.assertEqual(response.status_code, 200)
+        icon_info = TYPE_ICON_MAP[home_type]
+        self.assertContains(response, icon_info["icon"])
+        self.assertContains(response, icon_info["bg"])
 
 
 class NimbusExperimentDetailViewTest(AuthTestCase):
@@ -4863,6 +4912,137 @@ class TestResultsView(AuthTestCase):
         self.assertEqual(response.context["displayed_window"], expected_window)
 
 
+class TestHighwindResultsView(AuthTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Outcomes.clear_cache()
+
+    def create_experiment(self, analysis=None, analysis_last_updated=None):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+        if analysis is not None:
+            experiment.analysis_data = analysis.model_dump(mode="json")
+            experiment.analysis_last_updated = analysis_last_updated or timezone.now()
+            experiment.save()
+        return experiment
+
+    def get_page(self, experiment):
+        return self.client.get(
+            reverse("nimbus-ui-highwind-results", kwargs={"slug": experiment.slug}),
+        )
+
+    def test_render_to_response(self):
+        experiment = self.create_experiment()
+
+        response = self.get_page(experiment)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["experiment"], experiment)
+        self.assertTemplateUsed(response, "nimbus_experiments/highwind_results.html")
+
+    def test_renders_with_no_analysis_loaded(self):
+        experiment = self.create_experiment()
+
+        response = self.get_page(experiment)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["has_analysis"])
+        self.assertIsNone(response.context["analysis_last_updated"])
+        self.assertEqual(response.context["analysis_errors"], [])
+
+    def test_shows_when_the_analysis_was_generated(self):
+        generated_at = timezone.now()
+        experiment = self.create_experiment(
+            analysis=build_analysis(), analysis_last_updated=generated_at
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertTrue(response.context["has_analysis"])
+        self.assertEqual(response.context["analysis_last_updated"], generated_at)
+
+    def test_branch_cards_carry_enrolled_counts(self):
+        experiment = self.create_experiment()
+        branches = list(experiment.get_sorted_branches())
+        experiment.analysis_data = build_analysis(
+            segments=[
+                {
+                    "slug": "all_enrolled",
+                    "friendly_name": "All enrolled",
+                    "description": None,
+                    "branches": [
+                        {"branch": branch.slug, "units": 100 * (index + 1)}
+                        for index, branch in enumerate(branches)
+                    ],
+                }
+            ]
+        ).model_dump(mode="json")
+        experiment.analysis_last_updated = timezone.now()
+        experiment.save()
+
+        response = self.get_page(experiment)
+
+        counts = {
+            branch["slug"]: branch["num_enrolled_clients"]
+            for branch in response.context["branch_data"]
+        }
+        self.assertEqual(
+            counts,
+            {branch.slug: 100 * (index + 1) for index, branch in enumerate(branches)},
+        )
+
+    def test_branches_with_no_counts_report_zero(self):
+        experiment = self.create_experiment(analysis=build_analysis())
+
+        response = self.get_page(experiment)
+
+        for branch in response.context["branch_data"]:
+            self.assertEqual(branch["num_enrolled_clients"], 0)
+            self.assertIsNone(branch["percentage"])
+
+    def test_errors_render_newest_first(self):
+        experiment = self.create_experiment(
+            analysis=build_analysis(
+                errors=[
+                    {
+                        "timestamp": "2026-10-01T00:00:00Z",
+                        "log_level": "ERROR",
+                        "message": "older",
+                        "exception_type": "ValueError",
+                        "exception": None,
+                        "filename": "analysis.py",
+                        "func_name": "run",
+                        "metric": None,
+                        "segment": None,
+                        "window": None,
+                    },
+                    {
+                        "timestamp": "2026-10-02T00:00:00Z",
+                        "log_level": "WARNING",
+                        "message": "newer",
+                        "exception_type": None,
+                        "exception": None,
+                        "filename": "analysis.py",
+                        "func_name": "run",
+                        "metric": "days_of_use",
+                        "segment": None,
+                        "window": None,
+                    },
+                ]
+            )
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertEqual(
+            [error["message"] for error in response.context["analysis_errors"]],
+            ["newer", "older"],
+        )
+        self.assertContains(response, "days_of_use metric encountered issues.")
+
+
 class TestResultsExportView(AuthTestCase):
     def test_exports_results_data(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -5341,6 +5521,33 @@ class TestNimbusExperimentsHomeView(AuthTestCase):
     ):
         experiment = NimbusExperimentFactory.create(owner=self.user, **experiment_kwargs)
         self.assertEqual(experiment.home_type_choice, expected_label)
+
+    @parameterized.expand(
+        [
+            (
+                {
+                    "is_firefox_labs_opt_in": True,
+                    "firefox_labs_title": "title",
+                    "firefox_labs_description": "description",
+                    "firefox_labs_group": (
+                        NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING
+                    ),
+                },
+                NimbusConstants.HomeTypeChoices.LABS,
+            ),
+            (
+                {"is_rollout": True},
+                NimbusConstants.HomeTypeChoices.ROLLOUT,
+            ),
+            (
+                {},
+                NimbusConstants.HomeTypeChoices.EXPERIMENT,
+            ),
+        ]
+    )
+    def test_type_icon_info_returns_icon_for_type(self, experiment_kwargs, home_type):
+        experiment = NimbusExperimentFactory.create(owner=self.user, **experiment_kwargs)
+        self.assertEqual(experiment.type_icon_info, TYPE_ICON_MAP[home_type])
 
 
 class TestSlugRedirectToSummary(AuthTestCase):

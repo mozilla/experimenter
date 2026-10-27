@@ -1,5 +1,6 @@
 import json
 
+from django.utils import timezone
 from mozilla_nimbus_schemas.highwind import (
     HighwindAnalysis,
     HighwindAnalysisUnit,
@@ -70,26 +71,12 @@ class HighwindMetadataFactory(ModelFactory[HighwindMetadata]):
 
 
 class HighwindAnalysisFactory(ModelFactory[HighwindAnalysis]):
-    """A run that produced no results, which is what a test wants unless it says so.
-
-    The pieces a filled-in analysis is built from each have a factory above, so a test
-    that needs results passes them in rather than writing the shape out by hand.
-    """
-
     __model__ = HighwindAnalysis
-
-    metadata = HighwindMetadataFactory
-    segments = []
-    metrics = []
-    errors = []
 
 
 def build_legacy_analysis_json(slug):
-    """A blob from before the results schema, which the job will not rewrite.
-
-    The prefix still holds these for experiments that ended during the proof of concept.
-    They carry no schema version, and nothing in them matches the published model.
-    """
+    # A blob from before the results schema, which the job will not rewrite for an
+    # experiment that has ended. Carries no schema version and matches nothing published.
     return json.dumps(
         {
             "metrics_metadata": {
@@ -102,11 +89,13 @@ def build_legacy_analysis_json(slug):
     )
 
 
-def build_analysis(slug, generated_at, **kwargs):
-    """The analysis one experiment's run published, keyed to that experiment."""
+def build_analysis(slug="test-experiment", generated_at=None, **kwargs):
+    # Empty by default, so a test only carries the part it is about. These are passed
+    # rather than declared on the factory, since a value declared there wins over the
+    # one a caller passes to build().
     return HighwindAnalysisFactory.build(
         metadata=HighwindMetadataFactory.build(
-            experiment_slug=slug, generated_at=generated_at
+            experiment_slug=slug, generated_at=generated_at or timezone.now()
         ),
-        **kwargs,
+        **{"segments": [], "metrics": [], "errors": [], **kwargs},
     )

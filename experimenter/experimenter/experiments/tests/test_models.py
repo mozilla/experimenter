@@ -1643,6 +1643,28 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
+            ("not json",),
+            (json.dumps(["list", "not", "dict"]),),
+            (json.dumps({"prefs": "not a dict"}),),
+        ]
+    )
+    def test_get_branch_pref_flips_prefs_ignores_malformed_values(self, value):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[prefflips_feature],
+        )
+
+        for branch in experiment.branches.all():
+            feature_value = branch.feature_values.get(feature_config=prefflips_feature)
+            feature_value.value = value
+            feature_value.save()
+
+        self.assertEqual(experiment.get_branch_pref_flips_prefs(), set())
+
+    @parameterized.expand(
+        [
             (application, require, exclude, expected_targeting)
             for (application, (require, exclude, expected_targeting)) in [
                 *product(
@@ -4045,6 +4067,61 @@ class TestNimbusExperiment(TestCase):
                 "label": (
                     NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_NO_MESSAGE.format(
                         feature_slugs="spotlight"
+                    )
+                ),
+                "detail": None,
+                "learn_more_url": None,
+            },
+            experiment.review_warnings,
+        )
+
+    def test_review_warnings_messaging_control_mismatch(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug="spotlight",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None, schema=None, has_remote_schema=True
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+        )
+        experiment.reference_branch.feature_values.update(
+            value=json.dumps(
+                {
+                    "id": "control-message",
+                    "trigger": {"id": "defaultBrowserCheck"},
+                    "targeting": "false",
+                }
+            )
+        )
+        for branch in experiment.treatment_branches:
+            branch.feature_values.update(
+                value=json.dumps(
+                    {
+                        "id": "treatment-message",
+                        "template": "spotlight",
+                        "content": {"id": "treatment-message"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                    }
+                )
+            )
+
+        self.assertIn(
+            {
+                "label": (
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH.format(
+                        feature_slug="spotlight",
+                        noun="message",
+                        message_ids="treatment-message",
                     )
                 ),
                 "detail": None,

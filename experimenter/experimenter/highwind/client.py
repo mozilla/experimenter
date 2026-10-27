@@ -1,3 +1,4 @@
+import importlib.metadata
 import json
 import logging
 
@@ -13,10 +14,11 @@ analysis_storage = storages["analysis"]
 # prefix added.
 BLOB_PREFIX = "highwind"
 
-# The schema version the job stamps on every blob it writes. The prefix also holds blobs
-# from before the schema existed, which carry no version at all, and the job will not
-# rewrite one for an experiment whose end date has passed.
-SCHEMA_VERSION = 1
+# The job stamps every blob with its own installed mozilla-nimbus-schemas version, so a
+# blob declaring anything else was written against a different release and cannot be read
+# here. Taking the value from the installed package rather than hardcoding it means this
+# does not need revisiting on the next release.
+SCHEMA_VERSION = importlib.metadata.version("mozilla-nimbus-schemas")
 
 
 class UnsupportedSchemaError(Exception):

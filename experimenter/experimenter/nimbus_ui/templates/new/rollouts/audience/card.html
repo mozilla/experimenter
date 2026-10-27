@@ -167,7 +167,9 @@
       <div class="col-6 col-lg-4 col-xxl-3 order-1">
         <div class="bg-body-tertiary rounded-3 px-3 py-2 h-100">
           <div class="small text-secondary mb-1">Advanced targeting</div>
-          <div id="rollout-audience-targeting" class="text-body">{{ experiment.targeting_config_slug|default:"— Not Set" }}</div>
+          <div id="rollout-audience-targeting" class="text-body text-break">
+            {{ experiment.targeting_config_slug|default:"— Not Set" }}
+          </div>
           {% include "new/common/validation_errors.html" with errors=validation_errors.targeting_config_slug %}
 
         </div>
@@ -236,9 +238,9 @@
               <i id="rollout-audience-sticky" class="fas fa-times text-danger"></i> No
             </div>
           {% endif %}
-        </div>
-        {% include "new/common/validation_errors.html" with errors=validation_errors.is_sticky %}
+          {% include "new/common/validation_errors.html" with errors=validation_errors.is_sticky %}
 
+        </div>
       </div>
       {% if experiment.is_mobile %}
         {# First run #}

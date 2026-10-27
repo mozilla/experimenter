@@ -13,6 +13,7 @@ from pyjexl.parser import (
 )
 
 from experimenter.experiments.jexl_utils import JEXLParser
+from experimenter.targeting.targeting_context_parser import RecordedPrefs
 
 _OS = "metrics.object.nimbus_targeting_context_os"
 _BS = "metrics.object.nimbus_targeting_context_browser_settings"
@@ -52,6 +53,10 @@ JEXL_TO_BQ_COLUMN = {
     ),
     "profileAgeCreated": (
         "metrics.quantity.nimbus_targeting_context_profile_age_created"
+    ),
+    "profileLastUse": "metrics.quantity.nimbus_targeting_context_profile_last_use",
+    "previousSessionEnd": (
+        "metrics.quantity.nimbus_targeting_context_previous_session_end"
     ),
     "isFirstStartup": "metrics.boolean.nimbus_targeting_context_is_first_startup",
     "isDefaultBrowser": ("metrics.boolean.nimbus_targeting_context_is_default_browser"),
@@ -146,7 +151,27 @@ def _enrolled_in_sql(slug: str) -> str:
     )
 
 
+# Arrays of slug strings. Desktop only.
+_ACTIVE_SLUG_COLS = {
+    "activeExperiments": "metrics.object.nimbus_targeting_context_active_experiments",
+    "activeRollouts": "metrics.object.nimbus_targeting_context_active_rollouts",
+}
+
+
+def _active_slug_in_sql(slug: str, attribute: str) -> str:
+    """'slug' in activeExperiments / activeRollouts."""
+    col = _ACTIVE_SLUG_COLS[attribute]
+    return f"({_sql_string(slug)} IN UNNEST(JSON_VALUE_ARRAY({col})))"
+
+
 _PREF_VALUES_COL = "metrics.object.nimbus_targeting_environment_pref_values"
+
+
+def _normalize_pref_name(pref: str) -> str:
+    # Mirror of normalizePrefName in TargetingContextRecorder.sys.mjs.
+    return pref.replace("-", "_").replace(".", "__")
+
+
 _USER_SET_PREFS_COL = "metrics.object.nimbus_targeting_environment_user_set_prefs"
 _USER_MONTHLY_ACTIVITY_COL = (
     "metrics.object.nimbus_targeting_context_user_monthly_activity"
@@ -229,6 +254,14 @@ JEXL_TO_BQ_COLUMN_FENIX = {
     **_both("noShortcutsOrStoriesOptOuts", "no_shortcuts_or_stories_opt_outs", "BOOL"),
 }
 
+
+def _addon_installed_sql(addon_id: str) -> str:
+    """'addon-id' in addon_ids — Fenix records installed add-on IDs as an array."""
+    return (
+        f"({_sql_string(addon_id)} IN UNNEST(JSON_VALUE_ARRAY(context, '$.addon_ids')))"
+    )
+
+
 # iOS (Firefox for iOS)
 JEXL_TO_BQ_COLUMN_IOS = {
     **_SHARED_MOBILE_COLUMNS,
@@ -265,10 +298,12 @@ KNOWN_UNTRANSLATABLE = {
     "isFirstRun",  # Desktop uses isFirstStartup; also mobile-only
     "is_first_run",
     "isNonStubFirstRun",
+    # These four are handled as membership tests before the warning path. They
+    # stay listed because a bare reference, outside `x in <attr>`, has no column.
     "enrollments",
     "enrollmentsMap",
-    "activeExperiments",  # circular
-    "activeRollouts",  # circular
+    "activeExperiments",
+    "activeRollouts",
     "newtabSettings",
     "searchEngines",
     "addonsInfo",  # parent blocked; specific sub-fields mapped above
@@ -408,7 +443,14 @@ def _node_to_sql(node, warnings: list[str], column_map: dict[str, str]) -> Optio
             if isinstance(addon_id, str):
                 # Wrap in parens so result can be used in comparisons: (...) != NULL
                 return f"('{addon_id}' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons')))"
-        _add_warning(warnings, subject_path or _identifier_path(node.subject))
+        # subject_path is empty unless the subject is an identifier chain, and
+        # _add_warning ignores an empty attribute, so fall back to a real name.
+        if subject_path:
+            _add_warning(warnings, subject_path)
+        elif isinstance(node.subject, Transform):
+            _add_warning(warnings, f"|{node.subject.name}")
+        else:
+            _add_warning(warnings, "filter expression")
         return None
     return None
 
@@ -433,6 +475,35 @@ def _binary_to_sql(
         and isinstance(node.left.value, str)
     ):
         return _enrolled_in_sql(node.left.value)
+
+    # 'addon-id' in addon_ids — Fenix only; iOS does not record add-on IDs.
+    if (
+        op == "in"
+        and column_map is JEXL_TO_BQ_COLUMN_FENIX
+        and _identifier_path(node.right) == "addon_ids"
+        and isinstance(node.left, Literal)
+        and isinstance(node.left.value, str)
+    ):
+        return _addon_installed_sql(node.left.value)
+
+    # x in activeExperiments / activeRollouts — Desktop only.
+    if op == "in" and column_map is JEXL_TO_BQ_COLUMN:
+        attribute = _identifier_path(node.right)
+        if attribute in _ACTIVE_SLUG_COLS:
+            # experiment.slug is the slug being sized, and sizing runs only on
+            # Drafts, so nobody is enrolled and the sticky-enrollment idiom
+            # `(experiment.slug in activeExperiments) || (<targeting>)` reduces
+            # to the targeting. Two things this relies on, both verified:
+            # no use sits under a pure AND, where FALSE would force the estimate
+            # to zero; and no Draft slug appears in the recorded arrays.
+            #
+            # Only valid while sizing is Draft-only. Extended to a live
+            # experiment this silently undercounts, dropping the clients who
+            # enrolled, drifted out of the targeting, and stay enrolled.
+            if _identifier_path(node.left) == "experiment.slug":
+                return "FALSE"
+            if isinstance(node.left, Literal) and isinstance(node.left.value, str):
+                return _active_slug_in_sql(node.left.value, attribute)
 
     if op in ("&&", "||"):
         left = _node_to_sql(node.left, warnings, column_map)
@@ -648,11 +719,19 @@ def _transform_to_sql(
         if column_map is not JEXL_TO_BQ_COLUMN:
             _add_warning(warnings, "|preferenceValue")
             return None
-        # Pref names stored with dots replaced by __ in BigQuery.
         pref_name = _literal_value(node.subject)
         if pref_name:
-            bq_key = pref_name.replace(".", "__")
-            return f"JSON_VALUE({_PREF_VALUES_COL}, '$.{bq_key}')"
+            # Only the prefs in the recorder's PREFS list are written to
+            # pref_values. Any other resolves to NULL and matches nobody, so
+            # surface it rather than returning a confident zero. A supplied
+            # default does not help: it only applies when the pref is unset,
+            # and we cannot tell which clients have set it.
+            if pref_name not in RecordedPrefs.for_desktop():
+                _add_warning(warnings, f"'{pref_name}'|preferenceValue")
+                return None
+            return (
+                f"JSON_VALUE({_PREF_VALUES_COL}, '$.{_normalize_pref_name(pref_name)}')"
+            )
         _add_warning(warnings, "|preferenceValue")
         return None
 

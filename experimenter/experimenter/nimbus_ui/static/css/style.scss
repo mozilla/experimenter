@@ -222,6 +222,12 @@
   transition: opacity 200ms ease-in;
 }
 
+.type-icon-circle {
+  width: 1.6rem;
+  height: 1.6rem;
+  font-size: 0.65rem;
+}
+
 // Toggle button states driven by Bootstrap's aria-expanded
 .diff-toggle-btn,
 .collapsible-list-toggle {
@@ -586,4 +592,18 @@ html:has(
 
 .rollout-card-header + .accordion-collapse {
   margin-top: -12px;
+}
+
+.bootstrap-select:has([data-allow-clear="true"]) {
+  .bs-select-clear-selected {
+    margin-right: 1.75rem;
+    color: var(--bs-secondary-color);
+  }
+}
+
+.rollout-page .bootstrap-select {
+  > .dropdown-menu,
+  > .dropdown-menu > .inner {
+    min-height: 0 !important;
+  }
 }

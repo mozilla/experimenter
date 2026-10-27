@@ -1,0 +1,144 @@
+{% load static %}
+{% load nimbus_extras %}
+
+<div class="accordion d-flex flex-column gap-4 position-relative"
+     id="{{ experiment.slug }}-highwind-results-accordion">
+  {% comment %} Loading overlay {% endcomment %}
+  <div id="htmx-loading-overlay"
+       class="position-absolute bg-secondary top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center rounded">
+    <div class="text-center text-white">
+      <i class="fa-solid fa-spinner fa-spin-pulse fa-3x mb-3"></i>
+      <div class="fs-5">Loading...</div>
+    </div>
+  </div>
+  {% comment %} Overview {% endcomment %}
+  <div class="px-5 pt-4 pb-5 shadow-sm rounded-4 bg-body border border-1">
+    <div class="d-flex mt-2 align-items-center justify-content-between">
+      <h4 class="m-0">Overview</h4>
+      <div class="d-flex align-items-center gap-3">
+        <div>
+          Results last calculated:
+          <span class="fw-bold">{{ analysis_last_updated|date:"N j, Y g:i A"|default:"N/A" }}
+            {% if analysis_last_updated %}UTC{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div id="{{ experiment.slug }}-highwind-results-overview">
+      <div class="d-flex flex-column gap-4">
+        <hr>
+        <div>
+          <div class="row">
+            <div class="col-xxl">
+              <h5>Hypothesis</h5>
+              {% with hyp=experiment.hypothesis|default:"No hypothesis set." %}
+                {% if hyp|length > 300 %}
+                  <p id="{{ experiment.slug }}-truncated-hypothesis">
+                    <span>{{ hyp|truncatechars:300 }}</span>
+                    <button class="mb-1 btn btn-link p-0"
+                            type="button"
+                            onclick="document.getElementById('{{ experiment.slug }}-truncated-hypothesis').classList.toggle('d-none'); document.getElementById('{{ experiment.slug }}-full-hypothesis').classList.toggle('d-none');">
+                      More
+                    </button>
+                  </p>
+                  <p id="{{ experiment.slug }}-full-hypothesis" class="d-none">
+                    <span>{{ hyp }}</span>
+                    <button class="mb-1 btn btn-link p-0"
+                            type="button"
+                            onclick="document.getElementById('{{ experiment.slug }}-truncated-hypothesis').classList.toggle('d-none'); document.getElementById('{{ experiment.slug }}-full-hypothesis').classList.toggle('d-none');">
+                      Less
+                    </button>
+                  </p>
+                {% else %}
+                  <p>{{ hyp }}</p>
+                {% endif %}
+              {% endwith %}
+            </div>
+            <div class="col-xxl">
+              <div class="row">
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Product Owner</p>
+                  <p>{{ experiment.owner|default:"No product owner set." }}</p>
+                </div>
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Advanced Targeting</p>
+                  <p>{{ experiment.targeting_config.name }}</p>
+                </div>
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Application</p>
+                  <p>{{ experiment.application|default:"Unknown" }}</p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Localization</p>
+                  {% for locale in experiment.locales.all %}
+                    <p class="mb-0">{{ locale.name }}</p>
+                  {% empty %}
+                    <p class="mb-0">None</p>
+                  {% endfor %}
+                </div>
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Version</p>
+                  <p>
+                    {{ experiment.firefox_min_version }}
+                    {% if experiment.firefox_max_version %}
+                      - {{ experiment.firefox_max_version }}
+                    {% else %}
+                      +
+                    {% endif %}
+                  </p>
+                </div>
+                <div class="col-4 d-flex flex-column">
+                  <p class="text-muted mb-0">Outcomes</p>
+                  {% for outcome, url in experiment_context.primary_outcome_links %}
+                    <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
+                  {% endfor %}
+                  {% for outcome, url in experiment_context.secondary_outcome_links %}
+                    <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
+                  {% endfor %}
+                </div>
+                <div class="col-4 d-flex"></div>
+                <div class="row mt-2">
+                  <p class="text-muted mb-0">Feature tags</p>
+                  <div class="d-flex flex-wrap">
+                    {% for tag in experiment.tags.all %}
+                      <span class="badge bg-light text-dark mb-1">{{ tag.name }}</span>
+                    {% empty %}
+                      <p>None</p>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div>
+          <h5 class="mb-3">Branches</h5>
+          <div class="row row-cols-2 row-cols-xxl-3 g-4">
+            {% for branch in branch_data %}
+              <div class="col">
+                {% for branch_slug, branch_leading_screenshot_form in branch_leading_screenshot_forms.items %}
+                  {% if branch_slug == branch.slug %}
+                    {% include "common/branch_card.html" with branch=branch experiment_slug=experiment.slug screenshot_form=branch_leading_screenshot_form %}
+
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% comment %}
+    The metric areas are filled in by EXP-7609. Until then the page carries the overview
+    and whatever the run logged, which is what makes the loader reviewable.
+  {% endcomment %}
+  {% if not has_analysis %}
+    <div class="px-5 py-4 shadow-sm rounded-4 bg-body border border-1">
+      <p class="mb-0 text-muted">No Highwind analysis has been loaded for this experiment yet.</p>
+    </div>
+  {% endif %}
+</div>

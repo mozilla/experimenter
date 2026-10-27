@@ -4,6 +4,13 @@ about:
 channels:
 - developer
 features:
+  account-sync-decouple:
+    description: Control the "sync & account decoupling" feature
+    variables:
+      enabled:
+        description: If true, the flows for enabling sync & account decoupling are enabled.
+        type: Boolean
+        default: false
   account-sync-decouple-m1:
     description: Control whether the new UI for Account Sync is shown.
     variables:
@@ -873,7 +880,7 @@ features:
       campaign-utm-content:
         description: The "utm_content" value used to identify installs from the pairing campaign.
         type: String
-        default: ''
+        default: DTM_SYNC_PAIR_V2
       enabled:
         description: Whether the Sync sign-in card can be shown during initial onboarding.
         type: Boolean
@@ -1398,20 +1405,14 @@ enums:
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
-      add-search-widget:
-        description: Allows user to add search widget to homescreen.
       default-browser:
         description: Allows user to set Firefox as the default browser.
       marketing-data:
         description: Allows user to opt out of marketing data collection.
-      notification-permission:
-        description: Allows user to enable notification permission.
       sync-sign-in:
         description: Allows user to sync with a Firefox account.
       terms-of-service:
         description: Page to display the terms of services.
-      toolbar-placement:
-        description: Allows user to choose the toolbar position.
   OnboardingPanel:
     description: The types of onboarding panels in the onboarding page
     variants:
@@ -1480,37 +1481,10 @@ enums:
           Uses the following copy:
           - Title: "A note from Firefox"
           - Learn more: "You can learn more here."
-  ToolbarType:
-    description: An enum to describe a toolbar placement option.
-    variants:
-      toolbar-bottom:
-        description: Sets the toolbar placement on the bottom.
-      toolbar-top:
-        description: Sets the toolbar placement on the top.
 objects:
-  CustomizationToolbarData:
-    description: An object to describe the placement of the toolbar.
-    fields:
-      image-res:
-        description: The resource id of toolbar placement image.
-        type: Image
-        default: ic_onboarding_customize_toolbar
-      label:
-        description: Display text for the toolbar placement option (e.g. "Top placement").
-        type: Text
-        default: ''
-      toolbar-type:
-        description: The type of toolbar placement.
-        type: ToolbarType
-        default: toolbar-top
   ExtraCardData:
-    description: Holds data for cards that require additional data, e.g. toolbar placement cards.
+    description: Holds data for cards that require additional data, e.g. terms of service cards.
     fields:
-      customization-toolbar-data:
-        description: |
-          An optional list of toolbar placements for the toolbar placement card.
-        type: List<CustomizationToolbarData>
-        default: []
       marketing-data:
         description: |
           An optional marketing data for the onboarding card.

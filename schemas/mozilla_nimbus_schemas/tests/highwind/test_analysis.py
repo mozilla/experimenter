@@ -39,7 +39,7 @@ WINDOW_DISJOINT = {
 
 EXAMPLE_ANALYSIS = {
     "metadata": {
-        "schema_version": 1,
+        "schema_version": "3006.0.0",
         "experiment_slug": "test-experiment-slug",
         "as_of_date": "2026-01-10",
         "generated_at": "2026-01-10T06:00:00+00:00",

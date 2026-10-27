@@ -564,6 +564,10 @@ class NimbusConstants:
         "fxms_bmb_button",
     )
     DESKTOP_MESSAGING_MULTI_TEMPLATE = "multi"
+    DESKTOP_MESSAGING_SKIPPED_TEMPLATES = (
+        "toast_notification",
+        "menu_message",
+    )
 
     MOBILE_MESSAGING_SLUG = "messaging"
     MOBILE_MESSAGING_MESSAGES_FIELD = "messages"
@@ -585,6 +589,14 @@ class NimbusConstants:
         ROLLOUT = "Rollout", "📈 Rollout"
         EXPERIMENT = "Experiment", "🔬 Experiment"
         LABS = "Labs", "🧪 Labs"
+
+        @staticmethod
+        def get_icon_info(home_type):
+            from experimenter.nimbus_ui.constants import TYPE_ICON_MAP
+
+            return TYPE_ICON_MAP.get(
+                home_type, TYPE_ICON_MAP[NimbusConstants.HomeTypeChoices.EXPERIMENT]
+            )
 
     Version = Version
 
@@ -608,7 +620,6 @@ class NimbusConstants:
         SRM_MISMATCH = "srm_mismatch", "SRM Mismatch"
         ZERO_ENROLLMENT = "zero_enrollment", "Zero Enrollment"
         FEATURE_CONFLICT = "feature_conflict", "Feature Conflict"
-        NOT_UNENROLLING = "not_unenrolling", "Not Unenrolling"
 
     # Error types from Jetstream that are expected for non-analysis reasons and
     # don't want alerting
@@ -928,6 +939,18 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     )
     ERROR_CANNOT_PUBLISH_TO_PREVIEW = "This experiment cannot be published to preview."
 
+    STICKY_ENROLLMENT_PREF_CONFLICT_REASON = (
+        "the {feature} feature sets '{pref}' (variable '{variable}')"
+    )
+    STICKY_ENROLLMENT_PREF_CONFLICT_PREFFLIPS_REASON = (
+        f"the {DESKTOP_PREFFLIPS_SLUG} feature sets '{{pref}}'"
+    )
+    ERROR_STICKY_ENROLLMENT_PREF_CONFLICT = (
+        "Sticky enrollment is required because {reasons}, which the "
+        '"{targeting_config}" targeting also checks. Without sticky enrollment, '
+        "clients would unenroll as soon as they enroll."
+    )
+
     ERROR_DESKTOP_PREFFLIPS_128_ESR_ONLY = (
         "The prefFlips feature is only available on Firefox 128 on the ESR branch."
     )
@@ -949,6 +972,18 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "The control branch has no message for {feature_slugs}, so control clients "
         "will not record exposure events. Add a message with the same trigger and "
         "targeting as the treatment message and no template or content."
+    )
+    WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH = (
+        "The control branch has no message with the same trigger and targeting as "
+        "{feature_slug} {noun} {message_ids}, so control clients will not record "
+        "exposure under the same conditions as treatment. Give each treatment "
+        "message a control message with the same trigger and targeting."
+    )
+    WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS = (
+        "The targeting for {feature_slug} {noun} {message_ids} does not check "
+        "!activeNotifications, so it can show while another notification is already "
+        "on screen. Add !activeNotifications unless it is meant to show alongside "
+        "other messages."
     )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"
@@ -1018,10 +1053,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
     MONITORING_ALERT_MINIMUM_DAYS = 1
     ZERO_ENROLLMENT_DAYS_THRESHOLD = 3
     ZERO_ENROLLMENT_CLIENT_THRESHOLD = 1000
-    NOT_UNENROLLING_DAYS_THRESHOLD = 3
-    NOT_UNENROLLING_CLIENT_THRESHOLD = 1000
-    NOT_UNENROLLING_MIN_ENROLLMENTS = 1000
-    POST_END_MONITORING_DAYS = NOT_UNENROLLING_DAYS_THRESHOLD + 1
     FEATURE_CONFLICT_THRESHOLD = 0.25
 
     OVERALL_WINDOW_INDEX = "1"

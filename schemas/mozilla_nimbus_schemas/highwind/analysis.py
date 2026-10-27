@@ -100,7 +100,7 @@ class HighwindSegment(HighwindModel):
 
 
 class HighwindMetadata(HighwindModel):
-    schema_version: int
+    schema_version: str
     experiment_slug: str
     as_of_date: dt.date
     generated_at: dt.datetime

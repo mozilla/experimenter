@@ -1,8 +1,10 @@
 import json
 
 from django.core.cache import cache
+from django.http import QueryDict
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from parameterized import parameterized
 
 from experimenter.experiments.api.cache import get_api_cache_key
 from experimenter.experiments.api.v6.serializers import NimbusExperimentSerializer
@@ -377,3 +379,129 @@ class TestCachedListBehavior(CachedViewSetTest):
         recipes = json.loads(response.content)
         slugs = sorted(recipe["slug"] for recipe in recipes)
         self.assertEqual(slugs, ["desktop-exp", "fenix-exp"])
+
+    def test_list_ignores_unknown_params_and_serves_warmed_cache(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="cached-experiment",
+        )
+
+        warm_api_caches()
+        experiment.delete()
+
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-v6-list"),
+            {"cb": "123", "limit": "10000", "bust-cache": "1"},
+        )
+        self.assertEqual(response.status_code, 200)
+
+        recipes = json.loads(response.content)
+        self.assertEqual([recipe["slug"] for recipe in recipes], ["cached-experiment"])
+
+    def test_list_filter_with_unknown_params_shares_filter_cache_key(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            slug="complete-experiment",
+        )
+
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-v6-list"),
+            {"status": NimbusExperiment.Status.COMPLETE},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(
+            cache.get(
+                get_api_cache_key(
+                    "v6:experiments",
+                    QueryDict(f"status={NimbusExperiment.Status.COMPLETE}"),
+                )
+            )
+        )
+
+        experiment.delete()
+
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-v6-list"),
+            {"status": NimbusExperiment.Status.COMPLETE, "cb": "123"},
+        )
+        self.assertEqual(response.status_code, 200)
+        recipes = json.loads(response.content)
+        self.assertEqual([recipe["slug"] for recipe in recipes], ["complete-experiment"])
+
+    def test_list_real_filters_produce_distinct_cache_keys(self):
+        self.client.get(
+            reverse("nimbus-experiment-rest-v6-list"),
+            {"application": NimbusExperiment.Application.DESKTOP, "cb": "1"},
+        )
+        self.client.get(
+            reverse("nimbus-experiment-rest-v6-list"),
+            {
+                "application": [
+                    NimbusExperiment.Application.DESKTOP,
+                    NimbusExperiment.Application.FENIX,
+                ],
+                "cb": "2",
+            },
+        )
+
+        desktop_key = get_api_cache_key(
+            "v6:experiments",
+            QueryDict(f"application={NimbusExperiment.Application.DESKTOP}"),
+        )
+        multi_key = get_api_cache_key(
+            "v6:experiments",
+            QueryDict(
+                f"application={NimbusExperiment.Application.DESKTOP}"
+                f"&application={NimbusExperiment.Application.FENIX}"
+            ),
+        )
+        self.assertNotEqual(desktop_key, multi_key)
+        self.assertIsNotNone(cache.get(desktop_key))
+        self.assertIsNotNone(cache.get(multi_key))
+        self.assertIsNone(cache.get(get_api_cache_key("v6:experiments")))
+
+    @parameterized.expand(
+        [
+            (
+                NimbusExperiment.Status.LIVE,
+                NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            ),
+            (
+                NimbusExperiment.Status.PREVIEW,
+                NimbusExperimentFactory.Lifecycles.PREVIEW,
+            ),
+        ]
+    )
+    def test_list_live_or_preview_filter_bypasses_cache(self, status, lifecycle):
+        cache_key = get_api_cache_key("v6:experiments", QueryDict(f"status={status}"))
+        cache.set(cache_key, b"[]")
+        NimbusExperimentFactory.create_with_lifecycle(lifecycle, slug="fresh-experiment")
+
+        response = self.client.get(
+            reverse("nimbus-experiment-rest-v6-list"), {"status": status, "cb": "1"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        recipes = json.loads(response.content)
+        self.assertEqual([recipe["slug"] for recipe in recipes], ["fresh-experiment"])
+        self.assertEqual(cache.get(cache_key), b"[]")
+
+    def test_list_live_filter_with_other_filters_writes_nothing(self):
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            slug="desktop-live",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        params = {
+            "application": NimbusExperiment.Application.DESKTOP,
+            "status": NimbusExperiment.Status.LIVE,
+        }
+
+        response = self.client.get(reverse("nimbus-experiment-rest-v6-list"), params)
+
+        self.assertEqual(response.status_code, 200)
+        recipes = json.loads(response.content)
+        self.assertEqual([recipe["slug"] for recipe in recipes], ["desktop-live"])
+        query_params = QueryDict(mutable=True)
+        query_params.update(params)
+        self.assertIsNone(cache.get(get_api_cache_key("v6:experiments", query_params)))

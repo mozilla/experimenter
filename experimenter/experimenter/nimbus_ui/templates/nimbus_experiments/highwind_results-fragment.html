@@ -1,0 +1,130 @@
+{% load nimbus_extras %}
+
+<div class="d-flex flex-column gap-3 mt-4" id="highwind-results-page">
+  <div class="alert alert-danger p-4 mb-0 rounded-4 border-2"
+       id="highwind-validation-warning"
+       role="alert">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <i class="fa-solid fa-triangle-exclamation fs-4"></i>
+      <h4 class="mb-0 text-uppercase fw-bold">Validation in progress</h4>
+    </div>
+    <p class="mb-0">{{ NimbusUIConstants.HIGHWIND_VALIDATION_MESSAGE|sanitize_html }}</p>
+  </div>
+  <div class="info-cards-container">
+    {% if analysis_errors %}
+      <div class="alert p-4 py-3 mb-0 rounded-4 alert-warning" role="alert">
+        <div class="row align-items-center">
+          <div class="col-xxl py-4 mt-0">
+            <div class="d-flex align-items-center mb-2 gap-2">
+              <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+              <h5 class="mb-0">Issues detected in a few metrics</h5>
+            </div>
+            <p class="text-muted">
+              {% if experiment.is_complete %}
+                {{ NimbusUIConstants.COMPLETE_EXPERIMENT_ERROR_MESSAGE }}
+              {% else %}
+                {{ NimbusUIConstants.INCOMPLETE_EXPERIMENT_ERROR_MESSAGE }}
+              {% endif %}
+            </p>
+            <a class="btn btn-secondary bg-secondary-subtle bg-opacity-25 border-0 text-body fw-semibold"
+               target="_blank"
+               href="{{ ask_experimenter_slack_link }}">Contact Experimenter Support</a>
+          </div>
+          <div class="col-xxl">
+            <div class="bg-warning bg-opacity-25 px-4 py-3 rounded-4 h-100 d-flex flex-column justify-content-start text-body">
+              <p class="text-muted mb-2">Possible Issues</p>
+              <ul class="list-unstyled mb-0">
+                {% for error in analysis_errors %}
+                  <li class="d-flex align-items-center gap-1 mb-2 text-muted">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <small class="fw-bold">
+                      {% if error.metric %}
+                        {{ error.metric }} metric encountered issues. —
+                      {% else %}
+                        {{ error.exception_type|default:"Unknown error" }} —
+                      {% endif %}
+                    </small>
+                    <button class="btn btn-link p-0"
+                            data-bs-toggle="modal"
+                            data-bs-target="#{{ experiment.slug }}-highwind-error-{{ forloop.counter }}">
+                      <small>View details</small>
+                    </button>
+                  </li>
+                  <div class="modal fade"
+                       id="{{ experiment.slug }}-highwind-error-{{ forloop.counter }}"
+                       tabindex="-1"
+                       aria-labelledby="{{ experiment.slug }}-highwind-error-{{ forloop.counter }}"
+                       aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Error Details</h5>
+                          <button type="button"
+                                  class="btn-close"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <dl class="row">
+                            <dt class="col-sm-4">Level</dt>
+                            <dd class="col-sm-8">
+                              {{ error.log_level }}
+                            </dd>
+                            <dt class="col-sm-4">Type</dt>
+                            <dd class="col-sm-8">
+                              {{ error.exception_type|default:"—" }}
+                            </dd>
+                            <dt class="col-sm-4">Timestamp</dt>
+                            <dd class="col-sm-8">
+                              [{{ error.timestamp }}]
+                            </dd>
+                            <dt class="col-sm-4">Message</dt>
+                            <dd class="col-sm-8 text-break">
+                              {{ error.message }}
+                            </dd>
+                            <dt class="col-sm-4">File</dt>
+                            <dd class="col-sm-8">
+                              {{ error.filename }}
+                            </dd>
+                            <dt class="col-sm-4">Function</dt>
+                            <dd class="col-sm-8">
+                              {{ error.func_name }}
+                            </dd>
+                            <dt class="col-sm-4">Metric</dt>
+                            <dd class="col-sm-8">
+                              {{ error.metric|default:"—" }}
+                            </dd>
+                            <dt class="col-sm-4">Segment</dt>
+                            <dd class="col-sm-8">
+                              {{ error.segment|default:"—" }}
+                            </dd>
+                            <dt class="col-sm-4">Window</dt>
+                            <dd class="col-sm-8">
+                              {% if error.window %}
+                                {{ error.window.kind }} day {{ error.window.start_day }}–{{ error.window.end_day }}
+                              {% else %}
+                                —
+                              {% endif %}
+                            </dd>
+                            {% if error.exception %}
+                              <details class="mt-3">
+                                <summary class="small">View full exception</summary>
+                                <code class="mt-2 mb-0 text-break">{{ error.exception }}</code>
+                              </details>
+                            {% endif %}
+                          </dl>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  {% include "nimbus_experiments/highwind_results-inner.html" %}
+
+</div>

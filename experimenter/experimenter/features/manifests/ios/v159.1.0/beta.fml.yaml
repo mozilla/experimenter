@@ -160,11 +160,16 @@ features:
         default: {}
   google-lens-feature:
     description: |
-      The feature flag to manage the rollout of Google Lens entry points.
+      The feature flag to manage the rollout of Google Lens.
     variables:
       enabled:
         description: |
           Enables Google Lens entry points.
+        type: Boolean
+        default: true
+      search-interstitial-enabled:
+        description: |
+          Enables the Google Lens search interstitial.
         type: Boolean
         default: false
   homepage-redesign-feature:
@@ -777,6 +782,11 @@ features:
           Which provider model backs Quick Answers.
         type: QuickAnswersModel
         default: exa
+      optInRedesign:
+        description: |
+          Shows the redesigned opt-in as a sheet over the browser.
+        type: Boolean
+        default: false
   recent-searches-feature:
     description: |
       Enables recent searches.
@@ -948,6 +958,11 @@ features:
           The type of layout of the toolbars.
         type: Option<ToolbarLayoutType>
         default: version1
+      search_term_in_address_bar:
+        description: |
+          Shows the search term instead of the URL in the address bar when the current page is a search results page of the default search engine.
+        type: Boolean
+        default: false
       tab_tray_button_type:
         description: |
           The style of the tab tray button in the toolbar.

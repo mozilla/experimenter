@@ -1,4 +1,5 @@
 import io
+import json
 from unittest import mock
 
 from django.test import TestCase
@@ -7,6 +8,7 @@ from pydantic import ValidationError
 
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.highwind.client import (
+    SCHEMA_VERSION,
     UnsupportedSchemaError,
     blob_path,
     get_analysis,
@@ -81,7 +83,20 @@ class TestGetAnalysis(TestCase):
     def test_raises_unsupported_for_a_blob_declaring_another_version(self, mock_storage):
         mock_storage.exists.return_value = True
         mock_storage.open.return_value = io.StringIO(
-            '{"metadata": {"schema_version": 2}}'
+            json.dumps({"metadata": {"schema_version": "1.0.0"}})
+        )
+
+        with self.assertRaises(UnsupportedSchemaError):
+            get_analysis(self.experiment)
+
+    def test_raises_unsupported_for_a_blob_carrying_the_old_integer_version(
+        self, mock_storage
+    ):
+        # Blobs written before the job stamped the package version carry 1. Those for
+        # experiments that have since ended are never rewritten, so they stay unreadable.
+        mock_storage.exists.return_value = True
+        mock_storage.open.return_value = io.StringIO(
+            json.dumps({"metadata": {"schema_version": 1}})
         )
 
         with self.assertRaises(UnsupportedSchemaError):
@@ -92,7 +107,7 @@ class TestGetAnalysis(TestCase):
     ):
         mock_storage.exists.return_value = True
         mock_storage.open.return_value = io.StringIO(
-            '{"metadata": {"schema_version": 1}}'
+            json.dumps({"metadata": {"schema_version": SCHEMA_VERSION}})
         )
 
         with self.assertRaises(ValidationError):
