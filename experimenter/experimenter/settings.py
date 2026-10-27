@@ -608,6 +608,9 @@ ADDON_VERSIONS_PATH = BASE_DIR / "addons" / "versions"
 # Firefox versions path
 FIREFOX_VERSIONS_PATH = BASE_DIR / "experiments" / "versions.yaml"
 
+# How many majors ahead of the latest feature manifest versions.yaml is kept
+FIREFOX_VERSIONS_AHEAD = 5
+
 SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
     "SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER", default=False, cast=bool
 )
