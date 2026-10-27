@@ -75,8 +75,7 @@ class HighwindAnalysisFactory(ModelFactory[HighwindAnalysis]):
 
 
 def build_legacy_analysis_json(slug):
-    # A blob from before the results schema, which the job will not rewrite for an
-    # experiment that has ended. Carries no schema version and matches nothing published.
+    # Carries no schema version, and nothing in it matches the published model.
     return json.dumps(
         {
             "metrics_metadata": {

@@ -71,36 +71,24 @@ class TestGetAnalysis(TestCase):
         self.assertEqual(analysis.metadata.experiment_slug, "test-experiment")
         self.assertEqual(analysis.metadata.generated_at, self.generated_at)
 
-    def test_raises_unsupported_for_a_blob_from_before_the_schema(self, mock_storage):
-        mock_storage.exists.return_value = True
-        mock_storage.open.return_value = io.StringIO(
-            build_legacy_analysis_json("test-experiment")
-        )
+    def test_raises_unsupported_for_a_blob_it_cannot_read(self, mock_storage):
+        payloads = {
+            "from before the schema": build_legacy_analysis_json("test-experiment"),
+            "carrying the old integer version": json.dumps(
+                {"metadata": {"schema_version": 1}}
+            ),
+            "declaring another release": json.dumps(
+                {"metadata": {"schema_version": f"{SCHEMA_VERSION}.1"}}
+            ),
+        }
 
-        with self.assertRaises(UnsupportedSchemaError):
-            get_analysis(self.experiment)
+        for name, payload in payloads.items():
+            with self.subTest(blob=name):
+                mock_storage.exists.return_value = True
+                mock_storage.open.return_value = io.StringIO(payload)
 
-    def test_raises_unsupported_for_a_blob_declaring_another_version(self, mock_storage):
-        mock_storage.exists.return_value = True
-        mock_storage.open.return_value = io.StringIO(
-            json.dumps({"metadata": {"schema_version": f"{SCHEMA_VERSION}.1"}})
-        )
-
-        with self.assertRaises(UnsupportedSchemaError):
-            get_analysis(self.experiment)
-
-    def test_raises_unsupported_for_a_blob_carrying_the_old_integer_version(
-        self, mock_storage
-    ):
-        # Blobs written before the job stamped the package version carry 1. Those for
-        # experiments that have since ended are never rewritten, so they stay unreadable.
-        mock_storage.exists.return_value = True
-        mock_storage.open.return_value = io.StringIO(
-            json.dumps({"metadata": {"schema_version": 1}})
-        )
-
-        with self.assertRaises(UnsupportedSchemaError):
-            get_analysis(self.experiment)
+                with self.assertRaises(UnsupportedSchemaError):
+                    get_analysis(self.experiment)
 
     def test_raises_validation_error_for_a_versioned_blob_that_does_not_conform(
         self, mock_storage

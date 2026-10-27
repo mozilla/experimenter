@@ -9,45 +9,34 @@ logger = logging.getLogger(__name__)
 
 analysis_storage = storages["analysis"]
 
-# The Highwind job writes to gs://mozanalysis/highwind, the bucket Jetstream's results and
-# the enrollment funnel already come from, so the analysis storage reaches it with only a
-# prefix added.
+# Jetstream's results and the enrollment funnel already come from this bucket, so the
+# analysis storage reaches the Highwind blobs with only a prefix added.
 BLOB_PREFIX = "highwind"
 
-# The job stamps every blob with its own installed mozilla-nimbus-schemas version, so a
-# blob declaring anything else was written against a different release and cannot be read
-# here. Taking the value from the installed package rather than hardcoding it means this
-# does not need revisiting on the next release.
+# Read from the installed package, the same source the job stamps blobs from, so a new
+# release needs no change here.
 SCHEMA_VERSION = importlib.metadata.version("mozilla-nimbus-schemas")
 
 
 class UnsupportedSchemaError(Exception):
-    """A blob written against a schema this does not know how to read."""
+    pass
 
 
 def blob_path(slug):
-    """The object name the Highwind job writes one experiment's results under.
-
-    Underscores rather than the hyphens a slug carries, matching the naming of the other
-    artifacts the bucket holds.
-    """
+    # Underscores rather than the hyphens a slug carries, matching the bucket's other
+    # artifacts.
     return f"{BLOB_PREFIX}/{slug.replace('-', '_')}.json"
 
 
 def list_analysis_blobs():
-    """Every object the job has written under the prefix, as one listing per run."""
     _, filenames = analysis_storage.listdir(BLOB_PREFIX)
     return {f"{BLOB_PREFIX}/{filename}" for filename in filenames}
 
 
 def get_analysis(experiment):
-    """The experiment's published analysis, or None if the job has not written one.
-
-    Raises UnsupportedSchemaError for a blob that does not claim the version we read,
-    and ValidationError for one that claims it but does not conform. The caller leaves the
-    stored analysis alone either way, and only the second is worth reporting: a blob the
-    job will never rewrite cannot be fixed by looking at it again next hour.
-    """
+    # A blob declaring another version raises UnsupportedSchemaError; one declaring ours
+    # that does not conform raises ValidationError. Only the second is worth reporting,
+    # since a blob the job will never rewrite cannot be fixed by reading it again.
     path = blob_path(experiment.slug)
 
     if not analysis_storage.exists(path):
