@@ -1,3 +1,5 @@
+import json
+
 from django.utils import timezone
 from mozilla_nimbus_schemas.highwind import (
     HighwindAnalysis,
@@ -15,6 +17,8 @@ from mozilla_nimbus_schemas.highwind import (
     HighwindWindowResult,
 )
 from polyfactory.factories.pydantic_factory import ModelFactory
+
+from experimenter.highwind.client import SCHEMA_VERSION
 
 
 class HighwindIntervalFactory(ModelFactory[HighwindInterval]):
@@ -60,7 +64,7 @@ class HighwindErrorFactory(ModelFactory[HighwindError]):
 class HighwindMetadataFactory(ModelFactory[HighwindMetadata]):
     __model__ = HighwindMetadata
 
-    schema_version = 1
+    schema_version = SCHEMA_VERSION
     analysis_unit = HighwindAnalysisUnit.CLIENT_ID
     reference_branch = "control"
     branches = ["control", "treatment"]
@@ -68,6 +72,20 @@ class HighwindMetadataFactory(ModelFactory[HighwindMetadata]):
 
 class HighwindAnalysisFactory(ModelFactory[HighwindAnalysis]):
     __model__ = HighwindAnalysis
+
+
+def build_legacy_analysis_json(slug):
+    # Carries no schema version, and nothing in it matches the published model.
+    return json.dumps(
+        {
+            "metrics_metadata": {
+                "experiment_slug": slug,
+                "branches": ["control", "treatment"],
+            },
+            "statistics": [{"metric": "days_of_use", "branch": "control"}],
+            "errors": [],
+        }
+    )
 
 
 def build_analysis(slug="test-experiment", generated_at=None, **kwargs):

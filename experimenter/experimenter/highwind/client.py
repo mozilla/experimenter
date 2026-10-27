@@ -1,3 +1,5 @@
+import importlib.metadata
+import json
 import logging
 
 from django.core.files.storage import storages
@@ -7,37 +9,50 @@ logger = logging.getLogger(__name__)
 
 analysis_storage = storages["analysis"]
 
-# The Highwind job writes to gs://mozanalysis/highwind, the bucket Jetstream's results and
-# the enrollment funnel already come from, so the analysis storage reaches it with only a
-# prefix added.
+# Jetstream's results and the enrollment funnel already come from this bucket, so the
+# analysis storage reaches the Highwind blobs with only a prefix added.
 BLOB_PREFIX = "highwind"
+
+# Read from the installed package, the same source the job stamps blobs from, so a new
+# release needs no change here.
+SCHEMA_VERSION = importlib.metadata.version("mozilla-nimbus-schemas")
+
+
+class UnsupportedSchemaError(Exception):
+    pass
 
 
 def blob_path(slug):
-    """The object name the Highwind job writes one experiment's results under.
-
-    Underscores rather than the hyphens a slug carries, matching the naming of the other
-    artifacts the bucket holds.
-    """
+    # Underscores rather than the hyphens a slug carries, matching the bucket's other
+    # artifacts.
     return f"{BLOB_PREFIX}/{slug.replace('-', '_')}.json"
 
 
 def list_analysis_blobs():
-    """Every object the job has written under the prefix, as one listing per run."""
     _, filenames = analysis_storage.listdir(BLOB_PREFIX)
     return {f"{BLOB_PREFIX}/{filename}" for filename in filenames}
 
 
 def get_analysis(experiment):
-    """The experiment's published analysis, or None if the job has not written one.
-
-    Raises ValidationError if the blob does not conform to the published schema, which the
-    caller treats as a reason to leave the stored analysis alone rather than overwrite it.
-    """
+    # A blob declaring another version raises UnsupportedSchemaError; one declaring ours
+    # that does not conform raises ValidationError. Only the second is worth reporting,
+    # since a blob the job will never rewrite cannot be fixed by reading it again.
     path = blob_path(experiment.slug)
 
     if not analysis_storage.exists(path):
         return None
 
     with analysis_storage.open(path) as blob:
-        return HighwindAnalysis.model_validate_json(blob.read())
+        payload = json.load(blob)
+
+    metadata = payload.get("metadata") if isinstance(payload, dict) else None
+    schema_version = (
+        metadata.get("schema_version") if isinstance(metadata, dict) else None
+    )
+    if schema_version != SCHEMA_VERSION:
+        raise UnsupportedSchemaError(
+            f"{path} declares schema version {schema_version!r},"
+            f" and this reads version {SCHEMA_VERSION}"
+        )
+
+    return HighwindAnalysis.model_validate(payload)
