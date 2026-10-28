@@ -5317,17 +5317,43 @@ class TestHighwindResultsGrid(AuthTestCase):
 
         self.assertContains(response, "Shown in the grid")
 
-    def test_shows_which_run_produced_the_numbers(self):
+    def test_the_breakdown_opens_with_the_matured_window_overview(self):
         experiment = self.create_experiment(
             lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
         )
 
         response = self.get_page(experiment)
 
-        self.assertEqual(response.context["analysis_run"]["pipeline_version"], "1.0.0")
-        self.assertContains(response, "Analysed as of")
-        self.assertContains(response, "client id")
-        self.assertContains(response, "1.0.0")
+        self.assertContains(response, "Most recent matured window")
+        self.assertContains(response, "Absolute count")
+        self.assertContains(response, "Relative change")
+        self.assertTemplateUsed(response, "common/metric_popout_card.html")
+
+    def test_the_overview_relative_bar_has_geometry_to_draw_with(self):
+        # The shared relative card renders an empty line without these.
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+        )
+
+        response = self.get_page(experiment)
+
+        geometry = response.context["metrics"][0]["bar_geometry"]
+        self.assertIn(self.treatment, geometry)
+        self.assertEqual(
+            set(geometry[self.treatment]),
+            {"bar_width", "left_percent", "left_bounds_percent", "bounds_width"},
+        )
+
+    def test_explains_what_each_status_means(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "How to read these results")
+        for _, explanation in NimbusUIConstants.HIGHWIND_STATE_LABELS.values():
+            self.assertContains(response, escape(explanation))
 
     def test_exports_the_stored_blob(self):
         experiment = self.create_experiment(

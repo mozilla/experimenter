@@ -2,6 +2,8 @@ import datetime as dt
 
 from mozilla_nimbus_schemas.highwind import HighwindCellState, HighwindDirection
 
+from experimenter.nimbus_ui.constants import METRICS_MIN_BOUNDS_WIDTH
+
 # The segment the job writes for every enrolled unit. The Highwind page has no segment
 # selector, so this is the one whose branch counts the overview shows.
 ALL_ENROLLED = "all_enrolled"
@@ -50,18 +52,6 @@ class HighwindResultsManager:
     @property
     def metadata(self):
         return self.analysis.get("metadata") or {}
-
-    @property
-    def run(self):
-        # What produced these numbers, which is what a reviewer comparing them against
-        # Jetstream needs to know.
-        metadata = self.metadata
-        return {
-            "as_of_date": parse_date(metadata.get("as_of_date")),
-            "pipeline_version": metadata.get("pipeline_version"),
-            "schema_version": metadata.get("schema_version"),
-            "analysis_unit": metadata.get("analysis_unit"),
-        }
 
     @property
     def errors(self):
@@ -161,6 +151,46 @@ class HighwindResultsManager:
             )
         return cells
 
+    def bar_geometry(self, cells):
+        # The same maths the Jetstream view does for its relative change bar, scaled
+        # against the widest interval on this metric so the bars are comparable.
+        bounds = [
+            bound
+            for cell in cells
+            if cell["relative"]
+            for bound in (cell["relative"]["lower"], cell["relative"]["upper"])
+            if bound is not None
+        ]
+        if not bounds:
+            return {}
+
+        extreme = max(abs(bound) for bound in bounds)
+        confidence_range = round(extreme * 100 * 1000) / 10
+        full_width = confidence_range * 2 if confidence_range else 1
+
+        geometry = {}
+        for cell in cells:
+            relative = cell["relative"] or {}
+            lower, upper = relative.get("lower"), relative.get("upper")
+            if lower is None or upper is None:
+                continue
+            lower, upper = lower * 100, upper * 100
+            bar_width = ((upper - lower) / full_width) * 100
+            left_percent = (abs(lower + confidence_range) / full_width) * 100
+            digits = len(str(round(lower, 1)).replace(".", "")) + len(
+                str(round(upper, 1)).replace(".", "")
+            )
+            left_bounds_percent = left_percent
+            if bar_width < METRICS_MIN_BOUNDS_WIDTH:
+                left_bounds_percent -= (METRICS_MIN_BOUNDS_WIDTH - bar_width) / 2
+            geometry[cell["branch"]] = {
+                "bar_width": bar_width,
+                "left_percent": left_percent,
+                "left_bounds_percent": left_bounds_percent - digits * 1.5,
+                "bounds_width": max(bar_width, METRICS_MIN_BOUNDS_WIDTH) + digits * 3,
+            }
+        return geometry
+
     def get_state(self, cells):
         states = {cell["state"] for cell in cells if cell["state"]}
         for state in STATE_PRECEDENCE:
@@ -202,6 +232,7 @@ class HighwindResultsManager:
                     "window": window,
                     "windows": self.get_all_windows(metric, segment_slug),
                     "cells": cells,
+                    "bar_geometry": self.bar_geometry(cells),
                     "state": self.get_state(cells),
                     "is_matured": bool(states & SETTLED_STATES),
                     # An errored or insufficient cell is a matured window with no number,

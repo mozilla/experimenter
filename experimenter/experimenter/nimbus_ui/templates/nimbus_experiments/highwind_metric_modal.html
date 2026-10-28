@@ -21,6 +21,50 @@
       <div class="modal-body d-flex flex-column gap-4">
         {% if metric.description %}<p class="text-muted mb-0">{{ metric.description }}</p>{% endif %}
         {% comment %}
+          The same Overview block the Jetstream popout opens with, filled from the window
+          the job marked rather than from an overall period, which Highwind does not have.
+        {% endcomment %}
+        {% if metric.has_results %}
+          <div class="border border-1 rounded py-4 px-5 rounded-4">
+            <div class="d-flex align-items-center gap-2">
+              <h2 class="fs-6 fw-bold mb-0">Most recent matured window</h2>
+              <span class="badge rounded-pill bg-body-secondary text-body-secondary border border-1 border-secondary-subtle">
+                Day {{ metric.window.start_day }}&ndash;{{ metric.window.end_day }}
+              </span>
+              {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
+
+            </div>
+            <div class="row row-cols-3 g-3 mt-1">
+              <div class="col">
+                <p class="fw-bold text-center">Branches</p>
+                {% for cell in metric.cells %}
+                  <div class="p-3 mb-3 d-flex flex-column justify-content-center text-center align-items-center"
+                       style="height: 75px">
+                    {% if cell.is_reference %}<small class="text-muted">Baseline</small>{% endif %}
+                    <p class="mb-0 text-truncate w-100 text-center">{{ cell.branch }}</p>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="col">
+                <p class="fw-bold text-center">Absolute count</p>
+                {% for cell in metric.cells %}
+                  {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction reference_branch=reference_branch branch_slug=cell.branch %}
+
+                {% endfor %}
+              </div>
+              <div class="col">
+                <p class="fw-bold text-center">Relative change</p>
+                <div class="d-flex flex-column">
+                  {% for cell in metric.cells %}
+                    {% include "common/metric_popout_card.html" with type="relative" significance=cell.direction reference_branch=reference_branch branch_slug=cell.branch branch_relative_ui_properties=metric.bar_geometry|dict_get:cell.branch lower_relative=cell.relative.lower upper_relative=cell.relative.upper %}
+
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        {% comment %}
           The same shape as the Jetstream weekly breakdown: window labels down the left,
           branch columns across, and the shared metric card in every cell.
         {% endcomment %}

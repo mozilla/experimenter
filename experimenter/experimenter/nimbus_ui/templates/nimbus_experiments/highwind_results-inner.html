@@ -34,14 +34,6 @@
     <div id="{{ experiment.slug }}-highwind-results-overview">
       <div class="d-flex flex-column gap-4">
         <hr>
-        {% if has_analysis %}
-          <div class="d-inline-flex gap-4 flex-wrap row-gap-1 text-muted">
-            <small>Analysed as of <b>{{ analysis_run.as_of_date|date:"N j, Y" }}</b></small>
-            <small>Counting <b>{{ analysis_run.analysis_unit|remove_underscores }}</b></small>
-            <small>Pipeline <b>{{ analysis_run.pipeline_version }}</b></small>
-            <small>Schema <b>{{ analysis_run.schema_version }}</b></small>
-          </div>
-        {% endif %}
         <div>
           <div class="row">
             <div class="col-xxl">
@@ -152,6 +144,28 @@
       <p class="mb-0 text-muted">No Highwind analysis has been loaded for this experiment yet.</p>
     </div>
   {% else %}
+    {% comment %} What the statuses mean, before any of them appear below {% endcomment %}
+    <div class="px-5 py-4 shadow-sm rounded-4 bg-body border border-1">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="fa-solid fa-circle-info text-secondary"></i>
+        <h4 class="mb-0 fs-5">How to read these results</h4>
+      </div>
+      <p class="text-muted">
+        Every metric is reported per analysis window. A window covers a span of days since
+        enrolment, and each one moves through these statuses as the experiment runs.
+      </p>
+      <div class="row row-cols-1 row-cols-lg-2 g-2 mb-0">
+        {% for state, label in NimbusUIConstants.HIGHWIND_STATE_LABELS.items %}
+          <div class="col d-flex align-items-start gap-2">
+            <span class="flex-shrink-0">
+              {% include "nimbus_experiments/highwind_state_badge.html" with state=state %}
+
+            </span>
+            <small class="text-muted">{{ label.1 }}</small>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
     {% comment %} Notable Changes {% endcomment %}
     <div class="accordion-item p-3 px-4 shadow-sm rounded-4 border border-1">
       <h2 class="accordion-header">

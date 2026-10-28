@@ -998,7 +998,6 @@ class HighwindResultsView(
         context["experiment_context"] = build_experiment_context(self.object)
         context["has_analysis"] = results_manager.has_analysis
         context["analysis_last_updated"] = experiment.analysis_last_updated
-        context["analysis_run"] = results_manager.run
         context["analysis_errors"] = results_manager.errors
         context["branch_data"] = results_manager.get_branch_data()
         context["reference_branch"] = results_manager.reference_branch

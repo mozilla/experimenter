@@ -369,6 +369,33 @@ Optional - We expect this to <describe impact> on <core metric>.
         ),
     }
 
+    # What each Highwind cell state means, since the words are not self-explanatory.
+    HIGHWIND_STATE_LABELS = {
+        "not_started": (
+            "Not started",
+            "This window has no data yet. It covers days the experiment has not reached.",
+        ),
+        "insufficient_data": (
+            "Insufficient data",
+            "This window matured but there was too little data to estimate a change. A "
+            "later run may still produce one.",
+        ),
+        "forming": (
+            "Forming",
+            "This window has matured and a change is being estimated, but the interval "
+            "is still too wide to call. It narrows with each run.",
+        ),
+        "confident": (
+            "Confident",
+            "This window has matured and the interval no longer includes no change, so "
+            "the direction can be relied on.",
+        ),
+        "error": (
+            "Error",
+            "This window could not be computed and will not resolve on its own.",
+        ),
+    }
+
     HIGHWIND_VALIDATION_MESSAGE = """Do not rely on these results. They come from an
     analysis pipeline that is still being validated against Jetstream, and any figure on
     this page may change or turn out to be wrong. Jetstream remains the system of

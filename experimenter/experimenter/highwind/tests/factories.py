@@ -105,12 +105,14 @@ def build_analysis(slug="test-experiment", generated_at=None, **kwargs):
     )
 
 
-def build_interval(point=1.0, spread=0.5):
+def build_interval(point=1.0, spread=None):
     # Takes either a point to spread around, or the three bounds spelled out.
     if isinstance(point, dict):
         return HighwindIntervalFactory.build(**point)
     if point is None:
         return HighwindIntervalFactory.build(point=None, lower=None, upper=None)
+    if spread is None:
+        spread = 0.5
     return HighwindIntervalFactory.build(
         point=point, lower=point - spread, upper=point + spread
     )
@@ -128,6 +130,7 @@ def build_window(
     treatments=("treatment",),
     value=1.0,
     relative=1.0,
+    spread=None,
     error=None,
 ):
     # One comparison per treatment against the reference, which has none of its own.
@@ -142,7 +145,7 @@ def build_window(
         is_summary=is_summary,
         branches=[
             HighwindBranchValueFactory.build(
-                branch=branch, n=100, value=build_interval(value)
+                branch=branch, n=100, value=build_interval(value, spread)
             )
             for branch in branches
         ],
@@ -153,7 +156,7 @@ def build_window(
                 state=state,
                 direction=direction,
                 relative=build_interval(relative),
-                absolute=build_interval(value),
+                absolute=build_interval(value, spread),
                 n_reference=100,
                 n_treatment=100,
                 error=error,
@@ -186,3 +189,17 @@ def build_metric(
 def build_analysis_data(slug="test-experiment", **kwargs):
     # The stored form the results manager reads, rather than the model the loader holds.
     return build_analysis(slug=slug, **kwargs).model_dump(mode="json")
+
+
+def build_segment(
+    slug=ALL_ENROLLED, friendly_name="All enrolled", branches=None, units=630465
+):
+    return HighwindSegmentFactory.build(
+        slug=slug,
+        friendly_name=friendly_name,
+        description=None,
+        branches=[
+            HighwindSegmentBranchFactory.build(branch=branch, units=units)
+            for branch in branches or ["control", "treatment"]
+        ],
+    )
