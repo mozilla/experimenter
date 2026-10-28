@@ -1,3 +1,4 @@
+import datetime as dt
 import json
 
 from django.utils import timezone
@@ -5,7 +6,9 @@ from mozilla_nimbus_schemas.highwind import (
     HighwindAnalysis,
     HighwindAnalysisUnit,
     HighwindBranchValue,
+    HighwindCellState,
     HighwindComparison,
+    HighwindDirection,
     HighwindError,
     HighwindInterval,
     HighwindMetadata,
@@ -14,11 +17,13 @@ from mozilla_nimbus_schemas.highwind import (
     HighwindSegmentBranch,
     HighwindSegmentResult,
     HighwindWindow,
+    HighwindWindowKind,
     HighwindWindowResult,
 )
 from polyfactory.factories.pydantic_factory import ModelFactory
 
 from experimenter.highwind.client import SCHEMA_VERSION
+from experimenter.highwind.results import ALL_ENROLLED
 
 
 class HighwindIntervalFactory(ModelFactory[HighwindInterval]):
@@ -98,3 +103,86 @@ def build_analysis(slug="test-experiment", generated_at=None, **kwargs):
         ),
         **{"segments": [], "metrics": [], "errors": [], **kwargs},
     )
+
+
+def build_interval(point=1.0, spread=0.5):
+    # Takes either a point to spread around, or the three bounds spelled out.
+    if isinstance(point, dict):
+        return HighwindIntervalFactory.build(**point)
+    if point is None:
+        return HighwindIntervalFactory.build(point=None, lower=None, upper=None)
+    return HighwindIntervalFactory.build(
+        point=point, lower=point - spread, upper=point + spread
+    )
+
+
+def build_window(
+    kind=HighwindWindowKind.CUMULATIVE,
+    start_day=0,
+    end_day=6,
+    matures_on="2026-10-08",
+    state=HighwindCellState.CONFIDENT,
+    direction=HighwindDirection.POSITIVE,
+    is_summary=True,
+    reference="control",
+    treatments=("treatment",),
+    value=1.0,
+    relative=1.0,
+    error=None,
+):
+    # One comparison per treatment against the reference, which has none of its own.
+    branches = [reference, *treatments]
+    return HighwindWindowResultFactory.build(
+        window=HighwindWindowFactory.build(
+            kind=kind,
+            start_day=start_day,
+            end_day=end_day,
+            matures_on=dt.date.fromisoformat(matures_on) if matures_on else None,
+        ),
+        is_summary=is_summary,
+        branches=[
+            HighwindBranchValueFactory.build(
+                branch=branch, n=100, value=build_interval(value)
+            )
+            for branch in branches
+        ],
+        comparisons=[
+            HighwindComparisonFactory.build(
+                branch=treatment,
+                reference_branch=reference,
+                state=state,
+                direction=direction,
+                relative=build_interval(relative),
+                absolute=build_interval(value),
+                n_reference=100,
+                n_treatment=100,
+                error=error,
+            )
+            for treatment in treatments
+        ],
+    )
+
+
+def build_metric(
+    slug="days_of_use",
+    friendly_name=None,
+    description=None,
+    windows=None,
+    segment=ALL_ENROLLED,
+):
+    return HighwindMetricResultFactory.build(
+        slug=slug,
+        friendly_name=friendly_name or slug,
+        description=description,
+        segments=[
+            HighwindSegmentResultFactory.build(
+                segment=segment,
+                windows=[build_window()] if windows is None else windows,
+            )
+        ],
+    )
+
+
+def build_analysis_data(slug="test-experiment", **kwargs):
+    # The stored form the results manager reads, rather than the model the loader holds.
+    return build_analysis(slug=slug, **kwargs).model_dump(mode="json")

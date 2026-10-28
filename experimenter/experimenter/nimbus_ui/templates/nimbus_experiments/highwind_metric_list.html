@@ -9,8 +9,12 @@
   <div class="col-2">
     <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
     {% for metric in metrics %}
-      <div class="btn border-3 p-3 align-items-center mb-3 d-flex rounded-4 w-100 text-start position-relative border-light-subtle text-break {% if not metric.has_results %}bg-body-tertiary{% endif %}"
-           style="height: 100px">
+      <button class="btn border-3 p-3 align-items-center mb-3 d-flex rounded-4 w-100 text-start position-relative border-light-subtle nav-link-hover text-break {% if not metric.has_results %}bg-body-tertiary{% endif %}"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#{{ experiment.slug }}-highwind-{{ metric.slug }}"
+              style="height: 100px">
+        <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 start-0 p-2"></i>
         <small class="position-absolute bottom-0 end-0 p-2 fw-medium text-uppercase">
           {% if metric.window %}{{ metric.window.span_days }} day{{ metric.window.span_days|pluralize }}{% endif %}
         </small>
@@ -18,11 +22,10 @@
           {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
 
         </span>
-        <p class="metric-text mb-0"
-           {% if metric.description %}data-bs-toggle="tooltip" title="{{ metric.description }}"{% endif %}>
-          {{ metric.friendly_name }}
-        </p>
-      </div>
+        <p class="metric-text mb-0">{{ metric.friendly_name }}</p>
+      </button>
+      {% include "nimbus_experiments/highwind_metric_modal.html" with experiment_slug=experiment.slug metric=metric %}
+
     {% endfor %}
   </div>
   <div class="col position-relative w-25 d-flex flex-column">

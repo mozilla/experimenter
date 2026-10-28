@@ -152,6 +152,23 @@ class HighwindResultsManager:
                 return state
         return HighwindCellState.NOT_STARTED
 
+    def get_all_windows(self, metric, segment_slug=ALL_ENROLLED):
+        # Every window the run reported, for the per-metric breakdown. Cumulative first,
+        # then disjoint, which is the order the job writes them in.
+        segment = self.get_segment_result(metric, segment_slug) or {}
+        windows = []
+        for window_result in segment.get("windows") or []:
+            cells = self.get_cells(window_result)
+            windows.append(
+                {
+                    **self.summarise_window(window_result),
+                    "cells": cells,
+                    "state": self.get_state(cells),
+                    "is_summary": window_result.get("is_summary", False),
+                }
+            )
+        return windows
+
     def get_metrics(self, segment_slug=ALL_ENROLLED):
         metrics = []
 
@@ -167,6 +184,7 @@ class HighwindResultsManager:
                     "friendly_name": metric.get("friendly_name") or metric.get("slug"),
                     "description": metric.get("description"),
                     "window": window,
+                    "windows": self.get_all_windows(metric, segment_slug),
                     "cells": cells,
                     "state": self.get_state(cells),
                     "is_matured": bool(states & SETTLED_STATES),

@@ -1,0 +1,88 @@
+{% load nimbus_extras %}
+
+<div class="modal fade"
+     id="{{ experiment_slug }}-highwind-{{ metric.slug }}"
+     tabindex="-1"
+     aria-labelledby="{{ experiment_slug }}-highwind-{{ metric.slug }}"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="d-flex align-items-center gap-2">
+          <h5 class="modal-title mb-0">{{ metric.friendly_name }}</h5>
+          {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
+
+        </div>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {% if metric.description %}<p class="text-muted">{{ metric.description }}</p>{% endif %}
+        {% for kind, label in highwind_window_kinds %}
+          {% with kind_windows=metric.windows|windows_of_kind:kind %}
+            {% if kind_windows %}
+              <h6 class="text-uppercase text-muted mt-3">{{ label }}</h6>
+              <table class="table table-sm align-middle">
+                <thead>
+                  <tr class="text-muted small">
+                    <th scope="col">Window</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Branch</th>
+                    <th scope="col">Users</th>
+                    <th scope="col">Absolute</th>
+                    <th scope="col">Relative change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for window in kind_windows %}
+                    {% for cell in window.cells %}
+                      <tr {% if window.is_summary %}class="table-active"{% endif %}>
+                        {% if forloop.first %}
+                          <th scope="row" class="fw-normal" rowspan="{{ window.cells|length }}">
+                            Day {{ window.start_day }}&ndash;{{ window.end_day }}
+                            <small class="text-muted d-block">{{ window.span_days }} day{{ window.span_days|pluralize }}</small>
+                            {% if window.is_summary %}<small class="text-muted d-block">Shown in the grid</small>{% endif %}
+                          </th>
+                          <td rowspan="{{ window.cells|length }}">
+                            {% include "nimbus_experiments/highwind_state_badge.html" with state=window.state %}
+
+                          </td>
+                        {% endif %}
+                        <td>
+                          {{ cell.branch }}
+                          {% if cell.is_reference %}<small class="text-muted">(reference)</small>{% endif %}
+                        </td>
+                        <td class="text-muted">{{ cell.n|short_number }}</td>
+                        <td>
+                          {% if cell.absolute.point == None %}
+                            <span class="text-muted">&mdash;</span>
+                          {% else %}
+                            {{ cell.absolute.point|floatformat:3 }}
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if cell.is_reference %}
+                            <span class="text-muted">&mdash;</span>
+                          {% elif cell.relative.point == None %}
+                            <span class="text-muted">&mdash;</span>
+                          {% else %}
+                            <span class="{% if cell.state == 'confident' and cell.direction == 'positive' %}text-success fw-semibold{% elif cell.state == 'confident' and cell.direction == 'negative' %}text-danger fw-semibold{% endif %}">
+                              {{ cell.relative.point|to_percentage:2 }}
+                            </span>
+                            <small class="text-muted">({{ cell.relative.lower|to_percentage:2 }} to {{ cell.relative.upper|to_percentage:2 }})</small>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>

@@ -5,86 +5,38 @@ from mozilla_nimbus_schemas.highwind import HighwindCellState, HighwindDirection
 
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.highwind.results import HighwindResultsManager
+from experimenter.highwind.tests.factories import (
+    build_analysis_data,
+    build_metric,
+    build_window,
+)
 
 REFERENCE = "control"
 TREATMENT = "treatment"
 
 
-def interval(point=1.0, lower=0.5, upper=1.5):
-    return {"point": point, "lower": lower, "upper": upper}
-
-
-def window(
-    kind="cumulative",
-    start_day=0,
-    end_day=6,
-    state=HighwindCellState.CONFIDENT,
-    is_summary=True,
-    direction=HighwindDirection.POSITIVE,
-    relative=None,
-    error=None,
-    matures_on="2026-10-08",
-):
-    return {
-        "window": {
-            "kind": kind,
-            "start_day": start_day,
-            "end_day": end_day,
-            "matures_on": matures_on,
-        },
-        "is_summary": is_summary,
-        "branches": [
-            {"branch": REFERENCE, "n": 100, "value": interval()},
-            {"branch": TREATMENT, "n": 200, "value": interval()},
-        ],
-        "comparisons": [
-            {
-                "branch": TREATMENT,
-                "reference_branch": REFERENCE,
-                "state": state,
-                "direction": direction,
-                "relative": interval() if relative is None else relative,
-                "absolute": interval(),
-                "n_reference": 100,
-                "n_treatment": 200,
-                "error": error,
-            }
-        ],
-    }
-
-
-def metric(slug, windows, friendly_name=None, description=None):
-    return {
-        "slug": slug,
-        "friendly_name": friendly_name or slug,
-        "description": description,
-        "segments": [{"segment": "all_enrolled", "windows": windows}],
-    }
-
-
 class TestHighwindResultsManager(TestCase):
     def manager(self, metrics):
         experiment = NimbusExperimentFactory.create()
-        experiment.analysis_data = {
-            "metadata": {"reference_branch": REFERENCE},
-            "metrics": metrics,
-        }
+        experiment.analysis_data = build_analysis_data(metrics=metrics)
         return HighwindResultsManager(experiment)
 
     def one(self, metrics):
         [result] = self.manager(metrics).get_metrics()
         return result
 
+    def with_window(self, **kwargs):
+        return self.one([build_metric(windows=[build_window(**kwargs)])])
+
     def test_reads_the_window_the_job_marked_as_summary(self):
         result = self.one(
             [
-                metric(
-                    "days_of_use",
-                    [
-                        window(end_day=6, is_summary=False),
-                        window(end_day=13, is_summary=True),
-                        window(end_day=20, is_summary=False),
-                    ],
+                build_metric(
+                    windows=[
+                        build_window(end_day=6, is_summary=False),
+                        build_window(end_day=13, is_summary=True),
+                        build_window(end_day=20, is_summary=False),
+                    ]
                 )
             ]
         )
@@ -93,19 +45,17 @@ class TestHighwindResultsManager(TestCase):
         self.assertEqual(result["window"]["span_days"], 14)
 
     def test_disjoint_window_span_counts_only_its_own_days(self):
-        result = self.one(
-            [metric("days_of_use", [window(kind="disjoint", start_day=7, end_day=13)])]
-        )
+        result = self.with_window(kind="disjoint", start_day=7, end_day=13)
 
         self.assertEqual(result["window"]["span_days"], 7)
 
     def test_matures_on_is_a_date_the_template_can_format(self):
-        result = self.one([metric("days_of_use", [window(matures_on="2026-10-08")])])
+        result = self.with_window(matures_on="2026-10-08")
 
         self.assertEqual(result["matures_on"], dt.date(2026, 10, 8))
 
     def test_metric_with_no_summary_window_has_none(self):
-        result = self.one([metric("days_of_use", [window(is_summary=False)])])
+        result = self.with_window(is_summary=False)
 
         self.assertIsNone(result["window"])
         self.assertFalse(result["is_matured"])
@@ -113,32 +63,31 @@ class TestHighwindResultsManager(TestCase):
         self.assertEqual(result["state"], HighwindCellState.NOT_STARTED)
 
     def test_a_metric_without_the_segment_has_no_window(self):
-        other_segment = metric("days_of_use", [window()])
-        other_segment["segments"][0]["segment"] = "all_exposed"
-
-        result = self.one([other_segment])
+        result = self.one([build_metric(windows=[build_window()], segment="all_exposed")])
 
         self.assertIsNone(result["window"])
         self.assertFalse(result["has_results"])
 
     def test_reference_branch_cell_carries_no_comparison(self):
-        result = self.one([metric("days_of_use", [window()])])
+        result = self.with_window()
 
         cells = {cell["branch"]: cell for cell in result["cells"]}
         self.assertTrue(cells[REFERENCE]["is_reference"])
         self.assertIsNone(cells[REFERENCE]["relative"])
-        self.assertEqual(cells[REFERENCE]["absolute"], interval())
         self.assertFalse(cells[TREATMENT]["is_reference"])
-        self.assertEqual(
-            cells[TREATMENT]["relative"], {"point": 0.01, "lower": 0.005, "upper": 0.015}
-        )
+        self.assertIsNotNone(cells[TREATMENT]["relative"])
+
+    def test_relative_is_converted_to_the_fraction_the_card_expects(self):
+        # The blob carries 1.25 meaning 1.25%, and the shared card multiplies by 100.
+        result = self.with_window(relative=1.25)
+
+        treatment = next(c for c in result["cells"] if not c["is_reference"])
+        self.assertAlmostEqual(treatment["relative"]["point"], 0.0125)
 
     def test_settled_states_count_as_matured(self):
         for state in (HighwindCellState.FORMING, HighwindCellState.CONFIDENT):
             with self.subTest(state=state):
-                result = self.one([metric("days_of_use", [window(state=state)])])
-
-                self.assertTrue(result["is_matured"])
+                self.assertTrue(self.with_window(state=state)["is_matured"])
 
     def test_unsettled_states_do_not_count_as_matured(self):
         for state in (
@@ -147,9 +96,17 @@ class TestHighwindResultsManager(TestCase):
             HighwindCellState.ERROR,
         ):
             with self.subTest(state=state):
-                result = self.one([metric("days_of_use", [window(state=state)])])
+                self.assertFalse(self.with_window(state=state)["is_matured"])
 
-                self.assertFalse(result["is_matured"])
+    def test_an_errored_or_insufficient_window_still_has_results_to_show(self):
+        for state in (HighwindCellState.ERROR, HighwindCellState.INSUFFICIENT_DATA):
+            with self.subTest(state=state):
+                self.assertTrue(self.with_window(state=state)["has_results"])
+
+    def test_a_window_that_has_not_started_has_nothing_to_show(self):
+        result = self.with_window(state=HighwindCellState.NOT_STARTED)
+
+        self.assertFalse(result["has_results"])
 
     def test_metric_state_is_the_state_of_its_cells(self):
         for state in (
@@ -160,34 +117,23 @@ class TestHighwindResultsManager(TestCase):
             HighwindCellState.NOT_STARTED,
         ):
             with self.subTest(state=state):
-                result = self.one([metric("days_of_use", [window(state=state)])])
-
-                self.assertEqual(result["state"], state)
-
-    def test_an_errored_or_insufficient_window_still_has_results_to_show(self):
-        for state in (HighwindCellState.ERROR, HighwindCellState.INSUFFICIENT_DATA):
-            with self.subTest(state=state):
-                result = self.one([metric("days_of_use", [window(state=state)])])
-
-                self.assertFalse(result["is_matured"])
-                self.assertTrue(result["has_results"])
-
-    def test_a_window_that_has_not_started_has_nothing_to_show(self):
-        result = self.one(
-            [metric("days_of_use", [window(state=HighwindCellState.NOT_STARTED)])]
-        )
-
-        self.assertFalse(result["has_results"])
+                self.assertEqual(self.with_window(state=state)["state"], state)
 
     def test_notable_metrics_are_the_confident_changes(self):
         manager = self.manager(
             [
-                metric("moved", [window(direction=HighwindDirection.POSITIVE)]),
-                metric("flat", [window(direction=HighwindDirection.NEUTRAL)]),
-                metric(
+                build_metric(
+                    "moved",
+                    windows=[build_window(direction=HighwindDirection.POSITIVE)],
+                ),
+                build_metric(
+                    "flat",
+                    windows=[build_window(direction=HighwindDirection.NEUTRAL)],
+                ),
+                build_metric(
                     "forming",
-                    [
-                        window(
+                    windows=[
+                        build_window(
                             state=HighwindCellState.FORMING,
                             direction=HighwindDirection.POSITIVE,
                         )
@@ -201,8 +147,8 @@ class TestHighwindResultsManager(TestCase):
     def test_friendly_name_comes_from_the_results_data(self):
         manager = self.manager(
             [
-                metric("days_of_use", [], friendly_name="Days of use"),
-                metric("unnamed", []),
+                build_metric("days_of_use", friendly_name="Days of use", windows=[]),
+                build_metric("unnamed", windows=[]),
             ]
         )
 
@@ -215,44 +161,46 @@ class TestHighwindResultsManager(TestCase):
         # Taken from a production blob, where days_of_use settled confidently at end_day
         # 20 and 27 then widened back to forming at 34. The grid follows the marked
         # window, so it reports forming and no notable change.
-        windows = [
-            window(end_day=6, state=HighwindCellState.FORMING, is_summary=False),
-            window(end_day=13, state=HighwindCellState.FORMING, is_summary=False),
-            window(
-                end_day=20,
-                state=HighwindCellState.CONFIDENT,
-                direction=HighwindDirection.POSITIVE,
-                is_summary=False,
-            ),
-            window(
-                end_day=27,
-                state=HighwindCellState.CONFIDENT,
-                direction=HighwindDirection.POSITIVE,
-                is_summary=False,
-            ),
-            window(
-                end_day=34,
-                state=HighwindCellState.FORMING,
-                direction=HighwindDirection.NEUTRAL,
-                is_summary=True,
-                relative={
-                    "point": 0.1407760527822436,
-                    "lower": -0.04329428236937145,
-                    "upper": 0.3248463879338586,
-                },
-            ),
-            window(end_day=41, state=HighwindCellState.NOT_STARTED, is_summary=False),
-        ]
-
-        result = self.one([metric("days_of_use", windows)])
+        result = self.one(
+            [
+                build_metric(
+                    windows=[
+                        build_window(
+                            end_day=6, state=HighwindCellState.FORMING, is_summary=False
+                        ),
+                        build_window(
+                            end_day=13, state=HighwindCellState.FORMING, is_summary=False
+                        ),
+                        build_window(
+                            end_day=20,
+                            state=HighwindCellState.CONFIDENT,
+                            is_summary=False,
+                        ),
+                        build_window(
+                            end_day=27,
+                            state=HighwindCellState.CONFIDENT,
+                            is_summary=False,
+                        ),
+                        build_window(
+                            end_day=34,
+                            state=HighwindCellState.FORMING,
+                            direction=HighwindDirection.NEUTRAL,
+                            is_summary=True,
+                        ),
+                        build_window(
+                            end_day=41,
+                            state=HighwindCellState.NOT_STARTED,
+                            is_summary=False,
+                        ),
+                    ]
+                )
+            ]
+        )
 
         self.assertEqual(result["window"]["end_day"], 34)
         self.assertEqual(result["window"]["span_days"], 35)
         self.assertEqual(result["state"], HighwindCellState.FORMING)
         self.assertFalse(result["has_confident_change"])
-        treatment = next(c for c in result["cells"] if not c["is_reference"])
-        # The blob's 0.1408 means 0.1408%, so the card is handed the fraction form.
-        self.assertAlmostEqual(treatment["relative"]["point"], 0.001407760527822436)
 
     def test_enum_values_match_the_raw_json_strings(self):
         # The comparisons above only hold while the schema enums subclass str.

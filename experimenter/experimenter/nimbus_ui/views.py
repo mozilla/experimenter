@@ -1001,6 +1001,10 @@ class HighwindResultsView(
         context["analysis_errors"] = results_manager.errors
         context["branch_data"] = results_manager.get_branch_data()
         context["reference_branch"] = results_manager.reference_branch
+        context["highwind_window_kinds"] = [
+            ("cumulative", "Cumulative windows"),
+            ("disjoint", "Per week"),
+        ]
         context["metrics"] = results_manager.get_metrics()
         context["notable_metrics"] = results_manager.get_notable_metrics()
         context["branch_leading_screenshot_forms"] = {

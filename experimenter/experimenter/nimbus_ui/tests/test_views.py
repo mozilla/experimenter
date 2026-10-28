@@ -5097,6 +5097,19 @@ def highwind_metric(
     }
 
 
+def highwind_metric_with_windows(slug, reference, treatment, specs):
+    metric = highwind_metric(slug, reference, treatment)
+    base = metric["segments"][0]["windows"][0]
+    windows = []
+    for kind, start_day, end_day, is_summary in specs:
+        window = json.loads(json.dumps(base))
+        window["window"].update(kind=kind, start_day=start_day, end_day=end_day)
+        window["is_summary"] = is_summary
+        windows.append(window)
+    metric["segments"][0]["windows"] = windows
+    return metric
+
+
 class TestHighwindResultsGrid(AuthTestCase):
     @classmethod
     def setUpClass(cls):
@@ -5250,6 +5263,50 @@ class TestHighwindResultsGrid(AuthTestCase):
         cells = {cell["branch"]: cell for cell in response.context["metrics"][0]["cells"]}
         self.assertTrue(cells[self.reference]["is_reference"])
         self.assertIsNone(cells[self.reference]["relative"])
+
+    def test_a_metric_opens_a_breakdown_of_every_window(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric("days_of_use", ref, treat, friendly_name="Days of use")
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, f"{experiment.slug}-highwind-days_of_use")
+        self.assertTemplateUsed(response, "nimbus_experiments/highwind_metric_modal.html")
+
+    def test_the_breakdown_separates_cumulative_from_per_week_windows(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric_with_windows(
+                    "days_of_use",
+                    ref,
+                    treat,
+                    [
+                        ("cumulative", 0, 6, True),
+                        ("cumulative", 0, 13, False),
+                        ("disjoint", 7, 13, False),
+                    ],
+                )
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "Cumulative windows")
+        self.assertContains(response, "Per week")
+        self.assertContains(response, "Day 0&ndash;13")
+        self.assertContains(response, "Day 7&ndash;13")
+
+    def test_the_breakdown_marks_the_window_shown_in_the_grid(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "Shown in the grid")
 
     def test_friendly_names_come_from_the_results_data(self):
         experiment = self.create_experiment(
