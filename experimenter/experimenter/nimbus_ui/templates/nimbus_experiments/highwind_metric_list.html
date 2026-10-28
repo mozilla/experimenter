@@ -1,0 +1,84 @@
+{% load nimbus_extras %}
+
+{% for metric in metrics %}
+  <div class="py-3 {% if not forloop.last %}border-bottom{% endif %}{% if not metric.has_results %} opacity-75{% endif %}"
+       id="{{ experiment.slug }}-highwind-metric-{{ metric.slug }}">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <h5 class="mb-0">{{ metric.friendly_name }}</h5>
+      {% if metric.description %}
+        <i class="fa-regular fa-circle-question text-muted"
+           data-bs-toggle="tooltip"
+           title="{{ metric.description }}"></i>
+      {% endif %}
+      {% if metric.window %}
+        <span class="badge rounded-pill bg-body-secondary text-body-secondary border border-1 border-secondary-subtle">
+          {{ metric.window.span_days }} day{{ metric.window.span_days|pluralize }}
+        </span>
+      {% endif %}
+      {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
+
+    </div>
+    {% if not metric.has_results %}
+      <p class="mb-0 text-muted">
+        {% if metric.matures_on %}
+          No window has matured yet. The first one matures on {{ metric.matures_on|date:"N j, Y" }}.
+        {% else %}
+          No window has matured yet.
+        {% endif %}
+      </p>
+    {% else %}
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr class="text-muted small">
+            <th scope="col">Branch</th>
+            <th scope="col">Users</th>
+            <th scope="col">Absolute</th>
+            <th scope="col">Relative change</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for cell in metric.cells %}
+            <tr>
+              <th scope="row" class="fw-normal">
+                {{ cell.branch }}
+                {% if cell.is_reference %}
+                  <span class="badge rounded-pill bg-body-secondary text-body-secondary border border-1 border-secondary-subtle ms-1">Reference</span>
+                {% endif %}
+              </th>
+              <td class="text-muted">{{ cell.n|short_number }}</td>
+              <td>
+                {% if cell.absolute.point == None %}
+                  <span class="text-muted">&mdash;</span>
+                {% else %}
+                  {{ cell.absolute.point|floatformat:3 }}
+                  <small class="text-muted">[{{ cell.absolute.lower|floatformat:3 }}, {{ cell.absolute.upper|floatformat:3 }}]</small>
+                {% endif %}
+              </td>
+              <td>
+                {% if cell.is_reference %}
+                  <span class="text-muted">&mdash;</span>
+                {% elif cell.state == "error" %}
+                  {% include "nimbus_experiments/highwind_state_badge.html" with state=cell.state %}
+
+                  {% if cell.error %}<small class="text-muted d-block">{{ cell.error }}</small>{% endif %}
+                {% elif cell.relative.point == None %}
+                  {% include "nimbus_experiments/highwind_state_badge.html" with state=cell.state %}
+
+                {% else %}
+                  <span class="{% if cell.state == 'confident' and cell.direction == 'positive' %}text-success fw-semibold{% elif cell.state == 'confident' and cell.direction == 'negative' %}text-danger fw-semibold{% else %}text-body{% endif %}">
+                    {{ cell.relative.point|floatformat:2 }}%
+                  </span>
+                  <small class="text-muted">[{{ cell.relative.lower|floatformat:2 }}%, {{ cell.relative.upper|floatformat:2 }}%]</small>
+                  {% if cell.state != "confident" %}
+                    {% include "nimbus_experiments/highwind_state_badge.html" with state=cell.state %}
+
+                  {% endif %}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+{% endfor %}

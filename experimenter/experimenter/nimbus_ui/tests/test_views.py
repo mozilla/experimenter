@@ -5043,6 +5043,224 @@ class TestHighwindResultsView(AuthTestCase):
         self.assertContains(response, "days_of_use metric encountered issues.")
 
 
+def highwind_metric(
+    slug,
+    reference,
+    treatment,
+    friendly_name=None,
+    start_day=0,
+    end_day=6,
+    state="confident",
+    direction="positive",
+    relative=None,
+    error=None,
+    matures_on="2026-10-08",
+):
+    value = {"point": 1.0, "lower": 0.5, "upper": 1.5}
+    return {
+        "slug": slug,
+        "friendly_name": friendly_name or slug,
+        "description": None,
+        "segments": [
+            {
+                "segment": "all_enrolled",
+                "windows": [
+                    {
+                        "window": {
+                            "kind": "cumulative",
+                            "start_day": start_day,
+                            "end_day": end_day,
+                            "matures_on": matures_on,
+                        },
+                        "is_summary": True,
+                        "branches": [
+                            {"branch": reference, "n": 100, "value": value},
+                            {"branch": treatment, "n": 200, "value": value},
+                        ],
+                        "comparisons": [
+                            {
+                                "branch": treatment,
+                                "reference_branch": reference,
+                                "state": state,
+                                "direction": direction,
+                                "relative": relative or value,
+                                "absolute": value,
+                                "n_reference": 100,
+                                "n_treatment": 200,
+                                "error": error,
+                            }
+                        ],
+                    }
+                ],
+            }
+        ],
+    }
+
+
+class TestHighwindResultsGrid(AuthTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Outcomes.clear_cache()
+
+    def create_experiment(self, metrics):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+        branches = list(experiment.get_sorted_branches())
+        self.reference = branches[0].slug
+        self.treatment = branches[-1].slug
+        experiment.analysis_data = {
+            "metadata": {"reference_branch": self.reference},
+            "segments": [],
+            "metrics": metrics(self.reference, self.treatment),
+            "errors": [],
+        }
+        experiment.analysis_last_updated = timezone.now()
+        experiment.save()
+        return experiment
+
+    def get_page(self, experiment):
+        return self.client.get(
+            reverse("nimbus-ui-highwind-results", kwargs={"slug": experiment.slug}),
+        )
+
+    def test_shows_the_window_span_in_place_of_an_overall_tag(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric("days_of_use", ref, treat, start_day=0, end_day=13)
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "14 days")
+        self.assertNotContains(response, "OVERALL")
+
+    def test_shows_relative_change_without_rescaling_it(self):
+        # The blob already carries a percentage, so 1.25 must render as 1.25%.
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric(
+                    "days_of_use",
+                    ref,
+                    treat,
+                    relative={"point": 1.25, "lower": 0.5, "upper": 2.0},
+                )
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "1.25%")
+        self.assertNotContains(response, "125.00%")
+
+    def test_an_unmatured_metric_says_when_its_first_window_matures(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric(
+                    "days_of_use",
+                    ref,
+                    treat,
+                    state="not_started",
+                    matures_on="2026-12-01",
+                )
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "No window has matured yet")
+        self.assertContains(response, "Dec. 1, 2026")
+
+    def test_a_cell_with_too_little_data_says_so(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric(
+                    "days_of_use",
+                    ref,
+                    treat,
+                    state="insufficient_data",
+                    relative={"point": None, "lower": None, "upper": None},
+                )
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "Insufficient data")
+
+    def test_an_errored_cell_shows_the_message(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric(
+                    "days_of_use",
+                    ref,
+                    treat,
+                    state="error",
+                    error="zero variance",
+                    relative={"point": None, "lower": None, "upper": None},
+                )
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "zero variance")
+
+    def test_notable_changes_lists_only_confident_changes(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric(
+                    "moved", ref, treat, friendly_name="Moved", direction="positive"
+                ),
+                highwind_metric(
+                    "flat", ref, treat, friendly_name="Flat", direction="neutral"
+                ),
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertEqual(
+            [m["slug"] for m in response.context["notable_metrics"]], ["moved"]
+        )
+        self.assertEqual(
+            [m["slug"] for m in response.context["metrics"]], ["moved", "flat"]
+        )
+
+    def test_says_when_there_are_no_notable_changes(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("flat", ref, treat, direction="neutral")]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, NimbusUIConstants.NOTABLE_CHANGES_ABSENT_TEXT)
+
+    def test_the_reference_branch_shows_no_relative_change(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+        )
+
+        response = self.get_page(experiment)
+
+        cells = {cell["branch"]: cell for cell in response.context["metrics"][0]["cells"]}
+        self.assertTrue(cells[self.reference]["is_reference"])
+        self.assertIsNone(cells[self.reference]["relative"])
+
+    def test_friendly_names_come_from_the_results_data(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric("days_of_use", ref, treat, friendly_name="Days of use")
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "Days of use")
+
+
 class TestResultsExportView(AuthTestCase):
     def test_exports_results_data(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

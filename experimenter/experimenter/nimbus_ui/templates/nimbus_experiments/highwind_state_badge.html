@@ -1,0 +1,15 @@
+{% comment %}
+  One of the five states a Highwind cell can be in. Shown wherever a value would
+  otherwise be blank, so an empty cell never reads as a measured zero.
+{% endcomment %}
+{% if state == "confident" %}
+  <span class="badge rounded-pill bg-success-subtle text-success-emphasis border border-1 border-success-subtle">Confident</span>
+{% elif state == "forming" %}
+  <span class="badge rounded-pill bg-info-subtle text-info-emphasis border border-1 border-info-subtle">Forming</span>
+{% elif state == "insufficient_data" %}
+  <span class="badge rounded-pill bg-body-secondary text-body-secondary border border-1 border-secondary-subtle">Insufficient data</span>
+{% elif state == "error" %}
+  <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-1 border-warning-subtle">Error</span>
+{% else %}
+  <span class="badge rounded-pill bg-body-secondary text-body-secondary border border-1 border-secondary-subtle">Not started</span>
+{% endif %}
