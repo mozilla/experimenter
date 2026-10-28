@@ -209,6 +209,49 @@ class TestHighwindResultsManager(TestCase):
         self.assertEqual(names["days_of_use"], "Days of use")
         self.assertEqual(names["unnamed"], "unnamed")
 
+    def test_a_later_forming_window_supersedes_an_earlier_confident_one(self):
+        # Taken from a production blob, where days_of_use settled confidently at end_day
+        # 20 and 27 then widened back to forming at 34. The grid follows the marked
+        # window, so it reports forming and no notable change.
+        windows = [
+            window(end_day=6, state=HighwindCellState.FORMING, is_summary=False),
+            window(end_day=13, state=HighwindCellState.FORMING, is_summary=False),
+            window(
+                end_day=20,
+                state=HighwindCellState.CONFIDENT,
+                direction=HighwindDirection.POSITIVE,
+                is_summary=False,
+            ),
+            window(
+                end_day=27,
+                state=HighwindCellState.CONFIDENT,
+                direction=HighwindDirection.POSITIVE,
+                is_summary=False,
+            ),
+            window(
+                end_day=34,
+                state=HighwindCellState.FORMING,
+                direction=HighwindDirection.NEUTRAL,
+                is_summary=True,
+                relative={
+                    "point": 0.1407760527822436,
+                    "lower": -0.04329428236937145,
+                    "upper": 0.3248463879338586,
+                },
+            ),
+            window(end_day=41, state=HighwindCellState.NOT_STARTED, is_summary=False),
+        ]
+
+        result = self.one([metric("days_of_use", windows)])
+
+        self.assertEqual(result["window"]["end_day"], 34)
+        self.assertEqual(result["window"]["span_days"], 35)
+        self.assertEqual(result["state"], HighwindCellState.FORMING)
+        self.assertFalse(result["has_confident_change"])
+        treatment = next(c for c in result["cells"] if not c["is_reference"])
+        # Already a percentage: 0.14 means 0.14%, not 14%.
+        self.assertAlmostEqual(treatment["relative"]["point"], 0.1407760527822436)
+
     def test_enum_values_match_the_raw_json_strings(self):
         # The comparisons above only hold while the schema enums subclass str.
         self.assertEqual(HighwindCellState.CONFIDENT, "confident")
