@@ -907,18 +907,18 @@ features:
       android-ui-tools:
         description: If true, the Android PDF UI tools are shown.
         type: Boolean
-        default: false
+        default: true
   pdfjs:
     description: PDF.js features
     variables:
       download-button:
         description: Download button
         type: Boolean
-        default: true
+        default: false
       open-in-app-button:
         description: Open in app button
         type: Boolean
-        default: true
+        default: false
   pki:
     description: Certificate verification configuration
     variables:
