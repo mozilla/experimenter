@@ -8,6 +8,7 @@ from pyjexl.parser import (
     FilterExpression,
     Identifier,
     Literal,
+    ObjectLiteral,
     Transform,
     UnaryExpression,
 )
@@ -20,6 +21,8 @@ _BS = "metrics.object.nimbus_targeting_context_browser_settings"
 _HP = "metrics.object.nimbus_targeting_context_home_page_settings"
 _AD = "metrics.object.nimbus_targeting_context_attribution_data"
 _AI = "metrics.object.nimbus_targeting_context_addons_info"
+_PDF = "metrics.object.nimbus_targeting_context_default_pdf_handler"
+_HANDLER = "metrics.object.nimbus_targeting_context_is_default_handler"
 
 # Schema confirmed from: mozdata.firefox_desktop.nimbus_targeting_context
 JEXL_TO_BQ_COLUMN = {
@@ -102,6 +105,12 @@ JEXL_TO_BQ_COLUMN = {
     "addonsInfo.hasInstalledAddons": (
         f"CAST(JSON_VALUE({_AI}, '$.hasInstalledAddons') AS BOOL)"
     ),
+    "defaultPDFHandler.knownBrowser": (
+        f"CAST(JSON_VALUE({_PDF}, '$.knownBrowser') AS BOOL)"
+    ),
+    "defaultPDFHandler.registered": (f"CAST(JSON_VALUE({_PDF}, '$.registered') AS BOOL)"),
+    "isDefaultHandler.pdf": f"CAST(JSON_VALUE({_HANDLER}, '$.pdf') AS BOOL)",
+    "isDefaultHandler.html": f"CAST(JSON_VALUE({_HANDLER}, '$.html') AS BOOL)",
     "primaryResolution.width": (
         "SAFE_CAST(JSON_VALUE("
         "metrics.object.nimbus_targeting_context_primary_resolution"
@@ -310,8 +319,8 @@ KNOWN_UNTRANSLATABLE = {
     "isBackgroundTaskMode",
     "newtabAddonVersion",  # addon version not stored in nimbus_targeting_context
     "defaultProfile",  # background task context only
-    "defaultPDFHandler",  # default PDF handler, not directly queryable
-    "isDefaultHandler",  # file-type handler object, not directly queryable
+    "defaultPDFHandler",  # parent blocked; boolean sub-fields mapped above
+    "isDefaultHandler",  # parent blocked; boolean sub-fields mapped above
     "localeLanguageCode",  # derived from locale, not recorded separately
     "homePageSettings",  # parent blocked; simple sub-fields mapped above
     # Mobile-only attributes. Those mapped in JEXL_TO_BQ_COLUMN_FENIX /
@@ -858,11 +867,23 @@ def _version_compare_binary_to_sql_with(
     return f"{lhs} {sql_op} {major}"
 
 
+def _null_guarded_path(node) -> str:
+    """`X` for `(X || {})`, the null-safe wrapper targeting puts around an object."""
+    if (
+        isinstance(node, BinaryExpression)
+        and node.operator.symbol == "||"
+        and isinstance(node.right, ObjectLiteral)
+        and not node.right.value
+    ):
+        return _identifier_path(node.left)
+    return ""
+
+
 def _identifier_path(node) -> str:
     if node is None:
         return ""
     if isinstance(node, Identifier):
-        subject = _identifier_path(node.subject)
+        subject = _identifier_path(node.subject) or _null_guarded_path(node.subject)
         return f"{subject}.{node.value}" if subject else node.value
     if isinstance(node, Literal):
         return str(node.value)
