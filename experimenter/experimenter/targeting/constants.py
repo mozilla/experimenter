@@ -194,6 +194,21 @@ ADS_DISABLED = f"""
     {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
 )
 """
+# V2 is only sponsored shortcuts, stories, and search suggestions disabled by the
+# user. Ignores non-default new tab/homepage and shortcuts/stories fully disabled.
+ADS_DISABLED_V2 = f"""
+(
+    (
+        'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceIsUserSet
+        && !'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
+    )
+    || (
+        'browser.newtabpage.activity-stream.showSponsored'|preferenceIsUserSet
+        && !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
+    )
+    || ({SPONSORED_SEARCH_SUGGESTIONS_DISABLED})
+)
+"""
 # Most sponsored content is off by default in Brazil and Mexico, as of
 # June 26, 2025.
 ADS_DISABLED_BR_MX_2025_06_26 = TOPSITES_OR_SPONSORED_TOPSITES_DISABLED
@@ -223,6 +238,16 @@ HAS_PRIVACY_SETTING = """
     ('dom.security.https_only_mode'|preferenceValue)
 )
 """
+# V2 is same as HAS_PRIVACY_SETTING, plus HTTPS-Only Mode in private windows,
+# minus DNS over HTTPS
+HAS_PRIVACY_SETTING_V2 = """
+(
+    'browser.contentblocking.category'|preferenceValue != 'standard'
+    || 'privacy.globalprivacycontrol.enabled'|preferenceValue
+    || 'dom.security.https_only_mode'|preferenceValue
+    || 'dom.security.https_only_mode_pbm'|preferenceValue
+)
+"""
 # User has uBlock, Adblocker Ultimate, Adblock Plus, or Ghostery extensions
 HAS_AD_BLOCKER = """
 (
@@ -241,6 +266,17 @@ HAS_AD_BLOCKER = """
     )
 )
 """
+# Same as HAS_AD_BLOCKER, plus AdGuard AdBlocker
+HAS_AD_BLOCKER_V2 = """
+(
+    addonsInfo.addons['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}']
+    || addonsInfo.addons['uBlock0@raymondhill.net']
+    || addonsInfo.addons['adguardadblocker@adguard.com']
+    || addonsInfo.addons['jid1-NIfFY2CA8fy1tg@jetpack']
+    || addonsInfo.addons['adblockultimate@adblockultimate.net']
+    || addonsInfo.addons['firefox@ghostery.com']
+)
+"""
 
 TOU_EXPERIENCE_TOTAL = f"""
     (
@@ -250,6 +286,25 @@ TOU_EXPERIENCE_TOTAL = f"""
         +
         ({HAS_AD_BLOCKER} && 1 || 0)
     )
+"""
+
+# Users eligible for launch at login, without the ad blocker, privacy setting,
+# and sponsored content checks. Used by launch at login segment targetings.
+LAUNCH_AT_LOGIN_SEGMENT_BASE = """
+(
+    os.isWindows && os.windowsVersion >= 10
+    && !launchOnLoginEnabled
+    && launchOnLoginAllowedByPolicy
+    && 'browser.startup.windowsLaunchOnLogin.enabled'|preferenceValue
+    && (
+      !isMSIX
+      || os.windowsBuildNumber >= 22000
+      || version|versionCompare('157.!') >= 0
+    ) && profileAgeCreated < '2026-06-16'|date
+    && profileGroupProfileCount < 2
+    && !hasActiveEnterprisePolicies
+    && userMonthlyActivity|length < 25
+)
 """
 
 NO_TARGETING = NimbusTargetingConfig(
@@ -1393,6 +1448,51 @@ WINDOWS_LAUNCH_AT_LOGIN_FINAL = NimbusTargetingConfig(
         && !addonsInfo.addons['jid1-NIfFY2CA8fy1tg@jetpack']
         && !addonsInfo.addons['adblockultimate@adblockultimate.net']
         && !addonsInfo.addons['firefox@ghostery.com']
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+LAUNCH_AT_LOGIN_SEGMENT_A = NimbusTargetingConfig(
+    name="Launch at Login Segment A",
+    slug="launch_at_login_segment_a",
+    description="Users eligible for the launch-at-login-infobar-segment-a treatment.",
+    targeting=f"""
+        {LAUNCH_AT_LOGIN_SEGMENT_BASE}
+        && {HAS_AD_BLOCKER_V2}
+        && !{HAS_PRIVACY_SETTING_V2}
+        && !{ADS_DISABLED_V2}
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+LAUNCH_AT_LOGIN_SEGMENT_B = NimbusTargetingConfig(
+    name="Launch at Login Segment B",
+    slug="launch_at_login_segment_b",
+    description="Users eligible for the launch-at-login-infobar-segment-b treatment.",
+    targeting=f"""
+        {LAUNCH_AT_LOGIN_SEGMENT_BASE}
+        && {HAS_PRIVACY_SETTING_V2}
+        && !{ADS_DISABLED_V2}
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+LAUNCH_AT_LOGIN_SEGMENT_C = NimbusTargetingConfig(
+    name="Launch at Login Segment C",
+    slug="launch_at_login_segment_c",
+    description="Users eligible for the launch-at-login-infobar-segment-c treatment.",
+    targeting=f"""
+        {LAUNCH_AT_LOGIN_SEGMENT_BASE}
+        && {ADS_DISABLED_V2}
     """,
     desktop_telemetry="",
     sticky_required=False,
