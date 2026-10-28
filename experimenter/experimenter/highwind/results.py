@@ -20,6 +20,14 @@ STATE_PRECEDENCE = [
 ]
 
 
+def as_fraction(interval):
+    if not interval:
+        return None
+    return {
+        key: None if value is None else value / 100 for key, value in interval.items()
+    }
+
+
 def parse_date(value):
     # Stored as an ISO date string, which the date filter cannot format on its own. The
     # schema types the field as a date, so a stored blob never carries anything else.
@@ -126,9 +134,10 @@ class HighwindResultsManager:
                     "is_reference": slug == reference,
                     "n": branch.get("n"),
                     "absolute": branch.get("value"),
-                    # Already a percentage, not a fraction: the job divides before
-                    # writing, so these are never multiplied by 100 for display.
-                    "relative": comparison.get("relative"),
+                    # The blob carries a percentage, but common/metric_card.html runs
+                    # these through to_percentage, which multiplies by 100. Converting
+                    # here keeps the shared card usable without a Highwind special case.
+                    "relative": as_fraction(comparison.get("relative")),
                     "state": comparison.get("state"),
                     "direction": comparison.get("direction"),
                     "error": comparison.get("error"),

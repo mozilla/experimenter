@@ -129,7 +129,9 @@ class TestHighwindResultsManager(TestCase):
         self.assertIsNone(cells[REFERENCE]["relative"])
         self.assertEqual(cells[REFERENCE]["absolute"], interval())
         self.assertFalse(cells[TREATMENT]["is_reference"])
-        self.assertEqual(cells[TREATMENT]["relative"], interval())
+        self.assertEqual(
+            cells[TREATMENT]["relative"], {"point": 0.01, "lower": 0.005, "upper": 0.015}
+        )
 
     def test_settled_states_count_as_matured(self):
         for state in (HighwindCellState.FORMING, HighwindCellState.CONFIDENT):
@@ -249,8 +251,8 @@ class TestHighwindResultsManager(TestCase):
         self.assertEqual(result["state"], HighwindCellState.FORMING)
         self.assertFalse(result["has_confident_change"])
         treatment = next(c for c in result["cells"] if not c["is_reference"])
-        # Already a percentage: 0.14 means 0.14%, not 14%.
-        self.assertAlmostEqual(treatment["relative"]["point"], 0.1407760527822436)
+        # The blob's 0.1408 means 0.1408%, so the card is handed the fraction form.
+        self.assertAlmostEqual(treatment["relative"]["point"], 0.001407760527822436)
 
     def test_enum_values_match_the_raw_json_strings(self):
         # The comparisons above only hold while the schema enums subclass str.

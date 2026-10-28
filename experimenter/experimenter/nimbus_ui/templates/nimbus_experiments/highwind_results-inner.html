@@ -160,12 +160,10 @@
       </h2>
       <div id="{{ experiment.slug }}-highwind-notable"
            class="accordion-collapse collapse show">
-        <div class="accordion-body">
-          {% if notable_metrics %}
-            {% include "nimbus_experiments/highwind_metric_list.html" with metrics=notable_metrics %}
+        {% if notable_metrics %}
+          {% include "nimbus_experiments/highwind_metric_list.html" with metrics=notable_metrics %}
 
-          {% endif %}
-        </div>
+        {% endif %}
       </div>
     </div>
     {% comment %} Every metric the run analysed {% endcomment %}
@@ -192,10 +190,8 @@
       </h2>
       <div id="{{ experiment.slug }}-highwind-metrics"
            class="accordion-collapse collapse">
-        <div class="accordion-body">
-          {% include "nimbus_experiments/highwind_metric_list.html" with metrics=metrics %}
+        {% include "nimbus_experiments/highwind_metric_list.html" with metrics=metrics %}
 
-        </div>
       </div>
     </div>
   {% endif %}

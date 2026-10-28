@@ -5136,9 +5136,12 @@ class TestHighwindResultsGrid(AuthTestCase):
 
         self.assertContains(response, "14 days")
         self.assertNotContains(response, "OVERALL")
+        # The shared card is what renders the branch cells, not a bespoke table.
+        self.assertTemplateUsed(response, "common/metric_card.html")
 
     def test_shows_relative_change_without_rescaling_it(self):
-        # The blob already carries a percentage, so 1.25 must render as 1.25%.
+        # The blob carries 1.25 meaning 1.25%, and the shared card multiplies by 100,
+        # so the rendered figure must be 1.2% and never 125.0%.
         experiment = self.create_experiment(
             lambda ref, treat: [
                 highwind_metric(
@@ -5152,8 +5155,8 @@ class TestHighwindResultsGrid(AuthTestCase):
 
         response = self.get_page(experiment)
 
-        self.assertContains(response, "1.25%")
-        self.assertNotContains(response, "125.00%")
+        self.assertContains(response, "1.2% average increase")
+        self.assertNotContains(response, "125.0%")
 
     def test_an_unmatured_metric_says_when_its_first_window_matures(self):
         experiment = self.create_experiment(
@@ -5170,8 +5173,7 @@ class TestHighwindResultsGrid(AuthTestCase):
 
         response = self.get_page(experiment)
 
-        self.assertContains(response, "No window has matured yet")
-        self.assertContains(response, "Dec. 1, 2026")
+        self.assertContains(response, "Matures Dec. 1, 2026")
 
     def test_a_cell_with_too_little_data_says_so(self):
         experiment = self.create_experiment(
