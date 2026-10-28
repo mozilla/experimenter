@@ -1418,6 +1418,17 @@ WINDOWS_LAUNCH_AT_LOGIN_NEW_USERS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+LAUNCH_AT_LOGIN_ENABLED = NimbusTargetingConfig(
+    name="Users with launch at login enabled",
+    slug="launch_at_login_enabled",
+    description="Users who currently have launch at login enabled.",
+    targeting="launchOnLoginEnabled",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 EXISTING_USERS_PDF_PROMO_ELIGIBLE = NimbusTargetingConfig(
     name="Windows 10+ users eligible for Split PDF promo",
     slug="win10_pdf_split_promo",
