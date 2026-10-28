@@ -175,6 +175,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         "messaging_control_no_message",
         "messaging_control_mismatch",
         "messaging_active_notifications",
+        "messaging_frequency_group",
     }
 
     REVIEW_WARNING_LEARN_MORE = {

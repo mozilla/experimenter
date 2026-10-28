@@ -1946,6 +1946,60 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    @staticmethod
+    def _desktop_message_has_frequency_group_or_preference_check(message):
+        groups = message.get("groups")
+        if isinstance(groups, list) and groups:
+            return True
+
+        targeting = message.get("targeting")
+        return isinstance(targeting, str) and any(
+            preference_check in targeting
+            for preference_check in (
+                NimbusConstants.DESKTOP_MESSAGING_FREQUENCY_GROUP_PREFERENCE_CHECKS
+            )
+        )
+
+    def _validate_desktop_messaging_frequency_group(self, data):
+        branches = [data.get("reference_branch", {}), *data.get("treatment_branches", [])]
+
+        warnings = []
+        for feature_config in sorted(
+            data.get("feature_configs", []),
+            key=lambda feature_config: feature_config.slug,
+        ):
+            if not self._is_desktop_messaging_feature(feature_config):
+                continue
+
+            message_ids = sorted(
+                {
+                    message["id"]
+                    for branch in branches
+                    for message in self._branch_desktop_messages(branch, feature_config)
+                    if message.get("template")
+                    and not self._desktop_message_has_frequency_group_or_preference_check(
+                        message
+                    )
+                }
+            )
+            if message_ids:
+                warning = (
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR
+                    if len(message_ids) == 1
+                    else NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_PLURAL
+                )
+                warnings.append(
+                    warning.format(
+                        feature_slug=feature_config.slug,
+                        message_ids=", ".join(message_ids),
+                    )
+                )
+
+        if warnings:
+            self.warnings["messaging_frequency_group"] = warnings
+
+        return data
+
     @classmethod
     def _validate_mobile_messaging(cls, value: str):
         json_value = None
@@ -2267,6 +2321,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_desktop_messaging_control_message(data)
             data = self._validate_desktop_messaging_control_mismatch(data)
             data = self._validate_desktop_messaging_active_notifications(data)
+            data = self._validate_desktop_messaging_frequency_group(data)
         return data
 
 

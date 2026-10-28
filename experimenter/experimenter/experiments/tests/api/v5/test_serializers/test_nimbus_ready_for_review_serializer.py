@@ -2599,6 +2599,186 @@ class TestNimbusReviewSerializerSingleFeature(
             ],
         )
 
+    def test_messaging_frequency_group_warning_no_groups(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, TREATMENT_MESSAGE)}
+        )
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_frequency_group_warning_empty_groups(self):
+        treatment_value = {**TREATMENT_MESSAGE, "groups": []}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_frequency_group_no_warning_with_group(self):
+        treatment_value = {**TREATMENT_MESSAGE, "groups": ["cfr"]}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertNotIn("messaging_frequency_group", warnings)
+
+    @parameterized.expand(
+        [
+            ("userPrefs.cfrFeatures",),
+            ("userPrefs.cfrAddons",),
+            ("messaging-system.askForFeedback",),
+        ]
+    )
+    def test_messaging_frequency_group_no_warning_with_preference_check(
+        self, preference_check
+    ):
+        treatment_value = {**TREATMENT_MESSAGE, "targeting": preference_check}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertNotIn("messaging_frequency_group", warnings)
+
+    def test_messaging_frequency_group_no_warning_without_template(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, CONTROL_DUMMY_MESSAGE)}
+        )
+
+        self.assertNotIn("messaging_frequency_group", warnings)
+
+    def test_messaging_frequency_group_no_warning_for_non_messaging_feature(self):
+        warnings = self._messaging_control_warnings(
+            {"some-other-feature": ({}, TREATMENT_MESSAGE)}
+        )
+
+        self.assertNotIn("messaging_frequency_group", warnings)
+
+    def test_messaging_frequency_group_warning_for_rollout(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": (TREATMENT_MESSAGE, {})},
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_frequency_group_warning_multi_lists_offenders_only(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "fxms-message": (
+                    {},
+                    {
+                        "template": "multi",
+                        "messages": [
+                            {**TREATMENT_MESSAGE, "id": "treatment-a"},
+                            {
+                                **TREATMENT_MESSAGE,
+                                "id": "treatment-b",
+                                "groups": ["cfr"],
+                            },
+                            {**TREATMENT_MESSAGE, "id": "treatment-c"},
+                        ],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_PLURAL.format(
+                    feature_slug="fxms-message",
+                    message_ids="treatment-a, treatment-c",
+                )
+            ],
+        )
+
+    def test_messaging_frequency_group_warning_lists_each_feature(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": ({}, TREATMENT_MESSAGE),
+                "cfr": (
+                    {},
+                    {**TREATMENT_MESSAGE, "id": "cfr-message", "template": "cfr"},
+                ),
+                "infobar": (
+                    {},
+                    {**TREATMENT_MESSAGE, "groups": ["cfr"]},
+                ),
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="cfr",
+                    message_ids="cfr-message",
+                ),
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                ),
+            ],
+        )
+
+    def test_messaging_frequency_group_warning_wording_singular(self):
+        treatment_value = {**TREATMENT_MESSAGE, "id": "welcome-1"}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="welcome-1",
+                )
+            ],
+        )
+
+    def test_messaging_frequency_group_warning_wording_plural(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "template": "multi",
+                        "messages": [
+                            {**TREATMENT_MESSAGE, "id": "a"},
+                            {**TREATMENT_MESSAGE, "id": "b"},
+                        ],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_PLURAL.format(
+                    feature_slug="spotlight",
+                    message_ids="a, b",
+                )
+            ],
+        )
+
     def test_substitute_localizations(self):
         value = {
             "foo": {

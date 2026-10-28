@@ -1,4 +1,5 @@
 import io
+import json
 from unittest import mock
 
 from django.test import TestCase
@@ -6,8 +7,17 @@ from django.utils import timezone
 from pydantic import ValidationError
 
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.highwind.client import blob_path, get_analysis, list_analysis_blobs
-from experimenter.highwind.tests.factories import build_analysis
+from experimenter.highwind.client import (
+    SCHEMA_VERSION,
+    UnsupportedSchemaError,
+    blob_path,
+    get_analysis,
+    list_analysis_blobs,
+)
+from experimenter.highwind.tests.factories import (
+    build_analysis,
+    build_legacy_analysis_json,
+)
 
 
 class TestBlobPath(TestCase):
@@ -61,9 +71,32 @@ class TestGetAnalysis(TestCase):
         self.assertEqual(analysis.metadata.experiment_slug, "test-experiment")
         self.assertEqual(analysis.metadata.generated_at, self.generated_at)
 
-    def test_raises_for_a_blob_that_does_not_conform(self, mock_storage):
+    def test_raises_unsupported_for_a_blob_it_cannot_read(self, mock_storage):
+        payloads = {
+            "from before the schema": build_legacy_analysis_json("test-experiment"),
+            "carrying the old integer version": json.dumps(
+                {"metadata": {"schema_version": 1}}
+            ),
+            "declaring another release": json.dumps(
+                {"metadata": {"schema_version": f"{SCHEMA_VERSION}.1"}}
+            ),
+        }
+
+        for name, payload in payloads.items():
+            with self.subTest(blob=name):
+                mock_storage.exists.return_value = True
+                mock_storage.open.return_value = io.StringIO(payload)
+
+                with self.assertRaises(UnsupportedSchemaError):
+                    get_analysis(self.experiment)
+
+    def test_raises_validation_error_for_a_versioned_blob_that_does_not_conform(
+        self, mock_storage
+    ):
         mock_storage.exists.return_value = True
-        mock_storage.open.return_value = io.StringIO('{"metadata": {}}')
+        mock_storage.open.return_value = io.StringIO(
+            json.dumps({"metadata": {"schema_version": SCHEMA_VERSION}})
+        )
 
         with self.assertRaises(ValidationError):
             get_analysis(self.experiment)
