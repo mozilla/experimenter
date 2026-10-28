@@ -9,7 +9,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <div class="d-flex align-items-center gap-2">
-          <h5 class="modal-title mb-0">{{ metric.friendly_name }}</h5>
+          <h1 class="modal-title fs-4 mb-0">{{ metric.friendly_name }}</h1>
           {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
 
         </div>
@@ -18,67 +18,73 @@
                 data-bs-dismiss="modal"
                 aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        {% if metric.description %}<p class="text-muted">{{ metric.description }}</p>{% endif %}
+      <div class="modal-body d-flex flex-column gap-4">
+        {% if metric.description %}<p class="text-muted mb-0">{{ metric.description }}</p>{% endif %}
+        {% comment %}
+          The same shape as the Jetstream weekly breakdown: window labels down the left,
+          branch columns across, and the shared metric card in every cell.
+        {% endcomment %}
         {% for kind, label in highwind_window_kinds %}
           {% with kind_windows=metric.windows|windows_of_kind:kind %}
             {% if kind_windows %}
-              <h6 class="text-uppercase text-muted mt-3">{{ label }}</h6>
-              <table class="table table-sm align-middle">
-                <thead>
-                  <tr class="text-muted small">
-                    <th scope="col">Window</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Branch</th>
-                    <th scope="col">Users</th>
-                    <th scope="col">Absolute</th>
-                    <th scope="col">Relative change</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for window in kind_windows %}
-                    {% for cell in window.cells %}
-                      <tr {% if window.is_summary %}class="table-active"{% endif %}>
-                        {% if forloop.first %}
-                          <th scope="row" class="fw-normal" rowspan="{{ window.cells|length }}">
-                            Day {{ window.start_day }}&ndash;{{ window.end_day }}
-                            <small class="text-muted d-block">{{ window.span_days }} day{{ window.span_days|pluralize }}</small>
-                            {% if window.is_summary %}<small class="text-muted d-block">Shown in the grid</small>{% endif %}
-                          </th>
-                          <td rowspan="{{ window.cells|length }}">
-                            {% include "nimbus_experiments/highwind_state_badge.html" with state=window.state %}
-
-                          </td>
-                        {% endif %}
-                        <td>
-                          {{ cell.branch }}
-                          {% if cell.is_reference %}<small class="text-muted">(reference)</small>{% endif %}
-                        </td>
-                        <td class="text-muted">{{ cell.n|short_number }}</td>
-                        <td>
-                          {% if cell.absolute.point == None %}
-                            <span class="text-muted">&mdash;</span>
-                          {% else %}
-                            {{ cell.absolute.point|floatformat:3 }}
-                          {% endif %}
-                        </td>
-                        <td>
-                          {% if cell.is_reference %}
-                            <span class="text-muted">&mdash;</span>
-                          {% elif cell.relative.point == None %}
-                            <span class="text-muted">&mdash;</span>
-                          {% else %}
-                            <span class="{% if cell.state == 'confident' and cell.direction == 'positive' %}text-success fw-semibold{% elif cell.state == 'confident' and cell.direction == 'negative' %}text-danger fw-semibold{% endif %}">
-                              {{ cell.relative.point|to_percentage:2 }}
-                            </span>
-                            <small class="text-muted">({{ cell.relative.lower|to_percentage:2 }} to {{ cell.relative.upper|to_percentage:2 }})</small>
-                          {% endif %}
-                        </td>
-                      </tr>
+              <div class="border border-1 rounded py-4 px-5 rounded-4">
+                <h2 class="fs-6 fw-bold">{{ label }}</h2>
+                <div class="d-flex mt-3">
+                  <div class="col-2">
+                    <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
+                    {% for window in kind_windows %}
+                      <div class="mb-3 {% if forloop.last %}mb-4{% endif %} d-flex text-center rounded-4 w-100 position-relative flex-column align-items-center justify-content-center"
+                           style="height: 100px">
+                        <small class="text-muted">Day {{ window.start_day }}&ndash;{{ window.end_day }}</small>
+                        <small class="text-muted">{{ window.span_days }} day{{ window.span_days|pluralize }}</small>
+                        {% if window.is_summary %}<small class="text-body-tertiary">Shown in the grid</small>{% endif %}
+                      </div>
                     {% endfor %}
-                  {% endfor %}
-                </tbody>
-              </table>
+                  </div>
+                  <div class="col position-relative w-25">
+                    <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 3 %}mx-4{% endif %}">
+                      {% if branch_data|length > 3 %}
+                        <div class="branch-fade branch-fade-left"></div>
+                        <div class="branch-fade branch-fade-right"></div>
+                      {% endif %}
+                      {% for branch in branch_data %}
+                        <div class="{% if branch.slug == reference_branch %}col-2{% elif branch_data|length > 3 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                          <p class="fs-5 text-truncate w-100 text-center"
+                             title="{{ branch.name }}">{{ branch.name }}</p>
+                          <div class="d-flex flex-column gap-3 w-100 h-100">
+                            {% for window in kind_windows %}
+                              {% for cell in window.cells %}
+                                {% if cell.branch == branch.slug %}
+                                  {% if cell.state == "error" %}
+                                    <div class="p-3 bg-warning-subtle text-warning-emphasis text-center d-flex flex-column align-items-center justify-content-center rounded-3"
+                                         style="height: 100px">
+                                      <span class="fw-semibold">Window unavailable</span>
+                                      <small>Other windows may not be affected.</small>
+                                    </div>
+                                  {% elif cell.state == "insufficient_data" %}
+                                    <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center rounded-3"
+                                         style="height: 100px">
+                                      <span>Insufficient data</span>
+                                    </div>
+                                  {% elif cell.state == "not_started" %}
+                                    <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center rounded-3"
+                                         style="height: 100px">
+                                      <span>Not started</span>
+                                    </div>
+                                  {% else %}
+                                    {% include "common/metric_card.html" with slug=cell.branch reference_branch=reference_branch absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction percentage=cell.relative.point lower_percent=cell.relative.lower upper_percent=cell.relative.upper %}
+
+                                  {% endif %}
+                                {% endif %}
+                              {% endfor %}
+                            {% endfor %}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
             {% endif %}
           {% endwith %}
         {% endfor %}

@@ -22,11 +22,26 @@
             {% if analysis_last_updated %}UTC{% endif %}
           </span>
         </div>
+        {% if has_analysis %}
+          <a class="btn btn-primary"
+             id="export-highwind-results-json-{{ experiment.slug }}"
+             href="{% url 'nimbus-ui-highwind-results-export' slug=experiment.slug %}">
+            <i class="fa-solid fa-download me-2"></i>Export JSON
+          </a>
+        {% endif %}
       </div>
     </div>
     <div id="{{ experiment.slug }}-highwind-results-overview">
       <div class="d-flex flex-column gap-4">
         <hr>
+        {% if has_analysis %}
+          <div class="d-inline-flex gap-4 flex-wrap row-gap-1 text-muted">
+            <small>Analysed as of <b>{{ analysis_run.as_of_date|date:"N j, Y" }}</b></small>
+            <small>Counting <b>{{ analysis_run.analysis_unit|remove_underscores }}</b></small>
+            <small>Pipeline <b>{{ analysis_run.pipeline_version }}</b></small>
+            <small>Schema <b>{{ analysis_run.schema_version }}</b></small>
+          </div>
+        {% endif %}
         <div>
           <div class="row">
             <div class="col-xxl">

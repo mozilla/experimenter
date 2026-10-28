@@ -38,6 +38,7 @@ from experimenter.experiments.tests.factories import (
     NimbusVersionedSchemaFactory,
     TagFactory,
 )
+from experimenter.highwind.client import SCHEMA_VERSION
 from experimenter.highwind.tests.factories import build_analysis
 from experimenter.jetstream.models import Metric
 from experimenter.kinto.tasks import (
@@ -5124,7 +5125,13 @@ class TestHighwindResultsGrid(AuthTestCase):
         self.reference = branches[0].slug
         self.treatment = branches[-1].slug
         experiment.analysis_data = {
-            "metadata": {"reference_branch": self.reference},
+            "metadata": {
+                "reference_branch": self.reference,
+                "as_of_date": "2026-10-20",
+                "pipeline_version": "1.0.0",
+                "schema_version": SCHEMA_VERSION,
+                "analysis_unit": "client_id",
+            },
             "segments": [],
             "metrics": metrics(self.reference, self.treatment),
             "errors": [],
@@ -5298,6 +5305,8 @@ class TestHighwindResultsGrid(AuthTestCase):
         self.assertContains(response, "Per week")
         self.assertContains(response, "Day 0&ndash;13")
         self.assertContains(response, "Day 7&ndash;13")
+        # The breakdown uses the same cards as the results page, not a bespoke table.
+        self.assertNotContains(response, "<thead>")
 
     def test_the_breakdown_marks_the_window_shown_in_the_grid(self):
         experiment = self.create_experiment(
@@ -5307,6 +5316,51 @@ class TestHighwindResultsGrid(AuthTestCase):
         response = self.get_page(experiment)
 
         self.assertContains(response, "Shown in the grid")
+
+    def test_shows_which_run_produced_the_numbers(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertEqual(response.context["analysis_run"]["pipeline_version"], "1.0.0")
+        self.assertContains(response, "Analysed as of")
+        self.assertContains(response, "client id")
+        self.assertContains(response, "1.0.0")
+
+    def test_exports_the_stored_blob(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+        )
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-highwind-results-export", kwargs={"slug": experiment.slug}
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response["Content-Disposition"],
+            f'attachment; filename="{experiment.slug}-highwind-results.json"',
+        )
+        self.assertEqual(
+            json.loads(response.content)["metadata"]["reference_branch"], self.reference
+        )
+
+    def test_exports_nothing_when_no_analysis_is_stored(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+        )
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-highwind-results-export", kwargs={"slug": experiment.slug}
+            ),
+        )
+
+        self.assertEqual(json.loads(response.content), {})
 
     def test_friendly_names_come_from_the_results_data(self):
         experiment = self.create_experiment(

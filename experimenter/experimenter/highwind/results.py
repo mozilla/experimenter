@@ -45,7 +45,23 @@ class HighwindResultsManager:
 
     @property
     def reference_branch(self):
-        return (self.analysis.get("metadata") or {}).get("reference_branch")
+        return self.metadata.get("reference_branch")
+
+    @property
+    def metadata(self):
+        return self.analysis.get("metadata") or {}
+
+    @property
+    def run(self):
+        # What produced these numbers, which is what a reviewer comparing them against
+        # Jetstream needs to know.
+        metadata = self.metadata
+        return {
+            "as_of_date": parse_date(metadata.get("as_of_date")),
+            "pipeline_version": metadata.get("pipeline_version"),
+            "schema_version": metadata.get("schema_version"),
+            "analysis_unit": metadata.get("analysis_unit"),
+        }
 
     @property
     def errors(self):
