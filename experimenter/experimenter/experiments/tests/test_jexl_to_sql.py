@@ -153,6 +153,63 @@ class TestJEXLToSQL(TestCase):
     @parameterized.expand(
         [
             (
+                "defaultPDFHandler.knownBrowser",
+                "metrics.object.nimbus_targeting_context_default_pdf_handler",
+                "knownBrowser",
+            ),
+            (
+                "defaultPDFHandler.registered",
+                "metrics.object.nimbus_targeting_context_default_pdf_handler",
+                "registered",
+            ),
+            (
+                "isDefaultHandler.pdf",
+                "metrics.object.nimbus_targeting_context_is_default_handler",
+                "pdf",
+            ),
+            (
+                "isDefaultHandler.html",
+                "metrics.object.nimbus_targeting_context_is_default_handler",
+                "html",
+            ),
+        ]
+    )
+    def test_default_handler_boolean_subfields(self, attribute, column, field):
+        sql = f"CAST(JSON_VALUE({column}, '$.{field}') AS BOOL)"
+        for expression, expected_sql in [
+            (attribute, sql),
+            (f"{attribute} == true", f"{sql} = TRUE"),
+            (f"{attribute} == false", f"{sql} = FALSE"),
+            (f"!{attribute}", f"NOT ({sql})"),
+            (
+                f"{attribute} && region == 'US'",
+                f"({sql} AND metrics.string.nimbus_targeting_context_region = 'US')",
+            ),
+        ]:
+            with self.subTest(expression=expression):
+                result = jexl_to_sql(expression)
+                self.assertEqual(result.sql, expected_sql)
+                self.assertEqual(result.warnings, [])
+
+    @parameterized.expand(
+        [
+            ("pdf", "isDefaultHandler", "pdf"),
+            ("known_browser", "defaultPDFHandler", "knownBrowser"),
+        ]
+    )
+    def test_null_guarded_object_reads_like_the_plain_path(self, _name, obj, field):
+        guarded = jexl_to_sql(f"!({obj} || {{}}).{field}")
+        plain = jexl_to_sql(f"!{obj}.{field}")
+        self.assertEqual(guarded.sql, plain.sql)
+        self.assertEqual(guarded.warnings, [])
+
+    def test_null_guard_on_a_non_empty_fallback_is_not_unwrapped(self):
+        result = jexl_to_sql("(isDefaultHandler || {pdf: true}).pdf")
+        self.assertIsNone(result.sql)
+
+    @parameterized.expand(
+        [
+            (
                 "locale_eq",
                 'locale == "en-US"',
                 "metrics.string.nimbus_targeting_context_locale = 'en-US'",
@@ -256,6 +313,8 @@ class TestJEXLToSQL(TestCase):
             ),
             ("mobile_attr", "days_since_install < 7", "days_since_install"),
             ("unknown_attr", "someUnknownAttribute", "someUnknownAttribute"),
+            ("pdf_handler_parent", "defaultPDFHandler", "defaultPDFHandler"),
+            ("default_handler_parent", "isDefaultHandler", "isDefaultHandler"),
             (
                 "newtab_addon_version",
                 "newtabAddonVersion|versionCompare('145.0') >= 0",
