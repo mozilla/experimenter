@@ -1,5 +1,7 @@
 import datetime as dt
 import json
+import random
+from itertools import chain
 
 from django.utils import timezone
 from mozilla_nimbus_schemas.highwind import (
@@ -24,6 +26,7 @@ from polyfactory.factories.pydantic_factory import ModelFactory
 
 from experimenter.highwind.client import SCHEMA_VERSION
 from experimenter.highwind.results import ALL_ENROLLED
+from experimenter.outcomes import Outcomes
 
 
 class HighwindIntervalFactory(ModelFactory[HighwindInterval]):
@@ -203,3 +206,108 @@ def build_segment(
             for branch in branches or ["control", "treatment"]
         ],
     )
+
+
+def build_random_analysis_data(experiment):
+    """A stored analysis for one experiment, shaped like a run of the job.
+
+    The metrics come from the experiment's own outcomes, the way
+    build_random_results_data does for Jetstream, rather than from a fixed list.
+    """
+    reference = experiment.reference_branch.slug
+    branches = [branch.slug for branch in experiment.get_sorted_branches()]
+    treatments = [slug for slug in branches if slug != reference]
+
+    outcome_metrics = []
+    for slug in chain(experiment.primary_outcomes, experiment.secondary_outcomes):
+        outcome = Outcomes.get_by_slug_and_application(slug, experiment.application)
+        outcome_metrics.extend(outcome.metrics if outcome else [])
+
+    # An experiment with no outcomes set would otherwise get an empty page, so fall back
+    # to what its application measures.
+    if not outcome_metrics:
+        for outcome in Outcomes.by_application(experiment.application):
+            outcome_metrics.extend(outcome.metrics)
+
+    return build_analysis(
+        slug=experiment.slug,
+        segments=[build_segment(branches=branches)],
+        metrics=[
+            build_metric(
+                slug=metric.slug,
+                friendly_name=metric.friendly_name,
+                description=metric.description,
+                windows=random_windows(reference, treatments),
+            )
+            for metric in outcome_metrics
+        ],
+    ).model_dump(mode="json")
+
+
+def random_windows(reference, treatments):
+    """Weekly cumulative windows that mature in turn, then the one still to come.
+
+    The last matured window is the summary, so the grid shows it, and a disjoint set
+    gives the per week breakdown something to render.
+    """
+    value = random.uniform(0.5, 5000)
+    relative = random.uniform(-5, 5)
+    state = random.choice(
+        [
+            HighwindCellState.FORMING,
+            HighwindCellState.CONFIDENT,
+            HighwindCellState.INSUFFICIENT_DATA,
+            HighwindCellState.ERROR,
+        ]
+    )
+    direction = (
+        random.choice([HighwindDirection.POSITIVE, HighwindDirection.NEGATIVE])
+        if state == HighwindCellState.CONFIDENT
+        else HighwindDirection.NEUTRAL
+    )
+    spread = abs(value) * 0.02
+
+    matured = [
+        build_window(
+            end_day=end_day,
+            state=state,
+            direction=direction,
+            is_summary=end_day == 20,
+            reference=reference,
+            treatments=treatments,
+            value=round(value * (end_day + 1) / 21, 3),
+            spread=round(spread, 3) or None,
+            relative=round(relative, 2),
+            error="zero variance in reference branch"
+            if state == HighwindCellState.ERROR
+            else None,
+        )
+        for end_day in (6, 13, 20)
+    ]
+    upcoming = build_window(
+        end_day=27,
+        matures_on="2026-12-01",
+        state=HighwindCellState.NOT_STARTED,
+        is_summary=False,
+        reference=reference,
+        treatments=treatments,
+        value=None,
+        relative=None,
+    )
+    weekly = [
+        build_window(
+            kind=HighwindWindowKind.DISJOINT,
+            start_day=start_day,
+            end_day=start_day + 6,
+            state=state,
+            direction=direction,
+            is_summary=False,
+            reference=reference,
+            treatments=treatments,
+            value=round(value / 3, 3),
+            spread=round(spread, 3) or None,
+            relative=round(relative, 2),
+        )
+        for start_day in (0, 7, 14)
+    ]
+    return [*matured, upcoming, *weekly]

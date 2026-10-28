@@ -4922,6 +4922,7 @@ class TestHighwindResultsView(AuthTestCase):
     def create_experiment(self, analysis=None, analysis_last_updated=None):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            analysis_data=None,
         )
         if analysis is not None:
             experiment.analysis_data = analysis.model_dump(mode="json")
@@ -5378,6 +5379,7 @@ class TestHighwindResultsGrid(AuthTestCase):
     def test_exports_nothing_when_no_analysis_is_stored(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            analysis_data=None,
         )
 
         response = self.client.get(
