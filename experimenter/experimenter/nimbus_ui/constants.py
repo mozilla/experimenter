@@ -377,18 +377,24 @@ Optional - We expect this to <describe impact> on <core metric>.
         ),
         "insufficient_data": (
             "Insufficient data",
-            "This window matured but there was too little data to estimate a change. A "
-            "later run may still produce one.",
+            (
+                "This window matured but there was too little data to estimate a change. "
+                "A later run may still produce one."
+            ),
         ),
         "forming": (
             "Forming",
-            "This window has matured and a change is being estimated, but the interval "
-            "is still too wide to call. It narrows with each run.",
+            (
+                "This window has matured and a change is being estimated, but the "
+                "interval is still too wide to call. It narrows with each run."
+            ),
         ),
         "confident": (
             "Confident",
-            "This window has matured and the interval no longer includes no change, so "
-            "the direction can be relied on.",
+            (
+                "This window has matured and the interval no longer includes no change, "
+                "so the direction can be relied on."
+            ),
         ),
         "error": (
             "Error",
