@@ -16,6 +16,7 @@ jobs:
   test:
     name: "Fenix Enrollment (${{ matrix.channel }})"
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: read
     strategy:
