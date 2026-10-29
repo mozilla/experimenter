@@ -31,8 +31,7 @@ def as_fraction(interval):
 
 
 def parse_date(value):
-    # Stored as an ISO date string, which the date filter cannot format on its own. The
-    # schema types the field as a date, so a stored blob never carries anything else.
+    # An ISO date string, which the date filter cannot format on its own.
     return dt.date.fromisoformat(value) if value else None
 
 
@@ -121,9 +120,8 @@ class HighwindResultsManager:
         }
 
     def get_cells(self, window_result):
-        # One cell per branch, each carrying its own state so the grid and the modal can
-        # render the same thing. The reference branch has no comparison against itself,
-        # so it shows an absolute value and nothing else.
+        # The reference branch has no comparison against itself, so it carries an
+        # absolute value and nothing else.
         reference = self.reference_branch
         comparisons = {
             comparison["branch"]: comparison
@@ -140,9 +138,8 @@ class HighwindResultsManager:
                     "is_reference": slug == reference,
                     "n": branch.get("n"),
                     "absolute": branch.get("value"),
-                    # The blob carries a percentage, but common/metric_card.html runs
-                    # these through to_percentage, which multiplies by 100. Converting
-                    # here keeps the shared card usable without a Highwind special case.
+                    # The blob carries a percentage and the shared cards multiply by
+                    # 100, so this hands them the fraction form.
                     "relative": as_fraction(comparison.get("relative")),
                     "state": comparison.get("state"),
                     "direction": comparison.get("direction"),
@@ -199,8 +196,7 @@ class HighwindResultsManager:
         return HighwindCellState.NOT_STARTED
 
     def get_all_windows(self, metric, segment_slug=ALL_ENROLLED):
-        # Every window the run reported, for the per-metric breakdown. Cumulative first,
-        # then disjoint, which is the order the job writes them in.
+        # In the order the job writes them: cumulative first, then disjoint.
         segment = self.get_segment_result(metric, segment_slug) or {}
         windows = []
         for window_result in segment.get("windows") or []:
@@ -235,9 +231,7 @@ class HighwindResultsManager:
                     "bar_geometry": self.bar_geometry(cells),
                     "state": self.get_state(cells),
                     "is_matured": bool(states & SETTLED_STATES),
-                    # An errored or insufficient cell is a matured window with no number,
-                    # so it still renders a row saying so. Only a window that has not
-                    # started has nothing to show at all.
+                    # An errored or insufficient cell still renders a row saying so.
                     "has_results": bool(
                         cells and self.get_state(cells) != HighwindCellState.NOT_STARTED
                     ),

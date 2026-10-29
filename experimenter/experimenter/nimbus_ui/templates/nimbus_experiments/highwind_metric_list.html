@@ -1,28 +1,19 @@
 {% load nimbus_extras %}
 
-{% comment %}
-  The same two column layout as the Jetstream results page: metric names down the left,
-  branch columns on the right, each stacking the shared metric card. The window's span
-  sits where that page shows its OVERALL tag.
-{% endcomment %}
+{% comment %} The two column layout of the results page, with its shared metric card {% endcomment %}
 <div class="accordion-body d-flex">
   <div class="col-2">
     <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
     {% for metric in metrics %}
-      <button class="btn border-3 p-3 align-items-center mb-3 d-flex rounded-4 w-100 text-start position-relative border-light-subtle nav-link-hover text-break {% if not metric.has_results %}bg-body-tertiary{% endif %}"
+      <button class="btn border-3 p-3 mb-3 d-flex flex-column align-items-start gap-1 overflow-hidden rounded-4 w-100 text-start position-relative border-light-subtle nav-link-hover {% if not metric.has_results %}bg-body-tertiary{% endif %}"
               type="button"
               data-bs-toggle="modal"
               data-bs-target="#{{ experiment.slug }}-highwind-{{ metric.slug }}"
               style="height: 100px">
-        <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute top-0 start-0 p-2"></i>
-        <small class="position-absolute bottom-0 end-0 p-2 fw-medium text-uppercase">
-          {% if metric.window %}{{ metric.window.span_days }} day{{ metric.window.span_days|pluralize }}{% endif %}
-        </small>
-        <span class="position-absolute top-0 end-0 p-2">
-          {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
+        {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
 
-        </span>
-        <p class="metric-text mb-0">{{ metric.friendly_name }}</p>
+        <p class="metric-text mb-0 small lh-sm text-break w-100">{{ metric.friendly_name }}</p>
+        <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute bottom-0 end-0 p-2"></i>
       </button>
       {% include "nimbus_experiments/highwind_metric_modal.html" with experiment_slug=experiment.slug metric=metric %}
 

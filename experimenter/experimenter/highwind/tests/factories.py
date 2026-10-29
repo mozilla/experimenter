@@ -109,7 +109,6 @@ def build_analysis(slug="test-experiment", generated_at=None, **kwargs):
 
 
 def build_interval(point=1.0, spread=None):
-    # Takes either a point to spread around, or the three bounds spelled out.
     if isinstance(point, dict):
         return HighwindIntervalFactory.build(**point)
     if point is None:
@@ -136,8 +135,13 @@ def build_window(
     spread=None,
     error=None,
 ):
-    # One comparison per treatment against the reference, which has none of its own.
-    branches = [reference, *treatments]
+    # A treatment's own value moves by the relative change it reports, so the branch
+    # figures and the change shown beside them agree.
+    def treatment_value():
+        if value is None or relative is None:
+            return value
+        return round(value * (1 + relative / 100), 3)
+
     return HighwindWindowResultFactory.build(
         window=HighwindWindowFactory.build(
             kind=kind,
@@ -148,9 +152,16 @@ def build_window(
         is_summary=is_summary,
         branches=[
             HighwindBranchValueFactory.build(
-                branch=branch, n=100, value=build_interval(value, spread)
-            )
-            for branch in branches
+                branch=reference, n=100, value=build_interval(value, spread)
+            ),
+            *[
+                HighwindBranchValueFactory.build(
+                    branch=treatment,
+                    n=100,
+                    value=build_interval(treatment_value(), spread),
+                )
+                for treatment in treatments
+            ],
         ],
         comparisons=[
             HighwindComparisonFactory.build(
@@ -159,7 +170,13 @@ def build_window(
                 state=state,
                 direction=direction,
                 relative=build_interval(relative),
-                absolute=build_interval(value, spread),
+                # The difference between the branches, which is what the job writes here.
+                absolute=build_interval(
+                    None
+                    if value is None or relative is None
+                    else round(treatment_value() - value, 3),
+                    spread,
+                ),
                 n_reference=100,
                 n_treatment=100,
                 error=error,
@@ -190,7 +207,7 @@ def build_metric(
 
 
 def build_analysis_data(slug="test-experiment", **kwargs):
-    # The stored form the results manager reads, rather than the model the loader holds.
+    # The stored form, which is what the results manager reads.
     return build_analysis(slug=slug, **kwargs).model_dump(mode="json")
 
 
@@ -209,11 +226,7 @@ def build_segment(
 
 
 def build_random_analysis_data(experiment):
-    """A stored analysis for one experiment, shaped like a run of the job.
-
-    The metrics come from the experiment's own outcomes, the way
-    build_random_results_data does for Jetstream, rather than from a fixed list.
-    """
+    # Metrics come from the experiment's own outcomes, as build_random_results_data does.
     reference = experiment.reference_branch.slug
     branches = [branch.slug for branch in experiment.get_sorted_branches()]
     treatments = [slug for slug in branches if slug != reference]
@@ -245,11 +258,8 @@ def build_random_analysis_data(experiment):
 
 
 def random_windows(reference, treatments):
-    """Weekly cumulative windows that mature in turn, then the one still to come.
-
-    The last matured window is the summary, so the grid shows it, and a disjoint set
-    gives the per week breakdown something to render.
-    """
+    # Weekly cumulative windows that mature in turn, the last of them the summary the
+    # grid shows, then one still to come, then a disjoint set for the per week breakdown.
     value = random.uniform(0.5, 5000)
     relative = random.uniform(-5, 5)
     state = random.choice(

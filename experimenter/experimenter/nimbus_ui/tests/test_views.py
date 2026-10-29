@@ -5146,7 +5146,7 @@ class TestHighwindResultsGrid(AuthTestCase):
             reverse("nimbus-ui-highwind-results", kwargs={"slug": experiment.slug}),
         )
 
-    def test_shows_the_window_span_in_place_of_an_overall_tag(self):
+    def test_names_the_window_in_the_breakdown_rather_than_an_overall_tag(self):
         experiment = self.create_experiment(
             lambda ref, treat: [
                 highwind_metric("days_of_use", ref, treat, start_day=0, end_day=13)
@@ -5155,8 +5155,10 @@ class TestHighwindResultsGrid(AuthTestCase):
 
         response = self.get_page(experiment)
 
-        self.assertContains(response, "14 days")
+        # Highwind has no overall window, so the breakdown names the span instead.
         self.assertNotContains(response, "OVERALL")
+        self.assertContains(response, "Day 0&ndash;13")
+        self.assertContains(response, "14 days")
         # The shared card is what renders the branch cells, not a bespoke table.
         self.assertTemplateUsed(response, "common/metric_card.html")
 

@@ -20,10 +20,7 @@
       </div>
       <div class="modal-body d-flex flex-column gap-4">
         {% if metric.description %}<p class="text-muted mb-0">{{ metric.description }}</p>{% endif %}
-        {% comment %}
-          The same Overview block the Jetstream popout opens with, filled from the window
-          the job marked rather than from an overall period, which Highwind does not have.
-        {% endcomment %}
+        {% comment %} The popout's Overview, from the marked window rather than an overall one {% endcomment %}
         {% if metric.has_results %}
           <div class="border border-1 rounded py-4 px-5 rounded-4">
             <div class="d-flex align-items-center gap-2">
@@ -64,10 +61,7 @@
             </div>
           </div>
         {% endif %}
-        {% comment %}
-          The same shape as the Jetstream weekly breakdown: window labels down the left,
-          branch columns across, and the shared metric card in every cell.
-        {% endcomment %}
+        {% comment %} The shape of the weekly breakdown, a window per row {% endcomment %}
         {% for kind, label in highwind_window_kinds %}
           {% with kind_windows=metric.windows|windows_of_kind:kind %}
             {% if kind_windows %}
