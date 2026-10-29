@@ -21,15 +21,15 @@ class TestHighwindResultsManager(TestCase):
         experiment.analysis_data = build_analysis_data(metrics=metrics)
         return HighwindResultsManager(experiment)
 
-    def one(self, metrics):
+    def only_metric(self, metrics):
         [result] = self.manager(metrics).get_metrics()
         return result
 
-    def with_window(self, **kwargs):
-        return self.one([build_metric(windows=[build_window(**kwargs)])])
+    def metric_with_window(self, **kwargs):
+        return self.only_metric([build_metric(windows=[build_window(**kwargs)])])
 
     def test_reads_the_window_the_job_marked_as_summary(self):
-        result = self.one(
+        result = self.only_metric(
             [
                 build_metric(
                     windows=[
@@ -45,17 +45,17 @@ class TestHighwindResultsManager(TestCase):
         self.assertEqual(result["window"]["span_days"], 14)
 
     def test_disjoint_window_span_counts_only_its_own_days(self):
-        result = self.with_window(kind="disjoint", start_day=7, end_day=13)
+        result = self.metric_with_window(kind="disjoint", start_day=7, end_day=13)
 
         self.assertEqual(result["window"]["span_days"], 7)
 
     def test_matures_on_is_a_date_the_template_can_format(self):
-        result = self.with_window(matures_on="2026-10-08")
+        result = self.metric_with_window(matures_on="2026-10-08")
 
         self.assertEqual(result["matures_on"], dt.date(2026, 10, 8))
 
     def test_metric_with_no_summary_window_has_none(self):
-        result = self.with_window(is_summary=False)
+        result = self.metric_with_window(is_summary=False)
 
         self.assertIsNone(result["window"])
         self.assertFalse(result["is_matured"])
@@ -63,13 +63,15 @@ class TestHighwindResultsManager(TestCase):
         self.assertEqual(result["state"], HighwindCellState.NOT_STARTED)
 
     def test_a_metric_without_the_segment_has_no_window(self):
-        result = self.one([build_metric(windows=[build_window()], segment="all_exposed")])
+        result = self.only_metric(
+            [build_metric(windows=[build_window()], segment="all_exposed")]
+        )
 
         self.assertIsNone(result["window"])
         self.assertFalse(result["has_results"])
 
     def test_reference_branch_cell_carries_no_comparison(self):
-        result = self.with_window()
+        result = self.metric_with_window()
 
         cells = {cell["branch"]: cell for cell in result["cells"]}
         self.assertTrue(cells[REFERENCE]["is_reference"])
@@ -79,7 +81,7 @@ class TestHighwindResultsManager(TestCase):
 
     def test_relative_is_converted_to_the_fraction_the_card_expects(self):
         # The blob carries 1.25 meaning 1.25%, and the shared card multiplies by 100.
-        result = self.with_window(relative=1.25)
+        result = self.metric_with_window(relative=1.25)
 
         treatment = next(c for c in result["cells"] if not c["is_reference"])
         self.assertAlmostEqual(treatment["relative"]["point"], 0.0125)
@@ -87,7 +89,7 @@ class TestHighwindResultsManager(TestCase):
     def test_settled_states_count_as_matured(self):
         for state in (HighwindCellState.FORMING, HighwindCellState.CONFIDENT):
             with self.subTest(state=state):
-                self.assertTrue(self.with_window(state=state)["is_matured"])
+                self.assertTrue(self.metric_with_window(state=state)["is_matured"])
 
     def test_unsettled_states_do_not_count_as_matured(self):
         for state in (
@@ -96,15 +98,15 @@ class TestHighwindResultsManager(TestCase):
             HighwindCellState.ERROR,
         ):
             with self.subTest(state=state):
-                self.assertFalse(self.with_window(state=state)["is_matured"])
+                self.assertFalse(self.metric_with_window(state=state)["is_matured"])
 
     def test_an_errored_or_insufficient_window_still_has_results_to_show(self):
         for state in (HighwindCellState.ERROR, HighwindCellState.INSUFFICIENT_DATA):
             with self.subTest(state=state):
-                self.assertTrue(self.with_window(state=state)["has_results"])
+                self.assertTrue(self.metric_with_window(state=state)["has_results"])
 
     def test_a_window_that_has_not_started_has_nothing_to_show(self):
-        result = self.with_window(state=HighwindCellState.NOT_STARTED)
+        result = self.metric_with_window(state=HighwindCellState.NOT_STARTED)
 
         self.assertFalse(result["has_results"])
 
@@ -117,7 +119,7 @@ class TestHighwindResultsManager(TestCase):
             HighwindCellState.NOT_STARTED,
         ):
             with self.subTest(state=state):
-                self.assertEqual(self.with_window(state=state)["state"], state)
+                self.assertEqual(self.metric_with_window(state=state)["state"], state)
 
     def test_notable_metrics_are_the_confident_changes(self):
         manager = self.manager(
@@ -161,7 +163,7 @@ class TestHighwindResultsManager(TestCase):
         # Taken from a production blob, where days_of_use settled confidently at end_day
         # 20 and 27 then widened back to forming at 34. The grid follows the marked
         # window, so it reports forming and no notable change.
-        result = self.one(
+        result = self.only_metric(
             [
                 build_metric(
                     windows=[
