@@ -1181,8 +1181,6 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         if not experiment.is_rollout:
             NimbusBranchFactory.create(experiment=experiment, name="Treatment")
 
-        # After the branches, since an analysis compares them. Inline import because
-        # the Highwind factories import the experiment models.
         from experimenter.highwind.tests.factories import build_random_analysis_data
 
         analysis_data = kwargs.get("analysis_data", _UNSET)
