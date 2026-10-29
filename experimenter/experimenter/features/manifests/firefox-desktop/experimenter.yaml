@@ -6176,12 +6176,6 @@ ipc:
       setPref:
         branch: user
         pref: "dom.ipc.processPrelaunch.fission.number"
-    preallocated_lowmem_mb:
-      description: Limit preallocated processes below this memory size (in MB).
-      type: int
-      setPref:
-        branch: user
-        pref: "dom.ipc.processPrelaunch.lowmem_mb"
     priority_manager_enabled:
       description: Determines whether Firefox uses the Process Priority Manager to adjust CPU priority based on importance.
       type: boolean

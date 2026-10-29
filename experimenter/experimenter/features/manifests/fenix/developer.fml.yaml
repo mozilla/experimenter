@@ -350,6 +350,13 @@ features:
         description: If true, Homepage Weather Widget is enabled.
         type: Boolean
         default: false
+  homepage-wrexham-widget:
+    description: Feature to enable Homepage Wrexham Widget for users on Firefox for Android.
+    variables:
+      enabled:
+        description: If true, Homepage Wrexham Widget is enabled.
+        type: Boolean
+        default: false
   homescreen:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
@@ -907,18 +914,18 @@ features:
       android-ui-tools:
         description: If true, the Android PDF UI tools are shown.
         type: Boolean
-        default: false
+        default: true
   pdfjs:
     description: PDF.js features
     variables:
       download-button:
         description: Download button
         type: Boolean
-        default: true
+        default: false
       open-in-app-button:
         description: Open in app button
         type: Boolean
-        default: true
+        default: false
   pki:
     description: Certificate verification configuration
     variables:

@@ -352,6 +352,14 @@ homepage-weather-widget:
     enabled:
       type: boolean
       description: If true, Homepage Weather Widget is enabled.
+homepage-wrexham-widget:
+  description: Feature to enable Homepage Wrexham Widget for users on Firefox for Android.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, Homepage Wrexham Widget is enabled.
 homescreen:
   description: The homescreen that the user goes to when they press home or new tab.
   hasExposure: true
