@@ -605,6 +605,9 @@ FEATURE_MANIFESTS_PATH = BASE_DIR / "features" / "manifests"
 # Addon versions path
 ADDON_VERSIONS_PATH = BASE_DIR / "addons" / "versions"
 
+# Firefox versions path
+FIREFOX_VERSIONS_PATH = BASE_DIR / "experiments" / "versions.yaml"
+
 SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
     "SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER", default=False, cast=bool
 )
