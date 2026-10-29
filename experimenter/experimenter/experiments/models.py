@@ -2669,8 +2669,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
                         # Treat a branch as having meaningful exposures only when the
                         # client_count exceeds a set cutoff. Manual testing can produce
-                        # tiny non-zero counts, so we use EXPOSURE_CLIENT_CUTOFF as an
-                        # arbitrary threshold to avoid false positives.
+                        # tiny non-zero counts, so EXPOSURE_CLIENT_CUTOFF matches
+                        # Jetstream's minimum reference-branch client count, below which
+                        # Jetstream computes no statistics.
                         if client_count > NimbusConstants.EXPOSURE_CLIENT_CUTOFF:
                             branches_with_exposures += 1
 

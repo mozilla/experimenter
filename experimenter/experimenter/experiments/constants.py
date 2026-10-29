@@ -1064,7 +1064,7 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         AnalysisWindow.OVERALL: AlertType.ANALYSIS_READY_OVERALL,
     }
 
-    EXPOSURE_CLIENT_CUTOFF = 10
+    EXPOSURE_CLIENT_CUTOFF = 100
 
     MONITORING_ALERT_MINIMUM_DAYS = 1
     ZERO_ENROLLMENT_DAYS_THRESHOLD = 3

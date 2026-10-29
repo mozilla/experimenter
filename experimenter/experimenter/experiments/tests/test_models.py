@@ -4801,6 +4801,7 @@ class TestNimbusExperiment(TestCase):
         self.assertTrue(experiment.has_displayable_results)
 
     def test_has_exposures_results_true(self):
+        point = NimbusConstants.EXPOSURE_CLIENT_CUTOFF + 10
         results_data = {
             "v3": {
                 "overall": {
@@ -4812,7 +4813,7 @@ class TestNimbusExperiment(TestCase):
                                         "identity": {
                                             "absolute": {
                                                 "first": {
-                                                    "point": 120,
+                                                    "point": point,
                                                 },
                                             }
                                         }
@@ -4825,7 +4826,7 @@ class TestNimbusExperiment(TestCase):
                                         "identity": {
                                             "absolute": {
                                                 "first": {
-                                                    "point": 120,
+                                                    "point": point,
                                                 },
                                             }
                                         }
@@ -4856,6 +4857,7 @@ class TestNimbusExperiment(TestCase):
         )
 
     def test_has_exposures_daily_only(self):
+        point = NimbusConstants.EXPOSURE_CLIENT_CUTOFF + 10
         results_data = {
             "v3": {
                 "daily": {
@@ -4867,7 +4869,7 @@ class TestNimbusExperiment(TestCase):
                                         "identity": {
                                             "absolute": {
                                                 "first": {
-                                                    "point": 120,
+                                                    "point": point,
                                                 },
                                             }
                                         }
@@ -4880,7 +4882,7 @@ class TestNimbusExperiment(TestCase):
                                         "identity": {
                                             "absolute": {
                                                 "first": {
-                                                    "point": 120,
+                                                    "point": point,
                                                 },
                                             }
                                         }
@@ -4901,6 +4903,7 @@ class TestNimbusExperiment(TestCase):
         )
 
     def test_has_exposures_missing_data(self):
+        point = NimbusConstants.EXPOSURE_CLIENT_CUTOFF + 10
         results_data = {
             "v3": {
                 "overall": {
@@ -4925,7 +4928,7 @@ class TestNimbusExperiment(TestCase):
                                         "identity": {
                                             "absolute": {
                                                 "first": {
-                                                    "point": 120,
+                                                    "point": point,
                                                 },
                                             }
                                         }
@@ -4943,6 +4946,52 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(
             experiment.has_exposures, NimbusUIConstants.ExposuresStatus.INVALID
+        )
+
+    def test_has_exposures_below_jetstream_minimum(self):
+        point = 50
+        results_data = {
+            "v3": {
+                "overall": {
+                    "exposures": {
+                        "all": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": point,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "treatment": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": point,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment = NimbusExperimentFactory.create()
+        experiment.results_data = results_data
+        experiment.save()
+
+        self.assertEqual(
+            experiment.has_exposures, NimbusUIConstants.ExposuresStatus.NO_EXPOSURES
         )
 
     @parameterized.expand(
