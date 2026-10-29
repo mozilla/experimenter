@@ -860,6 +860,11 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         elif not cleaned_data["is_rollout"]:
             cleaned_data["is_firefox_labs_opt_in"] = False
 
+        # Holdbacks are continuously enrolling experiments, so the flag is
+        # meaningless for a rollout and only makes jetstream evaluate it weekly.
+        if cleaned_data["is_rollout"]:
+            cleaned_data["is_holdback"] = False
+
         firefox_labs = self.instance.application_config.firefox_labs
 
         if (
