@@ -999,6 +999,7 @@ class HighwindResultsView(
         context["has_analysis"] = results_manager.has_analysis
         context["analysis_last_updated"] = experiment.analysis_last_updated
         context["analysis_errors"] = results_manager.errors
+        context["analysis_errors_count"] = results_manager.error_count
         context["branch_data"] = results_manager.get_branch_data()
         context["branch_leading_screenshot_forms"] = {
             branch.slug: BranchLeadingScreenshotForm(instance=branch.screenshots.first())

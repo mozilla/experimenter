@@ -4224,6 +4224,55 @@ class TestResultsView(AuthTestCase):
         self.assertContains(response, escape(NimbusUIConstants.METRIC_ERRORS_TEXT))
         self.assertContains(response, "Contact Experimenter Support")
 
+    def test_results_view_renders_possible_issues_collapsed_with_count(self):
+        experiment = self.create_experiment_with_kpi_results(
+            {
+                NimbusConstants.RETENTION_WEEK_2: [
+                    {"analysis_basis": "enrollments", "segment": "all"}
+                ],
+                "experiment": [
+                    {"analysis_basis": "enrollments", "segment": "all"},
+                    {"analysis_basis": "exposures", "segment": "all"},
+                ],
+            }
+        )
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-results",
+                kwargs={"slug": experiment.slug},
+                query={"reference_branch": "control"},
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(experiment.results_errors_displayed_count, 3)
+        self.assertContains(response, "3 issues detected")
+        self.assertContains(response, "Show details")
+        self.assertContains(response, "Hide details")
+        self.assertContains(response, f'id="{experiment.slug}-results-issues"')
+
+    def test_results_view_renders_possible_issues_singular_count(self):
+        experiment = self.create_experiment_with_kpi_results(
+            {
+                NimbusConstants.RETENTION_WEEK_2: [
+                    {"analysis_basis": "enrollments", "segment": "all"},
+                    {"analysis_basis": "exposures", "segment": "all"},
+                ],
+            }
+        )
+
+        response = self.client.get(
+            reverse(
+                "nimbus-ui-results",
+                kwargs={"slug": experiment.slug},
+                query={"reference_branch": "control"},
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "1 issue detected")
+
     def test_results_view_renders_no_data_state_for_metric_without_data(self):
         experiment = self.create_experiment_with_kpi_results({})
 
@@ -5041,6 +5090,53 @@ class TestHighwindResultsView(AuthTestCase):
             ["newer", "older"],
         )
         self.assertContains(response, "days_of_use metric encountered issues.")
+
+    def test_renders_possible_issues_collapsed_with_count(self):
+        experiment = self.create_experiment(
+            analysis=build_analysis(
+                errors=[
+                    {
+                        "timestamp": "2026-10-01T00:00:00Z",
+                        "log_level": "ERROR",
+                        "message": "first",
+                        "exception_type": "ValueError",
+                        "exception": None,
+                        "filename": "analysis.py",
+                        "func_name": "run",
+                        "metric": None,
+                        "segment": None,
+                        "window": None,
+                    },
+                    {
+                        "timestamp": "2026-10-02T00:00:00Z",
+                        "log_level": "WARNING",
+                        "message": "second",
+                        "exception_type": None,
+                        "exception": None,
+                        "filename": "analysis.py",
+                        "func_name": "run",
+                        "metric": "days_of_use",
+                        "segment": None,
+                        "window": None,
+                    },
+                ]
+            )
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertEqual(response.context["analysis_errors_count"], 2)
+        self.assertContains(response, "2 issues detected")
+        self.assertContains(response, "Show details")
+        self.assertContains(response, "Hide details")
+        self.assertContains(response, f'id="{experiment.slug}-highwind-results-issues"')
+
+    def test_renders_with_no_analysis_loaded_has_zero_issue_count(self):
+        experiment = self.create_experiment()
+
+        response = self.get_page(experiment)
+
+        self.assertEqual(response.context["analysis_errors_count"], 0)
 
 
 class TestResultsExportView(AuthTestCase):

@@ -2908,6 +2908,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return sum(self.analysis_errors_by_key.values())
 
     @property
+    def results_errors_displayed_count(self):
+        count = 0
+        if self.results_data:
+            errors = self.results_data.get("v3", {}).get("errors", {})
+            for error_group, error_list in errors.items():
+                if not error_list:
+                    continue
+                if error_group == "experiment":
+                    count += len(error_list)
+                else:
+                    count += 1
+        return count
+
+    @property
     def reviewer_emails(self):
         return sorted(
             {
