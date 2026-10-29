@@ -1016,18 +1016,6 @@ class HighwindResultsView(
         return context
 
 
-class HighwindResultsExportView(View):
-    def get(self, request, slug):
-        experiment = get_object_or_404(NimbusExperiment, slug=slug)
-        response = JsonResponse(
-            experiment.analysis_data or {}, json_dumps_params={"indent": 2}
-        )
-        response["Content-Disposition"] = (
-            f'attachment; filename="{experiment.slug}-highwind-results.json"'
-        )
-        return response
-
-
 class ResultsExportView(View):
     def get(self, request, slug):
         experiment = get_object_or_404(NimbusExperiment, slug=slug)

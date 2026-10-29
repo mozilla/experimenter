@@ -5358,40 +5358,6 @@ class TestHighwindResultsGrid(AuthTestCase):
         for _, explanation in NimbusUIConstants.HIGHWIND_STATE_LABELS.values():
             self.assertContains(response, escape(explanation))
 
-    def test_exports_the_stored_blob(self):
-        experiment = self.create_experiment(
-            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
-        )
-
-        response = self.client.get(
-            reverse(
-                "nimbus-ui-highwind-results-export", kwargs={"slug": experiment.slug}
-            ),
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response["Content-Disposition"],
-            f'attachment; filename="{experiment.slug}-highwind-results.json"',
-        )
-        self.assertEqual(
-            json.loads(response.content)["metadata"]["reference_branch"], self.reference
-        )
-
-    def test_exports_nothing_when_no_analysis_is_stored(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-            analysis_data=None,
-        )
-
-        response = self.client.get(
-            reverse(
-                "nimbus-ui-highwind-results-export", kwargs={"slug": experiment.slug}
-            ),
-        )
-
-        self.assertEqual(json.loads(response.content), {})
-
     def test_friendly_names_come_from_the_results_data(self):
         experiment = self.create_experiment(
             lambda ref, treat: [

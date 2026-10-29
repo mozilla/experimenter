@@ -22,13 +22,6 @@
             {% if analysis_last_updated %}UTC{% endif %}
           </span>
         </div>
-        {% if has_analysis %}
-          <a class="btn btn-primary"
-             id="export-highwind-results-json-{{ experiment.slug }}"
-             href="{% url 'nimbus-ui-highwind-results-export' slug=experiment.slug %}">
-            <i class="fa-solid fa-download me-2"></i>Export JSON
-          </a>
-        {% endif %}
       </div>
     </div>
     <div id="{{ experiment.slug }}-highwind-results-overview">
