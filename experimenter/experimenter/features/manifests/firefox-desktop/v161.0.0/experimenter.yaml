@@ -3463,6 +3463,12 @@ networkingCongestionControl:
       setPref:
         branch: default
         pref: "network.http.http3.spurious_recovery"
+    http3Abe:
+      description: Whether Alternative Backoff with ECN (RFC 8511) is turned on. Has no effect unless network.http.http3.cc_algorithm is 1 (Cubic) and network.http.http3.ecn_mark is true.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.abe"
     http3EcnMark:
       description: Whether to set ECN marks on outgoing HTTP/3 datagrams and react to ECN-CE feedback from the peer.
       type: boolean
@@ -6176,12 +6182,6 @@ ipc:
       setPref:
         branch: user
         pref: "dom.ipc.processPrelaunch.fission.number"
-    preallocated_lowmem_mb:
-      description: Limit preallocated processes below this memory size (in MB).
-      type: int
-      setPref:
-        branch: user
-        pref: "dom.ipc.processPrelaunch.lowmem_mb"
     priority_manager_enabled:
       description: Determines whether Firefox uses the Process Priority Manager to adjust CPU priority based on importance.
       type: boolean
