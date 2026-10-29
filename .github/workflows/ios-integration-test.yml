@@ -19,6 +19,7 @@ jobs:
   create-recipe:
     name: "Create iOS recipe"
     runs-on: ubuntu-24.04
+    timeout-minutes: 120
     outputs:
       should-run: ${{ steps.check-paths.outputs.should-run }}
     env:
@@ -84,6 +85,7 @@ jobs:
     needs: create-recipe
     if: needs.create-recipe.outputs.should-run == 'true'
     runs-on: macos-26
+    timeout-minutes: 120
     env:
       IOS_CHANNEL: developer
       XCODE_VERSION: "26.5"

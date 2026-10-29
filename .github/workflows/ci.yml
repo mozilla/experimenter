@@ -20,6 +20,7 @@ jobs:
             runner: ubuntu-24.04-arm
     name: "Cirrus Check (${{ matrix.arch }})"
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
     permissions:
       contents: read
     steps:
@@ -52,6 +53,7 @@ jobs:
             runner: ubuntu-24.04-arm
     name: "Experimenter Check (${{ matrix.arch }})"
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
     permissions:
       contents: read
     steps:
@@ -83,6 +85,7 @@ jobs:
     if: github.event_name != 'push'
     name: "Check Local Feature Manifests"
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: read
     steps:
@@ -122,6 +125,7 @@ jobs:
     if: github.event_name != 'push'
     name: "Check Schemas"
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: read
     steps:
@@ -149,6 +153,7 @@ jobs:
         split: [0, 1]
     name: "Desktop Enrollment (${{ matrix.split }})"
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: read
     env:
@@ -190,6 +195,7 @@ jobs:
             extra_paths: ""
     name: "Desktop Targeting (${{ matrix.channel }} ${{ matrix.split }})"
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: read
     env:
@@ -224,6 +230,7 @@ jobs:
         split: [0, 1, 2, 3]
     name: "Desktop Nimbus UI (Release Firefox ${{ matrix.split }})"
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: read
     env:
@@ -254,6 +261,7 @@ jobs:
     if: github.event_name != 'push'
     name: "Remote Settings All Workflows (${{ matrix.name }})"
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: read
     strategy:
@@ -293,6 +301,7 @@ jobs:
     if: github.event_name != 'push'
     name: "Remote Settings Launch (All Applications)"
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: read
     env:
@@ -322,6 +331,7 @@ jobs:
     if: github.event_name != 'push'
     name: "Experimenter Cirrus Integration"
     runs-on: ubuntu-24.04
+    timeout-minutes: 90
     permissions:
       contents: read
     env:
