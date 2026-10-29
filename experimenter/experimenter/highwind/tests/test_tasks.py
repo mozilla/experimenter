@@ -66,7 +66,8 @@ class TestFetchHighwindData(TestCase):
     def setUp(self):
         super().setUp()
         self.experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            analysis_data=None,
         )
         self.generated_at = timezone.now()
 
@@ -194,7 +195,8 @@ class TestFetchHighwindData(TestCase):
         self, mock_capture, mock_list, mock_get_analysis
     ):
         other = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            analysis_data=None,
         )
         mock_list.return_value = self.written(self.experiment, other)
 

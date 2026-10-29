@@ -393,3 +393,8 @@ def format_p_value(value):
     if value < 0.0001:
         return "< 0.0001"
     return f"{value:.4f}"
+
+
+@register.filter
+def windows_of_kind(windows, kind):
+    return [window for window in windows or [] if window.get("kind") == kind]

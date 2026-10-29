@@ -1,0 +1,8 @@
+{% load nimbus_extras %}
+
+{% comment %} Shown wherever a value would be blank, so a cell never reads as a measured zero {% endcomment %}
+{% with label=NimbusUIConstants.HIGHWIND_STATE_LABELS|dict_get:state %}
+  <span class="badge rounded-pill border border-1 {% if state == 'confident' %}bg-success-subtle text-success-emphasis border-success-subtle{% elif state == 'forming' %}bg-info-subtle text-info-emphasis border-info-subtle{% elif state == 'error' %}bg-warning-subtle text-warning-emphasis border-warning-subtle{% else %}bg-body-secondary text-body-secondary border-secondary-subtle{% endif %}"
+        data-bs-toggle="tooltip"
+        data-bs-title="{{ label.1 }}">{{ label.0|default:"Not started" }}</span>
+{% endwith %}

@@ -1,0 +1,68 @@
+{% load nimbus_extras %}
+
+{% comment %} The two column layout of the results page, with its shared metric card {% endcomment %}
+<div class="accordion-body d-flex">
+  <div class="col-2">
+    <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
+    {% for metric in metrics %}
+      <button class="btn border-3 p-3 mb-3 d-flex flex-column align-items-start gap-1 overflow-hidden rounded-4 w-100 text-start position-relative border-light-subtle nav-link-hover {% if not metric.has_results %}bg-body-tertiary{% endif %}"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#{{ experiment.slug }}-highwind-{{ metric.slug }}"
+              style="height: 100px">
+        {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
+
+        <p class="metric-text mb-0 small lh-sm text-break w-100">{{ metric.friendly_name }}</p>
+        <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute bottom-0 end-0 p-2"></i>
+      </button>
+      {% include "nimbus_experiments/highwind_metric_modal.html" with experiment_slug=experiment.slug metric=metric %}
+
+    {% endfor %}
+  </div>
+  <div class="col position-relative w-25 d-flex flex-column">
+    <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 4 %}mx-4{% endif %}">
+      {% for branch in branch_data %}
+        <div class="{% if branch_data|length > 4 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+          <p class="fs-5 text-truncate w-100 text-center"
+             title="{{ branch.name }}">{{ branch.name }}</p>
+          <div class="d-flex flex-column gap-3 w-100">
+            {% for metric in metrics %}
+              {% if not metric.has_results %}
+                <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center rounded-3"
+                     style="height: 100px">
+                  <span>
+                    {% if metric.matures_on %}
+                      Matures {{ metric.matures_on|date:"N j, Y" }}
+                    {% else %}
+                      Not started
+                    {% endif %}
+                  </span>
+                </div>
+              {% else %}
+                {% for cell in metric.cells %}
+                  {% if cell.branch == branch.slug %}
+                    {% if cell.state == "error" %}
+                      <div class="p-3 bg-warning-subtle text-warning-emphasis text-center d-flex flex-column align-items-center justify-content-center rounded-3"
+                           style="height: 100px">
+                        <span class="fw-semibold">{{ NimbusUIConstants.METRIC_ERRORS_TITLE }}</span>
+                        {% if cell.error %}<small>{{ cell.error }}</small>{% endif %}
+                      </div>
+                    {% elif cell.state == "insufficient_data" %}
+                      <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center rounded-3"
+                           style="height: 100px">
+                        <span>Insufficient data</span>
+                      </div>
+                    {% else %}
+                      {% include "common/metric_card.html" with slug=cell.branch reference_branch=reference_branch absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction percentage=cell.relative.point lower_percent=cell.relative.lower upper_percent=cell.relative.upper %}
+
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>

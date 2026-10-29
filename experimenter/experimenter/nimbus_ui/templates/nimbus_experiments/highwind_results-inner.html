@@ -132,13 +132,89 @@
       </div>
     </div>
   </div>
-  {% comment %}
-    The metric areas are filled in by EXP-7609. Until then the page carries the overview
-    and whatever the run logged, which is what makes the loader reviewable.
-  {% endcomment %}
   {% if not has_analysis %}
     <div class="px-5 py-4 shadow-sm rounded-4 bg-body border border-1">
       <p class="mb-0 text-muted">No Highwind analysis has been loaded for this experiment yet.</p>
+    </div>
+  {% else %}
+    {% comment %} What the statuses mean, before any of them appear below {% endcomment %}
+    <div class="px-5 py-4 shadow-sm rounded-4 bg-body border border-1">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="fa-solid fa-circle-info text-secondary"></i>
+        <h4 class="mb-0 fs-5">How to read these results</h4>
+      </div>
+      <p class="text-muted">
+        Every metric is reported per analysis window. A window covers a span of days since
+        enrolment, and each one moves through these statuses as the experiment runs.
+      </p>
+      <div class="row row-cols-1 row-cols-lg-2 g-2 mb-0">
+        {% for state, label in NimbusUIConstants.HIGHWIND_STATE_LABELS.items %}
+          <div class="col d-flex align-items-start gap-2">
+            <span class="flex-shrink-0">
+              {% include "nimbus_experiments/highwind_state_badge.html" with state=state %}
+
+            </span>
+            <small class="text-muted">{{ label.1 }}</small>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% comment %} Notable Changes {% endcomment %}
+    <div class="accordion-item p-3 px-4 shadow-sm rounded-4 border border-1">
+      <h2 class="accordion-header">
+        <button class="accordion-button bg-transparent shadow-none text-body"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#{{ experiment.slug }}-highwind-notable"
+                aria-expanded="true"
+                aria-controls="{{ experiment.slug }}-highwind-notable">
+          <div class="pe-3 d-flex flex-column align-items-start">
+            <h4 class="mb-2">{{ NimbusUIConstants.NOTABLE_METRIC_AREA }}</h4>
+            <small class="text-muted">
+              {% if notable_metrics %}
+                {{ NimbusUIConstants.NOTABLE_CHANGES_PRESENT_TEXT }}
+              {% else %}
+                <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ NimbusUIConstants.NOTABLE_CHANGES_ABSENT_TEXT }}
+              {% endif %}
+            </small>
+          </div>
+        </button>
+      </h2>
+      <div id="{{ experiment.slug }}-highwind-notable"
+           class="accordion-collapse collapse show">
+        {% if notable_metrics %}
+          {% include "nimbus_experiments/highwind_metric_list.html" with metrics=notable_metrics %}
+
+        {% endif %}
+      </div>
+    </div>
+    {% comment %} Every metric the run analysed {% endcomment %}
+    <div class="accordion-item p-3 px-4 shadow-sm rounded-4 border border-1">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed bg-transparent shadow-none text-body"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#{{ experiment.slug }}-highwind-metrics"
+                aria-expanded="false"
+                aria-controls="{{ experiment.slug }}-highwind-metrics">
+          <div class="pe-3 d-flex flex-column align-items-start">
+            <h4 class="mb-2">Metrics</h4>
+            <div class="d-inline-flex gap-3 flex-wrap row-gap-1">
+              {% for metric in metrics %}
+                <div>
+                  <small class="text-muted">{{ metric.friendly_name }}</small>
+                  {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </button>
+      </h2>
+      <div id="{{ experiment.slug }}-highwind-metrics"
+           class="accordion-collapse collapse">
+        {% include "nimbus_experiments/highwind_metric_list.html" with metrics=metrics %}
+
+      </div>
     </div>
   {% endif %}
 </div>

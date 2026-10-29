@@ -1,0 +1,132 @@
+{% load nimbus_extras %}
+
+<div class="modal fade"
+     id="{{ experiment_slug }}-highwind-{{ metric.slug }}"
+     tabindex="-1"
+     aria-labelledby="{{ experiment_slug }}-highwind-{{ metric.slug }}"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="d-flex align-items-center gap-2">
+          <h1 class="modal-title fs-4 mb-0">{{ metric.friendly_name }}</h1>
+          {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
+
+        </div>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+      <div class="modal-body d-flex flex-column gap-4">
+        {% if metric.description %}<p class="text-muted mb-0">{{ metric.description }}</p>{% endif %}
+        {% comment %} The popout's Overview, from the marked window rather than an overall one {% endcomment %}
+        {% if metric.has_results %}
+          <div class="border border-1 rounded py-4 px-5 rounded-4">
+            <div class="d-flex align-items-center gap-2">
+              <h2 class="fs-6 fw-bold mb-0">Most recent matured window</h2>
+              <span class="badge rounded-pill bg-body-secondary text-body-secondary border border-1 border-secondary-subtle">
+                Day {{ metric.window.start_day }}&ndash;{{ metric.window.end_day }}
+              </span>
+              {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
+
+            </div>
+            <div class="row row-cols-3 g-3 mt-1">
+              <div class="col">
+                <p class="fw-bold text-center">Branches</p>
+                {% for cell in metric.cells %}
+                  <div class="p-3 mb-3 d-flex flex-column justify-content-center text-center align-items-center"
+                       style="height: 75px">
+                    {% if cell.is_reference %}<small class="text-muted">Baseline</small>{% endif %}
+                    <p class="mb-0 text-truncate w-100 text-center">{{ cell.branch }}</p>
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="col">
+                <p class="fw-bold text-center">Absolute count</p>
+                {% for cell in metric.cells %}
+                  {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction reference_branch=reference_branch branch_slug=cell.branch %}
+
+                {% endfor %}
+              </div>
+              <div class="col">
+                <p class="fw-bold text-center">Relative change</p>
+                <div class="d-flex flex-column">
+                  {% for cell in metric.cells %}
+                    {% include "common/metric_popout_card.html" with type="relative" significance=cell.direction reference_branch=reference_branch branch_slug=cell.branch branch_relative_ui_properties=metric.bar_geometry|dict_get:cell.branch lower_relative=cell.relative.lower upper_relative=cell.relative.upper %}
+
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        {% comment %} The shape of the weekly breakdown, a window per row {% endcomment %}
+        {% for kind, label in highwind_window_kinds %}
+          {% with kind_windows=metric.windows|windows_of_kind:kind %}
+            {% if kind_windows %}
+              <div class="border border-1 rounded py-4 px-5 rounded-4">
+                <h2 class="fs-6 fw-bold">{{ label }}</h2>
+                <div class="d-flex mt-3">
+                  <div class="col-2">
+                    <p class="fs-5 mb-3 invisible" aria-hidden="true">Baseline</p>
+                    {% for window in kind_windows %}
+                      <div class="mb-3 {% if forloop.last %}mb-4{% endif %} d-flex text-center rounded-4 w-100 position-relative flex-column align-items-center justify-content-center"
+                           style="height: 100px">
+                        <small class="text-muted">Day {{ window.start_day }}&ndash;{{ window.end_day }}</small>
+                        <small class="text-muted">{{ window.span_days }} day{{ window.span_days|pluralize }}</small>
+                        {% if window.is_summary %}<small class="text-body-tertiary">Shown in the grid</small>{% endif %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                  <div class="col position-relative w-25">
+                    <div class="row flex-row flex-nowrap overflow-auto mx-2 pb-3 {% if branch_data|length > 3 %}mx-4{% endif %}">
+                      {% if branch_data|length > 3 %}
+                        <div class="branch-fade branch-fade-left"></div>
+                        <div class="branch-fade branch-fade-right"></div>
+                      {% endif %}
+                      {% for branch in branch_data %}
+                        <div class="{% if branch.slug == reference_branch %}col-2{% elif branch_data|length > 3 %}col-4{% else %}col{% endif %} d-flex flex-column align-items-center">
+                          <p class="fs-5 text-truncate w-100 text-center"
+                             title="{{ branch.name }}">{{ branch.name }}</p>
+                          <div class="d-flex flex-column gap-3 w-100 h-100">
+                            {% for window in kind_windows %}
+                              {% for cell in window.cells %}
+                                {% if cell.branch == branch.slug %}
+                                  {% if cell.state == "error" %}
+                                    <div class="p-3 bg-warning-subtle text-warning-emphasis text-center d-flex flex-column align-items-center justify-content-center rounded-3"
+                                         style="height: 100px">
+                                      <span class="fw-semibold">Window unavailable</span>
+                                      <small>Other windows may not be affected.</small>
+                                    </div>
+                                  {% elif cell.state == "insufficient_data" %}
+                                    <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center rounded-3"
+                                         style="height: 100px">
+                                      <span>Insufficient data</span>
+                                    </div>
+                                  {% elif cell.state == "not_started" %}
+                                    <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center rounded-3"
+                                         style="height: 100px">
+                                      <span>Not started</span>
+                                    </div>
+                                  {% else %}
+                                    {% include "common/metric_card.html" with slug=cell.branch reference_branch=reference_branch absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction percentage=cell.relative.point lower_percent=cell.relative.lower upper_percent=cell.relative.upper %}
+
+                                  {% endif %}
+                                {% endif %}
+                              {% endfor %}
+                            {% endfor %}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
