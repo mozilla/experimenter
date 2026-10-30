@@ -386,6 +386,13 @@ features:
         description: If true, the import bookmarks feature will be enabled.
         type: Boolean
         default: false
+  installation:
+    description: A feature that checks for reinstalls.
+    variables:
+      enabled:
+        description: If true, the install data will be stored in Block Store and reported to Glean.
+        type: Boolean
+        default: false
   ip-protection:
     description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
     variables:
