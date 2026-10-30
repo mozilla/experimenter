@@ -732,6 +732,16 @@ urlbar:
         '[["FR",["en-*","fr-*"]],["*",["fr-*"]]]' means France in English or
         French, or a French locale anywhere. An empty value disables
         multilingual embeddings everywhere.
+    semanticHistoryDomainScopedSearch:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.urlbar.suggest.semanticHistory.domainScopedSearch
+      description: >-
+        Whether a semantic history search starting with an origin or URL, like
+        "example.com some topic" or "https://example.com/some-topic", only
+        returns pages from that domain and its subdomains, using the rest of
+        the search string as the query. Off by default.
     semanticHistoryInSeparateGroup:
       type: boolean
       setPref:

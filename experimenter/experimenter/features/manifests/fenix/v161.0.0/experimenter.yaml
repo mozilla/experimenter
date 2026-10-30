@@ -385,6 +385,14 @@ import-bookmarks:
     enabled:
       type: boolean
       description: If true, the import bookmarks feature will be enabled.
+installation:
+  description: A feature that checks for reinstalls.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the install data will be stored in Block Store and reported to Glean.
 ip-protection:
   description: Feature to enable IP Protection (VPN) for users on Firefox on Android.
   hasExposure: true
