@@ -17,6 +17,7 @@
       </div>
     </div>
     <form id="overview-form"
+          data-warn-unsaved
           {% if form.is_bound and form.is_valid %}class="was-validated"{% endif %}
           hx-post="{% url 'nimbus-ui-update-overview' experiment.slug %}{% if request.GET.show_errors == 'true' %}?show_errors=true{% endif %}"
           hx-select="#content-with-sidebar"
