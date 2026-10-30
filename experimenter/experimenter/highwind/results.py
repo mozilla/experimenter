@@ -60,6 +60,10 @@ class HighwindResultsManager:
             reverse=True,
         )
 
+    @property
+    def error_count(self):
+        return len(self.errors)
+
     def get_segment(self, slug=ALL_ENROLLED):
         for segment in self.analysis.get("segments") or []:
             if segment.get("slug") == slug:

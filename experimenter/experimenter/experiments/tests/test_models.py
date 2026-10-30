@@ -6775,6 +6775,36 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(experiment.analysis_errors_by_key, expected_by_key)
         self.assertEqual(experiment.analysis_errors_count, expected_count)
 
+    @parameterized.expand(
+        [
+            (None, 0),
+            ({"other_key": {}}, 0),
+            ({"v3": {"errors": {"experiment": []}}}, 0),
+            (
+                {
+                    "v3": {
+                        "errors": {
+                            "ad_clicks": [
+                                {"analysis_basis": "enrollments"},
+                                {"analysis_basis": "exposures"},
+                            ],
+                            "retained": [],
+                            "experiment": [
+                                {"analysis_basis": "enrollments"},
+                                {"analysis_basis": "exposures"},
+                            ],
+                        },
+                    }
+                },
+                3,
+            ),
+        ]
+    )
+    def test_results_errors_displayed_count(self, results_data, expected_count):
+        experiment = NimbusExperimentFactory.create(results_data=results_data)
+
+        self.assertEqual(experiment.results_errors_displayed_count, expected_count)
+
     def test_reviewer_emails_returns_sorted_distinct_approvers(self):
         experiment = NimbusExperimentFactory.create()
         approver = UserFactory.create(email="zoe@example.com")
