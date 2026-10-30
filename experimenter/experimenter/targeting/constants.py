@@ -48,6 +48,7 @@ PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
         "isNonStubFirstRun",
         "localeLanguageCode",
         "attachedFxAOAuthClients",
+        "isFxASignedInMozilla",
     },
     Application.FENIX: {
         "current_date",
@@ -1108,6 +1109,17 @@ RELAY_USER = NimbusTargetingConfig(
     slug="relay_user",
     description="Include users who have Relay",
     targeting=('("9ebfe2c2f9ea3c58" in attachedFxAOAuthClients|mapToProperty("id"))'),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FXA_SIGNED_IN_MOZILLA = NimbusTargetingConfig(
+    name="Signed in with a Mozilla account",
+    slug="fxa_signed_in_mozilla",
+    description="Users signed in to a Firefox Account with an @mozilla.com email",
+    targeting="isFxASignedInMozilla",
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
