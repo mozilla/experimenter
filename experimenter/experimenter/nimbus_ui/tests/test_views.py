@@ -2284,6 +2284,27 @@ class TestBranchesUpdateViews(AuthTestCase):
         self.assertContains(response, 'id="id_is_firefox_labs_opt_in"')
         self.assertContains(response, 'id="id_is_rollout"')
 
+    @parameterized.expand(
+        (
+            (True, 0),
+            (False, 1),
+        )
+    )
+    def test_get_shows_holdback_checkbox_only_for_experiments(
+        self, is_rollout, expected_count
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=is_rollout,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-update-branches", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertContains(response, 'id="id_is_holdback"', count=expected_count)
+
     def test_post_keeps_labs_flags_when_new_delivery_menu_is_enabled(self):
         SiteFlag.objects.create(
             name=SiteFlagNameChoices.NEW_DELIVERY_MENU.name,

@@ -4570,6 +4570,68 @@ class TestNimbusBranchesForm(RequestFormTestCase):
             {"test": "https://example.com"},
         )
 
+    @parameterized.expand(
+        (
+            (True, False),
+            (False, True),
+        )
+    )
+    def test_is_holdback_only_saved_for_experiments(
+        self, is_rollout, expected_is_holdback
+    ):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=is_rollout,
+            is_holdback=False,
+        )
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            request=self.request,
+            data={
+                **get_modelform_data(NimbusBranchesForm, experiment),
+                "is_rollout": is_rollout,
+                "is_holdback": True,
+            },
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        self.assertEqual(experiment.is_holdback, expected_is_holdback)
+
+    def test_is_holdback_cleared_when_labs_opt_in_sets_is_rollout(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            is_rollout=False,
+            is_firefox_labs_opt_in=False,
+            is_holdback=True,
+        )
+
+        form = NimbusBranchesForm(
+            instance=experiment,
+            request=self.request,
+            data={
+                **get_modelform_data(NimbusBranchesForm, experiment),
+                "is_rollout": False,
+                "is_holdback": True,
+                "is_firefox_labs_opt_in": True,
+                "firefox_labs_title": "labs-title",
+                "firefox_labs_description": "labs-description",
+                "firefox_labs_group": (
+                    NimbusExperiment.FirefoxLabs.Groups.CUSTOMIZE_BROWSING
+                ),
+            },
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        experiment = form.save()
+
+        self.assertTrue(experiment.is_rollout)
+        self.assertFalse(experiment.is_holdback)
+
 
 class TestNimbusBranchCreateForm(RequestFormTestCase):
     def test_form_saves_branches(self):
