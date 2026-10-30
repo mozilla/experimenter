@@ -13,6 +13,7 @@ import {
 } from "./codemirror_utils.js";
 import { updateAllViewThemes, observeThemeChanges } from "./theme_utils.js";
 import { setupDevtoolsBanner } from "./nimbus_devtools.js";
+import { setupUnsavedChangesWarning } from "./unsaved_changes.js";
 
 window.bootstrap = bootstrap;
 const setupThemeSwitcher = () => {
@@ -159,6 +160,7 @@ $(() => {
   setupSlugCopyToast();
   setupHTMXLoadingOverlay();
   setupReadonlyJsonEditors();
+  setupUnsavedChangesWarning();
   observeThemeChanges(updateAllViewThemes);
   document.addEventListener("shown.bs.modal", (event) => {
     setupReadonlySqlEditors(event.target);
