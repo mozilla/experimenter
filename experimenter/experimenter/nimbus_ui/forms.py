@@ -737,6 +737,13 @@ class NimbusBranchesForm(NimbusChangeLogFormMixin, forms.ModelForm):
         "is_rollout",
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Rollouts should not be marked as holdback; hide the field for rollouts.
+        if self.instance and getattr(self.instance, "is_rollout", False):
+            self.fields["is_holdback"].widget = forms.HiddenInput()
+            self.fields["is_holdback"].initial = False
+
     class Meta:
         model = NimbusExperiment
         fields = (
