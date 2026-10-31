@@ -99,6 +99,15 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: false
+  configuration-profile-feature:
+    description: |
+      Offers to open configuration profiles (.mobileconfig) in Safari so iOS can install them
+    variables:
+      enabled:
+        description: |
+          Whether or not this feature is enabled
+        type: Boolean
+        default: false
   custom-reader-mode-scheme-feature:
     description: |
       Use a custom WKURLSchemeHandler for reader mode
