@@ -474,14 +474,16 @@ urlbar:
         picks. If the user's query matches an AMP suggestion and the query is at
         least this many characters long, the suggestion will be shown as a top
         pick. Set to zero to disable.
-    quickSuggestAmpTopPickUseNovaIconSize:
-      type: boolean
+    quickSuggestAmpTopPickScoreForLargeIcon:
+      type: string
       setPref:
         branch: default
-        pref: browser.urlbar.quicksuggest.ampTopPickUseNovaIconSize
+        pref: browser.urlbar.quicksuggest.ampTopPickScoreForLargeIcon
       description: >-
-        Whether or not use the Nova icon size for AMP suggestion.
-        Otherwise, use standard rich-suggestion size.
+        The minimum score a top-pick AMP suggestion must have to be shown with
+        the large-icon UI treatment used for other top picks, as a decimal
+        string (e.g., "1.0"). If it's an empty string or otherwise can't be
+        parsed with parseFloat, the small-icon UI treatment will be used.
     quickSuggestDynamicSuggestionTypes:
       type: string
       setPref:
