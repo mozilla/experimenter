@@ -746,6 +746,14 @@ features:
           When the feature is enabled then microsurveys can be used.
         type: Boolean
         default: false
+  migrate-onboarding-state:
+    description: |
+      Feature to enable the one-time reconciliation of onboarding completion state for users who completed initial onboarding before continuous onboarding was enabled. See Onboarding-state-migration-and-reconciliation.md in the onboarding package for the affected user cohorts.
+    variables:
+      enabled:
+        description: If true, the feature is enabled.
+        type: Boolean
+        default: true
   minimal-addressbar:
     description: Show a smaller height bottom addressbar with just the URL.
     variables:
