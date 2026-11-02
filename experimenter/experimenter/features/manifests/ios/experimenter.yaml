@@ -96,6 +96,16 @@ cellular-data-restricted-error-page-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+configuration-profile-feature:
+  description: |
+    Offers to open configuration profiles (.mobileconfig) in Safari so iOS can install them
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 custom-reader-mode-scheme-feature:
   description: |
     Use a custom WKURLSchemeHandler for reader mode
