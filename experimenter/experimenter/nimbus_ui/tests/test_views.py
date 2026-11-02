@@ -1934,6 +1934,56 @@ class TestToggleReviewSlackNotificationsView(AuthTestCase):
         self.assertEqual(updated_experiment.enable_review_slack_notifications, new_value)
 
 
+class TestUnsavedChangesWarning(AuthTestCase):
+    @parameterized.expand(
+        (
+            ("nimbus-ui-update-overview", "overview-form"),
+            ("nimbus-ui-update-branches", "branches-form"),
+            ("nimbus-ui-update-metrics", "metrics-form"),
+            ("nimbus-ui-update-audience", "audience-form"),
+        )
+    )
+    def test_setup_form_opts_into_unsaved_changes_warning(self, url_name, form_id):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": experiment.slug}))
+
+        self.assertContains(response, f'id="{form_id}"')
+        self.assertContains(response, "data-warn-unsaved")
+
+    @parameterized.expand(
+        (
+            ("nimbus-ui-update-qa-status",),
+            ("nimbus-ui-update-takeaways",),
+            ("nimbus-ui-update-signoff",),
+        )
+    )
+    def test_summary_edit_form_opts_into_unsaved_changes_warning(self, url_name):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        response = self.client.get(reverse(url_name, kwargs={"slug": experiment.slug}))
+
+        self.assertContains(response, "data-warn-unsaved")
+
+    def test_readonly_summary_is_not_watched(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
+        )
+
+        self.assertNotContains(response, "data-warn-unsaved")
+
+
 class TestOverviewUpdateView(AuthTestCase):
     url_name = "nimbus-ui-update-overview"
 
