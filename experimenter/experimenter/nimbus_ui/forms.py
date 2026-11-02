@@ -180,6 +180,8 @@ class NimbusExperimentSidebarCloneForm(NimbusChangeLogFormMixin, forms.ModelForm
         slug = slugify(name)
         if not slug:
             raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_INVALID)
+        if len(slug) > NimbusConstants.MAX_SLUG_LEN:
+            raise forms.ValidationError(NimbusUIConstants.ERROR_NAME_TOO_LONG)
         if NimbusExperiment.objects.filter(slug=slug).exists():
             raise forms.ValidationError(
                 NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG
