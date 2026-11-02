@@ -422,6 +422,10 @@ quick-answers-feature:
       type: boolean
       description: |
         Enables the feature.
+    follow-up-enabled:
+      type: boolean
+      description: |
+        Enables asking follow up questions after an answer is shown.
     model:
       type: string
       description: |

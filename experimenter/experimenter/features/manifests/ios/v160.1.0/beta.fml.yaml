@@ -806,6 +806,11 @@ features:
           Enables the feature.
         type: Boolean
         default: false
+      follow-up-enabled:
+        description: |
+          Enables asking follow up questions after an answer is shown.
+        type: Boolean
+        default: false
       model:
         description: |
           Which provider model backs Quick Answers.
