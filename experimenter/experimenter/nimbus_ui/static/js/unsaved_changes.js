@@ -17,7 +17,9 @@ const serialize = (form) =>
 const baselines = new WeakMap();
 
 // Save and Continue returns HX-Redirect with no body, so the edited form is
-// still on the page when the browser navigates.
+// still on the page when the browser navigates. Only a redirect caused by
+// saving a watched form counts: cloning also redirects, and that one discards
+// the changes rather than storing them, so it should still warn.
 let allowUnload = false;
 
 const watchedForms = () => [...document.querySelectorAll(FORM_SELECTOR)];
@@ -41,7 +43,10 @@ export const setupUnsavedChangesWarning = () => {
   document.body.addEventListener("htmx:afterSettle", baselineNewForms);
 
   document.body.addEventListener("htmx:beforeOnLoad", (event) => {
-    if (event.detail.xhr?.getResponseHeader("HX-Redirect")) {
+    if (
+      event.detail.elt?.closest?.(FORM_SELECTOR) &&
+      event.detail.xhr?.getResponseHeader("HX-Redirect")
+    ) {
       allowUnload = true;
     }
   });
