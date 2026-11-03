@@ -2794,6 +2794,24 @@ HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE_NO_STICKY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+GOOGLE_DEFAULT_SEARCH_TERMS_PERSISTENCE_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Google default with search term persistence and no enterprise policies",
+    slug="google_default_search_terms_persistence_no_enterprise",
+    description=(
+        "Users with Google as current default engine, search term persistence "
+        "enabled, and without enterprise policies"
+    ),
+    targeting=(
+        f"{HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE.targeting} && "
+        "'browser.urlbar.showSearchTerms.enabled'|preferenceValue && "
+        "!hasActiveEnterprisePolicies"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 DOES_NOT_HAVE_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     name="Does not have Google as current default search engine",
     slug="does_not_have_google_as_current_default_search_engine",
