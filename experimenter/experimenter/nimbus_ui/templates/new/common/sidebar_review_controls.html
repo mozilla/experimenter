@@ -131,6 +131,14 @@
           {% elif rs_pending %}
             {% if experiment|should_show_remote_settings_pending:user %}
               <p class="small text-secondary mb-2">Review this change in Remote Settings to {{ rs_pending }}.</p>
+              <p class="small text-secondary mb-2">
+                <strong>Note:</strong> {{ NimbusUIConstants.REVIEW_PRIVILEGES_REQUIRED_TEXT }}
+                If you don't have them, see
+                <a href="{{ NimbusUIConstants.REVIEWER_ONBOARDING_URL }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="text-decoration-none">how to get review privileges</a>.
+              </p>
               <a id="rollout-remote-settings-link"
                  href="{{ experiment.review_url }}"
                  target="_blank"

@@ -58,6 +58,13 @@ Optional - We expect this to <describe impact> on <core metric>.
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/getting-started/for-reviewers"
+    REVIEWER_ONBOARDING_URL = (
+        "https://experimenter.info/getting-started/for-reviewers/"
+        "#onboarding-for-new-reviewers-l3"
+    )
+    REVIEW_PRIVILEGES_REQUIRED_TEXT = (
+        "Review privileges are required to approve or reject requests."
+    )
     VALIDATING_EXPERIMENTS_URL = (
         "https://experimenter.info/data-analysis/validating-experiments/"
     )
