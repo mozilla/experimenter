@@ -1120,13 +1120,13 @@ features:
           Whether or not to enable private browsing mode lock.
         type: Boolean
         default: true
-  private-mode-and-stories-entry-point:
-    description: Feature to enable the Private Mode and Stories Entry Point Experiment.
+  regional-default-shortcuts:
+    description: Feature to enable the regional default shortcuts on the homepage for users on Firefox on Android.
     variables:
       enabled:
-        description: If true, Private Mode and Stories Entry Point Experiment is enabled.
+        description: If true, the regional default shortcuts are shown in their regions.
         type: Boolean
-        default: false
+        default: true
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
