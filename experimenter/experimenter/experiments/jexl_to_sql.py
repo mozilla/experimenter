@@ -293,6 +293,7 @@ JEXL_TO_BQ_COLUMN_IOS = {
 # Attributes with no corresponding column in nimbus_targeting_context.
 KNOWN_UNTRANSLATABLE = {
     "attachedFxAOAuthClients",  # privacy-sensitive, will never be recorded
+    "isFxASignedInMozilla",  # privacy-sensitive, will never be recorded
     # Sub-fields the client does not record. Measured at 0% populated on every
     # day of a 30-day window. These were previously mapped, which meant they
     # resolved to NULL and matched nobody *without* raising a warning -- a
