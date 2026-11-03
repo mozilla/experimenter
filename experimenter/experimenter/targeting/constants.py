@@ -416,6 +416,26 @@ NON_STUB_FIRST_RUN = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FIRST_RUN_LINUX = NimbusTargetingConfig(
+    name="First start-up users on Linux",
+    slug="first_run_linux",
+    description=(
+        "First start-up Linux users (e.g. for about:welcome), on their first "
+        "Nimbus update pass and before about:welcome has shown. Requires "
+        "Firefox 155+, where the preonboarding splash holds about:welcome "
+        "until Nimbus has loaded on all Linux builds"
+    ),
+    targeting=(
+        "os.isLinux && isNonStubFirstRun && "
+        f"{PROFILELESSTHAN1HOUR} && "
+        "!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 FIRST_RUN_NEW_PROFILE = NimbusTargetingConfig(
     name="First start-up new users",
     slug="first_run_new_profile",
