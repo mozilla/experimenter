@@ -376,6 +376,15 @@ Optional - We expect this to <describe impact> on <core metric>.
         ),
     }
 
+    # An icon per state, so a row can be read without stopping to read the words.
+    HIGHWIND_STATE_ICONS = {
+        "not_started": "fa-regular fa-clock",
+        "insufficient_data": "fa-solid fa-circle-info",
+        "forming": "fa-solid fa-hourglass-half",
+        "confident": "fa-solid fa-circle-check",
+        "error": "fa-solid fa-triangle-exclamation",
+    }
+
     # What each Highwind cell state means, since the words are not self-explanatory.
     HIGHWIND_STATE_LABELS = {
         "not_started": (

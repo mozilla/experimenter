@@ -10,9 +10,30 @@
               data-bs-toggle="modal"
               data-bs-target="#{{ experiment.slug }}-highwind-{{ metric.slug }}"
               style="height: 100px">
-        {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
+        <div class="d-flex align-items-center gap-1">
+          {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
 
+          {% comment %} The direction arrow the results page shows, once a change is called {% endcomment %}
+          {% if metric.state == "confident" %}
+            {% if metric.direction == "positive" %}
+              <i class="fa-solid fa-up-long text-success"
+                 data-bs-toggle="tooltip"
+                 data-bs-title="Confident increase"></i>
+            {% elif metric.direction == "negative" %}
+              <i class="fa-solid fa-down-long text-danger"
+                 data-bs-toggle="tooltip"
+                 data-bs-title="Confident decrease"></i>
+            {% else %}
+              <i class="fa-solid fa-left-long text-muted"
+                 data-bs-toggle="tooltip"
+                 data-bs-title="No notable change"></i>
+            {% endif %}
+          {% endif %}
+        </div>
         <p class="metric-text mb-0 small lh-sm text-break w-100">{{ metric.friendly_name }}</p>
+        {% if metric.window %}
+          <small class="text-muted text-uppercase">Day {{ metric.window.start_day }}&ndash;{{ metric.window.end_day }}</small>
+        {% endif %}
         <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute bottom-0 end-0 p-2"></i>
       </button>
       {% include "nimbus_experiments/highwind_metric_modal.html" with experiment_slug=experiment.slug metric=metric %}

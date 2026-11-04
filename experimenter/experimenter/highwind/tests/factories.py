@@ -258,8 +258,7 @@ def build_random_analysis_data(experiment):
 
 
 def random_windows(reference, treatments):
-    # Weekly cumulative windows that mature in turn, the last of them the summary the
-    # grid shows, then one still to come, then a disjoint set for the per week breakdown.
+    # Cumulative windows that mature in turn, one still to come, then a disjoint set.
     value = random.uniform(0.5, 5000)
     relative = random.uniform(-5, 5)
     state = random.choice(
@@ -277,34 +276,36 @@ def random_windows(reference, treatments):
     )
     spread = abs(value) * 0.02
 
-    matured = [
+    windows = [
         build_window(
             end_day=end_day,
             state=state,
             direction=direction,
-            is_summary=end_day == 20,
+            is_summary=False,
             reference=reference,
             treatments=treatments,
             value=round(value * (end_day + 1) / 21, 3),
             spread=round(spread, 3) or None,
             relative=round(relative, 2),
-            error="zero variance in reference branch"
-            if state == HighwindCellState.ERROR
-            else None,
+            # Zero variance is insufficient data, not an error, so an errored cell here
+            # is something that actually failed.
+            error="query failed" if state == HighwindCellState.ERROR else None,
         )
         for end_day in (6, 13, 20)
     ]
-    upcoming = build_window(
-        end_day=27,
-        matures_on="2026-12-01",
-        state=HighwindCellState.NOT_STARTED,
-        is_summary=False,
-        reference=reference,
-        treatments=treatments,
-        value=None,
-        relative=None,
+    windows.append(
+        build_window(
+            end_day=27,
+            matures_on="2026-12-01",
+            state=HighwindCellState.NOT_STARTED,
+            is_summary=False,
+            reference=reference,
+            treatments=treatments,
+            value=None,
+            relative=None,
+        )
     )
-    weekly = [
+    windows.extend(
         build_window(
             kind=HighwindWindowKind.DISJOINT,
             start_day=start_day,
@@ -319,5 +320,25 @@ def random_windows(reference, treatments):
             relative=round(relative, 2),
         )
         for start_day in (0, 7, 14)
+    )
+
+    mark_summary(windows)
+    return windows
+
+
+def mark_summary(windows):
+    # The job's rule: the largest settled cumulative window, or the first window when
+    # nothing has settled.
+    settled = [
+        window
+        for window in windows
+        if window.window.kind == HighwindWindowKind.CUMULATIVE
+        and any(
+            comparison.state in {HighwindCellState.FORMING, HighwindCellState.CONFIDENT}
+            for comparison in window.comparisons
+        )
     ]
-    return [*matured, upcoming, *weekly]
+    summary = (
+        max(settled, key=lambda window: window.window.end_day) if settled else windows[0]
+    )
+    summary.is_summary = True

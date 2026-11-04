@@ -58,7 +58,7 @@ class TestHighwindResultsManager(TestCase):
         result = self.metric_with_window(is_summary=False)
 
         self.assertIsNone(result["window"])
-        self.assertFalse(result["is_matured"])
+        self.assertFalse(result["is_settled"])
         self.assertEqual(result["cells"], [])
         self.assertEqual(result["state"], HighwindCellState.NOT_STARTED)
 
@@ -86,19 +86,19 @@ class TestHighwindResultsManager(TestCase):
         treatment = next(c for c in result["cells"] if not c["is_reference"])
         self.assertAlmostEqual(treatment["relative"]["point"], 0.0125)
 
-    def test_settled_states_count_as_matured(self):
+    def test_settled_states_are_settled(self):
         for state in (HighwindCellState.FORMING, HighwindCellState.CONFIDENT):
             with self.subTest(state=state):
-                self.assertTrue(self.metric_with_window(state=state)["is_matured"])
+                self.assertTrue(self.metric_with_window(state=state)["is_settled"])
 
-    def test_unsettled_states_do_not_count_as_matured(self):
+    def test_unsettled_states_are_not_settled(self):
         for state in (
             HighwindCellState.NOT_STARTED,
             HighwindCellState.INSUFFICIENT_DATA,
             HighwindCellState.ERROR,
         ):
             with self.subTest(state=state):
-                self.assertFalse(self.metric_with_window(state=state)["is_matured"])
+                self.assertFalse(self.metric_with_window(state=state)["is_settled"])
 
     def test_an_errored_or_insufficient_window_still_has_results_to_show(self):
         for state in (HighwindCellState.ERROR, HighwindCellState.INSUFFICIENT_DATA):
@@ -208,3 +208,46 @@ class TestHighwindResultsManager(TestCase):
         # The comparisons above only hold while the schema enums subclass str.
         self.assertEqual(HighwindCellState.CONFIDENT, "confident")
         self.assertEqual(HighwindDirection.NEUTRAL, "neutral")
+
+
+class TestHighwindMetricDirection(TestCase):
+    def manager(self, metrics):
+        experiment = NimbusExperimentFactory.create()
+        experiment.analysis_data = build_analysis_data(metrics=metrics)
+        return HighwindResultsManager(experiment)
+
+    def direction_for(self, **kwargs):
+        [result] = self.manager(
+            [build_metric(windows=[build_window(**kwargs)])]
+        ).get_metrics()
+        return result["direction"]
+
+    def test_a_confident_change_reports_its_direction(self):
+        for direction in (HighwindDirection.POSITIVE, HighwindDirection.NEGATIVE):
+            with self.subTest(direction=direction):
+                self.assertEqual(
+                    self.direction_for(
+                        state=HighwindCellState.CONFIDENT, direction=direction
+                    ),
+                    direction,
+                )
+
+    def test_an_unsettled_metric_reports_no_direction(self):
+        self.assertEqual(
+            self.direction_for(
+                state=HighwindCellState.FORMING, direction=HighwindDirection.POSITIVE
+            ),
+            HighwindDirection.NEUTRAL,
+        )
+
+    def test_treatments_moving_opposite_ways_report_no_direction(self):
+        window = build_window(
+            state=HighwindCellState.CONFIDENT,
+            direction=HighwindDirection.POSITIVE,
+            treatments=("up", "down"),
+        )
+        window.comparisons[1].direction = HighwindDirection.NEGATIVE
+
+        [result] = self.manager([build_metric(windows=[window])]).get_metrics()
+
+        self.assertEqual(result["direction"], HighwindDirection.NEUTRAL)
