@@ -12,6 +12,10 @@ ALL_ENROLLED = "all_enrolled"
 # to decide which window to mark as the summary.
 SETTLED_STATES = {HighwindCellState.FORMING, HighwindCellState.CONFIDENT}
 
+# Reported when confident treatments moved opposite ways, which no single schema
+# direction describes.
+MIXED = "mixed"
+
 # Which state to show for a metric whose cells disagree, most worth acting on first.
 STATE_PRECEDENCE = [
     HighwindCellState.ERROR,
@@ -195,9 +199,27 @@ class HighwindResultsManager:
             }
         return geometry
 
+    def get_precision(self, cells):
+        # A rate near zero reads as "0.97 - 0.97" at two decimals, so small values get
+        # more of them.
+        values = [
+            abs(bound)
+            for cell in cells
+            for interval in (cell["absolute"], cell["absolute_shift"])
+            if interval
+            for bound in interval.values()
+            if bound is not None
+        ]
+        largest = max(values, default=0)
+        if largest >= 100:
+            return 1
+        if largest >= 1:
+            return 2
+        return 4
+
     def get_direction(self, cells):
-        # Which way the confident cells moved, so the grid can show one arrow. Mixed
-        # directions report neutral rather than picking a side.
+        # Which way the confident cells moved, so the grid can show one arrow. Treatments
+        # that disagree report mixed, which is not the same as no change.
         directions = {
             cell["direction"]
             for cell in cells
@@ -205,6 +227,8 @@ class HighwindResultsManager:
         }
         if len(directions) == 1:
             return directions.pop()
+        if len(directions) > 1:
+            return MIXED
         return HighwindDirection.NEUTRAL
 
     def get_state(self, cells):
@@ -225,6 +249,7 @@ class HighwindResultsManager:
                     **self.summarise_window(window_result),
                     "cells": cells,
                     "state": self.get_state(cells),
+                    "precision": self.get_precision(cells),
                     "is_summary": window_result.get("is_summary", False),
                 }
             )
@@ -248,6 +273,7 @@ class HighwindResultsManager:
                     "windows": self.get_all_windows(metric, segment_slug),
                     "cells": cells,
                     "bar_geometry": self.bar_geometry(cells),
+                    "precision": self.get_precision(cells),
                     "state": self.get_state(cells),
                     # Only a settled summary is worth calling the most recent matured
                     # window; anything else has not matured yet.

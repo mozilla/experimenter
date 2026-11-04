@@ -1,0 +1,38 @@
+{% load nimbus_extras %}
+
+{% comment %} The state at a glance, with the direction once a change is called {% endcomment %}
+{% with label=NimbusUIConstants.HIGHWIND_STATE_LABELS|dict_get:state %}
+  {% if state == "confident" and direction == "positive" %}
+    <i class="fa-solid fa-up-long text-success"
+       data-bs-toggle="tooltip"
+       data-bs-title="Confident increase"></i>
+  {% elif state == "confident" and direction == "negative" %}
+    <i class="fa-solid fa-down-long text-danger"
+       data-bs-toggle="tooltip"
+       data-bs-title="Confident decrease"></i>
+  {% elif state == "confident" and direction == "mixed" %}
+    <i class="fa-solid fa-up-down text-warning"
+       data-bs-toggle="tooltip"
+       data-bs-title="Treatments moved in opposite directions"></i>
+  {% elif state == "confident" %}
+    <i class="fa-solid fa-left-long text-muted"
+       data-bs-toggle="tooltip"
+       data-bs-title="No notable change"></i>
+  {% elif state == "forming" %}
+    <i class="fa-solid fa-hourglass-half text-info"
+       data-bs-toggle="tooltip"
+       data-bs-title="{{ label.1 }}"></i>
+  {% elif state == "error" %}
+    <i class="fa-solid fa-triangle-exclamation text-warning"
+       data-bs-toggle="tooltip"
+       data-bs-title="{{ label.1 }}"></i>
+  {% elif state == "insufficient_data" %}
+    <i class="fa-solid fa-circle-info text-info"
+       data-bs-toggle="tooltip"
+       data-bs-title="{{ label.1 }}"></i>
+  {% else %}
+    <i class="fa-regular fa-clock text-muted"
+       data-bs-toggle="tooltip"
+       data-bs-title="{{ label.1 }}"></i>
+  {% endif %}
+{% endwith %}

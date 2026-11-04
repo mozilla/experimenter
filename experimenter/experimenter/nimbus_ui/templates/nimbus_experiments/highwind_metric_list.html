@@ -10,30 +10,16 @@
               data-bs-toggle="modal"
               data-bs-target="#{{ experiment.slug }}-highwind-{{ metric.slug }}"
               style="height: 100px">
-        <div class="d-flex align-items-center gap-1">
-          {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
+        <div class="d-flex align-items-center flex-wrap gap-1">
+          {% if metric.window %}
+            {% include "nimbus_experiments/highwind_window_badge.html" with window=metric.window %}
 
-          {% comment %} The direction arrow the results page shows, once a change is called {% endcomment %}
-          {% if metric.state == "confident" %}
-            {% if metric.direction == "positive" %}
-              <i class="fa-solid fa-up-long text-success"
-                 data-bs-toggle="tooltip"
-                 data-bs-title="Confident increase"></i>
-            {% elif metric.direction == "negative" %}
-              <i class="fa-solid fa-down-long text-danger"
-                 data-bs-toggle="tooltip"
-                 data-bs-title="Confident decrease"></i>
-            {% else %}
-              <i class="fa-solid fa-left-long text-muted"
-                 data-bs-toggle="tooltip"
-                 data-bs-title="No notable change"></i>
-            {% endif %}
           {% endif %}
+          {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
+          {% include "nimbus_experiments/highwind_state_icon.html" with state=metric.state direction=metric.direction %}
+
         </div>
         <p class="metric-text mb-0 small lh-sm text-break w-100">{{ metric.friendly_name }}</p>
-        {% if metric.window %}
-          <small class="text-muted text-uppercase">Day {{ metric.window.start_day }}&ndash;{{ metric.window.end_day }}</small>
-        {% endif %}
         <i class="fa-solid fa-arrow-up-right-from-square text-secondary fa-sm position-absolute bottom-0 end-0 p-2"></i>
       </button>
       {% include "nimbus_experiments/highwind_metric_modal.html" with experiment_slug=experiment.slug metric=metric %}
@@ -74,7 +60,7 @@
                         <span>Insufficient data</span>
                       </div>
                     {% else %}
-                      {% include "common/metric_card.html" with slug=cell.branch reference_branch=reference_branch absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction percentage=cell.relative.point lower_percent=cell.relative.lower upper_percent=cell.relative.upper %}
+                      {% include "common/metric_card.html" with slug=cell.branch reference_branch=reference_branch absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction percentage=cell.relative.point lower_percent=cell.relative.lower upper_percent=cell.relative.uppe precision=metric.precision %}
 
                     {% endif %}
                   {% endif %}

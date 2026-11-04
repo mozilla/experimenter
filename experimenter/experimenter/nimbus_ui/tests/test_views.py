@@ -5495,7 +5495,7 @@ class TestHighwindResultsGrid(AuthTestCase):
         response = self.get_page(experiment)
 
         self.assertContains(response, "Most recent matured window")
-        self.assertContains(response, "Absolute count")
+        self.assertContains(response, "Value")
         self.assertContains(response, "Relative change")
         self.assertTemplateUsed(response, "common/metric_popout_card.html")
 
@@ -5614,6 +5614,69 @@ class TestHighwindResultsGrid(AuthTestCase):
 
         self.assertContains(response, "Window unavailable")
         self.assertContains(response, "query failed")
+
+    def test_mixed_directions_do_not_claim_no_change(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric("days_of_use", ref, treat, state="confident")
+            ]
+        )
+        # Force the treatments apart so the metric reports mixed.
+        data = experiment.analysis_data
+        for window in data["metrics"][0]["segments"][0]["windows"]:
+            for index, comparison in enumerate(window["comparisons"]):
+                comparison["direction"] = "positive" if index % 2 == 0 else "negative"
+        extra = dict(data["metrics"][0]["segments"][0]["windows"][0]["comparisons"][0])
+        extra["branch"] = "second-treatment"
+        extra["direction"] = "negative"
+        for window in data["metrics"][0]["segments"][0]["windows"]:
+            window["comparisons"].append(dict(extra))
+            window["branches"].append(
+                {
+                    "branch": "second-treatment",
+                    "n": 100,
+                    "value": window["branches"][0]["value"],
+                }
+            )
+        experiment.analysis_data = data
+        experiment.save()
+
+        response = self.get_page(experiment)
+
+        self.assertEqual(response.context["metrics"][0]["direction"], "mixed")
+        self.assertContains(response, "Treatments moved in opposite directions")
+        self.assertNotContains(response, "No notable change")
+
+    def test_the_window_badge_says_which_kind_it_is(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric("days_of_use", ref, treat, start_day=0, end_day=6)
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "Cumulative")
+        self.assertContains(response, "day 0&ndash;6")
+
+    def test_the_value_column_is_not_called_a_count(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertNotContains(response, "Absolute count")
+        self.assertContains(response, "Value")
+
+    def test_the_breakdown_shows_the_shift_beside_the_relative_change(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "shift ")
 
     def test_friendly_names_come_from_the_results_data(self):
         experiment = self.create_experiment(
