@@ -371,14 +371,6 @@ features:
           synced-tabs: true
           collections: true
           privacy-report: true
-  homescreen-edge-to-edge-background:
-    description: |
-      Feature that sets an edge to edge background on the Home Screen if the user hasn't selected a custom wallpaper
-    variables:
-      enabled:
-        description: Enables the feature
-        type: Boolean
-        default: true
   import-bookmarks:
     description: A feature that lets users import bookmarks from another browser.
     variables:
@@ -1495,15 +1487,6 @@ features:
         description: If true, the uninstall survey shortcut is enabled and visible.
         type: Boolean
         default: false
-  universal-edge-to-edge-wallpapers:
-    description: |
-      Extends non-default homepage wallpapers edge-to-edge and adapts the toolbar, navigation bar and system bars to them.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the universal edge-to-edge wallpaper treatment.
-        type: Boolean
-        default: true
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:

@@ -5497,6 +5497,18 @@ linkPreviews:
         sub-pref and values objects indicating the desired branch and value
         defaulting to clearing the user branch value.
 
+resourceMonitor:
+  description: Resource Monitor sidebar panel
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.resourceMonitor.enabled
+      description: If true, the Resource Monitor sidebar panel is available.
+
 sidebar:
   description: Sidebar feature configuration
   owner: elee@mozilla.com
@@ -6346,6 +6358,29 @@ smartWindow:
         Enables Smart Page creation entries in the page, tab, and tab group
         context menus. Existing Smart Window and AI Tab eligibility checks
         still apply.
+    authImpl:
+      type: string
+      enum:
+        - ""
+        - guest
+        - fxa
+      description: >-
+        The Smart Window auth provider: "" to use a guest token until the user
+        signs in to a Mozilla account, "guest" to always use a guest token, or
+        "fxa" to require a Mozilla account. Written to
+        browser.smartwindow.auth.impl, replacing any value it has. Not reset
+        on unenrollment: the guest token fallback switches back to FxA.
+    guestMode:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.smartwindow.auth.guest.mode
+      enum:
+        - fetch
+        - tab
+      description: >-
+        How Smart Window obtains a guest token: "fetch" requests it in the
+        background, "tab" opens the guest verification page in a tab.
 
 smartWindowAgentWatch:
   description: >-
