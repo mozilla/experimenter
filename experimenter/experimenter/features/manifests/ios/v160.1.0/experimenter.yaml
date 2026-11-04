@@ -96,6 +96,16 @@ cellular-data-restricted-error-page-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+check-for-reinstalls-feature:
+  description: |
+    Controls app reinstallation checks.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether app reinstallation checks are enabled.
 configuration-profile-feature:
   description: |
     Offers to open configuration profiles (.mobileconfig) in Safari so iOS can install them
