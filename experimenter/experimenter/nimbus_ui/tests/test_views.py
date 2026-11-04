@@ -1766,6 +1766,25 @@ class TestNimbusExperimentsSidebarCloneView(AuthTestCase):
         self.assertIn("experiment", response.context)
         self.assertEqual(response.context["experiment"], self.experiment)
 
+    def test_post_name_too_long_shows_form_error(self):
+        name = "a" * (NimbusExperiment.MAX_SLUG_LEN + 1)
+        existing_slugs = set(NimbusExperiment.objects.values_list("slug", flat=True))
+
+        response = self.client.post(
+            reverse("nimbus-ui-clone", kwargs={"slug": self.experiment.slug}),
+            {"owner": self.user, "name": name},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            NimbusUIConstants.ERROR_NAME_TOO_LONG,
+            response.context["form"].errors["name"],
+        )
+        self.assertEqual(
+            set(NimbusExperiment.objects.values_list("slug", flat=True)),
+            existing_slugs,
+        )
+
 
 class TestNimbusExperimentPromoteToRolloutView(AuthTestCase):
     def setUp(self):

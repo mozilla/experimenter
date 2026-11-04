@@ -27,6 +27,10 @@ Optional - We expect this to <describe impact> on <core metric>.
     """.strip()
 
     ERROR_NAME_INVALID = "This is not a valid name."
+    ERROR_NAME_TOO_LONG = (
+        f"This name is too long, please shorten it to fit within "
+        f"{NimbusConstants.MAX_SLUG_LEN} characters when converted to a slug."
+    )
     ERROR_SLUG_DUPLICATE = "An experiment with this slug already exists."
     ERROR_SLUG_DUPLICATE_BRANCH = "A branch with this slug already exists."
 

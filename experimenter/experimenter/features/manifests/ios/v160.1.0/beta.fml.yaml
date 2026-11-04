@@ -99,6 +99,15 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: false
+  check-for-reinstalls-feature:
+    description: |
+      Controls app reinstallation checks.
+    variables:
+      enabled:
+        description: |
+          Whether app reinstallation checks are enabled.
+        type: Boolean
+        default: false
   configuration-profile-feature:
     description: |
       Offers to open configuration profiles (.mobileconfig) in Safari so iOS can install them

@@ -368,15 +368,6 @@ homescreen:
     sections-enabled:
       type: json
       description: This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
-homescreen-edge-to-edge-background:
-  description: |
-    Feature that sets an edge to edge background on the Home Screen if the user hasn't selected a custom wallpaper
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: Enables the feature
 import-bookmarks:
   description: A feature that lets users import bookmarks from another browser.
   hasExposure: true
@@ -1095,16 +1086,6 @@ uninstall-survey:
     enabled:
       type: boolean
       description: If true, the uninstall survey shortcut is enabled and visible.
-universal-edge-to-edge-wallpapers:
-  description: |
-    Extends non-default homepage wallpapers edge-to-edge and adapts the toolbar, navigation bar and system bars to them.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the universal edge-to-edge wallpaper treatment.
 user-characteristics:
   description: A feature for control user characteristic data collection
   hasExposure: true
