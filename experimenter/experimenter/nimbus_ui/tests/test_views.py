@@ -5615,6 +5615,24 @@ class TestHighwindResultsGrid(AuthTestCase):
         self.assertContains(response, "Window unavailable")
         self.assertContains(response, "query failed")
 
+    def test_the_grid_card_shows_both_ends_of_the_relative_range(self):
+        # The card puts the range in a tooltip, so a dropped bound renders as blank
+        # rather than failing anything else.
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric(
+                    "days_of_use",
+                    ref,
+                    treat,
+                    relative={"point": 1.25, "lower": 0.5, "upper": 2.0},
+                )
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "Range: 0.50% to 2.00%")
+
     def test_mixed_directions_do_not_claim_no_change(self):
         experiment = self.create_experiment(
             lambda ref, treat: [

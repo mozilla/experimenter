@@ -1,4 +1,5 @@
 import datetime as dt
+from enum import Enum
 
 from mozilla_nimbus_schemas.highwind import HighwindCellState, HighwindDirection
 
@@ -12,9 +13,16 @@ ALL_ENROLLED = "all_enrolled"
 # to decide which window to mark as the summary.
 SETTLED_STATES = {HighwindCellState.FORMING, HighwindCellState.CONFIDENT}
 
-# Reported when confident treatments moved opposite ways, which no single schema
-# direction describes.
-MIXED = "mixed"
+
+class MetricDirection(str, Enum):
+    # The schema's directions, plus the one the page derives. A metric whose confident
+    # treatments disagree is mixed, which the job never writes because it describes a
+    # metric rather than a single comparison.
+    POSITIVE = HighwindDirection.POSITIVE.value
+    NEGATIVE = HighwindDirection.NEGATIVE.value
+    NEUTRAL = HighwindDirection.NEUTRAL.value
+    MIXED = "mixed"
+
 
 # Which state to show for a metric whose cells disagree, most worth acting on first.
 STATE_PRECEDENCE = [
@@ -226,10 +234,10 @@ class HighwindResultsManager:
             if cell["state"] == HighwindCellState.CONFIDENT
         }
         if len(directions) == 1:
-            return directions.pop()
+            return MetricDirection(directions.pop())
         if len(directions) > 1:
-            return MIXED
-        return HighwindDirection.NEUTRAL
+            return MetricDirection.MIXED
+        return MetricDirection.NEUTRAL
 
     def get_state(self, cells):
         states = {cell["state"] for cell in cells if cell["state"]}

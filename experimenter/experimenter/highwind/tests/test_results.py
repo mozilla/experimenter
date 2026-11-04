@@ -4,7 +4,7 @@ from django.test import TestCase
 from mozilla_nimbus_schemas.highwind import HighwindCellState, HighwindDirection
 
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.highwind.results import HighwindResultsManager
+from experimenter.highwind.results import HighwindResultsManager, MetricDirection
 from experimenter.highwind.tests.factories import (
     build_analysis_data,
     build_metric,
@@ -273,4 +273,4 @@ class TestHighwindMetricDirection(TestCase):
 
         [result] = self.manager([build_metric(windows=[window])]).get_metrics()
 
-        self.assertEqual(result["direction"], "mixed")
+        self.assertEqual(result["direction"], MetricDirection.MIXED)

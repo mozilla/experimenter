@@ -60,7 +60,7 @@
                         <span>Insufficient data</span>
                       </div>
                     {% else %}
-                      {% include "common/metric_card.html" with slug=cell.branch reference_branch=reference_branch absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction percentage=cell.relative.point lower_percent=cell.relative.lower upper_percent=cell.relative.uppe precision=metric.precision %}
+                      {% include "common/metric_card.html" with slug=cell.branch reference_branch=reference_branch absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction percentage=cell.relative.point lower_percent=cell.relative.lower upper_percent=cell.relative.upper precision=metric.precision %}
 
                     {% endif %}
                   {% endif %}
