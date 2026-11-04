@@ -142,6 +142,9 @@ class HighwindResultsManager:
                     "is_reference": slug == reference,
                     "n": branch.get("n"),
                     "absolute": branch.get("value"),
+                    # The treatment's shift against the reference, which the branch's
+                    # own value does not show.
+                    "absolute_shift": comparison.get("absolute"),
                     # The blob carries a percentage and the shared cards multiply by
                     # 100, so this hands them the fraction form.
                     "relative": as_fraction(comparison.get("relative")),
@@ -192,6 +195,18 @@ class HighwindResultsManager:
             }
         return geometry
 
+    def get_direction(self, cells):
+        # Which way the confident cells moved, so the grid can show one arrow. Mixed
+        # directions report neutral rather than picking a side.
+        directions = {
+            cell["direction"]
+            for cell in cells
+            if cell["state"] == HighwindCellState.CONFIDENT
+        }
+        if len(directions) == 1:
+            return directions.pop()
+        return HighwindDirection.NEUTRAL
+
     def get_state(self, cells):
         states = {cell["state"] for cell in cells if cell["state"]}
         for state in STATE_PRECEDENCE:
@@ -234,7 +249,9 @@ class HighwindResultsManager:
                     "cells": cells,
                     "bar_geometry": self.bar_geometry(cells),
                     "state": self.get_state(cells),
-                    "is_matured": bool(states & SETTLED_STATES),
+                    # Only a settled summary is worth calling the most recent matured
+                    # window; anything else has not matured yet.
+                    "is_settled": bool(states & SETTLED_STATES),
                     # An errored or insufficient cell still renders a row saying so.
                     "has_results": bool(
                         cells and self.get_state(cells) != HighwindCellState.NOT_STARTED
@@ -242,6 +259,7 @@ class HighwindResultsManager:
                     # The job falls back to the first window when nothing has settled, so
                     # this is the date an unmatured metric is waiting on.
                     "matures_on": (window or {}).get("matures_on"),
+                    "direction": self.get_direction(cells),
                     "has_confident_change": any(
                         cell["state"] == HighwindCellState.CONFIDENT
                         and cell["direction"] != HighwindDirection.NEUTRAL

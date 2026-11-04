@@ -5451,7 +5451,7 @@ class TestHighwindResultsGrid(AuthTestCase):
         self.assertContains(response, f"{experiment.slug}-highwind-days_of_use")
         self.assertTemplateUsed(response, "nimbus_experiments/highwind_metric_modal.html")
 
-    def test_the_breakdown_separates_cumulative_from_per_week_windows(self):
+    def test_the_breakdown_separates_cumulative_from_disjoint_windows(self):
         experiment = self.create_experiment(
             lambda ref, treat: [
                 highwind_metric_with_windows(
@@ -5470,7 +5470,9 @@ class TestHighwindResultsGrid(AuthTestCase):
         response = self.get_page(experiment)
 
         self.assertContains(response, "Cumulative windows")
-        self.assertContains(response, "Per week")
+        # Labelled by kind, since a disjoint window can be any length.
+        self.assertContains(response, "Separate windows")
+        self.assertNotContains(response, "Per week")
         self.assertContains(response, "Day 0&ndash;13")
         self.assertContains(response, "Day 7&ndash;13")
         # The breakdown uses the same cards as the results page, not a bespoke table.
@@ -5522,6 +5524,96 @@ class TestHighwindResultsGrid(AuthTestCase):
         self.assertContains(response, "How to read these results")
         for _, explanation in NimbusUIConstants.HIGHWIND_STATE_LABELS.values():
             self.assertContains(response, escape(explanation))
+
+    def test_the_grid_names_the_window_each_row_came_from(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric("days_of_use", ref, treat, start_day=0, end_day=13)
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "Day 0&ndash;13")
+
+    def test_a_confident_change_shows_its_direction_in_the_grid(self):
+        for direction, icon in (
+            ("positive", "fa-up-long"),
+            ("negative", "fa-down-long"),
+        ):
+            with self.subTest(direction=direction):
+                experiment = self.create_experiment(
+                    lambda ref, treat, direction=direction: [
+                        highwind_metric(
+                            "days_of_use",
+                            ref,
+                            treat,
+                            state="confident",
+                            direction=direction,
+                        )
+                    ]
+                )
+
+                response = self.get_page(experiment)
+
+                self.assertContains(response, icon)
+
+    def test_an_unsettled_metric_shows_no_direction_arrow(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric("days_of_use", ref, treat, state="forming")
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertNotContains(response, "fa-up-long")
+        self.assertNotContains(response, "fa-down-long")
+
+    def test_the_summary_is_only_called_matured_once_it_settles(self):
+        settled = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric("days_of_use", ref, treat, state="confident")
+            ]
+        )
+        unsettled = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric("days_of_use", ref, treat, state="insufficient_data")
+            ]
+        )
+
+        self.assertContains(self.get_page(settled), "Most recent matured window")
+        self.assertNotContains(self.get_page(unsettled), "Most recent matured window")
+
+    def test_shows_the_absolute_shift_against_the_reference(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "Absolute shift")
+        cells = response.context["metrics"][0]["cells"]
+        treatment = next(cell for cell in cells if not cell["is_reference"])
+        self.assertIsNotNone(treatment["absolute_shift"])
+
+    def test_an_errored_window_shows_its_message_in_the_breakdown(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric(
+                    "days_of_use",
+                    ref,
+                    treat,
+                    state="error",
+                    error="query failed",
+                )
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "Window unavailable")
+        self.assertContains(response, "query failed")
 
     def test_friendly_names_come_from_the_results_data(self):
         experiment = self.create_experiment(

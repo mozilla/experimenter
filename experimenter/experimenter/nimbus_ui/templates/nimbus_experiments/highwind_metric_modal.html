@@ -24,14 +24,20 @@
         {% if metric.has_results %}
           <div class="border border-1 rounded py-4 px-5 rounded-4">
             <div class="d-flex align-items-center gap-2">
-              <h2 class="fs-6 fw-bold mb-0">Most recent matured window</h2>
+              <h2 class="fs-6 fw-bold mb-0">
+                {% if metric.is_settled %}
+                  Most recent matured window
+                {% else %}
+                  Earliest window
+                {% endif %}
+              </h2>
               <span class="badge rounded-pill bg-body-secondary text-body-secondary border border-1 border-secondary-subtle">
                 Day {{ metric.window.start_day }}&ndash;{{ metric.window.end_day }}
               </span>
               {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
 
             </div>
-            <div class="row row-cols-3 g-3 mt-1">
+            <div class="row row-cols-4 g-3 mt-1">
               <div class="col">
                 <p class="fw-bold text-center">Branches</p>
                 {% for cell in metric.cells %}
@@ -47,6 +53,22 @@
                 {% for cell in metric.cells %}
                   {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction reference_branch=reference_branch branch_slug=cell.branch %}
 
+                {% endfor %}
+              </div>
+              <div class="col">
+                <p class="fw-bold text-center">Absolute shift</p>
+                {% for cell in metric.cells %}
+                  <div class="p-3 mb-3 d-flex flex-column justify-content-center text-center align-items-center"
+                       style="height: 75px">
+                    {% if cell.is_reference %}
+                      <span class="text-muted">&mdash;</span>
+                    {% elif cell.absolute_shift.point == None %}
+                      <span class="text-muted">&mdash;</span>
+                    {% else %}
+                      <span>{{ cell.absolute_shift.point|floatformat:3 }}</span>
+                      <small class="text-muted">({{ cell.absolute_shift.lower|floatformat:3 }} to {{ cell.absolute_shift.upper|floatformat:3 }})</small>
+                    {% endif %}
+                  </div>
                 {% endfor %}
               </div>
               <div class="col">
@@ -75,7 +97,11 @@
                            style="height: 100px">
                         <small class="text-muted">Day {{ window.start_day }}&ndash;{{ window.end_day }}</small>
                         <small class="text-muted">{{ window.span_days }} day{{ window.span_days|pluralize }}</small>
-                        {% if window.is_summary %}<small class="text-body-tertiary">Shown in the grid</small>{% endif %}
+                        {% if window.state == "not_started" and window.matures_on %}
+                          <small class="text-body-tertiary">Matures {{ window.matures_on|date:"N j" }}</small>
+                        {% elif window.is_summary %}
+                          <small class="text-body-tertiary">Shown in the grid</small>
+                        {% endif %}
                       </div>
                     {% endfor %}
                   </div>
@@ -97,7 +123,11 @@
                                     <div class="p-3 bg-warning-subtle text-warning-emphasis text-center d-flex flex-column align-items-center justify-content-center rounded-3"
                                          style="height: 100px">
                                       <span class="fw-semibold">Window unavailable</span>
-                                      <small>Other windows may not be affected.</small>
+                                      {% if cell.error %}
+                                        <small>{{ cell.error }}</small>
+                                      {% else %}
+                                        <small>Other windows may not be affected.</small>
+                                      {% endif %}
                                     </div>
                                   {% elif cell.state == "insufficient_data" %}
                                     <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center rounded-3"
