@@ -31,9 +31,7 @@
                   Earliest window
                 {% endif %}
               </h2>
-              <span class="badge rounded-pill bg-body-secondary text-body-secondary border border-1 border-secondary-subtle">
-                Day {{ metric.window.start_day }}&ndash;{{ metric.window.end_day }}
-              </span>
+              {% include "nimbus_experiments/highwind_window_badge.html" with window=metric.window %}
               {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
 
             </div>
@@ -49,9 +47,9 @@
                 {% endfor %}
               </div>
               <div class="col">
-                <p class="fw-bold text-center">Absolute count</p>
+                <p class="fw-bold text-center">Value</p>
                 {% for cell in metric.cells %}
-                  {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction reference_branch=reference_branch branch_slug=cell.branch %}
+                  {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction reference_branch=reference_branch branch_slug=cell.branch precision=metric.precision %}
 
                 {% endfor %}
               </div>
@@ -65,8 +63,8 @@
                     {% elif cell.absolute_shift.point == None %}
                       <span class="text-muted">&mdash;</span>
                     {% else %}
-                      <span>{{ cell.absolute_shift.point|floatformat:3 }}</span>
-                      <small class="text-muted">({{ cell.absolute_shift.lower|floatformat:3 }} to {{ cell.absolute_shift.upper|floatformat:3 }})</small>
+                      <span>{{ cell.absolute_shift.point|floatformat:metric.precision }}</span>
+                      <small class="text-muted">({{ cell.absolute_shift.lower|floatformat:metric.precision }} to {{ cell.absolute_shift.upper|floatformat:metric.precision }})</small>
                     {% endif %}
                   </div>
                 {% endfor %}
@@ -140,8 +138,13 @@
                                       <span>Not started</span>
                                     </div>
                                   {% else %}
-                                    {% include "common/metric_card.html" with slug=cell.branch reference_branch=reference_branch absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction percentage=cell.relative.point lower_percent=cell.relative.lower upper_percent=cell.relative.upper %}
+                                    {% include "common/metric_card.html" with slug=cell.branch reference_branch=reference_branch absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction percentage=cell.relative.point lower_percent=cell.relative.lower upper_percent=cell.relative.upper precision=window.precision %}
 
+                                    {% if not cell.is_reference and cell.absolute_shift.point != None %}
+                                      <small class="text-muted text-center d-block mt-n2">
+                                        shift {{ cell.absolute_shift.point|floatformat:window.precision }}
+                                      </small>
+                                    {% endif %}
                                   {% endif %}
                                 {% endif %}
                               {% endfor %}

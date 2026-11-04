@@ -203,6 +203,10 @@
               {% for metric in metrics %}
                 <div>
                   <small class="text-muted">{{ metric.friendly_name }}</small>
+                  <small class="ms-1">
+                    {% include "nimbus_experiments/highwind_state_icon.html" with state=metric.state direction=metric.direction %}
+
+                  </small>
                   {% if not forloop.last %}<span class="text-muted">&middot;</span>{% endif %}
                 </div>
               {% endfor %}

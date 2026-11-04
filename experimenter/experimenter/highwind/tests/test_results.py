@@ -4,7 +4,7 @@ from django.test import TestCase
 from mozilla_nimbus_schemas.highwind import HighwindCellState, HighwindDirection
 
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
-from experimenter.highwind.results import HighwindResultsManager
+from experimenter.highwind.results import HighwindResultsManager, MetricDirection
 from experimenter.highwind.tests.factories import (
     build_analysis_data,
     build_metric,
@@ -210,6 +210,29 @@ class TestHighwindResultsManager(TestCase):
         self.assertEqual(HighwindDirection.NEUTRAL, "neutral")
 
 
+class TestHighwindPrecision(TestCase):
+    def manager(self, metrics):
+        experiment = NimbusExperimentFactory.create()
+        experiment.analysis_data = build_analysis_data(metrics=metrics)
+        return HighwindResultsManager(experiment)
+
+    def precision_for(self, value):
+        [result] = self.manager(
+            [build_metric(windows=[build_window(value=value, spread=value / 100)])]
+        ).get_metrics()
+        return result["precision"]
+
+    def test_a_rate_keeps_enough_decimals_to_differ(self):
+        # 0.9746 would read as "0.97 - 0.97" at two decimals.
+        self.assertEqual(self.precision_for(0.9746), 4)
+
+    def test_a_count_does_not_need_them(self):
+        self.assertEqual(self.precision_for(5103.167), 1)
+
+    def test_a_small_count_keeps_two(self):
+        self.assertEqual(self.precision_for(22.6), 2)
+
+
 class TestHighwindMetricDirection(TestCase):
     def manager(self, metrics):
         experiment = NimbusExperimentFactory.create()
@@ -240,7 +263,7 @@ class TestHighwindMetricDirection(TestCase):
             HighwindDirection.NEUTRAL,
         )
 
-    def test_treatments_moving_opposite_ways_report_no_direction(self):
+    def test_treatments_moving_opposite_ways_report_mixed(self):
         window = build_window(
             state=HighwindCellState.CONFIDENT,
             direction=HighwindDirection.POSITIVE,
@@ -250,4 +273,4 @@ class TestHighwindMetricDirection(TestCase):
 
         [result] = self.manager([build_metric(windows=[window])]).get_metrics()
 
-        self.assertEqual(result["direction"], HighwindDirection.NEUTRAL)
+        self.assertEqual(result["direction"], MetricDirection.MIXED)

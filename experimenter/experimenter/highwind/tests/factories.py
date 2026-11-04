@@ -237,10 +237,12 @@ def build_random_analysis_data(experiment):
         outcome_metrics.extend(outcome.metrics if outcome else [])
 
     # An experiment with no outcomes set would otherwise get an empty page, so fall back
-    # to what its application measures.
+    # to one of its application's outcomes. Every outcome would run to hundreds of
+    # metrics, where a real run reports a couple of dozen.
     if not outcome_metrics:
-        for outcome in Outcomes.by_application(experiment.application):
-            outcome_metrics.extend(outcome.metrics)
+        application_outcomes = Outcomes.by_application(experiment.application)
+        if application_outcomes:
+            outcome_metrics.extend(application_outcomes[0].metrics)
 
     return build_analysis(
         slug=experiment.slug,

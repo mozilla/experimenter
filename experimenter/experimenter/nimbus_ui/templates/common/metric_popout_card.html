@@ -1,6 +1,6 @@
 {% load nimbus_extras %}
 
-{% with sig=significance|default:"unknown" %}
+{% with sig=significance|default:"unknown" precision=precision|default:2 %}
   {% if type == "absolute" %}
     <div class="p-3 bg-body-tertiary rounded-3 text-center d-flex flex-row align-items-center justify-content-center mb-3 fw-semibold {% if sig == "positive" %}bg-success-subtle text-success{% elif sig == "negative" %}bg-danger-subtle text-danger{% else %}bg-body-tertiary text-muted{% endif %}"
          style="height: 75px">
@@ -23,12 +23,12 @@
         {% else %}
           <span class="mb-0 me-1"
                 data-bs-toggle="tooltip"
-                data-bs-title="{{ absolute_lower }}">{{ absolute_lower|floatformat:2 }}</span>
+                data-bs-title="{{ absolute_lower }}">{{ absolute_lower|floatformat:precision }}</span>
           -
           <p class="mb-0 ms-1"
              data-bs-toggle="tooltip"
              data-bs-title="{{ absolute_upper }}">
-            {{ absolute_upper|floatformat:2 }}
+            {{ absolute_upper|floatformat:precision }}
           </span>
         {% endif %}
       {% else %}
