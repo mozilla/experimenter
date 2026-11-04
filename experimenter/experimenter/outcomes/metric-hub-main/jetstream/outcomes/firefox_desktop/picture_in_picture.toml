@@ -23,7 +23,7 @@ select_expression = """
     )
 """
 data_source = "events_pip"
-statistics = { deciles = {}, bootstrap_mean = {} }
+statistics = { deciles = {}, linear_model_mean = {} }
 
 # [metrics.picture_in_picture_median_duration]
 # friendly_name = "User-median length of Picture in Picture sessions"
@@ -44,7 +44,7 @@ statistics = { deciles = {}, bootstrap_mean = {} }
 
 # [metrics.picture_in_picture_median_duration.statistics]
 # deciles = {}
-# bootstrap_mean = {}
+# linear_model_mean = {}
 # empirical_cdf = { log_space = true }
 # kernel_density_estimate = { log_space = true }
 
@@ -62,7 +62,7 @@ statistics = { deciles = {}, bootstrap_mean = {} }
 
 # [metrics.picture_in_picture_total_duration.statistics]
 # deciles = {}
-# bootstrap_mean = {}
+# linear_model_mean = {}
 # empirical_cdf = { log_space = true }
 # kernel_density_estimate = { log_space = true }
 

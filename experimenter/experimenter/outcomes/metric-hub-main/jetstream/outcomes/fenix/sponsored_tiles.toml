@@ -12,7 +12,7 @@ select_expression = """
       ),0)
 """
 data_source = "sponsored_tiles_events_stream"
-statistics = { bootstrap_mean = {}, deciles = {} }
+statistics = { linear_model_mean = {}, deciles = {} }
 
 
 [metrics.spoc_tiles_clicks]
@@ -25,7 +25,7 @@ select_expression = """
       ),0)
 """
 data_source = "sponsored_tiles_events_stream"
-statistics = { bootstrap_mean = {}, deciles = {} }
+statistics = { linear_model_mean = {}, deciles = {} }
 
 [metrics.spoc_tiles_disable_rate]
 select_expression = """
@@ -54,4 +54,4 @@ data_source = "sponsored_tiles_events_stream"
 bigger_is_better = false
 friendly_name = "Sponsored Tiles Preference Toggled"
 description = "Number of times Contile Sponsored Tiles setting is flipped."
-statistics = { bootstrap_mean = {}, deciles = {} }
+statistics = { linear_model_mean = {}, deciles = {} }

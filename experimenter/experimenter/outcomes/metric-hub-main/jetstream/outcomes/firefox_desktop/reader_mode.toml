@@ -12,7 +12,7 @@ select_expression = """
     )
 """
 data_source = "events_readermode"
-statistics = { bootstrap_mean = {} }
+statistics = { linear_model_mean = {} }
 
 [metrics.reader_mode_scroll_to_end_count]
 friendly_name = "Reader Mode scrolls to end"
@@ -26,7 +26,7 @@ select_expression = """
     )
 """
 data_source = "events_readermode"
-statistics = { bootstrap_mean = { drop_highest = 0.0000001 } }
+statistics = { linear_model_mean = { drop_highest = 0.0000001 } }
 
 [metrics.reader_mode_total_duration]
 friendly_name = "Time spent in Reader Mode"
@@ -40,7 +40,7 @@ select_expression = """
     )
 """
 data_source = "events_readermode"
-statistics = { bootstrap_mean = { drop_highest = 0.0000001 } }
+statistics = { linear_model_mean = { drop_highest = 0.0000001 } }
 
 
 [data_sources.events_readermode]
