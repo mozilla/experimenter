@@ -432,6 +432,25 @@ class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
             form.errors["name"], [NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG]
         )
 
+    def test_invalid_name_too_long(self):
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "a" * (NimbusExperiment.MAX_SLUG_LEN + 1),
+            "slug": "",
+        }
+        form = NimbusExperimentSidebarCloneForm(
+            data, instance=parent_experiment, request=self.request
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors["name"], [NimbusUIConstants.ERROR_NAME_TOO_LONG])
+
 
 class TestNimbusExperimentPromoteToRolloutForm(RequestFormTestCase):
     def test_valid_clone_form_creates_experiment(self):
