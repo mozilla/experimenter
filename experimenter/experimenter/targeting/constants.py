@@ -129,6 +129,10 @@ ACCEPTED_TOU_V4_OR_HIGHER = "'termsofuse.acceptedVersion'|preferenceValue >= 4"
 
 TASKBAR_TABS_ENABLED = "'browser.taskbarTabs.enabled'|preferenceValue == true"
 
+BACKGROUND_UPDATE_DISABLED = (
+    "'app.update.background.previous.reasons'|preferenceIsUserSet"
+)
+
 # From this point forward, TOU accepted version will remain at 4 and acceptance
 # date will be used to determine what variations of the TOU/privacy notice was
 # accepted.
@@ -6244,6 +6248,48 @@ NO_FORGET_BUTTON = NimbusTargetingConfig(
     targeting="forgetButtonAreaType == null",
     desktop_telemetry="",
     sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+LAPSED_USER_WINDOWS_BACKGROUND_UPDATE = NimbusTargetingConfig(
+    name=(
+        "Lapsed users (No activity in the past 28 days), Windows, "
+        "background updates enabled"
+    ),
+    slug="lapsed_user_28_days_windows_background_update",
+    description=(
+        "Users with a profile age of 28 days and 0 days of activity in the past "
+        "28 days, on Windows with background updates enabled, without "
+        "enterprise policies"
+    ),
+    targeting=(
+        f"{LAPSED_USER.targeting} && {NO_ENTERPRISE.targeting} && "
+        f"os.isWindows && !({BACKGROUND_UPDATE_DISABLED})"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+LAPSED_USER_BACKGROUND_UPDATE_DISABLED = NimbusTargetingConfig(
+    name=(
+        "Lapsed users (No activity in the past 28 days), Mac or Windows, "
+        "background updates disabled"
+    ),
+    slug="lapsed_user_28_days_background_update_disabled",
+    description=(
+        "Users with a profile age of 28 days and 0 days of activity in the past "
+        "28 days, on Mac, or on Windows with background updates disabled, "
+        "without enterprise policies"
+    ),
+    targeting=(
+        f"{LAPSED_USER.targeting} && {NO_ENTERPRISE.targeting} && "
+        f"(os.isMac || (os.isWindows && {BACKGROUND_UPDATE_DISABLED}))"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
