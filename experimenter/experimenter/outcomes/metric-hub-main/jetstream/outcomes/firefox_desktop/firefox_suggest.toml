@@ -7,7 +7,7 @@ data_source = "search_clients_engines_sources_daily"
 description = "Number of searches performed in the urlbar, including search mode and handoff, from Legacy telemetry"
 friendly_name = "Urlbar search count (Legacy)"
 exposure_basis = ["exposures", "enrollments"]
-statistics = { deciles = {}, bootstrap_mean = {} }
+statistics = { deciles = {}, linear_model_mean = {} }
 
 [metrics.ad_click_rate.statistics.population_ratio]
 numerator = "ad_clicks"
@@ -19,7 +19,7 @@ data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
 description = "Count of clicks on any result shown in the urlbar dropdown menu"
 friendly_name = "Urlbar engagements"
 exposure_basis = ["exposures", "enrollments"]
-statistics = { deciles = {}, bootstrap_mean = {} }
+statistics = { deciles = {}, linear_model_mean = {} }
 
 [metrics.urlbar_impressions_suggest]
 select_expression = "SUM(urlbar_impressions)"
@@ -27,7 +27,7 @@ data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
 description = "The number of times a user exits the urlbar dropdown menu, either by abandoning the urlbar, engaging with a urlbar result, or selecting an annoyance signal that closes the urlbar dropdown menu"
 friendly_name = "Urlbar search sessions"
 exposure_basis = ["exposures", "enrollments"]
-statistics = { deciles = {}, bootstrap_mean = {} }
+statistics = { deciles = {}, linear_model_mean = {} }
 
 [metrics.urlbar_ctr]
 description = "Count of urlbar engagements divided by count of urlbar sessions. This is a `population-ratio` metric, not a client-level metric."
@@ -44,7 +44,7 @@ data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
 description = "Count of clicks on annoyance signals across all results shown in the urlbar dropdown menu"
 friendly_name = "Urlbar annoyances"
 exposure_basis = ["exposures", "enrollments"]
-statistics = { deciles = {}, bootstrap_mean = {} }
+statistics = { deciles = {}, linear_model_mean = {} }
 bigger_is_better = false
 
 [metrics.urlbar_annoyances_rate]
@@ -67,7 +67,7 @@ data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
 description = "Count of clicks on a result shown in the urlbar dropdown menu leading to a SERP"
 friendly_name = "Urlbar sessions ending on a SERP"
 exposure_basis = ["exposures", "enrollments"]
-statistics = { deciles = {}, bootstrap_mean = {} }
+statistics = { deciles = {}, linear_model_mean = {} }
 
 [metrics.search_engine_rate]
 depends_on = ["search_engine_clicks", "urlbar_impressions_suggest"]

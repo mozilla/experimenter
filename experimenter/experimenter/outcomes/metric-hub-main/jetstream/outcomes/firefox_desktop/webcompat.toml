@@ -7,6 +7,6 @@ and webcompat reporting panel uses.
 """
 
 [metrics.etp_disablement.statistics.binomial]
-[metrics.tab_reload_count.statistics.bootstrap_mean]
+[metrics.tab_reload_count.statistics.linear_model_mean]
 [metrics.site_breakage_impressions.statistics.binomial]
 [metrics.site_breakage_uses.statistics.binomial]

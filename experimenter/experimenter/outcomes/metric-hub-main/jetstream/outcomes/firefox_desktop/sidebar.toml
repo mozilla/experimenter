@@ -15,7 +15,7 @@ friendly_name = "Sidebar Frequency"
 description = "Average number of times clients open any panel in the sidebar"
 select_expression = "COALESCE(COUNT(1), 0)"
 data_source = "sidebar_toggle"
-statistics = { bootstrap_mean = {} }
+statistics = { linear_model_mean = {} }
 
 [metrics.chatbot_engagement]
 friendly_name = "Chatbot Engagement"
@@ -29,7 +29,7 @@ friendly_name = "Chatbot Frequency"
 description = "Average number of times clients open chatbot panel in the sidebar after provider is selected"
 select_expression = "COALESCE(COUNTIF(chatbot), 0)"
 data_source = "sidebar_toggle"
-statistics = { bootstrap_mean = {} }
+statistics = { linear_model_mean = {} }
 
 [metrics.vertical_tabs]
 friendly_name = "Vertical Tabs"
