@@ -100,6 +100,7 @@ INSTALLED_APPS = [
     "experimenter.experiments",
     "experimenter.features",
     "experimenter.glean",
+    "experimenter.highwind",
     "experimenter.jetstream",
     "experimenter.kinto",
     "experimenter.legacy.legacy_experiments",
@@ -410,6 +411,13 @@ CELERY_BEAT_SCHEDULE = {
         "task": "experimenter.jetstream.tasks.fetch_jetstream_data",
         "schedule": crontab(minute=0, hour="*/2"),
     },
+    # The Highwind job writes once a day, so an hourly check is only to pick its blobs up
+    # promptly. Offset off the top of the hour, which the Jetstream fetch and the Remote
+    # Settings sync already share.
+    "fetch_highwind_data": {
+        "task": "experimenter.highwind.tasks.fetch_highwind_data",
+        "schedule": crontab(minute=15, hour="*"),
+    },
     "fetch_population_sizing_data": {
         "task": "experimenter.jetstream.tasks.fetch_population_sizing_data",
         "schedule": crontab(minute=0, hour=6, day_of_week=1),
@@ -596,6 +604,12 @@ FEATURE_MANIFESTS_PATH = BASE_DIR / "features" / "manifests"
 
 # Addon versions path
 ADDON_VERSIONS_PATH = BASE_DIR / "addons" / "versions"
+
+# Firefox versions path
+FIREFOX_VERSIONS_PATH = BASE_DIR / "experiments" / "versions.yaml"
+
+# How many majors ahead of the latest feature manifest versions.yaml is kept
+FIREFOX_VERSIONS_AHEAD = 5
 
 SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER = config(
     "SKIP_REVIEW_ACCESS_CONTROL_FOR_DEV_USER", default=False, cast=bool

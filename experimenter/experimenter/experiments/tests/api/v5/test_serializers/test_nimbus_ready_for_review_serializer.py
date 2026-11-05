@@ -88,6 +88,21 @@ REF_JSON_SCHEMA = """\
 """
 
 
+TREATMENT_MESSAGE = {
+    "id": "treatment-message",
+    "template": "spotlight",
+    "content": {"id": "treatment-message"},
+    "trigger": {"id": "defaultBrowserCheck"},
+    "targeting": "true",
+}
+
+CONTROL_DUMMY_MESSAGE = {
+    "id": "control-message",
+    "trigger": {"id": "defaultBrowserCheck"},
+    "targeting": "true",
+}
+
+
 class GetReviewSerializerMixin:
     def get_review_serializer(self, experiment):
         return NimbusReviewSerializer(
@@ -469,6 +484,186 @@ class TestNimbusReviewSerializerSingleFeature(
         if not serializer_result:
             self.assertIn("is_sticky", serializer.errors)
 
+    URLBAR_FIREFOX_SUGGEST_PREF = "browser.urlbar.showSearchSuggestionsFirst"
+    URLBAR_FIREFOX_SUGGEST_NAME = "Urlbar (Firefox Suggest)"
+
+    @parameterized.expand(
+        [
+            (URLBAR_FIREFOX_SUGGEST_PREF, "variable", False, False, 1),
+            (URLBAR_FIREFOX_SUGGEST_PREF, "variable", True, True, 0),
+            ("unrelated.pref", "variable", False, True, 0),
+            (URLBAR_FIREFOX_SUGGEST_PREF, "other_variable", False, True, 0),
+        ]
+    )
+    def test_experiments_with_sticky_pref_conflict(
+        self, pref, variable, is_sticky, serializer_result, errors
+    ):
+        feature_config = NimbusFeatureConfigFactory.create(
+            name="test-feature",
+            slug="test-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema=None,
+                    set_pref_vars={variable: pref},
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=(
+                NimbusExperiment.TargetingConfig.URLBAR_FIREFOX_SUGGEST
+            ),
+            channels=[NimbusExperiment.Channel.RELEASE],
+            is_sticky=is_sticky,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+            feature_configs=[feature_config],
+        )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertEqual(serializer_result, serializer.is_valid())
+        self.assertEqual(len(serializer.errors), errors)
+        if not serializer_result:
+            self.assertIn("is_sticky", serializer.errors)
+            error_message = str(serializer.errors["is_sticky"])
+            self.assertIn(feature_config.slug, error_message)
+            self.assertIn(pref, error_message)
+            self.assertIn(variable, error_message)
+            self.assertIn(self.URLBAR_FIREFOX_SUGGEST_NAME, error_message)
+
+    SMART_WINDOW_ENABLED_PREF = "browser.smartwindow.enabled"
+    SMART_WINDOW_ONBOARDING_PREF = "browser.smartwindow.firstrun.hasCompleted"
+
+    def test_experiments_with_multiple_sticky_pref_conflicts(self):
+        first_feature = NimbusFeatureConfigFactory.create(
+            name="first-feature",
+            slug="first-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema=None,
+                    set_pref_vars={"smartWindowEnabled": self.SMART_WINDOW_ENABLED_PREF},
+                ),
+            ],
+        )
+        second_feature = NimbusFeatureConfigFactory.create(
+            name="second-feature",
+            slug="second-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None,
+                    schema=None,
+                    set_pref_vars={
+                        "onboardingComplete": self.SMART_WINDOW_ONBOARDING_PREF
+                    },
+                ),
+            ],
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=(
+                NimbusExperiment.TargetingConfig.SMART_WINDOW_ONBOARDING_COMPLETE
+            ),
+            channels=[NimbusExperiment.Channel.RELEASE],
+            is_sticky=False,
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+            feature_configs=[first_feature, second_feature],
+        )
+
+        for branch in experiment.branches.all():
+            branch.feature_values.all().delete()
+            branch.feature_values.create(
+                feature_config=first_feature,
+                value=json.dumps({"smartWindowEnabled": True}),
+            )
+            branch.feature_values.create(
+                feature_config=second_feature,
+                value=json.dumps({"onboardingComplete": True}),
+            )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("is_sticky", serializer.errors)
+        error_message = str(serializer.errors["is_sticky"])
+        self.assertIn("first-feature", error_message)
+        self.assertIn(self.SMART_WINDOW_ENABLED_PREF, error_message)
+        self.assertIn("smartWindowEnabled", error_message)
+        self.assertIn("second-feature", error_message)
+        self.assertIn(self.SMART_WINDOW_ONBOARDING_PREF, error_message)
+        self.assertIn("onboardingComplete", error_message)
+        self.assertLess(
+            error_message.index("first-feature"),
+            error_message.index("second-feature"),
+        )
+
+    @parameterized.expand(
+        [
+            (URLBAR_FIREFOX_SUGGEST_PREF, False, False, 1),
+            ("unrelated.pref", False, True, 0),
+            (URLBAR_FIREFOX_SUGGEST_PREF, True, True, 0),
+        ]
+    )
+    def test_experiments_with_sticky_prefflips_conflict(
+        self, pref, is_sticky, serializer_result, errors
+    ):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            targeting_config_slug=(
+                NimbusExperiment.TargetingConfig.URLBAR_FIREFOX_SUGGEST
+            ),
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            is_sticky=is_sticky,
+            feature_configs=[prefflips_feature],
+        )
+
+        for branch in experiment.branches.all():
+            feature_value = branch.feature_values.get(feature_config=prefflips_feature)
+            feature_value.value = json.dumps(
+                {"prefs": {pref: {"branch": "user", "value": True}}}
+            )
+            feature_value.save()
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+        self.assertEqual(serializer_result, serializer.is_valid())
+        self.assertEqual(len(serializer.errors), errors)
+        if not serializer_result:
+            self.assertIn("is_sticky", serializer.errors)
+            error_message = str(serializer.errors["is_sticky"])
+            self.assertIn(NimbusExperiment.DESKTOP_PREFFLIPS_SLUG, error_message)
+            self.assertIn(pref, error_message)
+
     def test_valid_experiment_allows_min_version_equal_to_max_version(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
@@ -597,6 +792,24 @@ class TestNimbusReviewSerializerSingleFeature(
             serializer.errors["rollout_phases"],
             {0: [NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER]},
         )
+
+    def test_rollout_serializer_uses_actual_start_date_for_phase_sequence(self):
+        experiment = self.create_rollout()
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=10,
+            start_date=datetime.date(2026, 9, 29),
+            end_date=datetime.date(2026, 10, 8),
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            population_percent=20,
+            start_date=datetime.date(2026, 10, 7),
+            actual_start_date=datetime.date(2026, 10, 8),
+            end_date=datetime.date(2026, 11, 10),
+        )
+        serializer = self.get_rollout_review_serializer(experiment)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     def test_rollout_serializer_rejects_phases_out_of_sequence(self):
         experiment = self.create_rollout()
@@ -1983,6 +2196,588 @@ class TestNimbusReviewSerializerSingleFeature(
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertNotIn("fxms_message_coenrollment", serializer.warnings)
+
+    def _messaging_control_warnings(self, feature_values, is_rollout=False):
+        feature_configs = [
+            NimbusFeatureConfigFactory.create(
+                slug=slug,
+                application=NimbusExperiment.Application.DESKTOP,
+                schemas=[
+                    NimbusVersionedSchemaFactory.build(
+                        version=None, schema=None, has_remote_schema=True
+                    ),
+                ],
+            )
+            for slug in feature_values
+        ]
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            is_rollout=is_rollout,
+            feature_configs=feature_configs,
+        )
+
+        if is_rollout:
+            for branch in experiment.treatment_branches:
+                branch.delete()
+
+        for feature_config in feature_configs:
+            control_value, treatment_value = feature_values[feature_config.slug]
+            experiment.reference_branch.feature_values.filter(
+                feature_config=feature_config
+            ).update(value=json.dumps(control_value))
+            for branch in experiment.treatment_branches:
+                branch.feature_values.filter(feature_config=feature_config).update(
+                    value=json.dumps(treatment_value)
+                )
+
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+        )
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        return serializer.warnings
+
+    @parameterized.expand(
+        [
+            ("fxms-message-1", {}, TREATMENT_MESSAGE),
+            ("spotlight", {}, TREATMENT_MESSAGE),
+            (
+                "fxms-message",
+                {"template": "multi", "messages": []},
+                {"template": "multi", "messages": [TREATMENT_MESSAGE]},
+            ),
+            (
+                "featureCallout",
+                {"template": "multi"},
+                {"template": "multi", "messages": [TREATMENT_MESSAGE]},
+            ),
+        ]
+    )
+    def test_messaging_control_no_message_warning(
+        self, feature_slug, control_value, treatment_value
+    ):
+        warnings = self._messaging_control_warnings(
+            {feature_slug: (control_value, treatment_value)}
+        )
+
+        self.assertEqual(
+            warnings["messaging_control_no_message"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_NO_MESSAGE.format(
+                    feature_slugs=feature_slug
+                )
+            ],
+        )
+
+    def test_messaging_control_no_message_warning_lists_each_feature(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": ({}, TREATMENT_MESSAGE),
+                "cfr": ({}, TREATMENT_MESSAGE),
+                "infobar": (CONTROL_DUMMY_MESSAGE, TREATMENT_MESSAGE),
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_control_no_message"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_NO_MESSAGE.format(
+                    feature_slugs="cfr, spotlight"
+                )
+            ],
+        )
+
+    @parameterized.expand(
+        [
+            ("fxms-message-1", CONTROL_DUMMY_MESSAGE, TREATMENT_MESSAGE),
+            (
+                "fxms-message",
+                {"template": "multi", "messages": [CONTROL_DUMMY_MESSAGE]},
+                {"template": "multi", "messages": [TREATMENT_MESSAGE]},
+            ),
+            ("some-other-feature", {}, TREATMENT_MESSAGE),
+            ("spotlight", {}, {}),
+            ("spotlight", {}, {"template": "multi", "messages": []}),
+        ]
+    )
+    def test_messaging_control_no_message_no_warning(
+        self, feature_slug, control_value, treatment_value
+    ):
+        warnings = self._messaging_control_warnings(
+            {feature_slug: (control_value, treatment_value)}
+        )
+
+        self.assertNotIn("messaging_control_no_message", warnings)
+
+    def test_messaging_control_no_message_no_warning_for_rollout(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, TREATMENT_MESSAGE)}, is_rollout=True
+        )
+
+        self.assertNotIn("messaging_control_no_message", warnings)
+
+    @parameterized.expand(
+        [
+            (
+                "targeting",
+                {**CONTROL_DUMMY_MESSAGE, "targeting": "false"},
+            ),
+            (
+                "trigger",
+                {**CONTROL_DUMMY_MESSAGE, "trigger": {"id": "openURL"}},
+            ),
+        ]
+    )
+    def test_messaging_control_mismatch_warning(self, _field, control_value):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": (control_value, TREATMENT_MESSAGE)}
+        )
+
+        self.assertEqual(
+            warnings["messaging_control_mismatch"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH.format(
+                    feature_slug="spotlight",
+                    noun="message",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_control_mismatch_warning_groups_by_feature(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    CONTROL_DUMMY_MESSAGE,
+                    {
+                        "template": "multi",
+                        "messages": [
+                            {**TREATMENT_MESSAGE, "id": "treatment-b", "targeting": "b"},
+                            {**TREATMENT_MESSAGE, "id": "treatment-a", "targeting": "a"},
+                            TREATMENT_MESSAGE,
+                        ],
+                    },
+                ),
+                "cfr": (
+                    {**CONTROL_DUMMY_MESSAGE, "targeting": "false"},
+                    TREATMENT_MESSAGE,
+                ),
+                "infobar": (CONTROL_DUMMY_MESSAGE, TREATMENT_MESSAGE),
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_control_mismatch"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH.format(
+                    feature_slug="cfr",
+                    noun="message",
+                    message_ids="treatment-message",
+                ),
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH.format(
+                    feature_slug="spotlight",
+                    noun="messages",
+                    message_ids="treatment-a, treatment-b",
+                ),
+            ],
+        )
+
+    @parameterized.expand(
+        [
+            ("spotlight", CONTROL_DUMMY_MESSAGE, TREATMENT_MESSAGE),
+            (
+                "fxms-message",
+                {
+                    "template": "multi",
+                    "messages": [
+                        {**CONTROL_DUMMY_MESSAGE, "id": "control-a", "targeting": "a"},
+                        {**CONTROL_DUMMY_MESSAGE, "id": "control-b", "targeting": "b"},
+                    ],
+                },
+                {
+                    "template": "multi",
+                    "messages": [
+                        {**TREATMENT_MESSAGE, "id": "treatment-b", "targeting": "b"},
+                        {**TREATMENT_MESSAGE, "id": "treatment-a", "targeting": "a"},
+                    ],
+                },
+            ),
+            (
+                "cfr",
+                {"id": "control-message", "targeting": "true"},
+                {
+                    "id": "treatment-message",
+                    "template": "cfr_doorhanger",
+                    "targeting": "true",
+                },
+            ),
+            (
+                "some-other-feature",
+                {**CONTROL_DUMMY_MESSAGE, "targeting": "false"},
+                TREATMENT_MESSAGE,
+            ),
+        ]
+    )
+    def test_messaging_control_mismatch_no_warning(
+        self, feature_slug, control_value, treatment_value
+    ):
+        warnings = self._messaging_control_warnings(
+            {feature_slug: (control_value, treatment_value)}
+        )
+
+        self.assertNotIn("messaging_control_mismatch", warnings)
+
+    def test_messaging_control_mismatch_no_warning_without_control_message(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, TREATMENT_MESSAGE)}
+        )
+
+        self.assertNotIn("messaging_control_mismatch", warnings)
+        self.assertIn("messaging_control_no_message", warnings)
+
+    def test_messaging_control_mismatch_no_warning_for_rollout(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({**CONTROL_DUMMY_MESSAGE, "targeting": "false"}, {})},
+            is_rollout=True,
+        )
+
+        self.assertNotIn("messaging_control_mismatch", warnings)
+
+    def test_messaging_active_notifications_warning(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, TREATMENT_MESSAGE)}
+        )
+
+        self.assertEqual(
+            warnings["messaging_active_notifications"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="spotlight",
+                    noun="message",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_active_notifications_warning_missing_targeting(self):
+        treatment_value = {
+            key: value for key, value in TREATMENT_MESSAGE.items() if key != "targeting"
+        }
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertEqual(
+            warnings["messaging_active_notifications"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="spotlight",
+                    noun="message",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_active_notifications_no_warning_with_active_notifications(self):
+        treatment_value = {**TREATMENT_MESSAGE, "targeting": "!activeNotifications"}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertNotIn("messaging_active_notifications", warnings)
+
+    @parameterized.expand(
+        [
+            ("toast_notification",),
+            ("menu_message",),
+        ]
+    )
+    def test_messaging_active_notifications_no_warning_for_skipped_template(
+        self, template
+    ):
+        treatment_value = {**TREATMENT_MESSAGE, "template": template}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertNotIn("messaging_active_notifications", warnings)
+
+    def test_messaging_active_notifications_no_warning_without_template(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, CONTROL_DUMMY_MESSAGE)}
+        )
+
+        self.assertNotIn("messaging_active_notifications", warnings)
+
+    def test_messaging_active_notifications_no_warning_for_non_messaging_feature(self):
+        warnings = self._messaging_control_warnings(
+            {"some-other-feature": ({}, TREATMENT_MESSAGE)}
+        )
+
+        self.assertNotIn("messaging_active_notifications", warnings)
+
+    def test_messaging_active_notifications_warning_for_rollout(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": (TREATMENT_MESSAGE, {})},
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            warnings["messaging_active_notifications"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="spotlight",
+                    noun="message",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_active_notifications_warning_multi_lists_offenders_only(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "fxms-message": (
+                    {},
+                    {
+                        "template": "multi",
+                        "messages": [
+                            {**TREATMENT_MESSAGE, "id": "treatment-a"},
+                            {
+                                **TREATMENT_MESSAGE,
+                                "id": "treatment-b",
+                                "targeting": "!activeNotifications",
+                            },
+                            {**TREATMENT_MESSAGE, "id": "treatment-c"},
+                        ],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_active_notifications"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="fxms-message",
+                    noun="messages",
+                    message_ids="treatment-a, treatment-c",
+                )
+            ],
+        )
+
+    def test_messaging_active_notifications_warning_lists_each_feature(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": ({}, TREATMENT_MESSAGE),
+                "cfr": (
+                    {},
+                    {**TREATMENT_MESSAGE, "id": "cfr-message", "template": "cfr"},
+                ),
+                "infobar": (
+                    {},
+                    {**TREATMENT_MESSAGE, "targeting": "!activeNotifications"},
+                ),
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_active_notifications"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="cfr",
+                    noun="message",
+                    message_ids="cfr-message",
+                ),
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                    feature_slug="spotlight",
+                    noun="message",
+                    message_ids="treatment-message",
+                ),
+            ],
+        )
+
+    def test_messaging_frequency_group_warning_no_groups(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, TREATMENT_MESSAGE)}
+        )
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_frequency_group_warning_empty_groups(self):
+        treatment_value = {**TREATMENT_MESSAGE, "groups": []}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_frequency_group_no_warning_with_group(self):
+        treatment_value = {**TREATMENT_MESSAGE, "groups": ["cfr"]}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertNotIn("messaging_frequency_group", warnings)
+
+    @parameterized.expand(
+        [
+            ("userPrefs.cfrFeatures",),
+            ("userPrefs.cfrAddons",),
+            ("messaging-system.askForFeedback",),
+        ]
+    )
+    def test_messaging_frequency_group_no_warning_with_preference_check(
+        self, preference_check
+    ):
+        treatment_value = {**TREATMENT_MESSAGE, "targeting": preference_check}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertNotIn("messaging_frequency_group", warnings)
+
+    def test_messaging_frequency_group_no_warning_without_template(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": ({}, CONTROL_DUMMY_MESSAGE)}
+        )
+
+        self.assertNotIn("messaging_frequency_group", warnings)
+
+    def test_messaging_frequency_group_no_warning_for_non_messaging_feature(self):
+        warnings = self._messaging_control_warnings(
+            {"some-other-feature": ({}, TREATMENT_MESSAGE)}
+        )
+
+        self.assertNotIn("messaging_frequency_group", warnings)
+
+    def test_messaging_frequency_group_warning_for_rollout(self):
+        warnings = self._messaging_control_warnings(
+            {"spotlight": (TREATMENT_MESSAGE, {})},
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                )
+            ],
+        )
+
+    def test_messaging_frequency_group_warning_multi_lists_offenders_only(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "fxms-message": (
+                    {},
+                    {
+                        "template": "multi",
+                        "messages": [
+                            {**TREATMENT_MESSAGE, "id": "treatment-a"},
+                            {
+                                **TREATMENT_MESSAGE,
+                                "id": "treatment-b",
+                                "groups": ["cfr"],
+                            },
+                            {**TREATMENT_MESSAGE, "id": "treatment-c"},
+                        ],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_PLURAL.format(
+                    feature_slug="fxms-message",
+                    message_ids="treatment-a, treatment-c",
+                )
+            ],
+        )
+
+    def test_messaging_frequency_group_warning_lists_each_feature(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": ({}, TREATMENT_MESSAGE),
+                "cfr": (
+                    {},
+                    {**TREATMENT_MESSAGE, "id": "cfr-message", "template": "cfr"},
+                ),
+                "infobar": (
+                    {},
+                    {**TREATMENT_MESSAGE, "groups": ["cfr"]},
+                ),
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="cfr",
+                    message_ids="cfr-message",
+                ),
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                ),
+            ],
+        )
+
+    def test_messaging_frequency_group_warning_wording_singular(self):
+        treatment_value = {**TREATMENT_MESSAGE, "id": "welcome-1"}
+        warnings = self._messaging_control_warnings({"spotlight": ({}, treatment_value)})
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="welcome-1",
+                )
+            ],
+        )
+
+    def test_messaging_frequency_group_warning_wording_plural(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "template": "multi",
+                        "messages": [
+                            {**TREATMENT_MESSAGE, "id": "a"},
+                            {**TREATMENT_MESSAGE, "id": "b"},
+                        ],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_PLURAL.format(
+                    feature_slug="spotlight",
+                    message_ids="a, b",
+                )
+            ],
+        )
 
     def test_substitute_localizations(self):
         value = {

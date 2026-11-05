@@ -365,6 +365,25 @@ class TestNimbusExperimentSidebarCloneForm(RequestFormTestCase):
             form.errors["name"], [NimbusUIConstants.ERROR_NAME_MAPS_TO_EXISTING_SLUG]
         )
 
+    def test_invalid_name_too_long(self):
+        parent_experiment = NimbusExperiment.objects.create(
+            owner=self.user,
+            name="Original Experiment",
+            slug="original-experiment",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        data = {
+            "owner": self.user,
+            "name": "a" * (NimbusExperiment.MAX_SLUG_LEN + 1),
+            "slug": "",
+        }
+        form = NimbusExperimentSidebarCloneForm(
+            data, instance=parent_experiment, request=self.request
+        )
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.errors["name"], [NimbusUIConstants.ERROR_NAME_TOO_LONG])
+
 
 class TestNimbusRolloutPromoteToExperimentForm(RequestFormTestCase):
     def test_save_clones_rollout_into_experiment_without_rollout_fields(self):
@@ -1682,14 +1701,9 @@ class TestRolloutStatusForms(
             "experimenter.nimbus_ui.new.forms."
             "nimbus_check_kinto_push_queue_by_collection.apply_async"
         ).start()
-        self.invalid_fields_patcher = patch.object(
-            NimbusExperiment, "get_invalid_fields_errors", return_value={}
-        )
-        self.mock_invalid_fields = self.invalid_fields_patcher.start()
         self.addCleanup(self.mock_preview_task.stop)
         self.addCleanup(self.mock_allocate_bucket_range.stop)
         self.addCleanup(self.mock_kinto_push_queue.stop)
-        self.addCleanup(self.invalid_fields_patcher.stop)
 
     @parameterized.expand(
         [
@@ -1879,8 +1893,7 @@ class TestRolloutStatusForms(
             is_rollout=True,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
-        if form_class is LiveToDisabledReviewRolloutForm:
-            NimbusRolloutPhaseFactory.create(experiment=experiment)
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
         form = form_class(
             data={"changelog_message": "rejected the review"},
             instance=experiment,
@@ -2111,6 +2124,7 @@ class TestRolloutStatusForms(
             NimbusExperimentFactory.Lifecycles.LAUNCH_REVIEW_REQUESTED,
             is_rollout=True,
             population_percent=0,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
         first_phase = NimbusRolloutPhaseFactory.create(
             experiment=experiment, population_percent=10
@@ -2182,15 +2196,15 @@ class TestRolloutStatusForms(
     def test_review_transition_rejects_setup_errors(
         self, form_class, status, publish_status, status_next
     ):
-        self.mock_invalid_fields.return_value = {
-            "risk_brand": [NimbusConstants.ERROR_REQUIRED_QUESTION]
-        }
         experiment = NimbusExperimentFactory.create(
             status=status,
             status_next=status_next,
             publish_status=publish_status,
             is_rollout=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
+            risk_brand=None,
         )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
         form = form_class(data={}, instance=experiment, request=self.request)
 
         self.assertFalse(form.is_valid())
@@ -2207,12 +2221,20 @@ class TestRolloutStatusForms(
             is_paused=False,
             is_rollout=True,
             population_percent=10,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
+        today = datetime.date.today()
         current_phase = NimbusRolloutPhaseFactory.create(
-            experiment=experiment, population_percent=10
+            experiment=experiment,
+            population_percent=10,
+            start_date=today,
+            end_date=today + datetime.timedelta(days=7),
         )
         next_phase = NimbusRolloutPhaseFactory.create(
-            experiment=experiment, population_percent=25
+            experiment=experiment,
+            population_percent=25,
+            start_date=today + datetime.timedelta(days=7),
+            end_date=today + datetime.timedelta(days=14),
         )
         experiment.rollout_phase = current_phase
         experiment.save()
@@ -2476,8 +2498,7 @@ class TestRolloutStatusForms(
             enable_review_slack_notifications=True,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
-        if form_class is LiveToDisabledReviewRolloutForm:
-            NimbusRolloutPhaseFactory.create(experiment=experiment)
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
         form = form_class(data={}, instance=experiment, request=self.request)
 
         self.assertTrue(form.is_valid(), form.errors)
@@ -2502,7 +2523,9 @@ class TestRolloutStatusForms(
             publish_status=NimbusExperiment.PublishStatus.IDLE,
             is_rollout=True,
             enable_review_slack_notifications=False,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
         form = AdvancePhaseReviewRolloutForm(
             data={}, instance=experiment, request=self.request
         )
@@ -2533,7 +2556,9 @@ class TestRolloutStatusForms(
             enable_review_slack_notifications=True,
             application=NimbusExperiment.Application.DESKTOP,
             feature_configs=[secure_feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_156,
         )
+        NimbusRolloutPhaseFactory.create(experiment=experiment, population_percent=10)
         form = DraftReviewRolloutForm(data={}, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 

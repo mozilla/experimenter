@@ -11,7 +11,8 @@
 
     {% endif %}
   {% endif %}
-  <form hx-post="{% url 'nimbus-ui-new-update-schedule' experiment.slug %}"
+  <form id="schedule-form"
+        hx-post="{% url 'nimbus-ui-new-update-schedule' experiment.slug %}"
         hx-target="#rollout-schedule-body"
         hx-swap="outerHTML"
         hx-disabled-elt="#rollout-schedule-save"
@@ -186,8 +187,5 @@
       {% include "new/common/validation_errors.html" with errors=validation_errors.rollout_pause_observations %}
 
     </div>
-    {# Action buttons #}
-    {% include "new/common/card_form_actions.html" with card_id="schedule" %}
-
   </form>
 </div>

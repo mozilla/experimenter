@@ -76,6 +76,20 @@ features:
           Whether or not this feature is enabled
         type: Boolean
         default: false
+  browser-data-transfer-feature:
+    description: |
+      Controls importing browsing data from, and exporting it to, another browser on the device.
+    variables:
+      export-enabled:
+        description: |
+          Enables exporting bookmarks and history to another browser.
+        type: Boolean
+        default: true
+      import-enabled:
+        description: |
+          Enables importing bookmarks and history from another browser.
+        type: Boolean
+        default: true
   cellular-data-restricted-error-page-feature:
     description: |
       Controls restricted cellular data guidance on error pages
@@ -233,6 +247,15 @@ features:
           Enables the feature.
         type: Boolean
         default: false
+  merge-windows-feature:
+    description: |
+      This property determines whether the "Combine Windows" home screen Quick Action is offered on iPad when two or more windows are open
+    variables:
+      enabled:
+        description: |
+          Whether or not this feature is enabled
+        type: Boolean
+        default: true
   messaging:
     description: |
       The in-app messaging system

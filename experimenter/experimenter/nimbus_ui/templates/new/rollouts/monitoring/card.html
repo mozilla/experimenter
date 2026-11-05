@@ -7,7 +7,7 @@
     {% endif %}
     {% if experiment.is_complete %}
       <div class="alert alert-secondary small mb-0 border-0 border-start border-secondary border-4 rounded-0"
-           role="alert">{{ NimbusUIConstants.MONITORING_EXPERIMENT_ENDED_MESSAGE }}</div>
+           role="alert">{{ NimbusUIConstants.MONITORING_ROLLOUT_ENDED_MESSAGE }}</div>
     {% endif %}
     {% with funnel=experiment.enrollment_funnel_stages summary=experiment.monitoring_summary %}
       {% if funnel %}

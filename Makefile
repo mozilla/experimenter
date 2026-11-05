@@ -95,6 +95,9 @@ jetstream_config:
 feature_manifests: build_dev
 	$(COMPOSE_RUN) --no-deps -e GITHUB_BEARER_TOKEN=$(GITHUB_BEARER_TOKEN) experimenter /experimenter/bin/manifest-tool.py fetch $(FETCH_ARGS)
 
+firefox_versions: build_dev
+	$(COMPOSE_RUN) --no-deps experimenter python manage.py update_firefox_versions
+
 install_nimbus_cli:  ## Install Nimbus client
 	mkdir -p $(CLI_DIR)
 	curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/mozilla/application-services/main/install-nimbus-cli.sh > "$(CLI_INSTALLER)"
@@ -103,7 +106,7 @@ install_nimbus_cli:  ## Install Nimbus client
 addon_versions: build_dev
 	$(COMPOSE_RUN) --no-deps experimenter python manage.py fetch_addon_versions
 
-fetch_external_resources: jetstream_config install_nimbus_cli feature_manifests addon_versions  ## Fetch all external resources
+fetch_external_resources: jetstream_config install_nimbus_cli feature_manifests firefox_versions addon_versions  ## Fetch all external resources
 	echo "External Resources Fetched"
 
 update_kinto:  ## Update latest Kinto/Remote Settings container

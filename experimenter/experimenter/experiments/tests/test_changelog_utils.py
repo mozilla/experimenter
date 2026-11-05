@@ -51,6 +51,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "_enrollment_end_date": None,
                 "_start_date": None,
                 "_updated_date_time": updated_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "analysis_data": None,
+                "analysis_last_updated": None,
                 "application": "",
                 "branches": [],
                 "channel": NimbusExperiment.Channel.NO_CHANNEL,
@@ -200,6 +202,12 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "_enrollment_end_date": None,
                 "_start_date": "2020-01-01",
                 "_updated_date_time": updated_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "analysis_data": experiment.analysis_data,
+                "analysis_last_updated": (
+                    experiment.analysis_last_updated.strftime("%Y-%m-%dT%H:%M:%SZ")
+                    if experiment.analysis_last_updated
+                    else None
+                ),
                 "application": experiment.application,
                 "channel": experiment.channel,
                 "channels": experiment.channels,

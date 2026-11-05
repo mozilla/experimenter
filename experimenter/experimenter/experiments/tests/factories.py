@@ -1181,6 +1181,18 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
         if not experiment.is_rollout:
             NimbusBranchFactory.create(experiment=experiment, name="Treatment")
 
+        from experimenter.highwind.tests.factories import build_random_analysis_data
+
+        analysis_data = kwargs.get("analysis_data", _UNSET)
+
+        if analysis_data is not _UNSET:
+            experiment.analysis_data = analysis_data
+        elif experiment.branches.count() > 1:
+            experiment.analysis_data = build_random_analysis_data(experiment)
+            experiment.analysis_last_updated = timezone.now()
+
+        experiment.save()
+
         return experiment
 
     @classmethod

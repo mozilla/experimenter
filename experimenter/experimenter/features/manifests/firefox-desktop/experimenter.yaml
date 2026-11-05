@@ -148,6 +148,23 @@ search:
         Feature gate for highlight to search, the actions menu shown when text
         is selected on a page. Does not affect the user's own settings for the
         menu or its individual actions.
+    highlightToSearchIgnoredSites:
+      type: string
+      setPref:
+        branch: default
+        pref: browser.highlightToSearch.ignoredSites
+      description: >-
+        Comma-separated sites where the highlight to search actions menu is not
+        shown, because the page has its own menu for selected text. A site also
+        matches its subdomains.
+    highlightToSearchDetectPageMenus:
+      type: boolean
+      setPref:
+        branch: default
+        pref: browser.highlightToSearch.detectPageMenus
+      description: >-
+        Whether the highlight to search actions menu is not shown, or is hidden,
+        when the page shows its own floating menu next to the selected text.
 
 searchConfiguration:
   description: >-
@@ -457,50 +474,16 @@ urlbar:
         picks. If the user's query matches an AMP suggestion and the query is at
         least this many characters long, the suggestion will be shown as a top
         pick. Set to zero to disable.
-    quickSuggestAmpTopPickUseNovaIconSize:
-      type: boolean
+    quickSuggestAmpTopPickScoreForLargeIcon:
+      type: string
       setPref:
         branch: default
-        pref: browser.urlbar.quicksuggest.ampTopPickUseNovaIconSize
+        pref: browser.urlbar.quicksuggest.ampTopPickScoreForLargeIcon
       description: >-
-        Whether or not use the Nova icon size for AMP suggestion.
-        Otherwise, use standard rich-suggestion size.
-    quickSuggestContextualOptInEnabled:
-      type: boolean
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn
-      description: Whether the Firefox Suggest contextual opt-in result is enabled.
-    quickSuggestContextualOptInFirstReshowAfterPeriodDays:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.firstReshowAfterPeriodDays
-      description: Period until reshow the Firefox Suggest contextual opt-in result when first dismissed.
-    quickSuggestContextualOptInSecondReshowAfterPeriodDays:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.secondReshowAfterPeriodDays
-      description: Period until reshow the Firefox Suggest contextual opt-in result when second dismissed.
-    quickSuggestContextualOptInThirdReshowAfterPeriodDays:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.thirdReshowAfterPeriodDays
-      description: Period until reshow the Firefox Suggest contextual opt-in result when third dismissed.
-    quickSuggestContextualOptInImpressionLimit:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.impressionLimit
-      description: Limit for impression to dismiss the Firefox Suggest contextual opt-in result.
-    quickSuggestContextualOptInImpressionDaysLimit:
-      type: int
-      setPref:
-        branch: default
-        pref: browser.urlbar.quicksuggest.contextualOptIn.impressionDaysLimit
-      description: Days until dismiss the Firefox Suggest contextual opt-in result after first impression.
+        The minimum score a top-pick AMP suggestion must have to be shown with
+        the large-icon UI treatment used for other top picks, as a decimal
+        string (e.g., "1.0"). If it's an empty string or otherwise can't be
+        parsed with parseFloat, the small-icon UI treatment will be used.
     quickSuggestDynamicSuggestionTypes:
       type: string
       setPref:
@@ -751,6 +734,16 @@ urlbar:
         '[["FR",["en-*","fr-*"]],["*",["fr-*"]]]' means France in English or
         French, or a French locale anywhere. An empty value disables
         multilingual embeddings everywhere.
+    semanticHistoryDomainScopedSearch:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.urlbar.suggest.semanticHistory.domainScopedSearch
+      description: >-
+        Whether a semantic history search starting with an origin or URL, like
+        "example.com some topic" or "https://example.com/some-topic", only
+        returns pages from that domain and its subdomains, using the rest of
+        the search string as the query. Off by default.
     semanticHistoryInSeparateGroup:
       type: boolean
       setPref:
@@ -789,6 +782,14 @@ urlbar:
       description: >-
         Whether or not to show calculator results when a user types a valid
         calculation string into the urlbar.
+    temporalFeatureGate:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.urlbar.temporal.featureGate
+      description: >-
+        Feature gate that controls whether all aspects of the temporal search
+        suggestions feature are exposed to the user.
     trackerCountFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.trackerCount.featureGate
@@ -1469,6 +1470,27 @@ newtabPrivatePing:
         pref: browser.newtabpage.activity-stream.telemetry.privatePing.maxSubmissionDelayMs
       description: >-
         The maximum range for the random delay from scheduling the newtab-content ping to actually sending it. The minimum is 1000 by default. This is in milliseconds.
+    minSubmissionDelayMs:
+      type: int
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.minSubmissionDelayMs
+      description: >-
+        The bottom of the range for the random delay from scheduling the newtab-content ping to actually sending it. Values below 1000 are raised to 1000, and the maximum is raised to at least 5000 above whichever minimum is used. This is in milliseconds.
+    dwellTimeEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.dwellTime.enabled
+      description: >-
+        Adds a dwell_time to organic story clicks in the newtab-content ping, reporting roughly how long the user read the story they opened.
+    dwellTimeNoiseScale:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.telemetry.privatePing.dwellTime.noiseScale
+      description: >-
+        The scale b of the Laplace noise applied to dwell_time, which reports dwell * (1 + Laplace(b)). A decimal number as a string, such as "0.05". Values that are not a positive number fall back to 0.05, so the noise can not be turned off.
 newtabPublisherFavicons:
   description: Enabled publihser favicons on cards in newtab
   owner: nbarrett@mozilla.com
@@ -2354,6 +2376,34 @@ autofill-suppress-unrecognized-autocomplete:
         unclassified: it is offered no dropdown of its own, and it is not
         filled when autofill is triggered from another field in the same form.
 
+autofill-addresses-rust-storage:
+  description: Application Services (Rust) storage backend for saved addresses
+  owner: dlee@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        If true, saved addresses are migrated to and served from the Rust
+        autofill store. If false, they are served from the JSON store.
+      type: boolean
+      setPref:
+        branch: user
+        pref: extensions.formautofill.addresses.storage.rust.enabled
+
+autofill-credit-cards-rust-storage:
+  description: Application Services (Rust) storage backend for saved credit cards
+  owner: dlee@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        If true, saved credit cards are migrated to and served from the Rust
+        autofill store. If false, they are served from the JSON store.
+      type: boolean
+      setPref:
+        branch: user
+        pref: extensions.formautofill.creditCards.storage.rust.enabled
+
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
   owner: desktop-integrations@mozilla.com
@@ -2443,6 +2493,13 @@ cfr:
   schema:
     uri: "chrome://browser/content/asrouter/schemas/MessagingExperiment.schema.json"
     path: "browser/components/asrouter/content-src/schemas/MessagingExperiment.schema.json"
+  variables: {}
+
+includeForWebPush:
+  description: "Marker feature with no configuration. Recipes that should be re-evaluated once the web push service starts include it alongside their real feature."
+  owner: omc-core@mozilla.com
+  hasExposure: false
+  allowCoenrollment: true
   variables: {}
 
 infobar:
@@ -2972,6 +3029,23 @@ privateWindowRedesign:
       description: >-
         Enables the new private browsing window redesign, including updated styling, promotions, animation and other visual improvements.
 
+protectionsPanelRedesign:
+  description: "Experimental features for the protections panel redesign"
+  owner: omc-core@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Recorded when the redesigned protections panel renders, so results can
+    be limited to users who were actually shown the treatment.
+  variables:
+    protectionsPanelRedesignGate:
+      type: boolean
+      setPref:
+        branch: default
+        pref: "browser.protectionsPanelRedesign.enabled"
+      description: >-
+        Enables the new protections panel redesign, including updated purple theme,
+        favicon display for top trackers, and improved tracker details UI.
+
 backgroundTaskMessage:
   description: "A Firefox Messaging System message for the background task message channel"
   owner: nalexander@mozilla.com
@@ -3310,30 +3384,6 @@ networking:
       setPref:
         branch: default
         pref: "network.preconnect"
-    http3CCalgorithm:
-      description: The congestion control algorithm with which to configure neqo. 0 for NewReno, 1 for Cubic
-      type: int
-      setPref:
-        branch: default
-        pref: "network.http.http3.cc_algorithm"
-    http3SlowStartAlgorithm:
-      description: The slow start algorithm with which to configure neqo. Use 0 for Classic, 1 for HyStart++, 2 for SEARCH.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.http.http3.slow_start_algorithm"
-    http3HyStartAlternativeCssBaseline:
-      description: Whether the HyStart++ alternative CSS baseline value should be used. Has no effect if HyStart++ is not used.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.http.http3.hystart_alternative_css_baseline"
-    http3SpuriousRecovery:
-      description: Whether Spurious Congestion Event Recovery is turned on.
-      type: boolean
-      setPref:
-        branch: default
-        pref: "network.http.http3.spurious_recovery"
     enableOffMainThreadStreamDecompression:
       description: Whether to enable decompression of network streams off-main-thread
       type: boolean
@@ -3346,18 +3396,6 @@ networking:
       setPref:
         branch: default
         pref: "network.decompression_off_mainthread_min_size"
-    dnsGracePeriod:
-      description: The grace period allows the DNS cache to use expired entries, while kicking off a revalidation in the background.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.dnsCacheExpirationGracePeriod"
-    dnsNegativeCacheExpiration:
-      description: Lifetime (in seconds) of a negative (failed/empty) DNS cache entry.
-      type: int
-      setPref:
-        branch: default
-        pref: "network.dnsNegativeCacheExpiration"
     http3UseNSPRForIO:
       description: true by default using legacy UDP IO via NSPR. When set to false, uses new UDP IO via Fast UDP for Firefox project.
       type: boolean
@@ -3412,6 +3450,60 @@ networkingDNS:
       setPref:
         branch: default
         pref: "network.dnsCacheEntries"
+    dnsGracePeriod:
+      description: The grace period allows the DNS cache to use expired entries, while kicking off a revalidation in the background.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.dnsCacheExpirationGracePeriod"
+    dnsNegativeCacheExpiration:
+      description: Lifetime (in seconds) of a negative (failed/empty) DNS cache entry.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.dnsNegativeCacheExpiration"
+
+networkingCongestionControl:
+  description: "Networking (Necko) HTTP/3 congestion control"
+  owner: omansfeld@mozilla.com
+  hasExposure: false
+  variables:
+    http3CCalgorithm:
+      description: The congestion control algorithm with which to configure neqo. 0 for NewReno, 1 for Cubic
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.http3.cc_algorithm"
+    http3SlowStartAlgorithm:
+      description: The slow start algorithm with which to configure neqo. Use 0 for Classic, 1 for HyStart++, 2 for SEARCH.
+      type: int
+      setPref:
+        branch: default
+        pref: "network.http.http3.slow_start_algorithm"
+    http3HyStartAlternativeCssBaseline:
+      description: Whether the HyStart++ alternative CSS baseline value should be used. Has no effect if HyStart++ is not used.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.hystart_alternative_css_baseline"
+    http3SpuriousRecovery:
+      description: Whether Spurious Congestion Event Recovery is turned on.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.spurious_recovery"
+    http3Abe:
+      description: Whether Alternative Backoff with ECN (RFC 8511) is turned on. Has no effect unless network.http.http3.cc_algorithm is 1 (Cubic) and network.http.http3.ecn_mark is true.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.abe"
+    http3EcnMark:
+      description: Whether to set ECN marks on outgoing HTTP/3 datagrams and react to ECN-CE feedback from the peer.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.ecn_mark"
 
 networkingConnections:
   description: "Networking (Necko) Connections"
@@ -4760,6 +4852,28 @@ scriptloader:
         branch: user
         pref: "dom.script_loader.experimental.navigation_cache"
 
+speculationRulesPrefetch:
+  description: >-
+    Speculation Rules prefetch, and the measurement-only control branch that
+    records prefetch candidates without fetching them.
+  owner: acreskey@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: Whether Speculation Rules are processed.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.speculation_rules.enabled"
+    dryRun:
+      description: >-
+        Record prefetch candidates but never fetch them, so a navigation can be
+        reported as one that would have been prefetched. Control branch only.
+      type: boolean
+      setPref:
+        branch: user
+        pref: "dom.speculation_rules.prefetch.dry_run"
+
 opaqueResponseBlocking:
   description: Prefs to enable Opaque Response Blocking
   owner: farre@mozilla.com
@@ -5039,6 +5153,12 @@ nimbusTelemetry:
       description: >
         Configuration for the nimbus_targeting_environment telemetry category.
       type: json
+
+    reducedEnrollmentStatusTelemetryEnabled:
+      description: >
+        Whether or not the client should submit reduced enrollment status
+        telemetry.
+      type: boolean
 
   schema:
     uri: resource://nimbus/schemas/NimbusTelemetryFeature.schema.json
@@ -5382,6 +5502,18 @@ linkPreviews:
         The prefs to set under browser.ml.linkPreview.* with object keys as the
         sub-pref and values objects indicating the desired branch and value
         defaulting to clearing the user branch value.
+
+resourceMonitor:
+  description: Resource Monitor sidebar panel
+  owner: tthorne@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.resourceMonitor.enabled
+      description: If true, the Resource Monitor sidebar panel is available.
 
 sidebar:
   description: Sidebar feature configuration
@@ -5852,6 +5984,34 @@ deletePrivate:
         pref: browser.download.enableDeletePrivate
       description: Whether the setting for deleting files downloaded in private browsing is available to the user
 
+fireButton:
+  description: Controls the fire button, a navbar button that clears the whole browsing session and replaces all open windows with a fresh one
+  owner: hthai@mozilla.com
+  hasExposure: true
+  exposureDescription: >-
+    Recorded at the first startup after enrollment, in every branch, and once
+    per startup after that. That is when the enabled variable first decides
+    whether the button is in the toolbar.
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.fireButton.enabled
+      description: >-
+        Whether the fire button is available. At startup, if this is true, the
+        button is added to the navigation toolbar if it has not already been
+        added during a previous startup. A button the user removed is not added
+        back.
+    flow:
+      type: string
+      enum: ["panel", "direct"]
+      fallbackPref: browser.fireButton.flow
+      description: >-
+        What pressing the fire button does. "panel" shows a confirmation panel
+        that can delete everything or open the clear browsing data dialog.
+        "direct" opens the clear browsing data dialog.
+
 ipProtection:
   description: Prefs to control IP Protection feature
   owner: fchasen@mozilla.com
@@ -6069,12 +6229,6 @@ ipc:
       setPref:
         branch: user
         pref: "dom.ipc.processPrelaunch.fission.number"
-    preallocated_lowmem_mb:
-      description: Limit preallocated processes below this memory size (in MB).
-      type: int
-      setPref:
-        branch: user
-        pref: "dom.ipc.processPrelaunch.lowmem_mb"
     priority_manager_enabled:
       description: Determines whether Firefox uses the Process Priority Manager to adjust CPU priority based on importance.
       type: boolean
@@ -6194,6 +6348,45 @@ smartWindow:
         suggestions ("pick up where you left off") when true.
         Set to false to disable them without affecting the regular
         conversation starters.
+    aiTabEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.smartwindow.aitab.enabled
+      description: >-
+        Enables Smart Pages (AI Tab, about:smartpage) when true.
+    aiTabMenus:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.smartwindow.aitab.menus
+      description: >-
+        Enables Smart Page creation entries in the page, tab, and tab group
+        context menus. Existing Smart Window and AI Tab eligibility checks
+        still apply.
+    authImpl:
+      type: string
+      enum:
+        - ""
+        - guest
+        - fxa
+      description: >-
+        The Smart Window auth provider: "" to use a guest token until the user
+        signs in to a Mozilla account, "guest" to always use a guest token, or
+        "fxa" to require a Mozilla account. Written to
+        browser.smartwindow.auth.impl, replacing any value it has. Not reset
+        on unenrollment: the guest token fallback switches back to FxA.
+    guestMode:
+      type: string
+      setPref:
+        branch: user
+        pref: browser.smartwindow.auth.guest.mode
+      enum:
+        - fetch
+        - tab
+      description: >-
+        How Smart Window obtains a guest token: "fetch" requests it in the
+        background, "tab" opens the guest verification page in a tab.
 
 smartWindowAgentWatch:
   description: >-
@@ -6254,6 +6447,14 @@ autoTabGrouping:
       description: >-
         Minimum candidate tabs a window must have before grouping is attempted.
         Lower = grouping runs on smaller windows (more coverage).
+    maxCandidateTabs:
+      type: int
+      setPref:
+        branch: default
+        pref: browser.smartwindow.autoTabGrouping.maxCandidateTabs
+      description: >-
+        Maximum tabs clustered per run. Larger windows only group their most
+        recently used tabs, which bounds how long a run takes.
     minTabsPerGroup:
       type: int
       setPref:
@@ -6470,3 +6671,20 @@ nova:
         branch: default
         pref: browser.nova.enabled
       description: Whether Nova is enabled.
+
+# Bug 2072122: Trusted Types readiness experiment only, to be removed.
+trustedTypesReadinessTelemetry:
+  description: >-
+    Recording of the security.trusted_types_readiness Glean metric, which
+    measures per document how ready pages are to adopt Trusted Types.
+  owner: fbraun@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: default
+        pref: dom.security.trusted_types.readiness_telemetry.enabled
+      description: >-
+        Whether the security.trusted_types_readiness metric is recorded at
+        document destruction.

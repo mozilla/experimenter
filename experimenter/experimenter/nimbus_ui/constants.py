@@ -27,6 +27,10 @@ Optional - We expect this to <describe impact> on <core metric>.
     """.strip()
 
     ERROR_NAME_INVALID = "This is not a valid name."
+    ERROR_NAME_TOO_LONG = (
+        f"This name is too long, please shorten it to fit within "
+        f"{NimbusConstants.MAX_SLUG_LEN} characters when converted to a slug."
+    )
     ERROR_SLUG_DUPLICATE = "An experiment with this slug already exists."
     ERROR_SLUG_DUPLICATE_BRANCH = "A branch with this slug already exists."
 
@@ -58,6 +62,13 @@ Optional - We expect this to <describe impact> on <core metric>.
 
     RISK_MESSAGE_URL = "https://mozilla-hub.atlassian.net/wiki/spaces/FIREFOX/pages/208308555/Message+Consult+Creation"
     REVIEW_URL = "https://experimenter.info/getting-started/for-reviewers"
+    REVIEWER_ONBOARDING_URL = (
+        "https://experimenter.info/getting-started/for-reviewers/"
+        "#onboarding-for-new-reviewers-l3"
+    )
+    REVIEW_PRIVILEGES_REQUIRED_TEXT = (
+        "Review privileges are required to approve or reject requests."
+    )
     VALIDATING_EXPERIMENTS_URL = (
         "https://experimenter.info/data-analysis/validating-experiments/"
     )
@@ -67,9 +78,7 @@ Optional - We expect this to <describe impact> on <core metric>.
     SLACK_NIMBUS_CHANNEL = settings.SLACK_NIMBUS_CHANNEL
     ASK_EXPERIMENTER_SLACK_CHANNEL = "ask-experimenter"
 
-    ARCHIVE_DISABLED_TOOLTIP = (
-        "Experiments can only be archived when in Draft or Complete."
-    )
+    ARCHIVE_DISABLED_TOOLTIP = "Rollouts can only be archived when in Draft or Complete."
 
     PUBLIC_DESCRIPTION_TEXT = "This description will be public to users on about:studies"
     RISK_AI_TEXT = (
@@ -78,9 +87,9 @@ Optional - We expect this to <describe impact> on <core metric>.
     )
 
     MONITORING_CARD_TITLE = "Enrollment Monitoring"
-    MONITORING_EXPERIMENT_ENDED_MESSAGE = (
-        "This experiment has ended. Monitoring data reflects the last update "
-        "before the experiment concluded."
+    MONITORING_ROLLOUT_ENDED_MESSAGE = (
+        "This rollout has ended. Monitoring data reflects the last update "
+        "before the rollout concluded."
     )
     MONITORING_SECTION_UNENROLLMENT = "Unenrollment"
     MONITORING_SECTION_SRM = "Sample Ratio Mismatch (SRM)"
@@ -172,7 +181,13 @@ Optional - We expect this to <describe impact> on <core metric>.
         "proposed_release_date": "Release date set on a non-first-run experiment",
     }
 
-    REVIEW_WARNING_MESSAGE_AS_LABEL = {"fxms_message_coenrollment"}
+    REVIEW_WARNING_MESSAGE_AS_LABEL = {
+        "fxms_message_coenrollment",
+        "messaging_control_no_message",
+        "messaging_control_mismatch",
+        "messaging_active_notifications",
+        "messaging_frequency_group",
+    }
 
     REVIEW_WARNING_LEARN_MORE = {
         "firefox_min_version": (
@@ -365,6 +380,53 @@ Optional - We expect this to <describe impact> on <core metric>.
         ),
     }
 
+    # An icon per state, so a row can be read without stopping to read the words.
+    HIGHWIND_STATE_ICONS = {
+        "not_started": "fa-regular fa-clock",
+        "insufficient_data": "fa-solid fa-circle-info",
+        "forming": "fa-solid fa-hourglass-half",
+        "confident": "fa-solid fa-circle-check",
+        "error": "fa-solid fa-triangle-exclamation",
+    }
+
+    # What each Highwind cell state means, since the words are not self-explanatory.
+    HIGHWIND_STATE_LABELS = {
+        "not_started": (
+            "Not started",
+            "This window has no data yet. It covers days the experiment has not reached.",
+        ),
+        "insufficient_data": (
+            "Insufficient data",
+            (
+                "This window matured but there was too little data to estimate a change. "
+                "A later run may still produce one."
+            ),
+        ),
+        "forming": (
+            "Forming",
+            (
+                "This window has matured and a change is being estimated, but the "
+                "interval is still too wide to call. It narrows with each run."
+            ),
+        ),
+        "confident": (
+            "Confident",
+            (
+                "This window has matured and the interval no longer includes no change, "
+                "so the direction can be relied on."
+            ),
+        ),
+        "error": (
+            "Error",
+            "This window could not be computed and will not resolve on its own.",
+        ),
+    }
+
+    HIGHWIND_VALIDATION_MESSAGE = """Do not rely on these results. They come from an
+    analysis pipeline that is still being validated against Jetstream, and any figure on
+    this page may change or turn out to be wrong. Jetstream remains the system of
+    record."""
+
     COMPLETE_EXPERIMENT_ERROR_MESSAGE = """Your experiment is complete, but there were
     issues computing some results. Contact Experimenter support using the button below
     for help resolving analysis errors."""
@@ -408,7 +470,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         NimbusConstants.RETENTION_3_DAYS_DESKTOP,
     ]
 
-    QA_CARD_DESCRIPTION = """Before launch, confirm your experiment or rollout works
+    QA_CARD_DESCRIPTION = """Before launch, confirm your rollout works
     as expected. QA ensures your setup runs correctly through Nimbus and targets the
     right users."""
     QA_METHOD_DESCRIPTION = """For new or complex work, request a QA review from the
@@ -467,10 +529,6 @@ Optional - We expect this to <describe impact> on <core metric>.
     ROLLOUT_PREVIEW_UNSUPPORTED_TOOLTIP = (
         "This rollout uses features that prevent it from being launched to preview. "
         "We highly recommend QAing this rollout on stage first."
-    )
-    ROLLOUT_UNSAVED_CHANGES_CONFIRM = (
-        "A section is still open for editing. Click OK to continue and discard "
-        "those changes, or Cancel to go back and save them first."
     )
     ROLLOUT_LIVE_MESSAGE = (
         "This rollout is live. You can advance to the next phase to adjust its "
@@ -826,6 +884,31 @@ def _get_status_icon_map():
     }
 
 
+def _get_type_icon_map():
+    from experimenter.experiments.constants import NimbusConstants
+
+    return {
+        NimbusConstants.HomeTypeChoices.EXPERIMENT: {
+            "icon": "fa-solid fa-chart-line",
+            "color": "text-primary",
+            "bg": "bg-primary-subtle",
+            "label": NimbusConstants.HomeTypeChoices.EXPERIMENT.value,
+        },
+        NimbusConstants.HomeTypeChoices.ROLLOUT: {
+            "icon": "fa-solid fa-rocket",
+            "color": "text-success",
+            "bg": "bg-success-subtle",
+            "label": NimbusConstants.HomeTypeChoices.ROLLOUT.value,
+        },
+        NimbusConstants.HomeTypeChoices.LABS: {
+            "icon": "fa-solid fa-flask",
+            "color": "text-warning-emphasis",
+            "bg": "bg-warning-subtle",
+            "label": NimbusConstants.HomeTypeChoices.LABS.value,
+        },
+    }
+
+
 def _get_schema_diff_size_config():
     return {
         "thresholds": {
@@ -861,6 +944,7 @@ QA_STATUS_ICON_MAP = _get_qa_status_icon_map()
 CHANNEL_ICON_MAP = _get_channel_icon_map()
 APPLICATION_ICON_MAP = _get_application_icon_map()
 STATUS_ICON_MAP = _get_status_icon_map()
+TYPE_ICON_MAP = _get_type_icon_map()
 SCHEMA_DIFF_SIZE_CONFIG = _get_schema_diff_size_config()
 
 # Icon filter type constants for template tags

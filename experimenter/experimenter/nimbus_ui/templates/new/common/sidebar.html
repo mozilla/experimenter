@@ -97,7 +97,7 @@
                 {# Preview to Draft #}
                 <button type="button"
                         id="rollout-back-to-setup-btn"
-                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button"
+                        class="btn btn-secondary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 sidebar-action-button confirm-unsaved-changes"
                         hx-post="{% url 'nimbus-ui-new-preview-to-draft-rollout' experiment.slug %}"
                         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
                         hx-disabled-elt=".sidebar-action-button">
@@ -111,7 +111,7 @@
                       {% if setup_issues_count %}data-bs-toggle="tooltip" data-bs-title="{{ NimbusUIConstants.ROLLOUT_PREVIEW_BLOCKED_TOOLTIP }}"{% endif %}>
                   <button type="button"
                           id="rollout-request-enrollment-btn"
-                          class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2{% if setup_issues_count %} opacity-50{% else %} sidebar-action-button{% endif %}"
+                          class="btn btn-primary btn-sm w-100 d-flex align-items-center justify-content-center gap-2 confirm-unsaved-changes{% if setup_issues_count %} opacity-50{% else %} sidebar-action-button{% endif %}"
                           {% if setup_issues_count %} disabled aria-disabled="true" {% else %} hx-post="{% url 'nimbus-ui-new-preview-review-rollout' experiment.slug %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' hx-disabled-elt=".sidebar-action-button" {% endif %}>
                     {% include "new/common/sidebar_transition_spinner.html" %}
 

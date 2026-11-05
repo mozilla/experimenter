@@ -1,6 +1,6 @@
 {% load nimbus_extras %}
 
-{% with sig=significance|default:"unknown" %}
+{% with sig=significance|default:"unknown" precision=precision|default:2 %}
   {% if slug == reference_branch %}
     <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center flex-wrap rounded-3"
          style="height: 100px">
@@ -17,11 +17,11 @@
         {% else %}
           <span class="mb-0 me-1"
                 data-bs-toggle="tooltip"
-                data-bs-title="{{ absolute_lower|floatformat:6 }}">({{ absolute_lower|floatformat:2 }}</span>
+                data-bs-title="{{ absolute_lower|floatformat:6 }}">({{ absolute_lower|floatformat:precision }}</span>
           -
           <span class="mb-0 ms-1"
                 data-bs-toggle="tooltip"
-                data-bs-title="{{ absolute_upper|floatformat:6 }}">{{ absolute_upper|floatformat:2 }})</span>
+                data-bs-title="{{ absolute_upper|floatformat:6 }}">{{ absolute_upper|floatformat:precision }})</span>
         {% endif %}
       {% endif %}
     </div>
@@ -60,11 +60,11 @@
             {% else %}
               <span class="mb-0 me-1"
                     data-bs-toggle="tooltip"
-                    data-bs-title="{{ absolute_lower|floatformat:6 }}">({{ absolute_lower|floatformat:2 }}</span>
+                    data-bs-title="{{ absolute_lower|floatformat:6 }}">({{ absolute_lower|floatformat:precision }}</span>
               -
               <span class="mb-0 ms-1"
                     data-bs-toggle="tooltip"
-                    data-bs-title="{{ absolute_upper|floatformat:6 }}">{{ absolute_upper|floatformat:2 }})</span>
+                    data-bs-title="{{ absolute_upper|floatformat:6 }}">{{ absolute_upper|floatformat:precision }})</span>
             {% endif %}
           {% endif %}
         </span>

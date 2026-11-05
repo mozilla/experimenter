@@ -1,4 +1,5 @@
 <div id="sidebar-rollout-actions"
+     class="confirm-unsaved-changes"
      {% if oob %}hx-swap-oob="true"{% endif %}>
   {% if experiment.is_rolling_out %}
     {% with transition_pending=experiment.has_pending_rollout_transition reenable_supported=experiment.supports_rollout_reenable %}

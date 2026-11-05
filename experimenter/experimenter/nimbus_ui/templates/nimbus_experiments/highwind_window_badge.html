@@ -1,0 +1,9 @@
+{% comment %} The window a figure came from, shown the same way wherever it appears {% endcomment %}
+<span class="badge rounded-pill bg-body-secondary text-body-secondary border border-1 border-secondary-subtle">
+  {% if window.kind == "disjoint" %}
+    Separate
+  {% else %}
+    Cumulative
+  {% endif %}
+  day {{ window.start_day }}&ndash;{{ window.end_day }}
+</span>

@@ -1643,6 +1643,28 @@ class TestNimbusExperiment(TestCase):
 
     @parameterized.expand(
         [
+            ("not json",),
+            (json.dumps(["list", "not", "dict"]),),
+            (json.dumps({"prefs": "not a dict"}),),
+        ]
+    )
+    def test_get_branch_pref_flips_prefs_ignores_malformed_values(self, value):
+        prefflips_feature = NimbusFeatureConfigFactory.create_desktop_prefflips_feature()
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[prefflips_feature],
+        )
+
+        for branch in experiment.branches.all():
+            feature_value = branch.feature_values.get(feature_config=prefflips_feature)
+            feature_value.value = value
+            feature_value.save()
+
+        self.assertEqual(experiment.get_branch_pref_flips_prefs(), set())
+
+    @parameterized.expand(
+        [
             (application, require, exclude, expected_targeting)
             for (application, (require, exclude, expected_targeting)) in [
                 *product(
@@ -2134,6 +2156,34 @@ class TestNimbusExperiment(TestCase):
             experiment.computed_enrollment_days,
             experiment.proposed_enrollment,
         )
+
+    def test_computed_dates_on_stale_instance_do_not_overwrite_status(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.PAUSING_APPROVE_WAITING,
+            is_first_run=False,
+        )
+        stale_experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        experiment.status_next = None
+        experiment.publish_status = NimbusExperiment.PublishStatus.IDLE
+        experiment.save()
+        generate_nimbus_changelog(experiment, experiment.owner, "updated in kinto")
+
+        self.assertIsNone(stale_experiment._enrollment_end_date)
+        start_date = stale_experiment.start_date
+        self.assertIsNotNone(start_date)
+        self.assertEqual(
+            stale_experiment.computed_enrollment_days,
+            (timezone.now().date() - start_date).days,
+        )
+        self.assertFalse(stale_experiment.results_ready)
+        self.assertIsNotNone(stale_experiment.computed_end_date)
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.status, NimbusExperiment.Status.LIVE)
+        self.assertIsNone(experiment.status_next)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.IDLE)
+        self.assertIsNone(experiment._enrollment_end_date)
 
     @parameterized.expand(
         [
@@ -3980,6 +4030,152 @@ class TestNimbusExperiment(TestCase):
             experiment.review_warnings,
         )
 
+    def test_review_warnings_messaging_control_no_message(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug="spotlight",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None, schema=None, has_remote_schema=True
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+        )
+        experiment.reference_branch.feature_values.update(value=json.dumps({}))
+        for branch in experiment.treatment_branches:
+            branch.feature_values.update(
+                value=json.dumps(
+                    {
+                        "id": "treatment-message",
+                        "template": "spotlight",
+                        "content": {"id": "treatment-message"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                    }
+                )
+            )
+
+        self.assertIn(
+            {
+                "label": (
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_NO_MESSAGE.format(
+                        feature_slugs="spotlight"
+                    )
+                ),
+                "detail": None,
+                "learn_more_url": None,
+            },
+            experiment.review_warnings,
+        )
+
+    def test_review_warnings_messaging_control_mismatch(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug="spotlight",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None, schema=None, has_remote_schema=True
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+        )
+        experiment.reference_branch.feature_values.update(
+            value=json.dumps(
+                {
+                    "id": "control-message",
+                    "trigger": {"id": "defaultBrowserCheck"},
+                    "targeting": "false",
+                }
+            )
+        )
+        for branch in experiment.treatment_branches:
+            branch.feature_values.update(
+                value=json.dumps(
+                    {
+                        "id": "treatment-message",
+                        "template": "spotlight",
+                        "content": {"id": "treatment-message"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                    }
+                )
+            )
+
+        self.assertIn(
+            {
+                "label": (
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH.format(
+                        feature_slug="spotlight",
+                        noun="message",
+                        message_ids="treatment-message",
+                    )
+                ),
+                "detail": None,
+                "learn_more_url": None,
+            },
+            experiment.review_warnings,
+        )
+
+    def test_review_warnings_messaging_frequency_group(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug="spotlight",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None, schema=None, has_remote_schema=True
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+        )
+        experiment.reference_branch.feature_values.update(value=json.dumps({}))
+        for branch in experiment.treatment_branches:
+            branch.feature_values.update(
+                value=json.dumps(
+                    {
+                        "id": "welcome-1",
+                        "template": "spotlight",
+                        "content": {"id": "welcome-1"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                    }
+                )
+            )
+
+        self.assertIn(
+            {
+                "label": (
+                    "The spotlight message welcome-1 is not in a frequency group, "
+                    "so nothing caps how often it shows alongside other messages. "
+                    "Add it to a group such as cfr, or check the user's messaging "
+                    "preference in its targeting."
+                ),
+                "detail": None,
+                "learn_more_url": None,
+            },
+            experiment.review_warnings,
+        )
+
     def test_audience_overlap_warnings_renders_each_warning_once(self):
         feature = NimbusFeatureConfigFactory.create(
             slug="duplicate-rollout-feature",
@@ -4605,6 +4801,7 @@ class TestNimbusExperiment(TestCase):
         self.assertTrue(experiment.has_displayable_results)
 
     def test_has_exposures_results_true(self):
+        point = NimbusConstants.EXPOSURE_CLIENT_CUTOFF + 10
         results_data = {
             "v3": {
                 "overall": {
@@ -4616,7 +4813,7 @@ class TestNimbusExperiment(TestCase):
                                         "identity": {
                                             "absolute": {
                                                 "first": {
-                                                    "point": 120,
+                                                    "point": point,
                                                 },
                                             }
                                         }
@@ -4629,7 +4826,7 @@ class TestNimbusExperiment(TestCase):
                                         "identity": {
                                             "absolute": {
                                                 "first": {
-                                                    "point": 120,
+                                                    "point": point,
                                                 },
                                             }
                                         }
@@ -4660,6 +4857,7 @@ class TestNimbusExperiment(TestCase):
         )
 
     def test_has_exposures_daily_only(self):
+        point = NimbusConstants.EXPOSURE_CLIENT_CUTOFF + 10
         results_data = {
             "v3": {
                 "daily": {
@@ -4671,7 +4869,7 @@ class TestNimbusExperiment(TestCase):
                                         "identity": {
                                             "absolute": {
                                                 "first": {
-                                                    "point": 120,
+                                                    "point": point,
                                                 },
                                             }
                                         }
@@ -4684,7 +4882,7 @@ class TestNimbusExperiment(TestCase):
                                         "identity": {
                                             "absolute": {
                                                 "first": {
-                                                    "point": 120,
+                                                    "point": point,
                                                 },
                                             }
                                         }
@@ -4705,6 +4903,7 @@ class TestNimbusExperiment(TestCase):
         )
 
     def test_has_exposures_missing_data(self):
+        point = NimbusConstants.EXPOSURE_CLIENT_CUTOFF + 10
         results_data = {
             "v3": {
                 "overall": {
@@ -4729,7 +4928,7 @@ class TestNimbusExperiment(TestCase):
                                         "identity": {
                                             "absolute": {
                                                 "first": {
-                                                    "point": 120,
+                                                    "point": point,
                                                 },
                                             }
                                         }
@@ -4747,6 +4946,52 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(
             experiment.has_exposures, NimbusUIConstants.ExposuresStatus.INVALID
+        )
+
+    def test_has_exposures_below_jetstream_minimum(self):
+        point = 50
+        results_data = {
+            "v3": {
+                "overall": {
+                    "exposures": {
+                        "all": {
+                            "control": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": point,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "treatment": {
+                                "branch_data": {
+                                    "other_metrics": {
+                                        "identity": {
+                                            "absolute": {
+                                                "first": {
+                                                    "point": point,
+                                                },
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    }
+                }
+            }
+        }
+        experiment = NimbusExperimentFactory.create()
+        experiment.results_data = results_data
+        experiment.save()
+
+        self.assertEqual(
+            experiment.has_exposures, NimbusUIConstants.ExposuresStatus.NO_EXPOSURES
         )
 
     @parameterized.expand(
@@ -5349,6 +5594,15 @@ class TestNimbusExperiment(TestCase):
         child = parent.clone("Child Experiment", parent.owner)
         self.assertTrue(child.enable_review_slack_notifications)
 
+    def test_clone_resets_analysis_data(self):
+        parent = NimbusExperimentFactory.create(
+            analysis_data={"metadata": {"experiment_slug": "parent"}},
+            analysis_last_updated=timezone.now(),
+        )
+        child = parent.clone("Child Experiment", parent.owner)
+        self.assertIsNone(child.analysis_data)
+        self.assertIsNone(child.analysis_last_updated)
+
     def _clone_experiment_and_assert_common_expectations(
         self, parent, rollout_branch_slug=None
     ):
@@ -5369,6 +5623,8 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.published_dto, None)
         self.assertEqual(child.published_date, None)
         self.assertEqual(child.results_data, None)
+        self.assertEqual(child.analysis_data, None)
+        self.assertEqual(child.analysis_last_updated, None)
         self.assertEqual(child.monitoring_data, None)
         self.assertEqual(child.takeaways_gain_amount, None)
         self.assertEqual(child.takeaways_metric_gain, False)
@@ -6518,6 +6774,36 @@ class TestNimbusExperiment(TestCase):
 
         self.assertEqual(experiment.analysis_errors_by_key, expected_by_key)
         self.assertEqual(experiment.analysis_errors_count, expected_count)
+
+    @parameterized.expand(
+        [
+            (None, 0),
+            ({"other_key": {}}, 0),
+            ({"v3": {"errors": {"experiment": []}}}, 0),
+            (
+                {
+                    "v3": {
+                        "errors": {
+                            "ad_clicks": [
+                                {"analysis_basis": "enrollments"},
+                                {"analysis_basis": "exposures"},
+                            ],
+                            "retained": [],
+                            "experiment": [
+                                {"analysis_basis": "enrollments"},
+                                {"analysis_basis": "exposures"},
+                            ],
+                        },
+                    }
+                },
+                3,
+            ),
+        ]
+    )
+    def test_results_errors_displayed_count(self, results_data, expected_count):
+        experiment = NimbusExperimentFactory.create(results_data=results_data)
+
+        self.assertEqual(experiment.results_errors_displayed_count, expected_count)
 
     def test_reviewer_emails_returns_sorted_distinct_approvers(self):
         experiment = NimbusExperimentFactory.create()

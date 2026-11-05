@@ -86,6 +86,7 @@ def send_slack_notification(
     requesting_user_email=None,
     link_url=None,
     thread_ts=None,
+    details=None,
 ):
     if not (client := _get_slack_client()):
         logger.info(
@@ -126,6 +127,8 @@ def send_slack_notification(
     message = f"{action_text}: <{link_url}|{experiment.name}>"
     if all_mentions:
         message = f"{message} @ {' '.join(all_mentions)}"
+    if details:
+        message = f"{message}\n{details}"
 
     try:
         post_kwargs = {
@@ -175,7 +178,7 @@ def send_slack_notification(
 
 
 def send_threaded_success_message(
-    experiment_id, thread_ts, message_template, log_operation, success_log_message
+    experiment_id, thread_ts, action_text, log_operation, success_log_message
 ):
     if not (client := _get_slack_client()):
         logger.info(
@@ -194,11 +197,7 @@ def send_threaded_success_message(
         return False
 
     channel = settings.SLACK_NIMBUS_CHANNEL
-    message = message_template.format(
-        name=experiment.name,
-        url=experiment.experiment_url,
-        slug=experiment.slug,
-    )
+    message = f"{action_text}: <{experiment.experiment_url}|{experiment.name}>"
 
     try:
         # Send threaded reply to the original launch request

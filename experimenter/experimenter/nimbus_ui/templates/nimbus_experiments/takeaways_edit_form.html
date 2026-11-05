@@ -16,6 +16,7 @@
   </div>
   <div class="card-body">
     <form method="post"
+          data-warn-unsaved
           hx-post="{% url 'nimbus-ui-update-takeaways' experiment.slug %}"
           hx-target="#takeaways-card"
           hx-swap="outerHTML">

@@ -1,5 +1,6 @@
 <div id="qa-status-form-container" class="card-body">
   <form method="post"
+        data-warn-unsaved
         hx-post="{% url 'nimbus-ui-update-qa-status' experiment.slug %}"
         hx-target="#qa-status-form-container"
         hx-swap="outerHTML">

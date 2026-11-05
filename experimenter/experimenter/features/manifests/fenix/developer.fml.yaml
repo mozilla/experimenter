@@ -4,6 +4,13 @@ about:
 channels:
 - developer
 features:
+  account-sync-decouple:
+    description: Control the "sync & account decoupling" feature
+    variables:
+      enabled:
+        description: If true, the flows for enabling sync & account decoupling are enabled.
+        type: Boolean
+        default: false
   account-sync-decouple-m1:
     description: Control whether the new UI for Account Sync is shown.
     variables:
@@ -45,6 +52,15 @@ features:
         description: Whether to show the new AppLinksPromptFragment dialog when an app link is detected. If false, the old dialog is used.
         type: Boolean
         default: true
+  automotive-sensitive-data:
+    description: |
+      Enables or disables autofill, password management, and password and credit card sync on Android Automotive OS.
+    variables:
+      enabled:
+        description: |
+          Whether password and credit card autofill, password management, and password and credit card sync are enabled on Android Automotive OS. Address autofill is also controlled by this flag. Has no effect on other devices.
+        type: Boolean
+        default: false
   awesomebar-suggestion-provider:
     description: Configuration for the Firefox Suggest awesomebar suggestion provider.
     variables:
@@ -73,6 +89,13 @@ features:
         description: The protection overrides to add or remove fingerprinting protection targets. Please check RFPTargets.inc for all supported targets. The format of the overrides is +Target1,-Target2,+Target3 where + means add and - means remove. The targets are separated by commas. Unset leaves the existing setting alone.
         type: Option<String>
         default: null
+  browser-first:
+    description: Feature to enable browser-first handling for YouTube.
+    variables:
+      enabled:
+        description: If true, the feature is enabled.
+        type: Boolean
+        default: true
   collections-to-tab-groups-migration:
     description: Feature to migrate Collections to Tab Groups for users on Firefox for Android.
     variables:
@@ -327,6 +350,13 @@ features:
         description: If true, Homepage Weather Widget is enabled.
         type: Boolean
         default: false
+  homepage-wrexham-widget:
+    description: Feature to enable Homepage Wrexham Widget for users on Firefox for Android.
+    variables:
+      enabled:
+        description: If true, Homepage Wrexham Widget is enabled.
+        type: Boolean
+        default: false
   homescreen:
     description: The homescreen that the user goes to when they press home or new tab.
     variables:
@@ -341,19 +371,18 @@ features:
           synced-tabs: true
           collections: true
           privacy-report: true
-  homescreen-edge-to-edge-background:
-    description: |
-      Feature that sets an edge to edge background on the Home Screen if the user hasn't selected a custom wallpaper
-    variables:
-      enabled:
-        description: Enables the feature
-        type: Boolean
-        default: true
   import-bookmarks:
     description: A feature that lets users import bookmarks from another browser.
     variables:
       enabled:
         description: If true, the import bookmarks feature will be enabled.
+        type: Boolean
+        default: true
+  installation:
+    description: A feature that checks for reinstalls.
+    variables:
+      enabled:
+        description: If true, the install data will be stored in Block Store and reported to Glean.
         type: Boolean
         default: true
   ip-protection:
@@ -372,6 +401,10 @@ features:
         description: If true, IP Protection feature is enabled.
         type: Boolean
         default: true
+      gpi-data-limit-gigabytes:
+        description: Specifies the VPN data limit in GB to show in the onboarding prompt when using without an account (through GPI)
+        type: Int
+        default: 5
       promo-deadline:
         description: The final date for the promotion to end. This needs to be an ISO 8601 formatted date (i.e. YYYY-MM-DD).
         type: String
@@ -494,7 +527,7 @@ features:
       enabled:
         description: If true, listen to page will be enabled
         type: Boolean
-        default: false
+        default: true
   lna-blocking:
     description: Feature that allows blocking local network or device access.
     variables:
@@ -873,7 +906,7 @@ features:
       campaign-utm-content:
         description: The "utm_content" value used to identify installs from the pairing campaign.
         type: String
-        default: ''
+        default: DTM_SYNC_PAIR_V2
       enabled:
         description: Whether the Sync sign-in card can be shown during initial onboarding.
         type: Boolean
@@ -884,18 +917,18 @@ features:
       android-ui-tools:
         description: If true, the Android PDF UI tools are shown.
         type: Boolean
-        default: false
+        default: true
   pdfjs:
     description: PDF.js features
     variables:
       download-button:
         description: Download button
         type: Boolean
-        default: true
+        default: false
       open-in-app-button:
         description: Open in app button
         type: Boolean
-        default: true
+        default: false
   pki:
     description: Certificate verification configuration
     variables:
@@ -925,13 +958,13 @@ features:
           Whether or not to enable private browsing mode lock.
         type: Boolean
         default: true
-  private-mode-and-stories-entry-point:
-    description: Feature to enable the Private Mode and Stories Entry Point Experiment.
+  regional-default-shortcuts:
+    description: Feature to enable the regional default shortcuts on the homepage for users on Firefox on Android.
     variables:
       enabled:
-        description: If true, Private Mode and Stories Entry Point Experiment is enabled.
+        description: If true, the regional default shortcuts are shown in their regions.
         type: Boolean
-        default: false
+        default: true
   remote-search-configuration:
     description: Feature to use search configurations from remote servers.
     variables:
@@ -1008,6 +1041,14 @@ features:
           Disable overriding the loadType during same document navigation on the domain specified by this URI.
         type: String
         default: ''
+  search-config-v3:
+    description: Feature to read search configuration from the search-config-v3 collection.
+    variables:
+      enabled:
+        description: |
+          Reads search configuration from the `search-config-v3` Remote Settings collection instead of `search-config-v2`.
+        type: Boolean
+        default: false
   search-extra-params:
     description: A feature that provides additional args for search.
     variables:
@@ -1292,15 +1333,6 @@ features:
         description: If true, the uninstall survey shortcut is enabled and visible.
         type: Boolean
         default: true
-  universal-edge-to-edge-wallpapers:
-    description: |
-      Extends non-default homepage wallpapers edge-to-edge and adapts the toolbar, navigation bar and system bars to them.
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the universal edge-to-edge wallpaper treatment.
-        type: Boolean
-        default: false
   user-characteristics:
     description: A feature for control user characteristic data collection
     variables:
@@ -1390,20 +1422,14 @@ enums:
   OnboardingCardType:
     description: An enum to describe a type of card.
     variants:
-      add-search-widget:
-        description: Allows user to add search widget to homescreen.
       default-browser:
         description: Allows user to set Firefox as the default browser.
       marketing-data:
         description: Allows user to opt out of marketing data collection.
-      notification-permission:
-        description: Allows user to enable notification permission.
       sync-sign-in:
         description: Allows user to sync with a Firefox account.
       terms-of-service:
         description: Page to display the terms of services.
-      toolbar-placement:
-        description: Allows user to choose the toolbar position.
   OnboardingPanel:
     description: The types of onboarding panels in the onboarding page
     variants:
@@ -1472,37 +1498,10 @@ enums:
           Uses the following copy:
           - Title: "A note from Firefox"
           - Learn more: "You can learn more here."
-  ToolbarType:
-    description: An enum to describe a toolbar placement option.
-    variants:
-      toolbar-bottom:
-        description: Sets the toolbar placement on the bottom.
-      toolbar-top:
-        description: Sets the toolbar placement on the top.
 objects:
-  CustomizationToolbarData:
-    description: An object to describe the placement of the toolbar.
-    fields:
-      image-res:
-        description: The resource id of toolbar placement image.
-        type: Image
-        default: ic_onboarding_customize_toolbar
-      label:
-        description: Display text for the toolbar placement option (e.g. "Top placement").
-        type: Text
-        default: ''
-      toolbar-type:
-        description: The type of toolbar placement.
-        type: ToolbarType
-        default: toolbar-top
   ExtraCardData:
-    description: Holds data for cards that require additional data, e.g. toolbar placement cards.
+    description: Holds data for cards that require additional data, e.g. terms of service cards.
     fields:
-      customization-toolbar-data:
-        description: |
-          An optional list of toolbar placements for the toolbar placement card.
-        type: List<CustomizationToolbarData>
-        default: []
       marketing-data:
         description: |
           An optional marketing data for the onboarding card.

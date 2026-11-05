@@ -16,6 +16,7 @@
     </div>
     <!-- Experiment Details Card -->
     <form id="metrics-form"
+          data-warn-unsaved
           hx-post="{% url 'nimbus-ui-update-metrics' experiment.slug %}"
           hx-select="#content-with-sidebar"
           hx-target="#content-with-sidebar"

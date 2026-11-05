@@ -72,9 +72,43 @@ bookmarks-search-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+browser-data-transfer-feature:
+  description: |
+    Controls importing browsing data from, and exporting it to, another browser on the device.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    export-enabled:
+      type: boolean
+      description: |
+        Enables exporting bookmarks and history to another browser.
+    import-enabled:
+      type: boolean
+      description: |
+        Enables importing bookmarks and history from another browser.
 cellular-data-restricted-error-page-feature:
   description: |
     Controls restricted cellular data guidance on error pages
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+check-for-reinstalls-feature:
+  description: |
+    Controls app reinstallation checks.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether app reinstallation checks are enabled.
+configuration-profile-feature:
+  description: |
+    Offers to open configuration profiles (.mobileconfig) in Safari so iOS can install them
   hasExposure: true
   exposureDescription: ''
   variables:
@@ -140,12 +174,24 @@ glean-server-knobs:
   hasExposure: true
   exposureDescription: ''
   variables:
-    metrics-enabled:
+    delay-ping-lifetime-io:
+      type: boolean
+      description: Glean will delay io for ping lifetime metrics
+    enable-event-timestamps:
+      type: boolean
+      description: Enables precise event timestamps for Glean events
+    gleanMetricConfiguration:
       type: json
-      description: A map of metric base-identifiers to booleans representing the state of the 'enabled' flag for that metric.
+      description: Configuration for Glean Server Knobs
+    ping-lifetime-max-time:
+      type: int
+      description: After what time to auto-flush
+    ping-lifetime-threshold:
+      type: int
+      description: Write count threshold when to auto-flush
 google-lens-feature:
   description: |
-    The feature flag to manage the rollout of Google Lens entry points.
+    The feature flag to manage the rollout of Google Lens.
   hasExposure: true
   exposureDescription: ''
   variables:
@@ -153,6 +199,10 @@ google-lens-feature:
       type: boolean
       description: |
         Enables Google Lens entry points.
+    search-interstitial-enabled:
+      type: boolean
+      description: |
+        Enables the Google Lens search interstitial.
 homepage-redesign-feature:
   description: |
     This feature is for managing the roll out of the Homepage New Tab Redesign feature.
@@ -231,6 +281,16 @@ improved-app-store-review-trigger-feature:
       type: boolean
       description: |
         Enables the feature.
+merge-windows-feature:
+  description: |
+    This property determines whether the "Combine Windows" home screen Quick Action is offered on iPad when two or more windows are open
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
 messaging:
   description: |
     The in-app messaging system
@@ -372,6 +432,10 @@ quick-answers-feature:
       type: boolean
       description: |
         Enables the feature.
+    follow-up-enabled:
+      type: boolean
+      description: |
+        Enables asking follow up questions after an answer is shown.
     model:
       type: string
       description: |
@@ -379,6 +443,10 @@ quick-answers-feature:
       enum:
       - exa
       - liner
+    optInRedesign:
+      type: boolean
+      description: |
+        Shows the redesigned opt-in as a sheet over the browser.
 recent-searches-feature:
   description: |
     Enables recent searches.
@@ -549,6 +617,10 @@ toolbar-refactor-feature:
       type: string
       description: |
         The type of layout of the toolbars.
+    search_term_in_address_bar:
+      type: boolean
+      description: |
+        Shows the search term instead of the URL in the address bar when the current page is a search results page of the default search engine.
     tab_tray_button_type:
       type: string
       description: |
@@ -633,6 +705,20 @@ vpn-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+wallpaper-engagement-sheet-feature:
+  description: |
+    Controls the wallpaper engagement bottom sheet shown on the homepage when new wallpapers are available. Only meant to be used with rollouts.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+    marketing-slug:
+      type: string
+      description: |
+        Identifies the wallpaper campaign. The sheet is shown once per slug, so a new value is needed for every wallpaper drop.
 wayback-machine-feature:
   description: |
     This property determines whether we show the wayback entry point on the native error pages

@@ -8,17 +8,21 @@ from pyjexl.parser import (
     FilterExpression,
     Identifier,
     Literal,
+    ObjectLiteral,
     Transform,
     UnaryExpression,
 )
 
 from experimenter.experiments.jexl_utils import JEXLParser
+from experimenter.targeting.targeting_context_parser import RecordedPrefs
 
 _OS = "metrics.object.nimbus_targeting_context_os"
 _BS = "metrics.object.nimbus_targeting_context_browser_settings"
 _HP = "metrics.object.nimbus_targeting_context_home_page_settings"
 _AD = "metrics.object.nimbus_targeting_context_attribution_data"
 _AI = "metrics.object.nimbus_targeting_context_addons_info"
+_PDF = "metrics.object.nimbus_targeting_context_default_pdf_handler"
+_HANDLER = "metrics.object.nimbus_targeting_context_is_default_handler"
 
 # Schema confirmed from: mozdata.firefox_desktop.nimbus_targeting_context
 JEXL_TO_BQ_COLUMN = {
@@ -39,11 +43,23 @@ JEXL_TO_BQ_COLUMN = {
     "allowedNotificationOrigins": (
         "metrics.quantity.nimbus_targeting_context_allowed_notification_origins"
     ),
+    "activeWebPushSubscriptionCount": (
+        "metrics.quantity.nimbus_targeting_context_active_web_push_subscription_count"
+    ),
+    # Recorded as the string "none" when the button is unplaced, but the JEXL
+    # attribute is null, so map it back for `forgetButtonAreaType == null`.
+    "forgetButtonAreaType": (
+        "NULLIF(metrics.string.nimbus_targeting_context_forget_button_area_type, 'none')"
+    ),
     "profileGroupProfileCount": (
         "metrics.quantity.nimbus_targeting_context_profile_group_profile_count"
     ),
     "profileAgeCreated": (
         "metrics.quantity.nimbus_targeting_context_profile_age_created"
+    ),
+    "profileLastUse": "metrics.quantity.nimbus_targeting_context_profile_last_use",
+    "previousSessionEnd": (
+        "metrics.quantity.nimbus_targeting_context_previous_session_end"
     ),
     "isFirstStartup": "metrics.boolean.nimbus_targeting_context_is_first_startup",
     "isDefaultBrowser": ("metrics.boolean.nimbus_targeting_context_is_default_browser"),
@@ -79,13 +95,9 @@ JEXL_TO_BQ_COLUMN = {
         f"SAFE_CAST(JSON_VALUE({_OS}, '$.windowsBuildNumber') AS INT64)"
     ),
     "os.windowsVersion": (f"SAFE_CAST(JSON_VALUE({_OS}, '$.windowsVersion') AS FLOAT64)"),
+    # The recorded update object only carries channel. autoDownload and enabled
+    # are listed in KNOWN_UNTRANSLATABLE rather than mapped here.
     "browserSettings.update.channel": (f"JSON_VALUE({_BS}, '$.update.channel')"),
-    "browserSettings.update.autoDownload": (
-        f"CAST(JSON_VALUE({_BS}, '$.update.autoDownload') AS BOOL)"
-    ),
-    "browserSettings.update.enabled": (
-        f"CAST(JSON_VALUE({_BS}, '$.update.enabled') AS BOOL)"
-    ),
     "homePageSettings.isDefault": (f"CAST(JSON_VALUE({_HP}, '$.isDefault') AS BOOL)"),
     "homePageSettings.isCustomUrl": (f"CAST(JSON_VALUE({_HP}, '$.isCustomUrl') AS BOOL)"),
     "homePageSettings.isLocked": f"CAST(JSON_VALUE({_HP}, '$.isLocked') AS BOOL)",
@@ -93,6 +105,12 @@ JEXL_TO_BQ_COLUMN = {
     "addonsInfo.hasInstalledAddons": (
         f"CAST(JSON_VALUE({_AI}, '$.hasInstalledAddons') AS BOOL)"
     ),
+    "defaultPDFHandler.knownBrowser": (
+        f"CAST(JSON_VALUE({_PDF}, '$.knownBrowser') AS BOOL)"
+    ),
+    "defaultPDFHandler.registered": (f"CAST(JSON_VALUE({_PDF}, '$.registered') AS BOOL)"),
+    "isDefaultHandler.pdf": f"CAST(JSON_VALUE({_HANDLER}, '$.pdf') AS BOOL)",
+    "isDefaultHandler.html": f"CAST(JSON_VALUE({_HANDLER}, '$.html') AS BOOL)",
     "primaryResolution.width": (
         "SAFE_CAST(JSON_VALUE("
         "metrics.object.nimbus_targeting_context_primary_resolution"
@@ -103,15 +121,66 @@ JEXL_TO_BQ_COLUMN = {
         "metrics.object.nimbus_targeting_context_primary_resolution"
         ", '$.height') AS INT64)"
     ),
+    # The recorded object only carries source, medium and ua. campaign, content
+    # and dltoken are listed in KNOWN_UNTRANSLATABLE rather than mapped here.
     "attributionData.medium": f"JSON_VALUE({_AD}, '$.medium')",
     "attributionData.source": f"JSON_VALUE({_AD}, '$.source')",
-    "attributionData.campaign": f"JSON_VALUE({_AD}, '$.campaign')",
-    "attributionData.content": f"JSON_VALUE({_AD}, '$.content')",
     "attributionData.ua": f"JSON_VALUE({_AD}, '$.ua')",
-    "attributionData.dltoken": f"JSON_VALUE({_AD}, '$.dltoken')",
 }
 
+# Array of {experimentSlug, branchSlug}. Desktop only — mobile records no
+# enrollment state, so these stay untranslatable there.
+_ENROLLMENTS_MAP_COL = "metrics.object.nimbus_targeting_context_enrollments_map"
+
+
+def _sql_string(value: str) -> str:
+    escaped = value.replace("'", "\\'")
+    return f"'{escaped}'"
+
+
+def _enrollment_branch_sql(slug: str) -> str:
+    """enrollmentsMap['slug'] — yields the branch, or NULL when not enrolled.
+
+    A scalar subquery rather than EXISTS, so ==, != and == null all work
+    through the normal comparison handling.
+    """
+    return (
+        "(SELECT JSON_VALUE(e, '$.branchSlug')"
+        f" FROM UNNEST(JSON_QUERY_ARRAY({_ENROLLMENTS_MAP_COL})) e"
+        f" WHERE JSON_VALUE(e, '$.experimentSlug') = {_sql_string(slug)})"
+    )
+
+
+def _enrolled_in_sql(slug: str) -> str:
+    """'slug' in enrollments — enrolled in that experiment at all."""
+    return (
+        "EXISTS(SELECT 1"
+        f" FROM UNNEST(JSON_QUERY_ARRAY({_ENROLLMENTS_MAP_COL})) e"
+        f" WHERE JSON_VALUE(e, '$.experimentSlug') = {_sql_string(slug)})"
+    )
+
+
+# Arrays of slug strings. Desktop only.
+_ACTIVE_SLUG_COLS = {
+    "activeExperiments": "metrics.object.nimbus_targeting_context_active_experiments",
+    "activeRollouts": "metrics.object.nimbus_targeting_context_active_rollouts",
+}
+
+
+def _active_slug_in_sql(slug: str, attribute: str) -> str:
+    """'slug' in activeExperiments / activeRollouts."""
+    col = _ACTIVE_SLUG_COLS[attribute]
+    return f"({_sql_string(slug)} IN UNNEST(JSON_VALUE_ARRAY({col})))"
+
+
 _PREF_VALUES_COL = "metrics.object.nimbus_targeting_environment_pref_values"
+
+
+def _normalize_pref_name(pref: str) -> str:
+    # Mirror of normalizePrefName in TargetingContextRecorder.sys.mjs.
+    return pref.replace("-", "_").replace(".", "__")
+
+
 _USER_SET_PREFS_COL = "metrics.object.nimbus_targeting_environment_user_set_prefs"
 _USER_MONTHLY_ACTIVITY_COL = (
     "metrics.object.nimbus_targeting_context_user_monthly_activity"
@@ -194,6 +263,14 @@ JEXL_TO_BQ_COLUMN_FENIX = {
     **_both("noShortcutsOrStoriesOptOuts", "no_shortcuts_or_stories_opt_outs", "BOOL"),
 }
 
+
+def _addon_installed_sql(addon_id: str) -> str:
+    """'addon-id' in addon_ids — Fenix records installed add-on IDs as an array."""
+    return (
+        f"({_sql_string(addon_id)} IN UNNEST(JSON_VALUE_ARRAY(context, '$.addon_ids')))"
+    )
+
+
 # iOS (Firefox for iOS)
 JEXL_TO_BQ_COLUMN_IOS = {
     **_SHARED_MOBILE_COLUMNS,
@@ -216,21 +293,35 @@ JEXL_TO_BQ_COLUMN_IOS = {
 # Attributes with no corresponding column in nimbus_targeting_context.
 KNOWN_UNTRANSLATABLE = {
     "attachedFxAOAuthClients",  # privacy-sensitive, will never be recorded
+    "isFxASignedInMozilla",  # privacy-sensitive, will never be recorded
+    # Sub-fields the client does not record. Measured at 0% populated on every
+    # day of a 30-day window. These were previously mapped, which meant they
+    # resolved to NULL and matched nobody *without* raising a warning -- a
+    # silent wrong answer. Listing them here surfaces the dropped clause
+    # instead. The recorded attribution object carries only source, medium and
+    # ua; the recorded update object carries only channel.
+    "attributionData.campaign",
+    "attributionData.content",
+    "attributionData.dltoken",
+    "browserSettings.update.autoDownload",
+    "browserSettings.update.enabled",
     "isFirstRun",  # Desktop uses isFirstStartup; also mobile-only
     "is_first_run",
     "isNonStubFirstRun",
+    # These four are handled as membership tests before the warning path. They
+    # stay listed because a bare reference, outside `x in <attr>`, has no column.
     "enrollments",
     "enrollmentsMap",
-    "activeExperiments",  # circular
-    "activeRollouts",  # circular
+    "activeExperiments",
+    "activeRollouts",
     "newtabSettings",
     "searchEngines",
     "addonsInfo",  # parent blocked; specific sub-fields mapped above
     "isBackgroundTaskMode",
     "newtabAddonVersion",  # addon version not stored in nimbus_targeting_context
     "defaultProfile",  # background task context only
-    "defaultPDFHandler",  # default PDF handler, not directly queryable
-    "isDefaultHandler",  # file-type handler object, not directly queryable
+    "defaultPDFHandler",  # parent blocked; boolean sub-fields mapped above
+    "isDefaultHandler",  # parent blocked; boolean sub-fields mapped above
     "localeLanguageCode",  # derived from locale, not recorded separately
     "homePageSettings",  # parent blocked; simple sub-fields mapped above
     # Mobile-only attributes. Those mapped in JEXL_TO_BQ_COLUMN_FENIX /
@@ -348,13 +439,28 @@ def _node_to_sql(node, warnings: list[str], column_map: dict[str, str]) -> Optio
         return _transform_to_sql(node, warnings, column_map)
     if isinstance(node, FilterExpression):
         subject_path = _identifier_path(node.subject)
+        # enrollmentsMap['slug'] — Desktop only.
+        if (
+            subject_path == "enrollmentsMap"
+            and column_map is JEXL_TO_BQ_COLUMN
+            and isinstance(node.expression, Literal)
+            and isinstance(node.expression.value, str)
+        ):
+            return _enrollment_branch_sql(node.expression.value)
         # addonsInfo.addons['addon-id'] — check addon ID membership in BQ array
         if subject_path == "addonsInfo.addons" and isinstance(node.expression, Literal):
             addon_id = node.expression.value
             if isinstance(addon_id, str):
                 # Wrap in parens so result can be used in comparisons: (...) != NULL
                 return f"('{addon_id}' IN UNNEST(JSON_VALUE_ARRAY({_AI}, '$.addons')))"
-        _add_warning(warnings, subject_path or _identifier_path(node.subject))
+        # subject_path is empty unless the subject is an identifier chain, and
+        # _add_warning ignores an empty attribute, so fall back to a real name.
+        if subject_path:
+            _add_warning(warnings, subject_path)
+        elif isinstance(node.subject, Transform):
+            _add_warning(warnings, f"|{node.subject.name}")
+        else:
+            _add_warning(warnings, "filter expression")
         return None
     return None
 
@@ -368,6 +474,46 @@ def _binary_to_sql(
         return _version_compare_binary_to_sql(node, warnings, column_map)
     if _is_version_compare_node(node.right) and isinstance(node.left, Literal):
         return _version_compare_binary_to_sql_reversed(node, warnings, column_map)
+
+    # 'slug' in enrollments — intercepted before translating operands, since
+    # `enrollments` has no column of its own and would otherwise warn.
+    if (
+        op == "in"
+        and column_map is JEXL_TO_BQ_COLUMN
+        and _identifier_path(node.right) == "enrollments"
+        and isinstance(node.left, Literal)
+        and isinstance(node.left.value, str)
+    ):
+        return _enrolled_in_sql(node.left.value)
+
+    # 'addon-id' in addon_ids — Fenix only; iOS does not record add-on IDs.
+    if (
+        op == "in"
+        and column_map is JEXL_TO_BQ_COLUMN_FENIX
+        and _identifier_path(node.right) == "addon_ids"
+        and isinstance(node.left, Literal)
+        and isinstance(node.left.value, str)
+    ):
+        return _addon_installed_sql(node.left.value)
+
+    # x in activeExperiments / activeRollouts — Desktop only.
+    if op == "in" and column_map is JEXL_TO_BQ_COLUMN:
+        attribute = _identifier_path(node.right)
+        if attribute in _ACTIVE_SLUG_COLS:
+            # experiment.slug is the slug being sized, and sizing runs only on
+            # Drafts, so nobody is enrolled and the sticky-enrollment idiom
+            # `(experiment.slug in activeExperiments) || (<targeting>)` reduces
+            # to the targeting. Two things this relies on, both verified:
+            # no use sits under a pure AND, where FALSE would force the estimate
+            # to zero; and no Draft slug appears in the recorded arrays.
+            #
+            # Only valid while sizing is Draft-only. Extended to a live
+            # experiment this silently undercounts, dropping the clients who
+            # enrolled, drifted out of the targeting, and stay enrolled.
+            if _identifier_path(node.left) == "experiment.slug":
+                return "FALSE"
+            if isinstance(node.left, Literal) and isinstance(node.left.value, str):
+                return _active_slug_in_sql(node.left.value, attribute)
 
     if op in ("&&", "||"):
         left = _node_to_sql(node.left, warnings, column_map)
@@ -419,6 +565,21 @@ def _binary_to_sql(
 
     if op in comparison_ops:
         sql_op = comparison_ops[op]
+
+        # (a == 'y') == false would emit `a = 'y' = FALSE`, which BigQuery
+        # rejects. Parenthesise nested comparisons. Detected from the AST, not
+        # the rendered string: an expression may begin with "(" without being
+        # wrapped, as the enrollmentsMap subquery does.
+        def _is_comparison_node(n) -> bool:
+            return (
+                isinstance(n, BinaryExpression)
+                and getattr(n.operator, "symbol", None) in comparison_ops
+            )
+
+        if _is_comparison_node(node.left):
+            left = f"({left})"
+        if _is_comparison_node(node.right):
+            right = f"({right})"
         # JEXL uses == null / != null; BigQuery requires IS NULL / IS NOT NULL.
         # FilterExpression results (IN UNNEST) represent "found/not found":
         #   filter == null  →  NOT (filter)   [addon/pref not present]
@@ -568,11 +729,19 @@ def _transform_to_sql(
         if column_map is not JEXL_TO_BQ_COLUMN:
             _add_warning(warnings, "|preferenceValue")
             return None
-        # Pref names stored with dots replaced by __ in BigQuery.
         pref_name = _literal_value(node.subject)
         if pref_name:
-            bq_key = pref_name.replace(".", "__")
-            return f"JSON_VALUE({_PREF_VALUES_COL}, '$.{bq_key}')"
+            # Only the prefs in the recorder's PREFS list are written to
+            # pref_values. Any other resolves to NULL and matches nobody, so
+            # surface it rather than returning a confident zero. A supplied
+            # default does not help: it only applies when the pref is unset,
+            # and we cannot tell which clients have set it.
+            if pref_name not in RecordedPrefs.for_desktop():
+                _add_warning(warnings, f"'{pref_name}'|preferenceValue")
+                return None
+            return (
+                f"JSON_VALUE({_PREF_VALUES_COL}, '$.{_normalize_pref_name(pref_name)}')"
+            )
         _add_warning(warnings, "|preferenceValue")
         return None
 
@@ -699,11 +868,23 @@ def _version_compare_binary_to_sql_with(
     return f"{lhs} {sql_op} {major}"
 
 
+def _null_guarded_path(node) -> str:
+    """`X` for `(X || {})`, the null-safe wrapper targeting puts around an object."""
+    if (
+        isinstance(node, BinaryExpression)
+        and node.operator.symbol == "||"
+        and isinstance(node.right, ObjectLiteral)
+        and not node.right.value
+    ):
+        return _identifier_path(node.left)
+    return ""
+
+
 def _identifier_path(node) -> str:
     if node is None:
         return ""
     if isinstance(node, Identifier):
-        subject = _identifier_path(node.subject)
+        subject = _identifier_path(node.subject) or _null_guarded_path(node.subject)
         return f"{subject}.{node.value}" if subject else node.value
     if isinstance(node, Literal):
         return str(node.value)

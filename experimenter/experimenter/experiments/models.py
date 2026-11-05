@@ -408,6 +408,21 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     results_data = models.JSONField[dict[str, Any]](
         "Results Data", encoder=DjangoJSONEncoder, blank=True, null=True
     )
+    analysis_data = models.JSONField[dict[str, Any]](
+        "Analysis Data",
+        encoder=DjangoJSONEncoder,
+        blank=True,
+        null=True,
+        help_text=(
+            "JSON data from Highwind analysis "
+            "(metadata, segments, per-metric window results, errors)"
+        ),
+    )
+    analysis_last_updated = models.DateTimeField(
+        "Analysis Data Last Updated",
+        blank=True,
+        null=True,
+    )
     monitoring_data = models.JSONField[dict[str, Any]](
         "Monitoring Data",
         encoder=DjangoJSONEncoder,
@@ -791,32 +806,67 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
         return expressions
 
-    def _get_targeting_pref_conflicts(self):
-        prefs = []
+    def get_branch_feature_prefs(self):
+        branch_prefs = set()
 
-        if self.prevent_pref_conflicts:
-            for feature_config in self.feature_configs.all():
-                feature_prefs = feature_config.schemas.get(version=None).set_pref_vars
-                feature_values = NimbusBranchFeatureValue.objects.filter(
-                    branch__experiment=self, feature_config=feature_config
-                ).values_list("value", flat=True)
+        for feature_config in self.feature_configs.all():
+            feature_prefs = feature_config.schemas.get(version=None).set_pref_vars
+            feature_values = NimbusBranchFeatureValue.objects.filter(
+                branch__experiment=self, feature_config=feature_config
+            ).values_list("value", flat=True)
 
-                if feature_prefs and feature_values:
-                    try:
-                        branch_variables = {
-                            key for value in feature_values for key in json.loads(value)
-                        }
-                    except json.JSONDecodeError:
-                        continue
-
-                    branch_prefs = {
-                        feature_prefs[variable]
-                        for variable in branch_variables
-                        if variable in feature_prefs
+            if feature_prefs and feature_values:
+                try:
+                    branch_variables = {
+                        key for value in feature_values for key in json.loads(value)
                     }
-                    prefs.extend(branch_prefs)
+                except json.JSONDecodeError:
+                    continue
 
-        return prefs
+                branch_prefs.update(
+                    (feature_config.slug, variable, feature_prefs[variable])
+                    for variable in branch_variables
+                    if variable in feature_prefs
+                )
+
+        return branch_prefs
+
+    def get_branch_pref_flips_prefs(self):
+        pref_flips_prefs = set()
+
+        pref_flips_feature = self.feature_configs.filter(
+            slug=self.DESKTOP_PREFFLIPS_SLUG
+        ).first()
+
+        if pref_flips_feature is not None:
+            feature_values = NimbusBranchFeatureValue.objects.filter(
+                branch__experiment=self, feature_config=pref_flips_feature
+            ).values_list("value", flat=True)
+
+            for value in feature_values:
+                try:
+                    parsed_value = json.loads(value)
+                except json.JSONDecodeError:
+                    continue
+
+                if not isinstance(parsed_value, dict):
+                    continue
+
+                pref_names = parsed_value.get("prefs", {})
+                if not isinstance(pref_names, dict):
+                    continue
+
+                pref_flips_prefs.update(
+                    (pref_flips_feature.slug, pref) for pref in pref_names
+                )
+
+        return pref_flips_prefs
+
+    def _get_targeting_pref_conflicts(self):
+        if self.prevent_pref_conflicts:
+            return list({pref for _, _, pref in self.get_branch_feature_prefs()})
+
+        return []
 
     # This is the full JEXL expression processed by clients
     @property
@@ -1181,9 +1231,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .order_by("-changed_on")
                 .first()
             ):
-                self._start_date = start_changelog.changed_on.date()
-                self.save()
-                return self._start_date
+                return start_changelog.changed_on.date()
 
     @property
     def release_date(self):
@@ -1211,9 +1259,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .order_by("-changed_on")
                 .first()
             ):
-                self._end_date = end_changelog.changed_on.date()
-                self.save()
-                return self._end_date
+                return end_changelog.changed_on.date()
 
     @property
     def is_setup_complete(self):
@@ -1295,9 +1341,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
                 .values_list("changed_on")
                 .last()
             ):
-                self._enrollment_end_date = last_changed_on[0].date()
-                self.save()
-                return (self._enrollment_end_date - enrollment_start).days
+                return (last_changed_on[0].date() - enrollment_start).days
 
         if self.end_date:
             return self.computed_duration_days
@@ -1323,7 +1367,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
     def update_computed_end_date(self, end_date=None):
         self._computed_end_date = end_date or self._get_computed_end_date()
-        self.save()
+        self.save(update_fields=["_computed_end_date"])
 
     @property
     def computed_end_date(self):
@@ -1334,9 +1378,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if self.start_date is not None and self._computed_end_date >= self.start_date:
                 return self._computed_end_date
 
-        end_date = self._get_computed_end_date()
-        self.update_computed_end_date(end_date)
-        return end_date
+        return self._get_computed_end_date()
 
     @property
     def computed_draft_days(self):
@@ -1541,7 +1583,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         self.rollout_phase = next_phase
         self.rollout_phase_next = None
         self.population_percent = next_phase.population_percent
-        self.save()
+        self.save(
+            update_fields=["rollout_phase", "rollout_phase_next", "population_percent"]
+        )
 
     def stage_rollout_phase_advance(self):
         if not self.is_rollout_with_phases:
@@ -2625,8 +2669,9 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
 
                         # Treat a branch as having meaningful exposures only when the
                         # client_count exceeds a set cutoff. Manual testing can produce
-                        # tiny non-zero counts, so we use EXPOSURE_CLIENT_CUTOFF as an
-                        # arbitrary threshold to avoid false positives.
+                        # tiny non-zero counts, so EXPOSURE_CLIENT_CUTOFF matches
+                        # Jetstream's minimum reference-branch client count, below which
+                        # Jetstream computes no statistics.
                         if client_count > NimbusConstants.EXPOSURE_CLIENT_CUTOFF:
                             branches_with_exposures += 1
 
@@ -2678,14 +2723,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         }
 
     @property
+    def home_type(self):
+        if self.is_firefox_labs_opt_in:
+            return NimbusConstants.HomeTypeChoices.LABS
+        if self.is_rollout:
+            return NimbusConstants.HomeTypeChoices.ROLLOUT
+        return NimbusConstants.HomeTypeChoices.EXPERIMENT
+
+    @property
     def home_type_choice(self):
-        match (self.is_firefox_labs_opt_in, self.is_rollout):
-            case (True, _):
-                return NimbusConstants.HomeTypeChoices.LABS.label
-            case (False, True):
-                return NimbusConstants.HomeTypeChoices.ROLLOUT.label
-            case (False, False):
-                return NimbusConstants.HomeTypeChoices.EXPERIMENT.label
+        return self.home_type.label
+
+    @property
+    def type_icon_info(self):
+        return NimbusConstants.HomeTypeChoices.get_icon_info(self.home_type)
 
     @property
     def qa_status_icon_info(self):
@@ -2858,6 +2909,20 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         return sum(self.analysis_errors_by_key.values())
 
     @property
+    def results_errors_displayed_count(self):
+        count = 0
+        if self.results_data:
+            errors = self.results_data.get("v3", {}).get("errors", {})
+            for error_group, error_list in errors.items():
+                if not error_list:
+                    continue
+                if error_group == "experiment":
+                    count += len(error_list)
+                else:
+                    count += 1
+        return count
+
+    @property
     def reviewer_emails(self):
         return sorted(
             {
@@ -2919,6 +2984,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         cloned.published_dto = None
         cloned.published_date = None
         cloned.results_data = None
+        cloned.analysis_data = None
+        cloned.analysis_last_updated = None
         cloned.monitoring_data = None
         cloned.takeaways_summary = None
         cloned.next_steps = None

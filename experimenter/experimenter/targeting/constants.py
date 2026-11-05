@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 
 from django.db import models
@@ -8,6 +9,11 @@ from experimenter.experiments.constants import Application, NimbusConstants
 # here: https://searchfox.org/mozilla-central/source/browser/components/newtab/lib/ASRouterTargeting.jsm#526
 # and here:
 # https://searchfox.org/mozilla-central/source/toolkit/components/nimbus/lib/ExperimentManager.sys.mjs#94`
+
+PREFERENCE_TARGETING_TRANSFORM_PATTERN = re.compile(
+    r"""['"]([^'"]+)['"]\s*\|\s*(?:preferenceValue|preferenceIsUserSet"""
+    r"""|preferenceExists|preferenceIsLocked)\b"""
+)
 
 
 @dataclass
@@ -26,6 +32,10 @@ class NimbusTargetingConfig:
     def __post_init__(self):
         self.targeting_configs.append(self)
 
+    @property
+    def targeting_preferences(self):
+        return set(PREFERENCE_TARGETING_TRANSFORM_PATTERN.findall(self.targeting))
+
 
 PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
     Application.DESKTOP: {
@@ -38,6 +48,7 @@ PRESERVED_TARGETING_KEYS_BY_APPLICATION = {
         "isNonStubFirstRun",
         "localeLanguageCode",
         "attachedFxAOAuthClients",
+        "isFxASignedInMozilla",
     },
     Application.FENIX: {
         "current_date",
@@ -184,6 +195,21 @@ ADS_DISABLED = f"""
     {SPONSORED_SEARCH_SUGGESTIONS_DISABLED}
 )
 """
+# V2 is only sponsored shortcuts, stories, and search suggestions disabled by the
+# user. Ignores non-default new tab/homepage and shortcuts/stories fully disabled.
+ADS_DISABLED_V2 = f"""
+(
+    (
+        'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceIsUserSet
+        && !'browser.newtabpage.activity-stream.showSponsoredTopSites'|preferenceValue
+    )
+    || (
+        'browser.newtabpage.activity-stream.showSponsored'|preferenceIsUserSet
+        && !'browser.newtabpage.activity-stream.showSponsored'|preferenceValue
+    )
+    || ({SPONSORED_SEARCH_SUGGESTIONS_DISABLED})
+)
+"""
 # Most sponsored content is off by default in Brazil and Mexico, as of
 # June 26, 2025.
 ADS_DISABLED_BR_MX_2025_06_26 = TOPSITES_OR_SPONSORED_TOPSITES_DISABLED
@@ -213,6 +239,16 @@ HAS_PRIVACY_SETTING = """
     ('dom.security.https_only_mode'|preferenceValue)
 )
 """
+# V2 is same as HAS_PRIVACY_SETTING, plus HTTPS-Only Mode in private windows,
+# minus DNS over HTTPS
+HAS_PRIVACY_SETTING_V2 = """
+(
+    'browser.contentblocking.category'|preferenceValue != 'standard'
+    || 'privacy.globalprivacycontrol.enabled'|preferenceValue
+    || 'dom.security.https_only_mode'|preferenceValue
+    || 'dom.security.https_only_mode_pbm'|preferenceValue
+)
+"""
 # User has uBlock, Adblocker Ultimate, Adblock Plus, or Ghostery extensions
 HAS_AD_BLOCKER = """
 (
@@ -231,6 +267,17 @@ HAS_AD_BLOCKER = """
     )
 )
 """
+# Same as HAS_AD_BLOCKER, plus AdGuard AdBlocker
+HAS_AD_BLOCKER_V2 = """
+(
+    addonsInfo.addons['{d10d0bf8-f5b5-c8b4-a8b2-2b9879e08c5d}']
+    || addonsInfo.addons['uBlock0@raymondhill.net']
+    || addonsInfo.addons['adguardadblocker@adguard.com']
+    || addonsInfo.addons['jid1-NIfFY2CA8fy1tg@jetpack']
+    || addonsInfo.addons['adblockultimate@adblockultimate.net']
+    || addonsInfo.addons['firefox@ghostery.com']
+)
+"""
 
 TOU_EXPERIENCE_TOTAL = f"""
     (
@@ -240,6 +287,25 @@ TOU_EXPERIENCE_TOTAL = f"""
         +
         ({HAS_AD_BLOCKER} && 1 || 0)
     )
+"""
+
+# Users eligible for launch at login, without the ad blocker, privacy setting,
+# and sponsored content checks. Used by launch at login segment targetings.
+LAUNCH_AT_LOGIN_SEGMENT_BASE = """
+(
+    os.isWindows && os.windowsVersion >= 10
+    && !launchOnLoginEnabled
+    && launchOnLoginAllowedByPolicy
+    && 'browser.startup.windowsLaunchOnLogin.enabled'|preferenceValue
+    && (
+      !isMSIX
+      || os.windowsBuildNumber >= 22000
+      || version|versionCompare('157.!') >= 0
+    ) && profileAgeCreated < '2026-06-16'|date
+    && profileGroupProfileCount < 2
+    && !hasActiveEnterprisePolicies
+    && userMonthlyActivity|length < 25
+)
 """
 
 NO_TARGETING = NimbusTargetingConfig(
@@ -344,6 +410,26 @@ NON_STUB_FIRST_RUN = NimbusTargetingConfig(
         "(e.g. for about:welcome enrollment on Mac/Linux/MSIX Windows)"
     ),
     targeting=f"isNonStubFirstRun && {PROFILELESSTHAN1HOUR}",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+FIRST_RUN_LINUX = NimbusTargetingConfig(
+    name="First start-up users on Linux",
+    slug="first_run_linux",
+    description=(
+        "First start-up Linux users (e.g. for about:welcome), on their first "
+        "Nimbus update pass and before about:welcome has shown. Requires "
+        "Firefox 155+, where the preonboarding splash holds about:welcome "
+        "until Nimbus has loaded on all Linux builds"
+    ),
+    targeting=(
+        "os.isLinux && isNonStubFirstRun && "
+        f"{PROFILELESSTHAN1HOUR} && "
+        "!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue)"
+    ),
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
@@ -1049,6 +1135,17 @@ RELAY_USER = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+FXA_SIGNED_IN_MOZILLA = NimbusTargetingConfig(
+    name="Signed in with a Mozilla account",
+    slug="fxa_signed_in_mozilla",
+    description="Users signed in to a Firefox Account with an @mozilla.com email",
+    targeting="isFxASignedInMozilla",
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 NOT_RELAY_USER = NimbusTargetingConfig(
     name="Not Relay user",
     slug="not_relay_user",
@@ -1390,6 +1487,51 @@ WINDOWS_LAUNCH_AT_LOGIN_FINAL = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+LAUNCH_AT_LOGIN_SEGMENT_A = NimbusTargetingConfig(
+    name="Launch at Login Segment A",
+    slug="launch_at_login_segment_a",
+    description="Users eligible for the launch-at-login-infobar-segment-a treatment.",
+    targeting=f"""
+        {LAUNCH_AT_LOGIN_SEGMENT_BASE}
+        && {HAS_AD_BLOCKER_V2}
+        && !{HAS_PRIVACY_SETTING_V2}
+        && !{ADS_DISABLED_V2}
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+LAUNCH_AT_LOGIN_SEGMENT_B = NimbusTargetingConfig(
+    name="Launch at Login Segment B",
+    slug="launch_at_login_segment_b",
+    description="Users eligible for the launch-at-login-infobar-segment-b treatment.",
+    targeting=f"""
+        {LAUNCH_AT_LOGIN_SEGMENT_BASE}
+        && {HAS_PRIVACY_SETTING_V2}
+        && !{ADS_DISABLED_V2}
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+LAUNCH_AT_LOGIN_SEGMENT_C = NimbusTargetingConfig(
+    name="Launch at Login Segment C",
+    slug="launch_at_login_segment_c",
+    description="Users eligible for the launch-at-login-infobar-segment-c treatment.",
+    targeting=f"""
+        {LAUNCH_AT_LOGIN_SEGMENT_BASE}
+        && {ADS_DISABLED_V2}
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WINDOWS_LAUNCH_AT_LOGIN_NEW_USERS = NimbusTargetingConfig(
     name="New Windows users eligible for launch at login",
     slug="windows_launch_at_login_new_users",
@@ -1404,6 +1546,17 @@ WINDOWS_LAUNCH_AT_LOGIN_NEW_USERS = NimbusTargetingConfig(
     ),
     desktop_telemetry="",
     sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+LAUNCH_AT_LOGIN_ENABLED = NimbusTargetingConfig(
+    name="Users with launch at login enabled",
+    slug="launch_at_login_enabled",
+    description="Users who currently have launch at login enabled.",
+    targeting="launchOnLoginEnabled",
+    desktop_telemetry="",
+    sticky_required=True,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )
@@ -2673,6 +2826,24 @@ HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE_NO_STICKY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+GOOGLE_DEFAULT_SEARCH_TERMS_PERSISTENCE_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Google default with search term persistence and no enterprise policies",
+    slug="google_default_search_terms_persistence_no_enterprise",
+    description=(
+        "Users with Google as current default engine, search term persistence "
+        "enabled, and without enterprise policies"
+    ),
+    targeting=(
+        f"{HAS_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE.targeting} && "
+        "'browser.urlbar.showSearchTerms.enabled'|preferenceValue && "
+        "!hasActiveEnterprisePolicies"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 DOES_NOT_HAVE_GOOGLE_AS_CURRENT_DEFAULT_SEARCH_ENGINE = NimbusTargetingConfig(
     name="Does not have Google as current default search engine",
     slug="does_not_have_google_as_current_default_search_engine",
@@ -2747,6 +2918,23 @@ EXISTING_USER_NEED_PIN = NimbusTargetingConfig(
     slug="existing_user_need_pin",
     description="Users with profiles older than 28 days who have not pinned",
     targeting=f"{PROFILE28DAYS} && doesAppNeedPin",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_NEED_PIN_WIN11_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Existing Windows 11 user (need pin, no enterprise policies)",
+    slug="existing_user_need_pin_win11_no_enterprise",
+    description=(
+        "Windows 11 users with profiles older than 28 days who have not pinned, "
+        "excluding users with enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && doesAppNeedPin && !hasActiveEnterprisePolicies && "
+        "os.isWindows && os.windowsBuildNumber >= 22000"
+    ),
     desktop_telemetry="",
     sticky_required=True,
     is_first_run_required=False,
@@ -5424,6 +5612,28 @@ WIDGETS_LISTS_OR_TIMER_INTERACTED_NOT_DISABLED_FX_153_1_TRAINHOP_MAX = (
     )
 )
 
+WIDGETS_POTD_INTERACTED_NOT_TURNED_OFF = NimbusTargetingConfig(
+    name="New Tab Picture of the Day Interaction, Widget Not Turned Off",
+    slug="widgets-potd-interacted-not-turned-off",
+    description=(
+        "Users who have interacted with the Picture of the Day widget and have "
+        "not turned it off"
+    ),
+    targeting=(
+        "("
+        "'browser.newtabpage.activity-stream.widgets.pictureOfTheDay.interaction'"
+        "|preferenceValue) && !(("
+        "'browser.newtabpage.activity-stream.widgets.pictureOfTheDay.enabled'"
+        "|preferenceIsUserSet) && !("
+        "'browser.newtabpage.activity-stream.widgets.pictureOfTheDay.enabled'"
+        "|preferenceValue))"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 WIDGETS_ANY_FOUR_ENGAGED = NimbusTargetingConfig(
     name="Engaged with Sports/Clocks/Lists/Timer widget, that widget not disabled",
     slug="widgets-any-four-engaged",
@@ -5979,6 +6189,61 @@ CBWN_DELIVERY_ESTABLISHED_PROFILES = NimbusTargetingConfig(
     ),
     desktop_telemetry="",
     sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_WEB_PUSH_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Existing user, active web push subscription, no enterprise policies",
+    slug="existing_user_web_push_no_enterprise",
+    description=(
+        "Users with profiles 28 days or older, without active enterprise "
+        "policies, who have at least one active web push subscription. "
+        "Requires Firefox 160+; include the includeForWebPush feature so "
+        "targeting is re-checked once the web push service starts"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && "
+        f"{NO_ENTERPRISE.targeting} && "
+        "activeWebPushSubscriptionCount > 0"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+EXISTING_USER_WEB_PUSH_WINDOWS_NO_ENTERPRISE = NimbusTargetingConfig(
+    name="Existing Windows user, active web push subscription, no enterprise policies",
+    slug="existing_user_web_push_windows_no_enterprise",
+    description=(
+        "Windows 10+ users with profiles 28 days or older, without active "
+        "enterprise policies, who have at least one active web push "
+        "subscription. Requires Firefox 160+; include the includeForWebPush "
+        "feature so targeting is re-checked once the web push service starts"
+    ),
+    targeting=(
+        "os.isWindows && os.windowsVersion >= 10 && "
+        f"{PROFILE28DAYS} && "
+        f"{NO_ENTERPRISE.targeting} && "
+        "activeWebPushSubscriptionCount > 0"
+    ),
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+NO_FORGET_BUTTON = NimbusTargetingConfig(
+    name="Forget button not in toolbar",
+    slug="no_forget_button",
+    description=(
+        "Users who don't have the Forget button in their toolbar or overflow "
+        "menu. Users who add it after enrolling are unenrolled."
+    ),
+    targeting="forgetButtonAreaType == null",
+    desktop_telemetry="",
+    sticky_required=False,
     is_first_run_required=False,
     application_choice_names=(Application.DESKTOP.name,),
 )

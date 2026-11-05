@@ -5,6 +5,61 @@ from django.conf import settings
 from experimenter.experiments.constants import NimbusConstants
 
 
+class RecordedPrefs:
+    """The prefs the Desktop recorder writes to nimbus_targeting_environment.pref_values.
+
+    Targeting may reference any pref, but only these are recorded, so a reference
+    to any other resolves to NULL in the sizing SQL and matches nobody.
+    """
+
+    _desktop_prefs = None
+
+    # Keys sit at indent 2 inside the object literal. The value may wrap onto the
+    # next line, so match the key alone.
+    _PREF_KEY = re.compile(r'^  "([^"]+)"')
+
+    @classmethod
+    def _parse(cls, targeting_context_code):
+        found_block = False
+        prefs = []
+
+        for line in targeting_context_code.splitlines():
+            if line.strip() == "export const PREFS = Object.freeze({":
+                found_block = True
+            elif found_block and line.strip() == "});":
+                break
+            elif found_block:
+                if match := cls._PREF_KEY.match(line):
+                    prefs.append(match.group(1))
+
+        return prefs
+
+    @classmethod
+    def clear_cache(cls):
+        cls._desktop_prefs = None
+
+    @classmethod
+    def for_desktop(cls):
+        """Union across every recorder version held in the repo.
+
+        The sizing pool spans Firefox versions, so a pref dropped from the
+        current recorder is still present in data from older clients. Taking
+        only the current list would warn on prefs that do resolve.
+        """
+        if cls._desktop_prefs is None:
+            app = NimbusConstants.Application.DESKTOP
+            app_path = settings.FEATURE_MANIFESTS_PATH / app
+            file_name = NimbusConstants.APPLICATION_CONFIGS[
+                app
+            ].targeting_context_file_name
+
+            prefs = set()
+            for path in app_path.glob(f"**/{file_name}"):
+                prefs.update(cls._parse(path.read_text()))
+            cls._desktop_prefs = sorted(prefs)
+        return cls._desktop_prefs
+
+
 class TargetingContextFields:
     _desktop_targeting_fields = None
     _fenix_targeting_fields = None

@@ -1501,6 +1501,37 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 }
             )
 
+        if not is_sticky:
+            targeted_prefs = targeting_config.targeting_preferences
+            reasons = set()
+
+            for feature_slug, variable, pref in self.instance.get_branch_feature_prefs():
+                if pref in targeted_prefs:
+                    reasons.add(
+                        NimbusConstants.STICKY_ENROLLMENT_PREF_CONFLICT_REASON.format(
+                            feature=feature_slug, pref=pref, variable=variable
+                        )
+                    )
+
+            pref_flips_reason = (
+                NimbusConstants.STICKY_ENROLLMENT_PREF_CONFLICT_PREFFLIPS_REASON
+            )
+            for _, pref in self.instance.get_branch_pref_flips_prefs():
+                if pref in targeted_prefs:
+                    reasons.add(pref_flips_reason.format(pref=pref))
+
+            if reasons:
+                raise serializers.ValidationError(
+                    {
+                        "is_sticky": (
+                            NimbusConstants.ERROR_STICKY_ENROLLMENT_PREF_CONFLICT.format(
+                                reasons=", ".join(sorted(reasons)),
+                                targeting_config=targeting_config.name,
+                            )
+                        )
+                    }
+                )
+
         return data
 
     def _validate_localizations(self, data):
@@ -1762,6 +1793,210 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     verb="is" if len(placeholder_slugs) == 1 else "are",
                 )
             ]
+
+        return data
+
+    @staticmethod
+    def _is_desktop_messaging_feature(feature_config):
+        slug = feature_config.slug
+        return slug in NimbusConstants.DESKTOP_MESSAGING_FEATURE_SLUGS or slug.startswith(
+            NimbusConstants.DESKTOP_FXMS_MESSAGE_PLACEHOLDER_PREFIX
+        )
+
+    @staticmethod
+    def _desktop_messages(value):
+        json_value = json.loads(value)
+        messages = [json_value]
+        if (
+            isinstance(json_value, dict)
+            and json_value.get("template")
+            == NimbusConstants.DESKTOP_MESSAGING_MULTI_TEMPLATE
+        ):
+            messages = json_value.get("messages") or []
+        return [
+            message
+            for message in messages
+            if isinstance(message, dict) and message.get("id")
+        ]
+
+    @classmethod
+    def _branch_desktop_messages(cls, branch, feature_config):
+        return [
+            message
+            for feature_value in branch["feature_values"]
+            if feature_value["feature_config"] == feature_config
+            for message in cls._desktop_messages(feature_value["value"])
+        ]
+
+    @staticmethod
+    def _desktop_messages_match(message, other_message):
+        return message.get("trigger") == other_message.get("trigger") and (
+            message.get("targeting") == other_message.get("targeting")
+        )
+
+    def _validate_desktop_messaging_control_message(self, data):
+        if data.get("is_rollout"):
+            return data
+
+        reference_branch = data.get("reference_branch", {})
+        treatment_branches = data.get("treatment_branches", [])
+
+        feature_slugs = sorted(
+            feature_config.slug
+            for feature_config in data.get("feature_configs", [])
+            if self._is_desktop_messaging_feature(feature_config)
+            and not self._branch_desktop_messages(reference_branch, feature_config)
+            and any(
+                self._branch_desktop_messages(branch, feature_config)
+                for branch in treatment_branches
+            )
+        )
+
+        if feature_slugs:
+            self.warnings["messaging_control_no_message"] = [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_NO_MESSAGE.format(
+                    feature_slugs=", ".join(feature_slugs)
+                )
+            ]
+
+        return data
+
+    def _validate_desktop_messaging_control_mismatch(self, data):
+        if data.get("is_rollout"):
+            return data
+
+        reference_branch = data.get("reference_branch", {})
+        treatment_branches = data.get("treatment_branches", [])
+
+        warnings = []
+        for feature_config in sorted(
+            data.get("feature_configs", []),
+            key=lambda feature_config: feature_config.slug,
+        ):
+            if not self._is_desktop_messaging_feature(feature_config):
+                continue
+
+            control_messages = self._branch_desktop_messages(
+                reference_branch, feature_config
+            )
+            if not control_messages:
+                continue
+
+            unmatched_ids = sorted(
+                {
+                    message["id"]
+                    for branch in treatment_branches
+                    for message in self._branch_desktop_messages(branch, feature_config)
+                    if not any(
+                        self._desktop_messages_match(message, control_message)
+                        for control_message in control_messages
+                    )
+                }
+            )
+            if unmatched_ids:
+                warnings.append(
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_CONTROL_MISMATCH.format(
+                        feature_slug=feature_config.slug,
+                        noun="message" if len(unmatched_ids) == 1 else "messages",
+                        message_ids=", ".join(unmatched_ids),
+                    )
+                )
+
+        if warnings:
+            self.warnings["messaging_control_mismatch"] = warnings
+
+        return data
+
+    def _validate_desktop_messaging_active_notifications(self, data):
+        branches = [data.get("reference_branch", {}), *data.get("treatment_branches", [])]
+
+        warnings = []
+        for feature_config in sorted(
+            data.get("feature_configs", []),
+            key=lambda feature_config: feature_config.slug,
+        ):
+            if not self._is_desktop_messaging_feature(feature_config):
+                continue
+
+            message_ids = sorted(
+                {
+                    message["id"]
+                    for branch in branches
+                    for message in self._branch_desktop_messages(branch, feature_config)
+                    if message.get("template")
+                    and message["template"]
+                    not in NimbusConstants.DESKTOP_MESSAGING_SKIPPED_TEMPLATES
+                    and (
+                        not isinstance(message.get("targeting"), str)
+                        or "activeNotifications" not in message["targeting"]
+                    )
+                }
+            )
+            if message_ids:
+                warnings.append(
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_ACTIVE_NOTIFICATIONS.format(
+                        feature_slug=feature_config.slug,
+                        noun="message" if len(message_ids) == 1 else "messages",
+                        message_ids=", ".join(message_ids),
+                    )
+                )
+
+        if warnings:
+            self.warnings["messaging_active_notifications"] = warnings
+
+        return data
+
+    @staticmethod
+    def _desktop_message_has_frequency_group_or_preference_check(message):
+        groups = message.get("groups")
+        if isinstance(groups, list) and groups:
+            return True
+
+        targeting = message.get("targeting")
+        return isinstance(targeting, str) and any(
+            preference_check in targeting
+            for preference_check in (
+                NimbusConstants.DESKTOP_MESSAGING_FREQUENCY_GROUP_PREFERENCE_CHECKS
+            )
+        )
+
+    def _validate_desktop_messaging_frequency_group(self, data):
+        branches = [data.get("reference_branch", {}), *data.get("treatment_branches", [])]
+
+        warnings = []
+        for feature_config in sorted(
+            data.get("feature_configs", []),
+            key=lambda feature_config: feature_config.slug,
+        ):
+            if not self._is_desktop_messaging_feature(feature_config):
+                continue
+
+            message_ids = sorted(
+                {
+                    message["id"]
+                    for branch in branches
+                    for message in self._branch_desktop_messages(branch, feature_config)
+                    if message.get("template")
+                    and not self._desktop_message_has_frequency_group_or_preference_check(
+                        message
+                    )
+                }
+            )
+            if message_ids:
+                warning = (
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_SINGULAR
+                    if len(message_ids) == 1
+                    else NimbusConstants.WARNING_DESKTOP_MESSAGING_FREQUENCY_GROUP_PLURAL
+                )
+                warnings.append(
+                    warning.format(
+                        feature_slug=feature_config.slug,
+                        message_ids=", ".join(message_ids),
+                    )
+                )
+
+        if warnings:
+            self.warnings["messaging_frequency_group"] = warnings
 
         return data
 
@@ -2083,6 +2318,10 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_desktop_pref_flips(data)
             data = self._validate_desktop_multichannel(data)
             data = self._validate_desktop_fxms_message_coenrollment(data)
+            data = self._validate_desktop_messaging_control_message(data)
+            data = self._validate_desktop_messaging_control_mismatch(data)
+            data = self._validate_desktop_messaging_active_notifications(data)
+            data = self._validate_desktop_messaging_frequency_group(data)
         return data
 
 
@@ -2146,8 +2385,12 @@ class NimbusRolloutReviewSerializer(NimbusReviewSerializer):
         if phase.start_date and phase.end_date and phase.end_date < phase.start_date:
             errors.append(NimbusConstants.ERROR_ROLLOUT_PHASE_DATE_ORDER)
         if previous_phase is not None:
-            boundary = previous_phase.end_date or previous_phase.start_date
-            if boundary and phase.start_date and phase.start_date < boundary:
+            boundary = previous_phase.end_date or previous_phase.effective_start_date
+            if (
+                boundary
+                and phase.effective_start_date
+                and phase.effective_start_date < boundary
+            ):
                 errors.append(NimbusConstants.ERROR_ROLLOUT_PHASE_SEQUENCE)
         return errors
 

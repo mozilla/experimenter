@@ -1,6 +1,7 @@
 from unittest.mock import Mock, patch
 
 from django.test import TestCase, override_settings
+from parameterized import parameterized
 from slack_sdk.errors import SlackApiError
 
 from experimenter.experiments.constants import NimbusConstants
@@ -59,11 +60,13 @@ class TestSlackNotifications(TestCase):
 
         # Verify channel message format includes experiment URL
         channel_call = mock_client.chat_postMessage.call_args_list[0]
-        message = channel_call.kwargs["text"]
-        self.assertIn(self.experiment.experiment_url, message)
-        self.assertIn(self.experiment.name, message)
-        self.assertIn(action_text, message)
-        self.assertIn("<@U123456>", message)
+        self.assertEqual(
+            channel_call.kwargs["text"],
+            (
+                "🛑 Ready to end experiment: "
+                f"<{self.experiment.experiment_url}|{self.experiment.name}> @ <@U123456>"
+            ),
+        )
 
     @override_settings(SLACK_AUTH_TOKEN=None)
     @patch("experimenter.slack.notification.WebClient")
@@ -183,6 +186,7 @@ class TestSlackNotifications(TestCase):
                 SlackConstants.SLACK_ACTION_LAUNCH_REQUEST
             ],
             requesting_user_email="requester@example.com",
+            link_url=self.experiment.experiment_url,
         )
 
         # Should call users_lookupByEmail twice
@@ -193,14 +197,14 @@ class TestSlackNotifications(TestCase):
         self.assertEqual(mock_client.conversations_open.call_count, 2)
 
         call_args = mock_client.chat_postMessage.call_args_list[0]
-        message = call_args.kwargs["text"]
-        # format: @user action: Experiment Name @mentions
-        self.assertIn("<@U123456>", message)  # requesting user
-        self.assertIn(
-            SlackConstants.SLACK_FORM_ACTIONS[SlackConstants.SLACK_ACTION_LAUNCH_REQUEST],
-            message,
+        self.assertEqual(
+            call_args.kwargs["text"],
+            (
+                "🚀 Requests launch: "
+                f"<{self.experiment.experiment_url}|{self.experiment.name}> "
+                "@ <@U123456> <@U789012>"
+            ),
         )
-        self.assertIn("<@U789012>", message)  # mentioned user
 
         # Verify both DM messages include channel name prefix
         dm_call_1 = mock_client.chat_postMessage.call_args_list[1]
@@ -565,7 +569,7 @@ class TestSlackNotifications(TestCase):
         result = send_threaded_success_message(
             experiment_id=self.experiment.id,
             thread_ts=thread_ts,
-            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            action_text=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
             log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
             success_log_message=lambda slug: f"Sent launch success message for {slug}",
         )
@@ -574,10 +578,13 @@ class TestSlackNotifications(TestCase):
         # Verify threaded message was posted
         mock_client.chat_postMessage.assert_called_once()
         call_args = mock_client.chat_postMessage.call_args
-        self.assertIn("✅", call_args.kwargs["text"])
-        self.assertIn("LIVE", call_args.kwargs["text"])
-        self.assertIn(self.experiment.name, call_args.kwargs["text"])
-        self.assertIn(self.experiment.slug, call_args.kwargs["text"])
+        self.assertEqual(
+            call_args.kwargs["text"],
+            (
+                "🚀 ✅ Launched: "
+                f"<{self.experiment.experiment_url}|{self.experiment.name}>"
+            ),
+        )
         self.assertEqual(call_args.kwargs["thread_ts"], thread_ts)
 
         # Verify eyes emoji was removed
@@ -596,6 +603,48 @@ class TestSlackNotifications(TestCase):
         )
         self.assertEqual(reaction_call.kwargs["timestamp"], thread_ts)
 
+    @parameterized.expand(
+        [
+            (SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE, "🚀 ✅ Launched"),
+            (SlackConstants.SLACK_UPDATE_SUCCESS_MESSAGE, "🔄 ✅ Published update"),
+            (SlackConstants.SLACK_ENROLLMENT_ENDED_MESSAGE, "⏸️ ✅ Ended enrollment"),
+            (SlackConstants.SLACK_EXPERIMENT_ENDED_MESSAGE, "🛑 ✅ Ended experiment"),
+            (
+                SlackConstants.SLACK_ROLLOUT_PHASE_ADVANCED_MESSAGE,
+                "⏩ ✅ Advanced rollout phase",
+            ),
+            (SlackConstants.SLACK_ROLLOUT_DISABLED_MESSAGE, "⏸️ ✅ Disabled rollout"),
+            (SlackConstants.SLACK_ROLLOUT_REENABLED_MESSAGE, "▶️ ✅ Re-enabled rollout"),
+        ]
+    )
+    @override_settings(
+        SLACK_AUTH_TOKEN="test-token",
+        SLACK_NIMBUS_CHANNEL="C123456",
+    )
+    @patch("experimenter.slack.notification.WebClient")
+    def test_send_threaded_success_message_text(
+        self, action_text, expected_action, mock_webclient
+    ):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.chat_postMessage.return_value = {"ok": True, "channel": "C123456"}
+
+        send_threaded_success_message(
+            experiment_id=self.experiment.id,
+            thread_ts="1234567890.123456",
+            action_text=action_text,
+            log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
+            success_log_message=lambda slug: f"Sent success message for {slug}",
+        )
+
+        self.assertEqual(
+            mock_client.chat_postMessage.call_args.kwargs["text"],
+            (
+                f"{expected_action}: "
+                f"<{self.experiment.experiment_url}|{self.experiment.name}>"
+            ),
+        )
+
     @override_settings(
         SLACK_AUTH_TOKEN="test-token",
         SLACK_NIMBUS_CHANNEL="C123456",
@@ -612,7 +661,7 @@ class TestSlackNotifications(TestCase):
         result = send_threaded_success_message(
             experiment_id=self.experiment.id,
             thread_ts=thread_ts,
-            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            action_text=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
             log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
             success_log_message=lambda slug: f"Sent launch success message for {slug}",
         )
@@ -642,7 +691,7 @@ class TestSlackNotifications(TestCase):
         result = send_threaded_success_message(
             experiment_id=self.experiment.id,
             thread_ts=thread_ts,
-            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            action_text=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
             log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
             success_log_message=lambda slug: f"Sent launch success message for {slug}",
         )
@@ -670,7 +719,7 @@ class TestSlackNotifications(TestCase):
         result = send_threaded_success_message(
             experiment_id=self.experiment.id,
             thread_ts=thread_ts,
-            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            action_text=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
             log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
             success_log_message=lambda slug: f"Sent launch success message for {slug}",
         )
@@ -683,7 +732,7 @@ class TestSlackNotifications(TestCase):
         result = send_threaded_success_message(
             experiment_id=999999,
             thread_ts=thread_ts,
-            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            action_text=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
             log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
             success_log_message=lambda slug: f"Sent launch success message for {slug}",
         )
@@ -697,7 +746,7 @@ class TestSlackNotifications(TestCase):
         result = send_threaded_success_message(
             experiment_id=self.experiment.id,
             thread_ts=thread_ts,
-            message_template=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
+            action_text=SlackConstants.SLACK_LAUNCH_SUCCESS_MESSAGE,
             log_operation=SlackConstants.SLACK_OPERATION_LAUNCH_SUCCESS,
             success_log_message=lambda slug: f"Sent launch success message for {slug}",
         )
@@ -1130,6 +1179,37 @@ class TestSlackNotifications(TestCase):
 
     @override_settings(SLACK_AUTH_TOKEN="test-token")
     @patch("experimenter.slack.notification.WebClient")
+    def test_send_slack_notification_puts_details_below_headline(self, mock_webclient):
+        mock_client = Mock()
+        mock_webclient.return_value = mock_client
+        mock_client.users_lookupByEmail.return_value = {"user": {"id": "U123456"}}
+        mock_client.chat_postMessage.return_value = {
+            "ok": True,
+            "ts": "9999999999.000001",
+            "channel": "C123456",
+        }
+
+        send_slack_notification(
+            experiment_id=self.experiment.id,
+            email_addresses=["test@example.com"],
+            action_text="⚠️ Analysis errors",
+            link_url=self.experiment.results_url,
+            thread_ts="1234567890.123456",
+            details="- experiment: BadRequest\n- retained: StatisticComputationException",
+        )
+
+        self.assertEqual(
+            mock_client.chat_postMessage.call_args.kwargs["text"],
+            (
+                "⚠️ Analysis errors: "
+                f"<{self.experiment.results_url}|{self.experiment.name}> @ <@U123456>\n"
+                "- experiment: BadRequest\n"
+                "- retained: StatisticComputationException"
+            ),
+        )
+
+    @override_settings(SLACK_AUTH_TOKEN="test-token")
+    @patch("experimenter.slack.notification.WebClient")
     def test_send_slack_notification_threaded_skips_dms(self, mock_webclient):
         mock_client = Mock()
         mock_webclient.return_value = mock_client
@@ -1143,7 +1223,7 @@ class TestSlackNotifications(TestCase):
         result = send_slack_notification(
             experiment_id=self.experiment.id,
             email_addresses=["test@example.com"],
-            action_text="📈 Weekly analysis results are now available",
+            action_text="📈 Weekly results ready",
             link_url=self.experiment.results_url,
             thread_ts="1234567890.123456",
         )

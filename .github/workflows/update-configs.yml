@@ -18,7 +18,7 @@ jobs:
         with:
           ref: main
 
-      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         id: app-token
         with:
           app-id: ${{ vars.GH_APP_ID }}
@@ -50,7 +50,7 @@ jobs:
             git add experimenter/ schemas/
             git commit -m 'chore(nimbus): Update External Configs'
             git fetch origin external-config 2>/dev/null || true
-            if git show-ref --verify --quiet refs/remotes/origin/external-config && [ -z "$(git diff external-config origin/external-config -- experimenter/experimenter/features/manifests/ experimenter/experimenter/addons/versions/ schemas/ ':(exclude,glob)**/.ref-cache.yaml')" ]; then
+            if git show-ref --verify --quiet refs/remotes/origin/external-config && [ -z "$(git diff external-config origin/external-config -- experimenter/experimenter/features/manifests/ experimenter/experimenter/addons/versions/ experimenter/experimenter/experiments/versions.yaml schemas/ ':(exclude,glob)**/.ref-cache.yaml')" ]; then
               echo "Content matches existing PR (ignoring ref-cache bumps and main-only advancement), skipping"
             else
               gh pr close external-config --repo mozilla/experimenter 2>/dev/null || true
@@ -75,7 +75,7 @@ jobs:
         with:
           ref: main
 
-      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         id: app-token
         with:
           app-id: ${{ vars.GH_APP_ID }}

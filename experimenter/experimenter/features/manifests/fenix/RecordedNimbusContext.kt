@@ -35,7 +35,7 @@ import org.mozilla.fenix.utils.Settings
 const val DAYS_OPENED_IN_LAST_28 = "days_opened_in_last_28"
 
 /** [EVENT_QUERIES] is a map of keys to Nimbus SDK EventStore queries. */
-private val EVENT_QUERIES = mapOf(DAYS_OPENED_IN_LAST_28 to "'events.app_opened'|eventCountNonZero('Days', 28, 0)")
+private val EVENT_QUERIES = mapOf(DAYS_OPENED_IN_LAST_28 to "'app_opened'|eventCountNonZero('Days', 28, 0)")
 
 /**
  * The RecordedNimbusContext class inherits from an internal Nimbus interface that provides methods for obtaining a JSON

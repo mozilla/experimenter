@@ -74,6 +74,7 @@ from experimenter.nimbus_ui.views import (
     EditOutcomeSummaryView,
     FeatureSubscribersUpdateView,
     GrafanaProxyView,
+    HighwindResultsView,
     LiveToCompleteView,
     LiveToEndEnrollmentView,
     LiveToUpdateRolloutView,
@@ -429,6 +430,11 @@ urlpatterns = [
         r"^(?P<slug>[\w-]+)/results/$",
         ResultsView.as_view(),
         name="nimbus-ui-results",
+    ),
+    re_path(
+        r"^(?P<slug>[\w-]+)/highwind-results/$",
+        HighwindResultsView.as_view(),
+        name="nimbus-ui-highwind-results",
     ),
     re_path(
         r"^(?P<slug>[\w-]+)/results/export/$",

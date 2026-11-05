@@ -302,3 +302,10 @@ slug = "preonboarding"
 [features.preonboarding.metrics_by_source.messaging_system.string]
 messaging_system_event = {}
 messaging_system_ping_type = {}
+
+[features.logins_rust_storage]
+slug = "logins-rust-storage"
+
+[features.logins_rust_storage.metrics_by_source.events_stream.event.pwmgr]
+primary_password_prompt = { aggregators = ["avg", "sum"] }
+storage_operation_time = { aggregators = ["avg"] }

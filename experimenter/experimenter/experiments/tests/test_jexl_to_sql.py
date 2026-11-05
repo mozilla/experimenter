@@ -4,6 +4,7 @@ from parameterized import parameterized
 from experimenter.experiments.jexl_to_sql import (
     FENIX_APP,
     IOS_APP,
+    JEXL_TO_BQ_COLUMN,
     KNOWN_UNTRANSLATABLE,
     ensure_bool_sql,
     jexl_to_sql,
@@ -39,6 +40,9 @@ _M_UTM_SOURCE = _ctx("install_referrer_response_utm_source")
 _M_EVENT_QUERY = _ctx("event_query_values.days_opened_in_last_28", "INT64")
 _M_DEFAULT_BROWSER = _ctx("is_default_browser", "BOOL")
 _M_PHONE = _ctx("is_phone", "BOOL")
+_M_ADDON_UBLOCK = (
+    "('uBlock0@raymondhill.net' IN UNNEST(JSON_VALUE_ARRAY(context, '$.addon_ids')))"
+)
 
 _OS = "metrics.object.nimbus_targeting_context_os"
 _BS = "metrics.object.nimbus_targeting_context_browser_settings"
@@ -49,6 +53,9 @@ _PREF = "metrics.object.nimbus_targeting_environment_pref_values"
 _USER_PREFS = "metrics.object.nimbus_targeting_environment_user_set_prefs"
 _UMA = "metrics.object.nimbus_targeting_context_user_monthly_activity"
 _FF = "metrics.quantity.nimbus_targeting_context_firefox_version"
+_EM = "metrics.object.nimbus_targeting_context_enrollments_map"
+_AE = "metrics.object.nimbus_targeting_context_active_experiments"
+_AR = "metrics.object.nimbus_targeting_context_active_rollouts"
 
 
 class TestJEXLToSQL(TestCase):
@@ -90,6 +97,16 @@ class TestJEXLToSQL(TestCase):
                 "allowed_notification_origins",
                 "allowedNotificationOrigins",
                 "metrics.quantity.nimbus_targeting_context_allowed_notification_origins",
+            ),
+            (
+                "profile_last_use",
+                "profileLastUse",
+                "metrics.quantity.nimbus_targeting_context_profile_last_use",
+            ),
+            (
+                "previous_session_end",
+                "previousSessionEnd",
+                "metrics.quantity.nimbus_targeting_context_previous_session_end",
             ),
             (
                 "os_is_mac",
@@ -136,6 +153,63 @@ class TestJEXLToSQL(TestCase):
     @parameterized.expand(
         [
             (
+                "defaultPDFHandler.knownBrowser",
+                "metrics.object.nimbus_targeting_context_default_pdf_handler",
+                "knownBrowser",
+            ),
+            (
+                "defaultPDFHandler.registered",
+                "metrics.object.nimbus_targeting_context_default_pdf_handler",
+                "registered",
+            ),
+            (
+                "isDefaultHandler.pdf",
+                "metrics.object.nimbus_targeting_context_is_default_handler",
+                "pdf",
+            ),
+            (
+                "isDefaultHandler.html",
+                "metrics.object.nimbus_targeting_context_is_default_handler",
+                "html",
+            ),
+        ]
+    )
+    def test_default_handler_boolean_subfields(self, attribute, column, field):
+        sql = f"CAST(JSON_VALUE({column}, '$.{field}') AS BOOL)"
+        for expression, expected_sql in [
+            (attribute, sql),
+            (f"{attribute} == true", f"{sql} = TRUE"),
+            (f"{attribute} == false", f"{sql} = FALSE"),
+            (f"!{attribute}", f"NOT ({sql})"),
+            (
+                f"{attribute} && region == 'US'",
+                f"({sql} AND metrics.string.nimbus_targeting_context_region = 'US')",
+            ),
+        ]:
+            with self.subTest(expression=expression):
+                result = jexl_to_sql(expression)
+                self.assertEqual(result.sql, expected_sql)
+                self.assertEqual(result.warnings, [])
+
+    @parameterized.expand(
+        [
+            ("pdf", "isDefaultHandler", "pdf"),
+            ("known_browser", "defaultPDFHandler", "knownBrowser"),
+        ]
+    )
+    def test_null_guarded_object_reads_like_the_plain_path(self, _name, obj, field):
+        guarded = jexl_to_sql(f"!({obj} || {{}}).{field}")
+        plain = jexl_to_sql(f"!{obj}.{field}")
+        self.assertEqual(guarded.sql, plain.sql)
+        self.assertEqual(guarded.warnings, [])
+
+    def test_null_guard_on_a_non_empty_fallback_is_not_unwrapped(self):
+        result = jexl_to_sql("(isDefaultHandler || {pdf: true}).pdf")
+        self.assertIsNone(result.sql)
+
+    @parameterized.expand(
+        [
+            (
                 "locale_eq",
                 'locale == "en-US"',
                 "metrics.string.nimbus_targeting_context_locale = 'en-US'",
@@ -167,43 +241,58 @@ class TestJEXLToSQL(TestCase):
             ),
             (
                 "pref_value_eq_bool_false",
-                "'browser.shell.checkDefaultBrowser'|preferenceValue == false",
-                f"JSON_VALUE({_PREF}, '$.browser__shell__checkDefaultBrowser') = 'false'",
+                "'browser.newtabpage.enabled'|preferenceValue == false",
+                f"JSON_VALUE({_PREF}, '$.browser__newtabpage__enabled') = 'false'",
             ),
             (
                 "pref_value_eq_bool_true",
-                "'app.normandy.enabled'|preferenceValue == true",
-                f"JSON_VALUE({_PREF}, '$.app__normandy__enabled') = 'true'",
+                "'browser.profiles.created'|preferenceValue == true",
+                f"JSON_VALUE({_PREF}, '$.browser__profiles__created') = 'true'",
+            ),
+            (
+                # The recorder maps - to _ as well as . to __, so a hyphenated
+                # pref looked up under its raw name matches nobody.
+                "pref_value_hyphenated_name",
+                "'browser.newtabpage.activity-stream.feeds.topsites'|preferenceValue",
+                (
+                    f"JSON_VALUE({_PREF},"
+                    " '$.browser__newtabpage__activity_stream__feeds__topsites')"
+                ),
+            ),
+            (
+                "pref_value_hyphen_only",
+                "'nimbus.qa.pref-1'|preferenceValue == 'x'",
+                f"JSON_VALUE({_PREF}, '$.nimbus__qa__pref_1') = 'x'",
             ),
             (
                 "pref_value_eq_bool_reversed",
-                "false == 'browser.shell.checkDefaultBrowser'|preferenceValue",
-                f"'false' = JSON_VALUE({_PREF}, '$.browser__shell__checkDefaultBrowser')",
+                "false == 'browser.newtabpage.enabled'|preferenceValue",
+                f"'false' = JSON_VALUE({_PREF}, '$.browser__newtabpage__enabled')",
             ),
             (
                 "pref_value_neq_bool_false",
                 # null != false is true in JEXL — unset prefs (NULL) must pass
-                "'app.shield.optoutstudies.enabled'|preferenceValue != false",
+                "'termsofuse.bypassNotification'|preferenceValue != false",
                 (
-                    f"(JSON_VALUE({_PREF}, '$.app__shield__optoutstudies__enabled')"
+                    f"(JSON_VALUE({_PREF}, '$.termsofuse__bypassNotification')"
                     f" IS NULL OR JSON_VALUE({_PREF},"
-                    f" '$.app__shield__optoutstudies__enabled') != 'false')"
+                    f" '$.termsofuse__bypassNotification') != 'false')"
                 ),
             ),
             (
                 "pref_value_neq_bool_true",
-                "'some.pref'|preferenceValue != true",
+                "'network.trr.mode'|preferenceValue != true",
                 (
-                    f"(JSON_VALUE({_PREF}, '$.some__pref') IS NULL"
-                    f" OR JSON_VALUE({_PREF}, '$.some__pref') != 'true')"
+                    f"(JSON_VALUE({_PREF}, '$.network__trr__mode') IS NULL"
+                    f" OR JSON_VALUE({_PREF}, '$.network__trr__mode') != 'true')"
                 ),
             ),
             (
                 "pref_value_neq_bool_reversed",
-                "false != 'app.normandy.enabled'|preferenceValue",
+                "false != 'browser.profiles.created'|preferenceValue",
                 (
-                    f"(JSON_VALUE({_PREF}, '$.app__normandy__enabled') IS NULL"
-                    f" OR 'false' != JSON_VALUE({_PREF}, '$.app__normandy__enabled'))"
+                    f"(JSON_VALUE({_PREF}, '$.browser__profiles__created') IS NULL"
+                    f" OR 'false' != JSON_VALUE({_PREF}, '$.browser__profiles__created'))"
                 ),
             ),
         ]
@@ -224,6 +313,8 @@ class TestJEXLToSQL(TestCase):
             ),
             ("mobile_attr", "days_since_install < 7", "days_since_install"),
             ("unknown_attr", "someUnknownAttribute", "someUnknownAttribute"),
+            ("pdf_handler_parent", "defaultPDFHandler", "defaultPDFHandler"),
+            ("default_handler_parent", "isDefaultHandler", "isDefaultHandler"),
             (
                 "newtab_addon_version",
                 "newtabAddonVersion|versionCompare('145.0') >= 0",
@@ -291,6 +382,144 @@ class TestJEXLToSQL(TestCase):
             result = jexl_to_sql(attribute)
             self.assertIn(attribute, result.warnings, f"Expected warning for {attribute}")
 
+    # Sub-fields the client does not record. Measured at 0% populated on every
+    # day of a 30-day window. Mapping them makes them resolve to NULL and match
+    # nobody without raising a warning, which is a silent wrong answer.
+    UNRECORDED_SUBFIELDS = (
+        "attributionData.campaign",
+        "attributionData.content",
+        "attributionData.dltoken",
+        "browserSettings.update.autoDownload",
+        "browserSettings.update.enabled",
+    )
+
+    @parameterized.expand([(a,) for a in UNRECORDED_SUBFIELDS])
+    def test_unrecorded_subfield_is_not_mapped(self, attribute):
+        """Guards against re-adding the mapping: a mapped attribute suppresses
+        the warning, so the clause would silently match nobody."""
+        self.assertNotIn(attribute, JEXL_TO_BQ_COLUMN)
+
+    @parameterized.expand([(a,) for a in UNRECORDED_SUBFIELDS])
+    def test_unrecorded_subfield_warns(self, attribute):
+        result = jexl_to_sql(attribute)
+        self.assertIsNone(result.sql)
+        self.assertIn(attribute, result.warnings)
+
+    @parameterized.expand(
+        [
+            ("source", "attributionData.source"),
+            ("medium", "attributionData.medium"),
+            ("ua", "attributionData.ua"),
+            ("channel", "browserSettings.update.channel"),
+        ]
+    )
+    def test_recorded_sibling_still_translates(self, _name, attribute):
+        """The siblings that are recorded must keep working."""
+        result = jexl_to_sql(attribute)
+        self.assertIsNotNone(result.sql)
+        self.assertEqual(result.warnings, [])
+
+    def test_enrollments_map_eq_branch(self):
+        result = jexl_to_sql("enrollmentsMap['other-exp'] == 'treatment'")
+        self.assertEqual(
+            result.sql,
+            f"(SELECT JSON_VALUE(e, '$.branchSlug') FROM UNNEST("
+            f"JSON_QUERY_ARRAY({_EM})) e WHERE JSON_VALUE(e, '$.experimentSlug')"
+            f" = 'other-exp') = 'treatment'",
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_enrollments_map_eq_null_means_not_enrolled(self):
+        """The scalar subquery yields NULL when not enrolled, so == null works
+        through the normal IS NULL handling."""
+        result = jexl_to_sql("enrollmentsMap['other-exp'] == null")
+        self.assertIn("IS NULL", result.sql)
+        self.assertEqual(result.warnings, [])
+
+    @parameterized.expand(
+        [
+            ("active_experiments", "activeExperiments", _AE),
+            ("active_rollouts", "activeRollouts", _AR),
+        ]
+    )
+    def test_slug_in_active_arrays(self, _name, attribute, column):
+        result = jexl_to_sql(f"'other-exp' in {attribute}")
+        self.assertEqual(
+            result.sql, f"('other-exp' IN UNNEST(JSON_VALUE_ARRAY({column})))"
+        )
+        self.assertEqual(result.warnings, [])
+
+    @parameterized.expand(
+        [("experiments", "activeExperiments"), ("rollouts", "activeRollouts")]
+    )
+    def test_sticky_enrollment_reduces_to_the_targeting(self, _name, attribute):
+        # A Draft has not launched, so the sticky idiom contributes nobody.
+        result = jexl_to_sql(f"(experiment.slug in {attribute}) || (locale == 'en-US')")
+        self.assertEqual(
+            result.sql,
+            "(FALSE OR metrics.string.nimbus_targeting_context_locale = 'en-US')",
+        )
+        self.assertEqual(result.warnings, [])
+
+    @parameterized.expand([("fenix", FENIX_APP), ("ios", IOS_APP)])
+    def test_active_arrays_are_desktop_only(self, _name, app):
+        for attribute in ("activeExperiments", "activeRollouts"):
+            result = jexl_to_sql(f"'other-exp' in {attribute}", app=app)
+            self.assertIsNone(result.sql)
+            self.assertIn(attribute, result.warnings)
+
+    def test_in_enrollments_matches_any_branch(self):
+        """`'slug' in enrollments` matches on experimentSlug alone, so it is true
+        for an enrolled client regardless of which branch it landed on."""
+        result = jexl_to_sql("'other-exp' in enrollments")
+        self.assertEqual(
+            result.sql,
+            f"EXISTS(SELECT 1 FROM UNNEST(JSON_QUERY_ARRAY({_EM})) e"
+            f" WHERE JSON_VALUE(e, '$.experimentSlug') = 'other-exp')",
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_nested_comparison_is_parenthesised(self):
+        """(enrollmentsMap[x] == 'y') == false would otherwise emit
+        `a = 'y' = FALSE`, which BigQuery rejects."""
+        result = jexl_to_sql("(enrollmentsMap['other-exp'] == 'treatment') == false")
+        self.assertIsNotNone(result.sql)
+        self.assertRegex(result.sql, r"^\(.+ = 'treatment'\) = FALSE$")
+        self.assertEqual(result.warnings, [])
+
+    def test_nested_comparison_is_parenthesised_when_reversed(self):
+        result = jexl_to_sql("false == (enrollmentsMap['other-exp'] == 'treatment')")
+        self.assertIsNotNone(result.sql)
+        self.assertRegex(result.sql, r"^FALSE = \(.+ = 'treatment'\)$")
+        self.assertEqual(result.warnings, [])
+
+    @parameterized.expand(
+        [
+            (
+                "transform_subject",
+                "locale == 'en-US' && userMonthlyActivity|mapToProperty('1')[0] != null",
+                "|mapToProperty",
+            ),
+            ("array_literal_subject", "['a','b'][0] == 'a'", "filter expression"),
+        ]
+    )
+    def test_filter_on_non_identifier_warns(self, _name, jexl, expected_warning):
+        result = jexl_to_sql(jexl)
+        self.assertIn(expected_warning, result.warnings)
+
+    def test_bare_enrollments_still_warns(self):
+        """Only the supported forms translate; `enrollments` has no column of
+        its own, so referencing it bare must still warn."""
+        result = jexl_to_sql("enrollments")
+        self.assertIsNone(result.sql)
+        self.assertIn("enrollments", result.warnings)
+
+    def test_sticky_enrollment_reduces_to_the_real_targeting(self):
+        result = jexl_to_sql("('me' in enrollments) || region == 'US'")
+        self.assertIn("EXISTS(", result.sql)
+        self.assertIn("nimbus_targeting_context_region", result.sql)
+        self.assertEqual(result.warnings, [])
+
     def test_partial_translation_still_returns_sql(self):
         result = jexl_to_sql("isFirstStartup && attachedFxAOAuthClients")
         self.assertIsNotNone(result.sql)
@@ -340,6 +569,34 @@ class TestJEXLToSQL(TestCase):
         self.assertIn("NOT", result.sql)
         self.assertIn(_USER_PREFS, result.sql)
 
+    @parameterized.expand(
+        [
+            ("bare", "'browser.nova.enabled'|preferenceValue"),
+            # A default only applies when the pref is unset, and the data cannot
+            # say which clients set it, so it does not make the clause sizable.
+            ("with_default", "'browser.nova.enabled'|preferenceValue('')"),
+        ]
+    )
+    def test_unrecorded_pref_warns_by_name(self, _name, jexl):
+        result = jexl_to_sql(jexl)
+        self.assertIsNone(result.sql)
+        self.assertEqual(result.warnings, ["'browser.nova.enabled'|preferenceValue"])
+
+    def test_unrecorded_pref_drops_only_its_own_clause(self):
+        result = jexl_to_sql(
+            "locale == 'en-US' && 'browser.nova.enabled'|preferenceValue"
+        )
+        self.assertEqual(
+            result.sql, "metrics.string.nimbus_targeting_context_locale = 'en-US'"
+        )
+        self.assertEqual(result.warnings, ["'browser.nova.enabled'|preferenceValue"])
+
+    def test_preference_is_user_set_keeps_raw_pref_name(self):
+        # userSetPrefs stores raw names; only prefValues keys are normalized.
+        result = jexl_to_sql("'nimbus.qa.pref-1'|preferenceIsUserSet")
+        self.assertIn("'nimbus.qa.pref-1' IN UNNEST", result.sql)
+        self.assertEqual(result.warnings, [])
+
     def test_os_is_windows_derived_from_not_mac_not_linux(self):
         result = jexl_to_sql("os.isWindows")
         self.assertIsNotNone(result.sql)
@@ -378,9 +635,9 @@ class TestJEXLToSQL(TestCase):
         self.assertIn("!= 'false'", result)
 
     def test_preference_value_dots_to_underscores(self):
-        result = jexl_to_sql("'browser.urlbar.quicksuggest'|preferenceValue")
+        result = jexl_to_sql("'browser.startup.page'|preferenceValue")
         self.assertIn(_PREF, result.sql)
-        self.assertIn("browser__urlbar__quicksuggest", result.sql)
+        self.assertIn("browser__startup__page", result.sql)
         self.assertEqual(result.warnings, [])
 
     def test_preference_value_compared_with_integer_casts_to_float(self):
@@ -667,20 +924,6 @@ class TestJEXLToSQLMobile(TestCase):
         self.assertIsNotNone(result.sql)
         self.assertEqual(result.warnings, [])
 
-    def test_addon_ids_in_fenix(self):
-        # addonIds not yet in the Fenix BQ table (EXP-7326) — untranslatable.
-        result = jexl_to_sql("'uBlock0@raymondhill.net' in addon_ids", app=FENIX_APP)
-        self.assertIsNone(result.sql)
-        self.assertIn("addon_ids", result.warnings)
-
-    def test_addon_ids_not_in_fenix(self):
-        # addonIds not yet in the Fenix BQ table (EXP-7326) — untranslatable.
-        result = jexl_to_sql(
-            "('uBlock0@raymondhill.net' in addon_ids) == false", app=FENIX_APP
-        )
-        self.assertIsNone(result.sql)
-        self.assertIn("addon_ids", result.warnings)
-
     def test_real_config_fenix_first_run_region(self):
         result = jexl_to_sql("isFirstRun && region == 'US'", app=FENIX_APP)
         self.assertEqual(result.sql, f"({_M_FIRST_RUN} AND {_M_REGION} = 'US')")
@@ -802,6 +1045,26 @@ class TestJEXLToSQLMobile(TestCase):
             result = jexl_to_sql("isReviewCheckerEnabled == true", app=app)
             self.assertIsNone(result.sql, app)
             self.assertIn("isReviewCheckerEnabled", result.warnings)
+
+    def test_addon_id_in_addon_ids(self):
+        result = jexl_to_sql("'uBlock0@raymondhill.net' in addon_ids", app=FENIX_APP)
+        self.assertEqual(result.sql, _M_ADDON_UBLOCK)
+        self.assertEqual(result.warnings, [])
+
+    def test_addon_id_membership_negated(self):
+        """The Android ToU configs spell exclusion as (x in addon_ids) == false."""
+        result = jexl_to_sql(
+            "('uBlock0@raymondhill.net' in addon_ids) == false", app=FENIX_APP
+        )
+        self.assertEqual(result.sql, f"{_M_ADDON_UBLOCK} = FALSE")
+        self.assertEqual(result.warnings, [])
+
+    def test_addon_ids_is_fenix_only(self):
+        """iOS does not record add-on IDs, and Desktop uses addonsInfo.addons."""
+        for app in (IOS_APP, None):
+            result = jexl_to_sql("'uBlock0@raymondhill.net' in addon_ids", app=app)
+            self.assertIsNone(result.sql)
+            self.assertIn("addon_ids", result.warnings)
 
     def test_tou_attributes_stay_untranslatable_on_desktop(self):
         """Mobile-only context keys; Desktop records none of them."""

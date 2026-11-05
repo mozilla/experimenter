@@ -68,9 +68,7 @@
         {% endif %}
       </section>
     {% elif experiment.is_draft %}
-      <p class="small text-secondary mb-0">
-        No sizing data available yet. Estimates are computed daily for Draft experiments.
-      </p>
+      <p class="small text-secondary mb-0">No sizing data available yet. Estimates are computed daily for Draft rollouts.</p>
     {% endif %}
     {% if experiment.sizing_full_sql %}
       <div class="d-flex align-items-center justify-content-between border-top pt-3">
@@ -97,7 +95,7 @@
             </div>
             <div class="modal-body">
               <p class="small text-secondary">
-                Full BigQuery query generated from this experiment's targeting.
+                Full BigQuery query generated from this rollout's targeting.
                 Copy and paste into BigQuery to explore the eligible population.
               </p>
               <div>

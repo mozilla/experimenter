@@ -12,6 +12,10 @@ const syncCardEditActions = () => {
       .querySelectorAll("[data-card-action='edit']")
       .forEach((button) => button.classList.toggle("d-none", editing));
     card
+      .querySelectorAll("[data-card-action='save']")
+      .forEach((button) => button.classList.toggle("d-none", !editing));
+
+    card
       .querySelectorAll("[data-card-action='cancel']")
       .forEach((button) => button.classList.toggle("d-none", !editing));
   });
@@ -98,3 +102,103 @@ document.addEventListener("htmx:afterSettle", () => {
 });
 
 document.addEventListener("DOMContentLoaded", syncCardEditActions);
+
+const hasUnsavedChanges = () => !!document.querySelector(".card-edit-form");
+
+let confirmedTrigger = null;
+let allowUnload = false;
+
+window.addEventListener("beforeunload", (event) => {
+  if (hasUnsavedChanges() && !allowUnload) {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
+
+document.addEventListener("htmx:confirm", (event) => {
+  const trigger = event.detail.elt;
+
+  if (!hasUnsavedChanges() || !trigger.closest?.(".confirm-unsaved-changes")) {
+    return;
+  }
+
+  event.preventDefault();
+
+  if (
+    !window.confirm(
+      "You may have unsaved changes. If you continue, any unsaved changes will be lost.",
+    )
+  ) {
+    return;
+  }
+
+  confirmedTrigger = trigger;
+  event.detail.issueRequest(true);
+});
+
+document.addEventListener("htmx:beforeOnLoad", (event) => {
+  if (event.detail.elt !== confirmedTrigger) {
+    return;
+  }
+  const xhr = event.detail.xhr;
+
+  allowUnload =
+    xhr.getResponseHeader("HX-Refresh") === "true" ||
+    !!xhr.getResponseHeader("HX-Redirect");
+
+  confirmedTrigger = null;
+});
+
+document.addEventListener("htmx:afterRequest", (event) => {
+  if (event.detail.elt === confirmedTrigger) {
+    confirmedTrigger = null;
+  }
+});
+
+const toggleAllCards = (button) => {
+  const cards = document.querySelectorAll(".rollout-card");
+  const shouldExpand = button.getAttribute("aria-expanded") !== "true";
+
+  cards.forEach((card) => {
+    const collapse = card.querySelector(".accordion-collapse");
+    if (!collapse) {
+      return;
+    }
+
+    const instance = window.bootstrap?.Collapse.getOrCreateInstance(collapse, {
+      toggle: false,
+    });
+
+    if (shouldExpand) {
+      instance?.show();
+    } else {
+      instance?.hide();
+    }
+  });
+
+  button.setAttribute("aria-expanded", String(shouldExpand));
+  button.setAttribute(
+    "aria-label",
+    shouldExpand ? "Collapse all cards" : "Expand all cards",
+  );
+
+  const label = button.querySelector("[data-toggle-all-label]");
+  if (label) {
+    label.textContent = shouldExpand
+      ? "Collapse All Cards"
+      : "Expand All Cards";
+  }
+
+  const icon = button.querySelector("i");
+  if (icon) {
+    icon.classList.toggle("fa-angles-up", shouldExpand);
+    icon.classList.toggle("fa-angles-down", !shouldExpand);
+  }
+};
+
+document.addEventListener("click", (event) => {
+  const trigger = event.target.closest?.("[data-toggle-all-cards]");
+  if (trigger) {
+    toggleAllCards(trigger);
+  }
+});

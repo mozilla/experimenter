@@ -316,7 +316,7 @@
           "type": "string"
         },
         "schema_version": {
-          "type": "integer"
+          "type": "string"
         },
         "start_date": {
           "format": "date",

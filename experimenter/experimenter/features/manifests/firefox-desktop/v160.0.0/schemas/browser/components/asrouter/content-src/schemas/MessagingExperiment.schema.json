@@ -390,6 +390,27 @@
                 ]
               }
             },
+            "inline_icons": {
+              "description": "Inline icons to slot into the message text. Each key must match the `data-l10n-name` of an `<img>` placeholder in the Fluent string; a placeholder with no entry here is dropped. Set `alt` on that `<img>` in the Fluent string.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "imageURL": {
+                    "type": "string",
+                    "description": "URL of the icon image."
+                  },
+                  "rtlImageURL": {
+                    "type": "string",
+                    "description": "Optional alternative URL used in RTL locales."
+                  }
+                },
+                "required": [
+                  "imageURL"
+                ],
+                "additionalProperties": false
+              }
+            },
             "style": {
               "description": "Optional CSS overrides for this infobar. Currently, only `background-color` and `font-size` may be set. `background-color` will only apply when the user does not prefer high-contrast.",
               "type": "object",

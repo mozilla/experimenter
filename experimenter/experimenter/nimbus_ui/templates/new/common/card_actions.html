@@ -22,6 +22,14 @@
             hx-sync="closest .rollout-card:replace">
       Edit <i class="fa-regular fa-pen-to-square ms-1"></i>
     </button>
+    <button type="submit"
+            id="rollout-{{ card_id }}-save"
+            aria-label="Save {{ card_id }}"
+            form="{% if card_id == 'rollout-features' %}branches-form{% else %}{{ card_id }}-form{% endif %}"
+            {% if card_id == "audience" or card_id == "rollout-features" %}name="save" value="True"{% endif %}
+            data-card-action="save"
+            class="btn btn-sm btn-primary d-none">Save</button>
+    {% include "new/common/card_cancel_button.html" with icon_only=True %}
+
   {% endif %}
 {% endwith %}
-{% include "new/common/card_cancel_button.html" with icon_only=True %}
