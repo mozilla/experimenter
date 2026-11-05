@@ -6281,12 +6281,12 @@ LAPSED_USER_BACKGROUND_UPDATE_DISABLED = NimbusTargetingConfig(
     slug="lapsed_user_28_days_background_update_disabled",
     description=(
         "Users with a profile age of 28 days and 0 days of activity in the past "
-        "28 days, on Mac, or on Windows with background updates disabled, "
+        "28 days, on Mac, on Linux, or on Windows with background updates disabled, "
         "without enterprise policies"
     ),
     targeting=(
         f"{LAPSED_USER.targeting} && {NO_ENTERPRISE.targeting} && "
-        f"(os.isMac || (os.isWindows && {BACKGROUND_UPDATE_DISABLED}))"
+        f"(os.isMac || os.isLinux || (os.isWindows && {BACKGROUND_UPDATE_DISABLED}))"
     ),
     desktop_telemetry="",
     sticky_required=True,
