@@ -3761,6 +3761,22 @@ class TestNimbusExperiment(TestCase):
                 NimbusExperiment.Version.FIREFOX_163,
                 False,
             ),
+            (
+                "major_version_below_point_version_max_overlaps",
+                NimbusExperiment.Version.FIREFOX_163,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.FIREFOX_163_1_0,
+                True,
+            ),
+            (
+                "point_version_above_point_version_max_disjoint",
+                NimbusExperiment.Version.FIREFOX_164_0_1,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.FIREFOX_163_1_0,
+                False,
+            ),
         ]
     )
     def test_versions_overlap(

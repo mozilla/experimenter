@@ -2261,22 +2261,24 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             or self.targeting_config_slug == candidate.targeting_config_slug
         )
 
-    def _version_above_max(self, min_version, max_version):
+    @staticmethod
+    def is_min_version_above_max(min_version, max_version):
         if not min_version or not max_version:
             return False
         parsed_min = NimbusExperiment.Version.parse(min_version)
         parsed_max = NimbusExperiment.Version.parse(max_version)
         if max_version.endswith("!"):
-            parsed_min = packaging.version.parse(str(parsed_min.major))
-            parsed_max = packaging.version.parse(str(parsed_max.major))
+            # A max of "N.!" targets versionCompare("N.*") <= 0, which includes every
+            # N.x release, so only the major version decides if the min is above it.
+            return parsed_min.major > parsed_max.major
         return parsed_min > parsed_max
 
     def versions_overlap(self, candidate):
         return not (
-            self._version_above_max(
+            self.is_min_version_above_max(
                 self.firefox_min_version, candidate.firefox_max_version
             )
-            or self._version_above_max(
+            or self.is_min_version_above_max(
                 candidate.firefox_min_version, self.firefox_max_version
             )
         )
