@@ -6294,6 +6294,23 @@ LAPSED_USER_BACKGROUND_UPDATE_DISABLED = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WINDOWS_AND_MAC_EXISTING_USERS_NOT_SYNCING = NimbusTargetingConfig(
+    name="Existing users on Windows or Mac that are not syncing",
+    slug="windows_and_mac_existing_users_not_syncing",
+    description=(
+        "Existing users with a profile age of at least 28 days, on Windows or "
+        "Mac, not syncing, and without enterprise policies"
+    ),
+    targeting=(
+        f"{PROFILE28DAYS} && {NO_ENTERPRISE_MAC_WINDOWS_ONLY.targeting} && "
+        "isFxAEnabled && !usesFirefoxSync"
+    ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
