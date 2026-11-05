@@ -3695,6 +3695,153 @@ class TestNimbusExperiment(TestCase):
         # doesn't set a pref.
         self.assertEqual(draft.collision_warnings["deliveries"], [])
 
+    @parameterized.expand(
+        [
+            (
+                "disjoint_draft_min_above_candidate_max",
+                NimbusExperiment.Version.FIREFOX_161,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.FIREFOX_140,
+                NimbusExperiment.Version.FIREFOX_142,
+                False,
+            ),
+            (
+                "disjoint_candidate_min_above_draft_max",
+                NimbusExperiment.Version.FIREFOX_140,
+                NimbusExperiment.Version.FIREFOX_142,
+                NimbusExperiment.Version.FIREFOX_150,
+                NimbusExperiment.Version.NO_VERSION,
+                False,
+            ),
+            (
+                "overlapping_ranges",
+                NimbusExperiment.Version.FIREFOX_140,
+                NimbusExperiment.Version.FIREFOX_150,
+                NimbusExperiment.Version.FIREFOX_142,
+                NimbusExperiment.Version.FIREFOX_160,
+                True,
+            ),
+            (
+                "touching_min_equals_max",
+                NimbusExperiment.Version.FIREFOX_142,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.FIREFOX_142,
+                True,
+            ),
+            (
+                "unbounded_both_sides_overlap",
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.FIREFOX_163,
+                NimbusExperiment.Version.NO_VERSION,
+                True,
+            ),
+            (
+                "unbounded_max_covers_high_min",
+                NimbusExperiment.Version.FIREFOX_140,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.FIREFOX_163,
+                NimbusExperiment.Version.NO_VERSION,
+                True,
+            ),
+            (
+                "point_version_within_wildcard_major_overlaps",
+                NimbusExperiment.Version.FIREFOX_163_1_0,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.FIREFOX_163,
+                True,
+            ),
+            (
+                "point_version_above_wildcard_major_disjoint",
+                NimbusExperiment.Version.FIREFOX_164_0_1,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.NO_VERSION,
+                NimbusExperiment.Version.FIREFOX_163,
+                False,
+            ),
+        ]
+    )
+    def test_versions_overlap(
+        self,
+        _name,
+        self_min_version,
+        self_max_version,
+        other_min_version,
+        other_max_version,
+        expected_overlap,
+    ):
+        self_experiment = NimbusExperimentFactory.create(
+            slug="versions-self-exp",
+            firefox_min_version=self_min_version,
+            firefox_max_version=self_max_version,
+        )
+        other_experiment = NimbusExperimentFactory.create(
+            slug="versions-other-exp",
+            firefox_min_version=other_min_version,
+            firefox_max_version=other_max_version,
+        )
+        self.assertEqual(
+            self_experiment.versions_overlap(other_experiment),
+            expected_overlap,
+        )
+
+    def test_slot_collisions_disjoint_versions_excluded(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="version-disjoint-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="version-disjoint-live",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_140,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_142,
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="version-disjoint-draft",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_161,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        self.assertEqual(draft.slot_collisions(), [])
+
+    def test_slot_collisions_overlapping_versions_collide(self):
+        feature = NimbusFeatureConfigFactory.create(
+            slug="version-overlap-feature",
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+        live = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_APPROVE,
+            slug="version-overlap-live",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_140,
+            firefox_max_version=NimbusExperiment.Version.FIREFOX_161,
+        )
+        draft = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            slug="version-overlap-draft",
+            is_rollout=True,
+            application=NimbusExperiment.Application.DESKTOP,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            feature_configs=[feature],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_150,
+            firefox_max_version=NimbusExperiment.Version.NO_VERSION,
+        )
+        slugs = [collision["slug"] for collision in draft.slot_collisions()]
+        self.assertEqual(slugs, [live.slug])
+
     def test_multichannel_experiments_warning(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
