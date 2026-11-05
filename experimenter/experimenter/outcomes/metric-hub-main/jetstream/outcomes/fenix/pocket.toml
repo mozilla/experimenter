@@ -10,7 +10,7 @@ select_expression = """
       ),0)
 """
 data_source = "pocket_events"
-statistics = { bootstrap_mean = {}, deciles = {} }
+statistics = { linear_model_mean = {}, deciles = {} }
 
 
 [metrics.pocket_story_clicks]
@@ -22,7 +22,7 @@ select_expression = """
       ),0)
 """
 data_source = "pocket_events"
-statistics = { bootstrap_mean = {}, deciles = {} }
+statistics = { linear_model_mean = {}, deciles = {} }
 
 
 [data_sources.pocket_events]

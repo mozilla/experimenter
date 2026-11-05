@@ -99,7 +99,7 @@ friendly_name = "Cert Error Pages Loaded"
 type = "scalar"
 bigger_is_better = false
 
-[metrics.cert_error_page_loaded.statistics.bootstrap_mean]
+[metrics.cert_error_page_loaded.statistics.linear_model_mean]
 
 [metrics.cert_error_page_loaded.statistics.deciles]
 
@@ -121,7 +121,7 @@ friendly_name = "Cert Error Pages Clicked"
 type = "scalar"
 bigger_is_better = false
 
-[metrics.cert_error_page_clicked.statistics.bootstrap_mean]
+[metrics.cert_error_page_clicked.statistics.linear_model_mean]
 
 [metrics.cert_error_page_clicked.statistics.deciles]
 
@@ -135,7 +135,7 @@ select_expression = '{{agg_hist_zero_fract("payload.histograms.http_transaction_
 data_source = "main"
 type = "scalar"
 
-[metrics.http_transactions_using_tls.statistics.bootstrap_mean]
+[metrics.http_transactions_using_tls.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.http_transactions_using_tls.statistics.deciles]
@@ -153,7 +153,7 @@ select_expression = '{{agg_hist_zero_fract("payload.histograms.http_pageload_is_
 data_source = "main"
 type = "scalar"
 
-[metrics.http_pageloads_using_tls.statistics.bootstrap_mean]
+[metrics.http_pageloads_using_tls.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.http_pageloads_using_tls.statistics.deciles]
@@ -171,7 +171,7 @@ select_expression = '{{agg_hist_zero_fract("payload.histograms.http_channel_onst
 data_source = "main"
 type = "scalar"
 
-[metrics.http_channels_success.statistics.bootstrap_mean]
+[metrics.http_channels_success.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.http_channels_success.statistics.deciles]
@@ -190,7 +190,7 @@ select_expression = """{{agg_histogram_mean("payload.processes.content.histogram
 type = "scalar"
 bigger_is_better = false
 
-[metrics.tls_successful_cert_validation_time.statistics.bootstrap_mean]
+[metrics.tls_successful_cert_validation_time.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.tls_successful_cert_validation_time.statistics.deciles]
@@ -211,7 +211,7 @@ select_expression = """{{agg_histogram_mean("payload.processes.content.histogram
 type = "scalar"
 bigger_is_better = false
 
-[metrics.tls_failed_cert_validation_time.statistics.bootstrap_mean]
+[metrics.tls_failed_cert_validation_time.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.tls_failed_cert_validation_time.statistics.deciles]
@@ -231,7 +231,7 @@ data_source = "main"
 select_expression = '{{agg_hist_zero_fract("payload.histograms.ssl_handshake_result")}}'
 type = "scalar"
 
-[metrics.tls_successful_connections_overall.statistics.bootstrap_mean]
+[metrics.tls_successful_connections_overall.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.tls_successful_connections_overall.statistics.deciles]
@@ -249,7 +249,7 @@ data_source = "main"
 select_expression = '{{agg_hist_zero_fract("payload.histograms.ssl_handshake_result_ech")}}'
 type = "scalar"
 
-[metrics.tls_successful_connections_with_ech.statistics.bootstrap_mean]
+[metrics.tls_successful_connections_with_ech.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.tls_successful_connections_with_ech.statistics.deciles]
@@ -267,7 +267,7 @@ data_source = "main"
 select_expression = '{{agg_hist_zero_fract("payload.histograms.ssl_handshake_result_ech_grease")}}'
 type = "scalar"
 
-[metrics.tls_successful_connections_with_ech_grease.statistics.bootstrap_mean]
+[metrics.tls_successful_connections_with_ech_grease.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.tls_successful_connections_with_ech_grease.statistics.deciles]
@@ -285,7 +285,7 @@ data_source = "main"
 select_expression = '{{agg_hist_zero_fract("payload.histograms.ssl_handshake_result_first_try")}}'
 type = "scalar"
 
-[metrics.tls_successful_first_try_connections.statistics.bootstrap_mean]
+[metrics.tls_successful_first_try_connections.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.tls_successful_first_try_connections.statistics.deciles]
@@ -303,7 +303,7 @@ data_source = "main"
 select_expression = '{{agg_hist_zero_fract("payload.histograms.ssl_handshake_result_conservative")}}'
 type = "scalar"
 
-[metrics.tls_successful_conservative_connections.statistics.bootstrap_mean]
+[metrics.tls_successful_conservative_connections.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.tls_successful_conservative_connections.statistics.deciles]
@@ -321,7 +321,7 @@ data_source = "main"
 select_expression = """{{agg_hist_zero_fract("mozfun.map.get_key(payload.keyed_histograms.http3_ech_outcome, 'NONE')")}}"""
 type = "scalar"
 
-[metrics.quic_successful_connections_no_ech.statistics.bootstrap_mean]
+[metrics.quic_successful_connections_no_ech.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.quic_successful_connections_no_ech.statistics.deciles]
@@ -339,7 +339,7 @@ data_source = "main"
 select_expression = """{{agg_hist_zero_fract("mozfun.map.get_key(payload.keyed_histograms.http3_ech_outcome, 'GREASE')")}}"""
 type = "scalar"
 
-[metrics.quic_successful_connections_ech_grease.statistics.bootstrap_mean]
+[metrics.quic_successful_connections_ech_grease.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.quic_successful_connections_ech_grease.statistics.deciles]
@@ -357,7 +357,7 @@ data_source = "main"
 select_expression = """{{agg_hist_zero_fract("mozfun.map.get_key(payload.keyed_histograms.http3_ech_outcome, 'REAL')")}}"""
 type = "scalar"
 
-[metrics.quic_successful_connections_ech_real.statistics.bootstrap_mean]
+[metrics.quic_successful_connections_ech_real.statistics.linear_model_mean]
 pre_treatments = ['remove_nulls']
 
 [metrics.quic_successful_connections_ech_real.statistics.deciles]

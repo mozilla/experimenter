@@ -523,7 +523,7 @@ features:
       enabled:
         description: If true, listen to page will be enabled
         type: Boolean
-        default: false
+        default: true
   lna-blocking:
     description: Feature that allows blocking local network or device access.
     variables:

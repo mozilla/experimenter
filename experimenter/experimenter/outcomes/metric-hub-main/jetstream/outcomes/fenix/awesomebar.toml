@@ -8,7 +8,7 @@ select_expression = """
     COALESCE(COUNTIF(event_name = 'engagement'), 0)
 """
 data_source = "events_stream_awesomebar"
-statistics = { sum = {}, bootstrap_mean = {}, deciles = {} }
+statistics = { sum = {}, linear_model_mean = {}, deciles = {} }
 
 [metrics.awesomebar_abandonment]
 friendly_name = "Awesomebar Abandonment"
@@ -17,4 +17,4 @@ select_expression = """
     COALESCE(COUNTIF(event_name = 'abandonment'), 0)
 """
 data_source = "events_stream_awesomebar"
-statistics = { sum = {}, bootstrap_mean = {}, deciles = {} }
+statistics = { sum = {}, linear_model_mean = {}, deciles = {} }
