@@ -705,6 +705,20 @@ vpn-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+wallpaper-engagement-sheet-feature:
+  description: |
+    Controls the wallpaper engagement bottom sheet shown on the homepage when new wallpapers are available. Only meant to be used with rollouts.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not this feature is enabled
+    marketing-slug:
+      type: string
+      description: |
+        Identifies the wallpaper campaign. The sheet is shown once per slug, so a new value is needed for every wallpaper drop.
 wayback-machine-feature:
   description: |
     This property determines whether we show the wayback entry point on the native error pages

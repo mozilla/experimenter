@@ -398,6 +398,9 @@ ip-protection:
     enabled:
       type: boolean
       description: If true, IP Protection feature is enabled.
+    gpi-data-limit-gigabytes:
+      type: int
+      description: Specifies the VPN data limit in GB to show in the onboarding prompt when using without an account (through GPI)
     promo-deadline:
       type: string
       description: The final date for the promotion to end. This needs to be an ISO 8601 formatted date (i.e. YYYY-MM-DD).
