@@ -7,7 +7,7 @@ description = "zeroing out serp impressions to prevent timeouts with outcome met
 select_expression = "SUM(0)"
 data_source = "noop_ds"
 
-[metrics.serp_impressions.statistics.bootstrap_mean]
+[metrics.serp_impressions.statistics.linear_model_mean]
 
 [data_sources]
 

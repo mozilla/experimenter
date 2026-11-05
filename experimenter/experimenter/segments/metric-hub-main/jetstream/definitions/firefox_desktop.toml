@@ -1,85 +1,85 @@
 [metrics]
 
 
-[metrics.active_hours.statistics.bootstrap_mean]
+[metrics.active_hours.statistics.linear_model_mean]
 [metrics.active_hours.statistics.deciles]
 
 
-[metrics.uri_count.statistics.bootstrap_mean]
+[metrics.uri_count.statistics.linear_model_mean]
 [metrics.uri_count.statistics.deciles]
 
 
-[metrics.search_count.statistics.bootstrap_mean]
+[metrics.search_count.statistics.linear_model_mean]
 [metrics.search_count.statistics.deciles]
 
 
-[metrics.tagged_search_count.statistics.bootstrap_mean]
+[metrics.tagged_search_count.statistics.linear_model_mean]
 [metrics.tagged_search_count.statistics.deciles]
 
 
-[metrics.tagged_follow_on_search_count.statistics.bootstrap_mean]
+[metrics.tagged_follow_on_search_count.statistics.linear_model_mean]
 [metrics.tagged_follow_on_search_count.statistics.deciles]
 
 
-[metrics.ad_clicks.statistics.bootstrap_mean]
+[metrics.ad_clicks.statistics.linear_model_mean]
 [metrics.ad_clicks.statistics.deciles]
 
 
-[metrics.searches_with_ads.statistics.bootstrap_mean]
+[metrics.searches_with_ads.statistics.linear_model_mean]
 [metrics.searches_with_ads.statistics.deciles]
 
 
-[metrics.organic_search_count.statistics.bootstrap_mean]
+[metrics.organic_search_count.statistics.linear_model_mean]
 [metrics.organic_search_count.statistics.deciles]
 
 
 [metrics.unenroll.statistics.binomial]
 
 
-[metrics.view_about_logins.statistics.bootstrap_mean]
+[metrics.view_about_logins.statistics.linear_model_mean]
 [metrics.view_about_logins.statistics.deciles]
 
 
-[metrics.view_about_protections.statistics.bootstrap_mean]
+[metrics.view_about_protections.statistics.linear_model_mean]
 [metrics.view_about_protections.statistics.deciles]
 
 
-[metrics.connect_fxa.statistics.bootstrap_mean]
+[metrics.connect_fxa.statistics.linear_model_mean]
 [metrics.connect_fxa.statistics.deciles]
 
 
-[metrics.organic_content_clicks.statistics.bootstrap_mean]
+[metrics.organic_content_clicks.statistics.linear_model_mean]
 
 
-[metrics.sponsored_content_clicks.statistics.bootstrap_mean]
+[metrics.sponsored_content_clicks.statistics.linear_model_mean]
 
 
-[metrics.days_of_use.statistics.bootstrap_mean]
-drop_highest = 0
+[metrics.days_of_use.statistics.linear_model_mean]
+drop_highest = 0.0
 
 [metrics.days_of_use.statistics.deciles]
 [metrics.days_of_use.statistics.empirical_cdf]
 
 
-[metrics.qualified_cumulative_days_of_use.statistics.bootstrap_mean]
+[metrics.qualified_cumulative_days_of_use.statistics.linear_model_mean]
 [metrics.qualified_cumulative_days_of_use.statistics.deciles]
 
 
-[metrics.newtab_content_enabled.statistics.bootstrap_mean]
+[metrics.newtab_content_enabled.statistics.linear_model_mean]
 
 
-[metrics.newtab_sponsored_content_stories_enabled.statistics.bootstrap_mean]
+[metrics.newtab_sponsored_content_stories_enabled.statistics.linear_model_mean]
 
 [metrics.imported_bookmarks.statistics.binomial]
-[metrics.imported_bookmarks_count.statistics.bootstrap_mean]
+[metrics.imported_bookmarks_count.statistics.linear_model_mean]
 pre_treatments = ["remove_nulls"]
 
 [metrics.imported_logins.statistics.binomial]
-[metrics.imported_logins_count.statistics.bootstrap_mean]
+[metrics.imported_logins_count.statistics.linear_model_mean]
 pre_treatments = ["remove_nulls"]
 
 [metrics.imported_history.statistics.binomial]
-[metrics.imported_history_count.statistics.bootstrap_mean]
+[metrics.imported_history_count.statistics.linear_model_mean]
 pre_treatments = ["remove_nulls"]
 
 [metrics.fxa_signed_in.statistics.binomial]
