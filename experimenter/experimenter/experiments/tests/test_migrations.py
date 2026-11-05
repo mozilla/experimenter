@@ -1,15 +1,16 @@
-from django.conf import settings
+import datetime
+
 from django_test_migrations.contrib.unittest_case import MigratorTestCase
 
 
-class TestRecoverStuckEndEnrollmentReviewsMigration(MigratorTestCase):
+class TestBackfillEnrollmentEndDatesMigration(MigratorTestCase):
     migrate_from = (
         "experiments",
-        "0345_nimbusexperiment_analysis_data_and_more",
+        "0347_alter_nimbusalert_alert_type",
     )
     migrate_to = (
         "experiments",
-        "0346_recover_stuck_end_enrollment_reviews",
+        "0348_backfill_enrollment_end_dates",
     )
 
     def prepare(self):
@@ -24,105 +25,140 @@ class TestRecoverStuckEndEnrollmentReviewsMigration(MigratorTestCase):
             defaults={"email": "test@example.com"},
         )
 
-        stuck = NimbusExperiment.objects.create(
-            slug="stuck",
-            name="Stuck end enrollment review",
+        earliest_paused = NimbusExperiment.objects.create(
+            slug="earliest-paused",
+            name="Paused with multiple published_dto pause changelogs",
             application="firefox-desktop",
             owner=owner,
             status="Live",
-            status_next="Live",
-            publish_status="Review",
             is_paused=True,
             is_rollout=False,
-            published_dto={"id": "stuck", "isEnrollmentPaused": True},
         )
         NimbusChangeLog.objects.create(
-            experiment=stuck,
+            experiment=earliest_paused,
             changed_by=owner,
-            old_status="Live",
-            old_status_next="Live",
-            old_publish_status="Review",
+            changed_on=datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC),
             new_status="Live",
-            new_status_next="Live",
             new_publish_status="Review",
-            message="Resynchronized from Remote Settings",
-            experiment_data={
-                "slug": "stuck",
-                "status": "Live",
-                "status_next": "Live",
-                "publish_status": "Review",
-                "is_paused": True,
-            },
+            message="Updated in Remote Settings",
+            experiment_data={"published_dto": {"isEnrollmentPaused": True}},
+        )
+        NimbusChangeLog.objects.create(
+            experiment=earliest_paused,
+            changed_by=owner,
+            changed_on=datetime.datetime(2026, 2, 1, tzinfo=datetime.UTC),
+            new_status="Live",
+            new_publish_status="Idle",
+            message="Updated in Remote Settings",
+            experiment_data={"published_dto": {"isEnrollmentPaused": True}},
         )
 
-        NimbusExperiment.objects.create(
-            slug="labs-rollout",
-            name="Paused Labs rollout with pending update",
+        fallback_paused = NimbusExperiment.objects.create(
+            slug="fallback-paused",
+            name="Paused with only is_paused fallback changelog",
             application="firefox-desktop",
             owner=owner,
-            status="Live",
-            status_next="Live",
-            publish_status="Review",
-            is_paused=True,
-            is_rollout=True,
-            is_firefox_labs_opt_in=True,
-            published_dto={"id": "labs-rollout", "isEnrollmentPaused": True},
-        )
-
-        NimbusExperiment.objects.create(
-            slug="pending-end-enrollment",
-            name="Pending end enrollment request",
-            application="firefox-desktop",
-            owner=owner,
-            status="Live",
-            status_next="Live",
-            publish_status="Review",
+            status="Complete",
             is_paused=True,
             is_rollout=False,
-            published_dto={"id": "pending-end-enrollment", "isEnrollmentPaused": False},
+        )
+        NimbusChangeLog.objects.create(
+            experiment=fallback_paused,
+            changed_by=owner,
+            changed_on=datetime.datetime(2026, 3, 1, tzinfo=datetime.UTC),
+            new_status="Live",
+            new_publish_status="Idle",
+            message="Updated in Remote Settings",
+            experiment_data={"is_paused": True},
+        )
+
+        paused_rollout = NimbusExperiment.objects.create(
+            slug="paused-rollout",
+            name="Paused rollout, not an experiment",
+            application="firefox-desktop",
+            owner=owner,
+            status="Live",
+            is_paused=True,
+            is_rollout=True,
+        )
+        NimbusChangeLog.objects.create(
+            experiment=paused_rollout,
+            changed_by=owner,
+            changed_on=datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC),
+            new_status="Live",
+            new_publish_status="Idle",
+            message="Updated in Remote Settings",
+            experiment_data={"published_dto": {"isEnrollmentPaused": True}},
+        )
+
+        NimbusExperiment.objects.create(
+            slug="never-paused-complete",
+            name="Never paused, complete",
+            application="firefox-desktop",
+            owner=owner,
+            status="Complete",
+            is_paused=False,
+            is_rollout=False,
+        )
+
+        already_dated = NimbusExperiment.objects.create(
+            slug="already-dated",
+            name="Paused but already has an enrollment end date",
+            application="firefox-desktop",
+            owner=owner,
+            status="Live",
+            is_paused=True,
+            is_rollout=False,
+            _enrollment_end_date=datetime.date(2026, 1, 15),
+        )
+        NimbusChangeLog.objects.create(
+            experiment=already_dated,
+            changed_by=owner,
+            changed_on=datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC),
+            new_status="Live",
+            new_publish_status="Idle",
+            message="Updated in Remote Settings",
+            experiment_data={"published_dto": {"isEnrollmentPaused": True}},
+        )
+
+        unmatched_paused = NimbusExperiment.objects.create(
+            slug="unmatched-paused",
+            name="Paused with no matching changelog",
+            application="firefox-desktop",
+            owner=owner,
+            status="Live",
+            is_paused=True,
+            is_rollout=False,
+        )
+        NimbusChangeLog.objects.create(
+            experiment=unmatched_paused,
+            changed_by=owner,
+            changed_on=datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC),
+            new_status="Live",
+            new_publish_status="Idle",
+            message="Some other message",
+            experiment_data={"is_paused": False},
         )
 
     def test_migration(self):
         NimbusExperiment = self.new_state.apps.get_model(
             "experiments", "NimbusExperiment"
         )
-        NimbusChangeLog = self.new_state.apps.get_model("experiments", "NimbusChangeLog")
 
-        stuck = NimbusExperiment.objects.get(slug="stuck")
-        self.assertEqual(stuck.status, "Live")
-        self.assertIsNone(stuck.status_next)
-        self.assertEqual(stuck.publish_status, "Idle")
+        earliest_paused = NimbusExperiment.objects.get(slug="earliest-paused")
+        self.assertEqual(earliest_paused._enrollment_end_date, datetime.date(2026, 1, 1))
 
-        recovery_change = NimbusChangeLog.objects.get(
-            experiment=stuck,
-            message="Recovered from stuck end enrollment review",
-        )
-        self.assertEqual(
-            recovery_change.changed_by.email, settings.KINTO_DEFAULT_CHANGELOG_USER
-        )
-        self.assertEqual(recovery_change.old_status, "Live")
-        self.assertEqual(recovery_change.old_status_next, "Live")
-        self.assertEqual(recovery_change.old_publish_status, "Review")
-        self.assertEqual(recovery_change.new_status, "Live")
-        self.assertIsNone(recovery_change.new_status_next)
-        self.assertEqual(recovery_change.new_publish_status, "Idle")
-        self.assertFalse(recovery_change.published_dto_changed)
-        self.assertEqual(
-            recovery_change.experiment_data,
-            {
-                "slug": "stuck",
-                "status": "Live",
-                "status_next": None,
-                "publish_status": "Idle",
-                "is_paused": True,
-            },
-        )
+        fallback_paused = NimbusExperiment.objects.get(slug="fallback-paused")
+        self.assertEqual(fallback_paused._enrollment_end_date, datetime.date(2026, 3, 1))
 
-        for slug in ("labs-rollout", "pending-end-enrollment"):
-            experiment = NimbusExperiment.objects.get(slug=slug)
-            self.assertEqual(experiment.status, "Live")
-            self.assertEqual(experiment.status_next, "Live")
-            self.assertEqual(experiment.publish_status, "Review")
-            self.assertFalse(
-                NimbusChangeLog.objects.filter(experiment=experiment).exists()
-            )
+        paused_rollout = NimbusExperiment.objects.get(slug="paused-rollout")
+        self.assertIsNone(paused_rollout._enrollment_end_date)
+
+        never_paused_complete = NimbusExperiment.objects.get(slug="never-paused-complete")
+        self.assertIsNone(never_paused_complete._enrollment_end_date)
+
+        already_dated = NimbusExperiment.objects.get(slug="already-dated")
+        self.assertEqual(already_dated._enrollment_end_date, datetime.date(2026, 1, 15))
+
+        unmatched_paused = NimbusExperiment.objects.get(slug="unmatched-paused")
+        self.assertIsNone(unmatched_paused._enrollment_end_date)
