@@ -58,7 +58,7 @@ def fetch_experiment_data(experiment_id):
 
         if old_results_data != new_results_data:
             experiment.results_data = new_results_data
-            experiment.save()
+            experiment.save(update_fields=["results_data", "_updated_date_time"])
 
             old_normalized = strip_errors(old_results_data)
             new_normalized = strip_errors(new_results_data)

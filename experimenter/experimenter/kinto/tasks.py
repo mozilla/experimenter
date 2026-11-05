@@ -836,7 +836,7 @@ def nimbus_sync_published_dto(experiment_id=None):
 
                 with transaction.atomic():
                     experiment.published_dto = published_record
-                    experiment.save()
+                    experiment.save(update_fields=["published_dto", "_updated_date_time"])
 
                     generate_nimbus_changelog(
                         experiment,
