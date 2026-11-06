@@ -800,7 +800,7 @@ features:
         description: |
           Enables asking follow up questions after an answer is shown.
         type: Boolean
-        default: false
+        default: true
       model:
         description: |
           Which provider model backs Quick Answers.
@@ -810,7 +810,7 @@ features:
         description: |
           Shows the redesigned opt-in as a sheet over the browser.
         type: Boolean
-        default: false
+        default: true
   recent-searches-feature:
     description: |
       Enables recent searches.

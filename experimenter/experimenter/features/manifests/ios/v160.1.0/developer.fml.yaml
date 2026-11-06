@@ -830,7 +830,7 @@ features:
         description: |
           Enables asking follow up questions after an answer is shown.
         type: Boolean
-        default: false
+        default: true
       model:
         description: |
           Which provider model backs Quick Answers.
