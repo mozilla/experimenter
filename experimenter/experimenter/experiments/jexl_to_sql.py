@@ -222,6 +222,8 @@ _REGION_SQL = f"COALESCE({_ctx('region')}, normalized_country_code)"
 
 # Recorded by both Fenix and iOS.
 _SHARED_MOBILE_COLUMNS = {
+    "os": _ctx("normalized_os"),
+    "os_version": _ctx("normalized_os_version"),
     "locale": _ctx("locale"),
     "region": _REGION_SQL,
     "language": _ctx("language"),
@@ -261,6 +263,13 @@ JEXL_TO_BQ_COLUMN_FENIX = {
         "BOOL",
     ),
     **_both("noShortcutsOrStoriesOptOuts", "no_shortcuts_or_stories_opt_outs", "BOOL"),
+    **_both("isReviewCheckerEnabled", "is_review_checker_enabled", "BOOL"),
+    "androidSdkVersion": (
+        "SAFE_CAST(JSON_VALUE(context, '$.android_sdk_version') AS INT64)"
+    ),
+    "android_sdk_version": (
+        "SAFE_CAST(JSON_VALUE(context, '$.android_sdk_version') AS INT64)"
+    ),
 }
 
 
