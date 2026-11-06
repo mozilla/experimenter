@@ -2261,6 +2261,28 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             or self.targeting_config_slug == candidate.targeting_config_slug
         )
 
+    @staticmethod
+    def is_min_version_above_max(min_version, max_version):
+        if not min_version or not max_version:
+            return False
+        parsed_min = NimbusExperiment.Version.parse(min_version)
+        parsed_max = NimbusExperiment.Version.parse(max_version)
+        if max_version.endswith("!"):
+            # A max of "N.!" targets versionCompare("N.*") <= 0, which includes every
+            # N.x release, so only the major version decides if the min is above it.
+            return parsed_min.major > parsed_max.major
+        return parsed_min > parsed_max
+
+    def versions_overlap(self, candidate):
+        return not (
+            self.is_min_version_above_max(
+                self.firefox_min_version, candidate.firefox_max_version
+            )
+            or self.is_min_version_above_max(
+                candidate.firefox_min_version, self.firefox_max_version
+            )
+        )
+
     @property
     def excluded_live_deliveries(self):
         matching = []
@@ -2329,6 +2351,8 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
             if not self.channels_overlap(candidate):
                 continue
             if not self.targeting_configs_overlap(candidate):
+                continue
+            if not self.versions_overlap(candidate):
                 continue
             candidate_feature_ids = set(
                 candidate.feature_configs.values_list("id", flat=True)
