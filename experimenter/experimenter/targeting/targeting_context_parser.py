@@ -61,9 +61,7 @@ class RecordedPrefs:
 
 
 class TargetingContextFields:
-    _desktop_targeting_fields = None
-    _fenix_targeting_fields = None
-    _ios_targeting_fields = None
+    _cache = {}
 
     _CACHE_FIELDS = {
         NimbusConstants.Application.DESKTOP: "_desktop_targeting_fields",
@@ -161,13 +159,13 @@ class TargetingContextFields:
     @classmethod
     def clear_cache(cls, application=None):
         if application is None:
-            for field_name in cls._CACHE_FIELDS.values():
-                setattr(cls, field_name, None)
+            cls._cache.clear()
             return
 
-        field_name = cls._CACHE_FIELDS.get(application)
-        if field_name is not None:
-            setattr(cls, field_name, None)
+        cls._cache = {
+            key: value for key, value in cls._cache.items()
+            if key[0] != application
+        }
 
     @classmethod
     def for_application(cls, app, version=None):
@@ -175,10 +173,10 @@ class TargetingContextFields:
         if field_name is None:
             raise ValueError(f"Unknown application: {app}")
 
-        cached_fields = getattr(cls, field_name)
-        if cached_fields is not None:
-            return cached_fields
+        cache_key = (app, version)
+        if cache_key in cls._cache:
+            return cls._cache[cache_key]
 
         targeting_fields = cls._load_targeting_fields(app, version)
-        setattr(cls, field_name, targeting_fields)
+        cls._cache[cache_key] = targeting_fields
         return targeting_fields

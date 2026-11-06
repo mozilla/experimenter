@@ -163,13 +163,35 @@ class TestTargetingContextFields(TestCase):
             self.assertIs(targeting_fields_1, targeting_fields_2)
             mock_loader.assert_called_once_with(NimbusConstants.Application.DESKTOP, None)
 
+    def test_targeting_fields_cached_per_version(self):
+        mock_fields_v1 = ["field_v1"]
+        mock_fields_v2 = ["field_v2"]
+
+        with patch.object(
+            TargetingContextFields,
+            "_load_targeting_fields",
+            side_effect=[mock_fields_v1, mock_fields_v2],
+        ) as mock_loader:
+            targeting_fields_1 = TargetingContextFields.for_application(
+                NimbusConstants.Application.FENIX, "v100.0.0"
+            )
+            targeting_fields_2 = TargetingContextFields.for_application(
+                NimbusConstants.Application.FENIX, "v101.0.0"
+            )
+
+            self.assertEqual(targeting_fields_1, mock_fields_v1)
+            self.assertEqual(targeting_fields_2, mock_fields_v2)
+            self.assertEqual(mock_loader.call_count, 2)
+
     def test_clear_cache_specific_application_only(self):
-        TargetingContextFields._desktop_targeting_fields = ["desktop"]
-        TargetingContextFields._fenix_targeting_fields = ["fenix"]
-        TargetingContextFields._ios_targeting_fields = ["ios"]
+        TargetingContextFields._cache = {
+            (NimbusConstants.Application.DESKTOP, None): ["desktop"],
+            (NimbusConstants.Application.FENIX, None): ["fenix"],
+            (NimbusConstants.Application.IOS, None): ["ios"],
+        }
 
         TargetingContextFields.clear_cache(NimbusConstants.Application.DESKTOP)
 
-        self.assertIsNone(TargetingContextFields._desktop_targeting_fields)
-        self.assertEqual(TargetingContextFields._fenix_targeting_fields, ["fenix"])
-        self.assertEqual(TargetingContextFields._ios_targeting_fields, ["ios"])
+        self.assertNotIn((NimbusConstants.Application.DESKTOP, None), TargetingContextFields._cache)
+        self.assertIn((NimbusConstants.Application.FENIX, None), TargetingContextFields._cache)
+        self.assertIn((NimbusConstants.Application.IOS, None), TargetingContextFields._cache)
