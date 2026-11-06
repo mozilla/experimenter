@@ -110,7 +110,7 @@
                   {% for locale in locales %}{{ locale.code }}{% if not forloop.last %}, {% endif %}{% endfor %}
                   {# djlint:on #}
                 {% else %}
-                  — Not Set
+                  All Locales
                 {% endif %}
               {% endwith %}
             {% else %}
@@ -120,7 +120,7 @@
                   {% for language in languages %}{{ language.code }}{% if not forloop.last %}, {% endif %}{% endfor %}
                   {# djlint:on #}
                 {% else %}
-                  — Not Set
+                  All Languages
                 {% endif %}
               {% endwith %}
             {% endif %}
@@ -154,7 +154,7 @@
                 {% for country in countries %}{{ country.code }}{% if not forloop.last %}, {% endif %}{% endfor %}
                 {# djlint:on #}
               {% else %}
-                — Not Set
+                All Countries
               {% endif %}
             {% endwith %}
           </div>

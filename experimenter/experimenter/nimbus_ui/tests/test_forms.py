@@ -2717,6 +2717,17 @@ class TestDocumentationLinkDeleteForm(RequestFormTestCase):
 
 
 class TestAudienceForm(RequestFormTestCase):
+    def test_multi_select_fields_show_all_when_nothing_selected(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        form = AudienceForm(instance=experiment, request=self.request)
+
+        self.assertEqual(form.fields["locales"].widget.attrs["title"], "All Locales")
+        self.assertEqual(form.fields["languages"].widget.attrs["title"], "All Languages")
+        self.assertEqual(form.fields["countries"].widget.attrs["title"], "All Countries")
+
     def test_valid_form_saves_desktop(self):
         country = CountryFactory.create()
         locale = LocaleFactory.create()

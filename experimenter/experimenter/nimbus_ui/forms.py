@@ -1157,19 +1157,19 @@ class AudienceForm(NimbusChangeLogFormMixin, forms.ModelForm):
     locales = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Locale.objects.all().order_by("code"),
-        widget=MultiSelectWidget(),
+        widget=MultiSelectWidget(attrs={"title": "All Locales"}),
     )
     exclude_locales = forms.BooleanField(required=False)
     languages = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Language.objects.all().order_by("code"),
-        widget=MultiSelectWidget(),
+        widget=MultiSelectWidget(attrs={"title": "All Languages"}),
     )
     exclude_languages = forms.BooleanField(required=False)
     countries = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Country.objects.all().order_by("code"),
-        widget=MultiSelectWidget(),
+        widget=MultiSelectWidget(attrs={"title": "All Countries"}),
     )
     exclude_countries = forms.BooleanField(required=False)
     targeting_config_slug = forms.ChoiceField(
