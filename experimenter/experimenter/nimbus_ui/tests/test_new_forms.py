@@ -637,6 +637,17 @@ class TestRolloutRisksForm(RequestFormTestCase):
 
 
 class TestRolloutAudienceForm(RequestFormTestCase):
+    def test_multi_select_fields_show_all_when_nothing_selected(self):
+        experiment = NimbusExperimentFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+        )
+
+        form = RolloutAudienceForm(instance=experiment, request=self.request)
+
+        self.assertEqual(form.fields["locales"].widget.attrs["title"], "All Locales")
+        self.assertEqual(form.fields["languages"].widget.attrs["title"], "All Languages")
+        self.assertEqual(form.fields["countries"].widget.attrs["title"], "All Countries")
+
     def _audience_data(self, **overrides):
         data = {
             "channel": NimbusExperiment.Channel.BETA,

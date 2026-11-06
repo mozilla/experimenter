@@ -2316,6 +2316,23 @@ class TestNewRisksUpdateView(NewViewTestMixin, AuthTestCase):
 class TestNewAudienceUpdateView(NewViewTestMixin, AuthTestCase):
     url_name = "nimbus-ui-new-update-audience"
 
+    def test_card_shows_all_when_locales_and_countries_are_empty(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[],
+            countries=[],
+        )
+
+        response = self.client.post(
+            reverse(self.url_name, kwargs={"slug": experiment.slug}),
+            self.audience_data(locales=[], countries=[], save="True"),
+        )
+
+        self.assertTemplateUsed(response, "new/rollouts/audience/card.html")
+        self.assertContains(response, "All Locales")
+        self.assertContains(response, "All Countries")
+
     def test_get_returns_edit_form_for_draft(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED
