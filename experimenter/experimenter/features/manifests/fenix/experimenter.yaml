@@ -376,6 +376,14 @@ import-bookmarks:
     enabled:
       type: boolean
       description: If true, the import bookmarks feature will be enabled.
+import-passwords:
+  description: A feature that lets users import passwords from a file exported by another browser or password manager.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the import passwords feature will be enabled.
 installation:
   description: A feature that checks for reinstalls.
   hasExposure: true
