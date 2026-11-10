@@ -1,6 +1,6 @@
 #-------------------------
 # System packages
-FROM python:3.14.0 AS system-builder
+FROM python:3.15.0 AS system-builder
 
 RUN install -d /etc/apt/keyrings && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg -o /etc/apt/keyrings/yarn.asc
