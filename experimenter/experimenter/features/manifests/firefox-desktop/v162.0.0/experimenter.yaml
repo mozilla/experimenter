@@ -1086,10 +1086,7 @@ preonboarding:
 moreFromMozilla:
   description: "New page on about:preferences to suggest more Mozilla products"
   owner: omc-core@mozilla.com
-  hasExposure: true
-  exposureDescription: >-
-    Exposure is sent once per browsing session when the about:preferences URL is
-    first accessed.
+  hasExposure: false
   variables:
     enabled:
       type: boolean
@@ -1280,6 +1277,13 @@ newtabAdsReporting:
         pref:  browser.newtabpage.activity-stream.discoverystream.reportAds.enabled
       description: >-
         Enable reporting for ads
+    reportAdsNewReasonsEnabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.newtabpage.activity-stream.discoverystream.reportAds.newReasons.enabled
+      description: >-
+        Enable updated reporting reasons for ads
 
 newtabContextualContent:
   description: about:newtab contextual content feed
@@ -4338,8 +4342,8 @@ legacyHeartbeat:
   owner: beth@mozilla.com
   hasExposure: false
   schema:
-    uri: "resource://normandy/schemas/LegacyHeartbeat.schema.json"
-    path: "toolkit/components/normandy/schemas/LegacyHeartbeat.schema.json"
+    uri: "chrome://nimbus/content/schemas/LegacyHeartbeat.schema.json"
+    path: "browser/components/nimbus/schemas/LegacyHeartbeat.schema.json"
   variables:
     survey:
       type: json
@@ -6405,14 +6409,6 @@ smartWindowAgentWatch:
       description: >-
         Enables the Smart Window Agent Watch feature when true. Set to false
         to disable the rollout.
-    supportedRegions:
-      type: string
-      setPref:
-        branch: default
-        pref: browser.smartwindow.agent.supportedRegions
-      description: >-
-        Comma-separated list of region codes where the agent watch command is
-        available, for example "US,CA".
     monitorAnnouncement:
       type: boolean
       setPref:
