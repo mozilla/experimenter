@@ -880,7 +880,7 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
   sent-from-firefox-feature:
     description: |
       Adds additional promo text to links shared to WhatsApp.
