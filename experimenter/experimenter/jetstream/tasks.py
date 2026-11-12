@@ -13,12 +13,12 @@ from experimenter.experiments.models import NimbusChangeLog, NimbusExperiment
 from experimenter.jetstream.client import (
     get_enrollment_funnel_data,
     get_experiment_data,
-    get_latest_analysis_start_time,
+    get_latest_results_update_time,
     get_monitoring_data,
     get_population_estimates_data,
     get_population_sizing_data,
-    get_results_filenames,
-    get_stored_analysis_start_time,
+    get_results_files,
+    get_stored_results_update_time,
     has_missing_expected_results,
 )
 from experimenter.kinto.tasks import get_kinto_user
@@ -27,19 +27,25 @@ logger = get_task_logger(__name__)
 metrics = markus.get_metrics("jetstream.tasks")
 
 
-def strip_errors(data):
+def strip_volatile_fields(data):
     """
-    Strip errors from result data for meaningful comparison.
+    Strip fields from result data that change on every fetch regardless of
+    whether the actual analysis results changed, for meaningful comparison.
 
-    Errors contain timestamps and other metadata that change on every fetch
-    even when the actual analysis results are unchanged. We still store errors
-    in the database, but don't use them to determine if results have changed.
+    Errors contain timestamps, and source_updated_at tracks the GCS write
+    time, so both change on every fetch even when the actual analysis
+    results are unchanged. We still store them in the database, but don't
+    use them to determine if results have changed.
     """
     if not data:
         return data
 
     return {
-        version_key: {k: v for k, v in version_data.items() if k != "errors"}
+        version_key: {
+            k: v
+            for k, v in version_data.items()
+            if k not in ("errors", "source_updated_at")
+        }
         if isinstance(version_data, dict)
         else version_data
         for version_key, version_data in data.items()
@@ -48,20 +54,27 @@ def strip_errors(data):
 
 @app.task
 @metrics.timer_decorator("fetch_experiment_data")
-def fetch_experiment_data(experiment_id):
+def fetch_experiment_data(experiment_id, source_updated_at=None):
     metrics.incr("fetch_experiment_data.started")
     experiment = None
     try:
         experiment = NimbusExperiment.objects.get(id=experiment_id)
+
+        if source_updated_at is None:
+            results_files = get_results_files()
+            latest = get_latest_results_update_time(experiment, results_files)
+            source_updated_at = latest.isoformat() if latest else None
+
         old_results_data = experiment.results_data
         new_results_data = get_experiment_data(experiment)
+        new_results_data["v3"]["source_updated_at"] = source_updated_at
 
         if old_results_data != new_results_data:
             experiment.results_data = new_results_data
             experiment.save(update_fields=["results_data", "_updated_date_time"])
 
-            old_normalized = strip_errors(old_results_data)
-            new_normalized = strip_errors(new_results_data)
+            old_normalized = strip_volatile_fields(old_results_data)
+            new_normalized = strip_volatile_fields(new_results_data)
 
             if old_normalized != new_normalized:
                 generate_nimbus_changelog(
@@ -91,30 +104,29 @@ def fetch_experiment_data(experiment_id):
 def fetch_jetstream_data():
     metrics.incr("fetch_jetstream_data.started")
     try:
-        results_filenames = get_results_filenames()
+        results_files = get_results_files()
         for experiment in NimbusExperiment.objects.filter(
             status__in=[NimbusExperiment.Status.COMPLETE, NimbusExperiment.Status.LIVE]
         ):
-            latest_analysis_start_time = get_latest_analysis_start_time(experiment.slug)
+            latest = get_latest_results_update_time(experiment, results_files)
             needs_missing_results = has_missing_expected_results(
-                experiment, results_filenames
+                experiment, results_files
             )
 
-            if latest_analysis_start_time is None and not needs_missing_results:
+            if latest is None and not needs_missing_results:
                 metrics.incr("fetch_jetstream_data.skipped")
                 continue
 
-            stored_analysis_start_time = get_stored_analysis_start_time(experiment)
-            has_newer_results = latest_analysis_start_time is not None and (
-                stored_analysis_start_time is None
-                or stored_analysis_start_time < latest_analysis_start_time
-            )
+            stored = get_stored_results_update_time(experiment)
+            has_newer_results = latest is not None and (stored is None or stored < latest)
 
             if has_newer_results or needs_missing_results:
                 logger.info(
                     f"Fetching Jetstream data for {experiment.name} ({experiment.slug})"
                 )
-                fetch_experiment_data.delay(experiment.id)
+                fetch_experiment_data.delay(
+                    experiment.id, latest.isoformat() if latest else None
+                )
                 metrics.incr("fetch_jetstream_data.completed")
             else:
                 logger.info(

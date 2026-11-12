@@ -29,10 +29,10 @@ from experimenter.jetstream.client import (
     get_enrollment_funnel_data,
     get_experiment_data,
     get_featmon_slugs,
-    get_latest_analysis_start_time,
+    get_latest_results_update_time,
     get_monitoring_data,
-    get_results_filenames,
-    get_stored_analysis_start_time,
+    get_results_files,
+    get_stored_results_update_time,
     has_missing_expected_results,
 )
 from experimenter.jetstream.models import AnalysisWindow, Group, Metric
@@ -53,6 +53,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
     def setUp(self):
         super().setUp()
         Outcomes.clear_cache()
+        self.mock_get_results_files = self.enterContext(
+            patch("experimenter.jetstream.tasks.get_results_files")
+        )
+        self.mock_get_results_files.return_value = {}
 
     @parameterized.expand(
         [
@@ -87,6 +91,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "source_updated_at": None,
                 "daily": {
                     "enrollments": {
                         "all": FORMATTED_DAILY_DATA,
@@ -1150,6 +1155,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "source_updated_at": None,
                 "daily": {},
                 "weekly": {},
                 "overall": {},
@@ -1364,6 +1370,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "source_updated_at": None,
                 "daily": FORMATTED_DAILY_DATA,
                 "weekly": WEEKLY_DATA,
                 "overall": OVERALL_DATA,
@@ -1445,6 +1452,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "source_updated_at": None,
                 "daily": {
                     "enrollments": {
                         "all": FORMATTED_DAILY_DATA,
@@ -2091,6 +2099,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         FULL_DATA = {
             "v3": {
+                "source_updated_at": None,
                 "daily": {
                     "enrollments": {
                         "all": {
@@ -3346,6 +3355,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
                 experiment.results_data,
                 {
                     "v3": {
+                        "source_updated_at": None,
                         "metadata": None,
                         "overall": {},
                         "daily": {},
@@ -3444,44 +3454,42 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         ]
     )
     @patch("experimenter.jetstream.tasks.has_missing_expected_results")
-    @patch("experimenter.jetstream.tasks.get_stored_analysis_start_time")
-    @patch("experimenter.jetstream.tasks.get_latest_analysis_start_time")
-    @patch("experimenter.jetstream.tasks.get_results_filenames")
+    @patch("experimenter.jetstream.tasks.get_stored_results_update_time")
+    @patch("experimenter.jetstream.tasks.get_latest_results_update_time")
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_fetch_jetstream_data_fetches_when_analysis_start_time_is_newer(
+    def test_fetch_jetstream_data_fetches_when_results_are_newer(
         self,
         lifecycle,
         mock_delay,
-        mock_get_results_filenames,
-        mock_get_latest_analysis_start_time,
-        mock_get_stored_analysis_start_time,
+        mock_get_latest_results_update_time,
+        mock_get_stored_results_update_time,
         mock_has_missing_expected_results,
     ):
         latest_time = timezone.now()
 
         experiment = NimbusExperimentFactory.create_with_lifecycle(lifecycle)
 
-        mock_get_latest_analysis_start_time.return_value = latest_time
-        mock_get_stored_analysis_start_time.return_value = (
+        mock_get_latest_results_update_time.return_value = latest_time
+        mock_get_stored_results_update_time.return_value = (
             latest_time - datetime.timedelta(days=1)
         )
         mock_has_missing_expected_results.return_value = False
         tasks.fetch_jetstream_data()
 
-        mock_get_latest_analysis_start_time.assert_called_once_with(experiment.slug)
-        mock_delay.assert_called_once_with(experiment.id)
+        mock_get_latest_results_update_time.assert_called_once_with(
+            experiment, self.mock_get_results_files.return_value
+        )
+        mock_delay.assert_called_once_with(experiment.id, latest_time.isoformat())
 
     @patch("experimenter.jetstream.tasks.has_missing_expected_results")
-    @patch("experimenter.jetstream.tasks.get_stored_analysis_start_time")
-    @patch("experimenter.jetstream.tasks.get_latest_analysis_start_time")
-    @patch("experimenter.jetstream.tasks.get_results_filenames")
+    @patch("experimenter.jetstream.tasks.get_stored_results_update_time")
+    @patch("experimenter.jetstream.tasks.get_latest_results_update_time")
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_fetch_jetstream_data_skips_when_analysis_start_time_is_not_newer(
+    def test_fetch_jetstream_data_skips_when_results_are_not_newer(
         self,
         mock_delay,
-        mock_get_results_filenames,
-        mock_get_latest_analysis_start_time,
-        mock_get_stored_analysis_start_time,
+        mock_get_latest_results_update_time,
+        mock_get_stored_results_update_time,
         mock_has_missing_expected_results,
     ):
         current_time = timezone.now()
@@ -3490,25 +3498,25 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
         )
 
-        mock_get_latest_analysis_start_time.return_value = current_time
-        mock_get_stored_analysis_start_time.return_value = current_time
+        mock_get_latest_results_update_time.return_value = current_time
+        mock_get_stored_results_update_time.return_value = current_time
         mock_has_missing_expected_results.return_value = False
         tasks.fetch_jetstream_data()
 
-        mock_get_latest_analysis_start_time.assert_called_once_with(experiment.slug)
+        mock_get_latest_results_update_time.assert_called_once_with(
+            experiment, self.mock_get_results_files.return_value
+        )
         mock_delay.assert_not_called()
 
     @patch("experimenter.jetstream.tasks.has_missing_expected_results")
-    @patch("experimenter.jetstream.tasks.get_stored_analysis_start_time")
-    @patch("experimenter.jetstream.tasks.get_latest_analysis_start_time")
-    @patch("experimenter.jetstream.tasks.get_results_filenames")
+    @patch("experimenter.jetstream.tasks.get_stored_results_update_time")
+    @patch("experimenter.jetstream.tasks.get_latest_results_update_time")
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_fetch_jetstream_data_fetches_when_stored_analysis_start_time_is_missing(
+    def test_fetch_jetstream_data_fetches_when_stored_update_time_is_missing(
         self,
         mock_delay,
-        mock_get_results_filenames,
-        mock_get_latest_analysis_start_time,
-        mock_get_stored_analysis_start_time,
+        mock_get_latest_results_update_time,
+        mock_get_stored_results_update_time,
         mock_has_missing_expected_results,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
@@ -3516,49 +3524,50 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             results_data=None,
         )
 
-        mock_get_latest_analysis_start_time.return_value = timezone.now()
-        mock_get_stored_analysis_start_time.return_value = None
+        latest_time = timezone.now()
+        mock_get_latest_results_update_time.return_value = latest_time
+        mock_get_stored_results_update_time.return_value = None
         mock_has_missing_expected_results.return_value = False
         tasks.fetch_jetstream_data()
 
-        mock_get_latest_analysis_start_time.assert_called_once_with(experiment.slug)
-        mock_delay.assert_called_once_with(experiment.id)
+        mock_get_latest_results_update_time.assert_called_once_with(
+            experiment, self.mock_get_results_files.return_value
+        )
+        mock_delay.assert_called_once_with(experiment.id, latest_time.isoformat())
 
     @patch("experimenter.jetstream.tasks.has_missing_expected_results")
-    @patch("experimenter.jetstream.tasks.get_stored_analysis_start_time")
-    @patch("experimenter.jetstream.tasks.get_latest_analysis_start_time")
-    @patch("experimenter.jetstream.tasks.get_results_filenames")
+    @patch("experimenter.jetstream.tasks.get_stored_results_update_time")
+    @patch("experimenter.jetstream.tasks.get_latest_results_update_time")
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
-    def test_fetch_jetstream_data_skips_when_no_analysis_start_time_exists(
+    def test_fetch_jetstream_data_skips_when_no_results_exist(
         self,
         mock_delay,
-        mock_get_results_filenames,
-        mock_get_latest_analysis_start_time,
-        mock_get_stored_analysis_start_time,
+        mock_get_latest_results_update_time,
+        mock_get_stored_results_update_time,
         mock_has_missing_expected_results,
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
         )
 
-        mock_get_latest_analysis_start_time.return_value = None
+        mock_get_latest_results_update_time.return_value = None
         mock_has_missing_expected_results.return_value = False
         tasks.fetch_jetstream_data()
 
-        mock_get_latest_analysis_start_time.assert_called_once_with(experiment.slug)
+        mock_get_latest_results_update_time.assert_called_once_with(
+            experiment, self.mock_get_results_files.return_value
+        )
         mock_delay.assert_not_called()
 
     @patch("experimenter.jetstream.tasks.has_missing_expected_results")
-    @patch("experimenter.jetstream.tasks.get_stored_analysis_start_time")
-    @patch("experimenter.jetstream.tasks.get_latest_analysis_start_time")
-    @patch("experimenter.jetstream.tasks.get_results_filenames")
+    @patch("experimenter.jetstream.tasks.get_stored_results_update_time")
+    @patch("experimenter.jetstream.tasks.get_latest_results_update_time")
     @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
     def test_fetch_jetstream_data_fetches_when_expecting_missing_results(
         self,
         mock_delay,
-        mock_get_results_filenames,
-        mock_get_latest_analysis_start_time,
-        mock_get_stored_analysis_start_time,
+        mock_get_latest_results_update_time,
+        mock_get_stored_results_update_time,
         mock_has_missing_expected_results,
     ):
         current_time = timezone.now()
@@ -3567,13 +3576,47 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
         )
 
-        mock_get_latest_analysis_start_time.return_value = current_time
-        mock_get_stored_analysis_start_time.return_value = current_time
+        mock_get_latest_results_update_time.return_value = current_time
+        mock_get_stored_results_update_time.return_value = current_time
         mock_has_missing_expected_results.return_value = True
         tasks.fetch_jetstream_data()
 
         mock_has_missing_expected_results.assert_called_once()
-        mock_delay.assert_called_once_with(experiment.id)
+        mock_delay.assert_called_once_with(experiment.id, current_time.isoformat())
+
+    @patch("experimenter.jetstream.tasks.has_missing_expected_results")
+    @patch("experimenter.jetstream.tasks.fetch_experiment_data.delay")
+    def test_fetch_jetstream_data_fetches_when_rerun_writes_statistics_after_metadata(
+        self, mock_delay, mock_has_missing_expected_results
+    ):
+        stored_time = datetime.datetime(2026, 11, 10, 21, 25, tzinfo=datetime.UTC)
+        stale_metadata_write_time = datetime.datetime(
+            2026, 11, 10, 20, 0, tzinfo=datetime.UTC
+        )
+        newer_statistics_write_time = datetime.datetime(
+            2026, 11, 11, 9, 13, tzinfo=datetime.UTC
+        )
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            results_data={"v3": {"source_updated_at": stored_time.isoformat()}},
+        )
+        recipe_slug = experiment.slug.replace("-", "_")
+
+        self.mock_get_results_files.return_value = {
+            METADATA_FOLDER: {f"metadata_{recipe_slug}.json": stale_metadata_write_time},
+            ERRORS_FOLDER: {},
+            STATISTICS_FOLDER: {
+                f"statistics_{recipe_slug}_overall.json": newer_statistics_write_time
+            },
+        }
+        mock_has_missing_expected_results.return_value = False
+
+        tasks.fetch_jetstream_data()
+
+        mock_delay.assert_called_once_with(
+            experiment.id, newer_statistics_write_time.isoformat()
+        )
 
     @patch("experimenter.jetstream.tasks.get_experiment_data")
     def test_exception_for_fetch_experiment_data(self, mock_get_experiment_data):
@@ -3680,61 +3723,113 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         with self.assertRaises(Exception):
             tasks.fetch_population_sizing_data()
 
-    def test_get_stored_analysis_start_time_returns_parsed_time(self):
-        analysis_start_time = "2022-08-31T04:30:03+00:00"
+    def test_get_stored_results_update_time_returns_parsed_time(self):
+        source_updated_at = "2022-08-31T04:30:03+00:00"
         experiment = NimbusExperimentFactory.create(
-            results_data={
-                "v3": {"metadata": {"analysis_start_time": analysis_start_time}}
-            },
+            results_data={"v3": {"source_updated_at": source_updated_at}},
         )
 
         self.assertEqual(
-            get_stored_analysis_start_time(experiment),
-            datetime.datetime.fromisoformat(analysis_start_time),
+            get_stored_results_update_time(experiment),
+            datetime.datetime.fromisoformat(source_updated_at),
         )
 
-    def test_get_stored_analysis_start_time_none_when_no_results_data(self):
+    def test_get_stored_results_update_time_none_when_no_results_data(self):
         experiment = NimbusExperimentFactory.create(results_data=None)
 
-        self.assertIsNone(get_stored_analysis_start_time(experiment))
+        self.assertIsNone(get_stored_results_update_time(experiment))
 
-    def test_get_stored_analysis_start_time_none_when_no_metadata(self):
+    def test_get_stored_results_update_time_none_when_no_source_updated_at(self):
         experiment = NimbusExperimentFactory.create(results_data={"v3": {}})
 
-        self.assertIsNone(get_stored_analysis_start_time(experiment))
+        self.assertIsNone(get_stored_results_update_time(experiment))
 
-    @patch("experimenter.jetstream.client.get_metadata")
-    def test_get_latest_analysis_start_time_returns_parsed_time(self, mock_get_metadata):
-        analysis_start_time = "2022-08-31T04:30:03+00:00"
-        mock_get_metadata.return_value = {"analysis_start_time": analysis_start_time}
+    def test_get_latest_results_update_time_returns_max_of_matching_files(self):
+        experiment = NimbusExperimentFactory.create()
+        recipe_slug = experiment.slug.replace("-", "_")
+        older = timezone.now() - datetime.timedelta(hours=1)
+        newer = timezone.now()
 
-        self.assertEqual(
-            get_latest_analysis_start_time("test-experiment-slug"),
-            datetime.datetime.fromisoformat(analysis_start_time),
+        results_files = {
+            METADATA_FOLDER: {f"metadata_{recipe_slug}.json": older},
+            ERRORS_FOLDER: {},
+            STATISTICS_FOLDER: {f"statistics_{recipe_slug}_daily.json": newer},
+        }
+
+        self.assertEqual(get_latest_results_update_time(experiment, results_files), newer)
+
+    def test_get_latest_results_update_time_none_when_no_matching_files(self):
+        experiment = NimbusExperimentFactory.create()
+
+        self.assertIsNone(
+            get_latest_results_update_time(
+                experiment,
+                {METADATA_FOLDER: {}, ERRORS_FOLDER: {}, STATISTICS_FOLDER: {}},
+            )
         )
 
-    @patch("experimenter.jetstream.client.get_metadata")
-    def test_get_latest_analysis_start_time_none_when_metadata_missing(
-        self, mock_get_metadata
-    ):
-        mock_get_metadata.side_effect = RuntimeError
+    def test_get_latest_results_update_time_ignores_non_exact_name_matches(self):
+        experiment = NimbusExperimentFactory.create()
+        recipe_slug = experiment.slug.replace("-", "_")
+        updated = timezone.now()
 
-        self.assertIsNone(get_latest_analysis_start_time("test-experiment-slug"))
+        results_files = {
+            METADATA_FOLDER: {},
+            ERRORS_FOLDER: {},
+            STATISTICS_FOLDER: {f"statistics_{recipe_slug}_bar_daily.json": updated},
+        }
 
-    @patch("experimenter.jetstream.client.analysis_storage.listdir")
-    def test_get_results_filenames_returns_filenames_by_folder(self, mock_listdir):
-        def listdir(folder):
-            return ([], [f"{folder}_a.json", f"{folder}_b.json"])
+        self.assertIsNone(get_latest_results_update_time(experiment, results_files))
 
-        mock_listdir.side_effect = listdir
+    @patch("experimenter.jetstream.client.analysis_storage._bucket")
+    def test_get_results_files_returns_files_by_folder(self, mock_bucket):
+        class FakeBlob:
+            def __init__(self, name, updated):
+                self.name = name
+                self.updated = updated
+
+        updated_a = timezone.now() - datetime.timedelta(hours=1)
+        updated_b = timezone.now()
+
+        def list_blobs(prefix):
+            folder = prefix.rstrip("/")
+            return [
+                FakeBlob(f"{prefix}{folder}_a.json", updated_a),
+                FakeBlob(f"{prefix}{folder}_b.json", updated_b),
+            ]
+
+        mock_bucket.list_blobs.side_effect = list_blobs
 
         self.assertEqual(
-            get_results_filenames(),
+            get_results_files(),
             {
-                STATISTICS_FOLDER: {"statistics_a.json", "statistics_b.json"},
-                METADATA_FOLDER: {"metadata_a.json", "metadata_b.json"},
-                ERRORS_FOLDER: {"errors_a.json", "errors_b.json"},
+                STATISTICS_FOLDER: {
+                    "statistics_a.json": updated_a,
+                    "statistics_b.json": updated_b,
+                },
+                METADATA_FOLDER: {
+                    "metadata_a.json": updated_a,
+                    "metadata_b.json": updated_b,
+                },
+                ERRORS_FOLDER: {
+                    "errors_a.json": updated_a,
+                    "errors_b.json": updated_b,
+                },
             },
+        )
+
+    @patch("experimenter.jetstream.client.analysis_storage._bucket")
+    def test_get_results_files_skips_blobs_with_empty_basename(self, mock_bucket):
+        class FakeBlob:
+            def __init__(self, name, updated):
+                self.name = name
+                self.updated = updated
+
+        mock_bucket.list_blobs.return_value = [FakeBlob("", timezone.now())]
+
+        self.assertEqual(
+            get_results_files(),
+            {STATISTICS_FOLDER: {}, METADATA_FOLDER: {}, ERRORS_FOLDER: {}},
         )
 
     def test_expected_windows_daily_only(self):
@@ -3854,32 +3949,102 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
     def test_fetch_experiment_data_does_not_save_when_results_unchanged(
         self, mock_get_experiment_data
     ):
+        source_updated_at = "2024-01-01T00:00:00+00:00"
         experiment = NimbusExperimentFactory.create(
-            results_data={"v3": {"metadata": {}}},
+            results_data={"v3": {"metadata": {}, "source_updated_at": source_updated_at}},
         )
 
-        mock_get_experiment_data.return_value = experiment.results_data
+        mock_get_experiment_data.return_value = {"v3": {"metadata": {}}}
 
         with patch.object(NimbusExperiment, "save") as mock_save:
-            tasks.fetch_experiment_data(experiment.id)
+            tasks.fetch_experiment_data(
+                experiment.id, source_updated_at=source_updated_at
+            )
 
         mock_save.assert_not_called()
 
-    @patch("experimenter.jetstream.tasks.get_results_filenames")
-    @patch("experimenter.jetstream.tasks.get_latest_analysis_start_time")
+    @patch("experimenter.jetstream.tasks.get_experiment_data")
+    def test_fetch_experiment_data_stores_given_source_updated_at(
+        self, mock_get_experiment_data
+    ):
+        experiment = NimbusExperimentFactory.create(results_data=None)
+        mock_get_experiment_data.return_value = {"v3": {"metadata": {}}}
+
+        tasks.fetch_experiment_data(
+            experiment.id, source_updated_at="2024-01-01T00:00:00+00:00"
+        )
+
+        experiment.refresh_from_db()
+        self.assertEqual(
+            experiment.results_data["v3"]["source_updated_at"],
+            "2024-01-01T00:00:00+00:00",
+        )
+        self.mock_get_results_files.assert_not_called()
+
+    @patch("experimenter.jetstream.tasks.get_experiment_data")
+    def test_fetch_experiment_data_computes_source_updated_at_when_not_given(
+        self, mock_get_experiment_data
+    ):
+        experiment = NimbusExperimentFactory.create(results_data=None)
+        recipe_slug = experiment.slug.replace("-", "_")
+        updated = timezone.now()
+        self.mock_get_results_files.return_value = {
+            METADATA_FOLDER: {f"metadata_{recipe_slug}.json": updated},
+            ERRORS_FOLDER: {},
+            STATISTICS_FOLDER: {},
+        }
+        mock_get_experiment_data.return_value = {"v3": {"metadata": {}}}
+
+        tasks.fetch_experiment_data(experiment.id)
+
+        experiment.refresh_from_db()
+        self.mock_get_results_files.assert_called_once()
+        self.assertEqual(
+            experiment.results_data["v3"]["source_updated_at"], updated.isoformat()
+        )
+
+    @patch("experimenter.jetstream.tasks.generate_nimbus_changelog")
+    @patch("experimenter.jetstream.tasks.get_experiment_data")
+    def test_no_changelog_when_only_source_updated_at_changed(
+        self, mock_get_experiment_data, mock_generate_nimbus_changelog
+    ):
+        experiment = NimbusExperimentFactory.create(
+            results_data={
+                "v3": {
+                    "metadata": {},
+                    "source_updated_at": "2024-01-01T00:00:00+00:00",
+                }
+            },
+        )
+        mock_get_experiment_data.return_value = {"v3": {"metadata": {}}}
+
+        tasks.fetch_experiment_data(
+            experiment.id, source_updated_at="2024-01-02T00:00:00+00:00"
+        )
+
+        experiment.refresh_from_db()
+        self.assertEqual(
+            experiment.results_data["v3"]["source_updated_at"],
+            "2024-01-02T00:00:00+00:00",
+        )
+        mock_generate_nimbus_changelog.assert_not_called()
+
+    @patch("experimenter.jetstream.tasks.get_latest_results_update_time")
     def test_fetch_jetstream_data_raises_exception(
-        self, mock_get_latest_analysis_start_time, mock_get_results_filenames
+        self, mock_get_latest_results_update_time
     ):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
         )
 
-        mock_get_latest_analysis_start_time.side_effect = Exception
+        mock_get_latest_results_update_time.side_effect = Exception
 
         with self.assertRaises(Exception):
             tasks.fetch_jetstream_data()
 
-        mock_get_latest_analysis_start_time.assert_called_once_with(experiment.slug)
+        mock_get_latest_results_update_time.assert_called_once_with(
+            experiment, self.mock_get_results_files.return_value
+        )
 
 
 @pytest.fixture
@@ -4400,26 +4565,6 @@ class TestSkipInvalidResults(TestCase):
         "outcomes": {},
     }
 
-    def test_get_latest_analysis_start_time_skips_and_reports(self):
-        try:
-            Metadata.model_validate(self.INVALID_METADATA)
-        except ValidationError as e:
-            validation_error = e
-
-        with (
-            patch(
-                "experimenter.jetstream.client.get_metadata",
-                side_effect=validation_error,
-            ),
-            patch(
-                "experimenter.jetstream.client.sentry_sdk.capture_exception"
-            ) as mock_capture,
-        ):
-            result = get_latest_analysis_start_time("my-experiment")
-
-        self.assertIsNone(result)
-        mock_capture.assert_called_once()
-
     def test_fetch_experiment_data_skips_and_reports(self):
         experiment = NimbusExperimentFactory.create()
         experiment.results_data = {"v3": {"existing": True}}
@@ -4439,60 +4584,13 @@ class TestSkipInvalidResults(TestCase):
                 "experimenter.jetstream.tasks.sentry_sdk.capture_exception"
             ) as mock_capture,
         ):
-            tasks.fetch_experiment_data(experiment.id)
+            tasks.fetch_experiment_data(
+                experiment.id, source_updated_at="2026-07-27T00:00:00+00:00"
+            )
 
         mock_capture.assert_called_once()
         experiment.refresh_from_db()
         self.assertEqual(experiment.results_data, {"v3": {"existing": True}})
-
-    def test_fetch_jetstream_data_continues_when_one_experiment_has_invalid_metadata(
-        self,
-    ):
-        invalid_experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-            results_data=None,
-        )
-        valid_experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
-            results_data=None,
-        )
-        invalid_recipe_slug = invalid_experiment.slug.replace("-", "_")
-
-        def fake_get_metadata(recipe_slug):
-            if recipe_slug == invalid_recipe_slug:
-                Metadata.model_validate(self.INVALID_METADATA)
-            return {"analysis_start_time": "2026-07-27T00:00:00+00:00"}
-
-        with (
-            patch(
-                "experimenter.jetstream.client.get_metadata",
-                side_effect=fake_get_metadata,
-            ),
-            patch(
-                "experimenter.jetstream.client.sentry_sdk.capture_exception"
-            ) as mock_capture,
-            patch(
-                "experimenter.jetstream.tasks.get_results_filenames",
-                return_value={
-                    STATISTICS_FOLDER: set(),
-                    METADATA_FOLDER: set(),
-                    ERRORS_FOLDER: set(),
-                },
-            ),
-            patch(
-                "experimenter.jetstream.tasks.has_missing_expected_results",
-                return_value=False,
-            ),
-            patch(
-                "experimenter.jetstream.tasks.fetch_experiment_data.delay"
-            ) as mock_delay,
-        ):
-            tasks.fetch_jetstream_data()
-
-        fetched_experiment_ids = {call.args[0] for call in mock_delay.call_args_list}
-        self.assertIn(valid_experiment.id, fetched_experiment_ids)
-        self.assertNotIn(invalid_experiment.id, fetched_experiment_ids)
-        mock_capture.assert_called_once()
 
     def test_statistics_rows_without_analysis_basis_default_to_enrollments(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
