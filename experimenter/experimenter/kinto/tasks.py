@@ -809,6 +809,7 @@ def nimbus_sync_published_dto(experiment_id=None):
     try:
         experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
         if experiment_id:
             experiments = experiments.filter(id=experiment_id)

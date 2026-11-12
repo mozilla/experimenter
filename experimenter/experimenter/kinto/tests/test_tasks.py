@@ -2497,6 +2497,32 @@ class TestNimbusSyncPublishedDto(MockKintoClientMixin, TestCase):
 
     @parameterized.expand(
         [
+            NimbusExperimentFactory.Lifecycles.LIVE_REVIEW_REQUESTED,
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE,
+            NimbusExperimentFactory.Lifecycles.LIVE_APPROVE_WAITING,
+        ]
+    )
+    def test_does_not_resync_when_publish_status_not_idle(self, lifecycle):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            application=NimbusExperiment.Application.DESKTOP,
+            published_dto={"id": "old-data"},
+        )
+
+        self.mock_kinto_client.get_records.return_value = [
+            {"id": experiment.slug, "isEnrollmentPaused": True, "last_modified": "0"}
+        ]
+
+        changes_before = experiment.changes.count()
+
+        tasks.nimbus_sync_published_dto()
+
+        experiment.refresh_from_db()
+        self.assertEqual(experiment.published_dto, {"id": "old-data"})
+        self.assertEqual(experiment.changes.count(), changes_before)
+
+    @parameterized.expand(
+        [
             NimbusExperiment.Application.DESKTOP,
             NimbusExperiment.Application.FENIX,
             NimbusExperiment.Application.IOS,
