@@ -2445,6 +2445,30 @@ class TestNimbusSyncPublishedDto(MockKintoClientMixin, TestCase):
             NimbusChangeLog.Messages.RESYNCHRONIZED_FROM_RS,
         )
 
+    def test_does_not_overwrite_concurrent_change_when_resyncing(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LAUNCH_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
+            published_dto={"id": "old-data"},
+        )
+
+        def race_and_return_records(**kwargs):
+            NimbusExperiment.objects.filter(id=experiment.id).update(
+                publish_status=NimbusExperiment.PublishStatus.REVIEW
+            )
+            return [{"id": experiment.slug, "updated": True, "last_modified": "0"}]
+
+        self.mock_kinto_client.get_records.side_effect = race_and_return_records
+
+        tasks.nimbus_sync_published_dto()
+
+        experiment.refresh_from_db()
+        self.assertEqual(
+            experiment.published_dto,
+            {"id": experiment.slug, "updated": True},
+        )
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+
     @parameterized.expand(
         [
             NimbusExperiment.Application.DESKTOP,

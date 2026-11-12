@@ -3825,6 +3825,31 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
         self.assertEqual(experiment.results_data, new_results_data)
 
+    @patch("experimenter.jetstream.tasks.generate_nimbus_changelog")
+    @patch("experimenter.jetstream.tasks.get_experiment_data")
+    def test_fetch_experiment_data_does_not_overwrite_concurrent_change(
+        self, mock_get_experiment_data, mock_generate_nimbus_changelog
+    ):
+        experiment = NimbusExperimentFactory.create(
+            results_data={"v3": {"metadata": {"analysis_start_time": "old"}}},
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
+        )
+        new_results_data = {"v3": {"metadata": {"analysis_start_time": "new"}}}
+
+        def race_and_return_results(_experiment):
+            NimbusExperiment.objects.filter(id=experiment.id).update(
+                publish_status=NimbusExperiment.PublishStatus.REVIEW
+            )
+            return new_results_data
+
+        mock_get_experiment_data.side_effect = race_and_return_results
+
+        tasks.fetch_experiment_data(experiment.id)
+        experiment = NimbusExperiment.objects.get(id=experiment.id)
+
+        self.assertEqual(experiment.results_data, new_results_data)
+        self.assertEqual(experiment.publish_status, NimbusExperiment.PublishStatus.REVIEW)
+
     @patch("experimenter.jetstream.tasks.get_experiment_data")
     def test_fetch_experiment_data_does_not_save_when_results_unchanged(
         self, mock_get_experiment_data
