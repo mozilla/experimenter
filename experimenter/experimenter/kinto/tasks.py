@@ -809,6 +809,7 @@ def nimbus_sync_published_dto(experiment_id=None):
     try:
         experiments = NimbusExperiment.objects.filter(
             status=NimbusExperiment.Status.LIVE,
+            publish_status=NimbusExperiment.PublishStatus.IDLE,
         )
         if experiment_id:
             experiments = experiments.filter(id=experiment_id)
@@ -836,7 +837,7 @@ def nimbus_sync_published_dto(experiment_id=None):
 
                 with transaction.atomic():
                     experiment.published_dto = published_record
-                    experiment.save()
+                    experiment.save(update_fields=["published_dto", "_updated_date_time"])
 
                     generate_nimbus_changelog(
                         experiment,

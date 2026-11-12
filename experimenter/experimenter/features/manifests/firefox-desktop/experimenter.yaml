@@ -5507,6 +5507,22 @@ linkPreviews:
         sub-pref and values objects indicating the desired branch and value
         defaulting to clearing the user branch value.
 
+generatedWidgets:
+  description: >-
+    Custom widgets: lets users create widgets from a prompt with AI and shows
+    the Widget Studio panel in the sidebar.
+  owner: fchasen@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      type: boolean
+      setPref:
+        branch: user
+        pref: browser.widgets.generated.enabled
+      description: >-
+        If true, shows the Widget Studio panel in the sidebar and lets users
+        create widgets.
+
 resourceMonitor:
   description: Resource Monitor sidebar panel
   owner: tthorne@mozilla.com
@@ -6391,6 +6407,18 @@ smartWindow:
       description: >-
         How Smart Window obtains a guest token: "fetch" requests it in the
         background, "tab" opens the guest verification page in a tab.
+    smartbarIntent:
+      type: string
+      fallbackPref: browser.smartwindow.smartbar.intent
+      enum:
+        - ""
+        - search
+        - chat
+      description: >-
+        "search" or "chat" pins the smart bar to that action instead of the
+        intent classifier. The urlbar Ask suggestion still appears when pinned
+        to search. While pinned, detected_intent telemetry reports the pinned
+        value rather than the classifier's for non-navigate requests.
 
 smartWindowAgentWatch:
   description: >-

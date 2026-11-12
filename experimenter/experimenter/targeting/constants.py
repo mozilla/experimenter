@@ -6196,6 +6196,20 @@ HAS_ALLOWED_NOTIFICATIONS = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+NOTIFICATION_PROMPT_NOT_GLOBALLY_DISABLED = NimbusTargetingConfig(
+    name="Notification permission prompt not globally disabled",
+    slug="notification_prompt_not_globally_disabled",
+    description=(
+        "Desktop users who have not globally blocked new web notification "
+        "permission requests"
+    ),
+    targeting="'permissions.default.desktop-notification'|preferenceValue != 2",
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 CBWN_DELIVERY_ESTABLISHED_PROFILES = NimbusTargetingConfig(
     name="Closed-browser web notifications, established profiles",
     slug="cbwn_delivery_established_profiles",

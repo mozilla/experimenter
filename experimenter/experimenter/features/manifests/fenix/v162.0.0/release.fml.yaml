@@ -102,7 +102,7 @@ features:
       enabled:
         description: If true, run the one-time migration that converts existing Collections into Tab Groups.
         type: Boolean
-        default: false
+        default: true
       hide-collections-ui:
         description: If true, the Collections UI is hidden.
         type: Boolean
@@ -700,7 +700,7 @@ features:
             card-type: sync-sign-in
             disqualifiers:
             - NEVER
-            enabled: true
+            enabled: false
             extra-data: null
             image-res: nova_onboarding_sync
             ordering: 15
@@ -709,6 +709,20 @@ features:
             primary-button-label: nova_onboarding_sync_button
             secondary-button-label: nova_onboarding_negative_button
             title: nova_onboarding_sync_title
+          sync-pairing:
+            body: nova_onboarding_sync_pairing_body
+            card-type: sync-pairing
+            disqualifiers:
+            - NEVER
+            enabled: true
+            extra-data: null
+            image-res: nova_onboarding_sync_qr
+            ordering: 16
+            prerequisites:
+            - ALWAYS
+            primary-button-label: nova_onboarding_sync_pairing_scan_button
+            secondary-button-label: nova_onboarding_sync_pairing_email_button
+            title: nova_onboarding_sync_pairing_title
           marketing:
             body: ''
             card-type: marketing-data
@@ -1066,14 +1080,14 @@ features:
         default: false
   pairing-signin-prompt:
     description: |
-      Controls the Sync sign-in card shown during initial onboarding to users who installed Firefox through a pairing link.
+      Controls the pairing sync card shown during initial onboarding to users who installed Firefox through a pairing link.
     variables:
       campaign-utm-content:
         description: The "utm_content" value used to identify installs from the pairing campaign.
         type: String
         default: DTM_SYNC_PAIR_V2
       enabled:
-        description: Whether the Sync sign-in card can be shown during initial onboarding.
+        description: Whether the pairing sync card can be shown during initial onboarding.
         type: Boolean
         default: false
   pdf-viewer:
@@ -1591,6 +1605,9 @@ enums:
         description: Allows user to set Firefox as the default browser.
       marketing-data:
         description: Allows user to opt out of marketing data collection.
+      sync-pairing:
+        description: |
+          Lets a user who installed from a pairing campaign link scan the pairing QR code or sign in with email.
       sync-sign-in:
         description: Allows user to sync with a Firefox account.
       terms-of-service:
