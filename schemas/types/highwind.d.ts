@@ -10,6 +10,7 @@ export type HighwindAnalysisUnit = "client_id" | "profile_group_id";
 export type HighwindWindowKind = "cumulative" | "disjoint";
 export type HighwindCellState = "not_started" | "insufficient_data" | "forming" | "confident" | "error";
 export type HighwindDirection = "positive" | "negative" | "neutral";
+export type HighwindWinsorizeMode = "fraction" | "fixed" | "off" | "skipped";
 export type HighwindLogLevel = "WARNING" | "ERROR";
 
 export interface HighwindAnalysis {
@@ -55,6 +56,9 @@ export interface HighwindWindowResult {
   is_summary: boolean;
   branches: HighwindBranchValue[];
   comparisons: HighwindComparison[];
+  winsorize_mode?: HighwindWinsorizeMode | null;
+  outcome_threshold?: number | null;
+  covariate_threshold?: number | null;
 }
 export interface HighwindWindow {
   kind: HighwindWindowKind;
@@ -66,6 +70,7 @@ export interface HighwindBranchValue {
   branch: string;
   n: number;
   value: HighwindInterval;
+  clipped_share?: number | null;
 }
 export interface HighwindInterval {
   point: number | null;
