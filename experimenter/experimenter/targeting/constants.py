@@ -143,6 +143,8 @@ DEC_9_2025 = 1765324740000
 # Privacy Notification Published date of 12:00 PM UTC on Dec 15, 2025
 DEC_15_2025 = 1765800000000
 DEC_17_2025 = 1765972800000
+# Privacy Notification Published date of 12:00 PM UTC on Dec 14, 2026
+DEC_14_2026 = 1797249600000
 
 TOU_NOTIFICATION_BYPASS_ENABLED = "'termsofuse.bypassNotification'|preferenceValue"
 
@@ -4850,6 +4852,23 @@ ACCEPTED_TOU_ON_OR_AFTER_DEC_15_2025 = NimbusTargetingConfig(
         {HAS_TOU_ACCEPTED_DATE}
         &&
         ({TOU_ACCEPTED_DATE} >= {DEC_15_2025})
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+ACCEPTED_TOU_BEFORE_DEC_14_2026 = NimbusTargetingConfig(
+    name="Accepted TOU before Dec 14, 2026",
+    slug="accepted_tou_before_dec_14_2026",
+    description="User accepted TOU before the Dec 14 2026 Privacy Notice update",
+    targeting=f"""
+    (
+        {HAS_TOU_ACCEPTED_DATE}
+        &&
+        ({TOU_ACCEPTED_DATE} < {DEC_14_2026})
     )
     """,
     desktop_telemetry="",
