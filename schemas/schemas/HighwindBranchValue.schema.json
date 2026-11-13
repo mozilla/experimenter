@@ -6,6 +6,16 @@
     "branch": {
       "type": "string"
     },
+    "clipped_share": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "n": {
       "type": "integer"
     },

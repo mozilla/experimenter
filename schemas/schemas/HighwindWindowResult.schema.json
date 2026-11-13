@@ -15,11 +15,41 @@
       },
       "type": "array"
     },
+    "covariate_threshold": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "is_summary": {
       "type": "boolean"
     },
+    "outcome_threshold": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "window": {
       "$ref": "#/$defs/HighwindWindow"
+    },
+    "winsorize_mode": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/HighwindWinsorizeMode"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   },
   "required": [
@@ -35,6 +65,16 @@
       "properties": {
         "branch": {
           "type": "string"
+        },
+        "clipped_share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "n": {
           "type": "integer"
@@ -210,6 +250,15 @@
       "enum": [
         "cumulative",
         "disjoint"
+      ],
+      "type": "string"
+    },
+    "HighwindWinsorizeMode": {
+      "enum": [
+        "fraction",
+        "fixed",
+        "off",
+        "skipped"
       ],
       "type": "string"
     }

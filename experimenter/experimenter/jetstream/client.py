@@ -1,6 +1,5 @@
 import functools
 import json
-import logging
 import tomllib
 from collections import defaultdict
 from datetime import date, datetime, timedelta
@@ -8,7 +7,6 @@ from itertools import chain
 from pathlib import Path
 from typing import Any
 
-import sentry_sdk
 from django.conf import settings
 from django.core.files.storage import storages
 from django.utils import timezone
@@ -20,7 +18,6 @@ from mozilla_nimbus_schemas.jetstream import (
     SampleSizes,
     Statistics,
 )
-from pydantic import ValidationError
 
 from experimenter.experiments.models import NimbusExperiment
 from experimenter.jetstream.models import (
@@ -35,8 +32,6 @@ from experimenter.jetstream.models import (
 )
 from experimenter.outcomes import Metric as OutcomeMetric
 from experimenter.outcomes import Outcomes
-
-logger = logging.getLogger(__name__)
 
 STATISTICS_FOLDER = "statistics"
 METADATA_FOLDER = "metadata"
@@ -123,38 +118,39 @@ def get_population_estimates_data():
     return load_data_from_gcs(str(path))
 
 
-def get_results_filenames():
-    filenames_by_folder = {}
+def get_results_files():
+    files_by_folder = {}
     for folder in [STATISTICS_FOLDER, METADATA_FOLDER, ERRORS_FOLDER]:
-        _, filenames = analysis_storage.listdir(folder)
-        filenames_by_folder[folder] = set(filenames)
-    return filenames_by_folder
+        files = {}
+        for blob in analysis_storage.bucket.list_blobs(prefix=f"{folder}/"):
+            filename = Path(blob.name).name
+            if filename:
+                files[filename] = blob.updated
+        files_by_folder[folder] = files
+    return files_by_folder
 
 
-def _parse_analysis_start_time(metadata):
-    start_time = metadata.get("analysis_start_time") if metadata else None
-    return datetime.fromisoformat(start_time) if start_time else None
+def get_latest_results_update_time(experiment, results_files):
+    recipe_slug = experiment.slug.replace("-", "_")
+    names = [
+        (METADATA_FOLDER, f"metadata_{recipe_slug}.json"),
+        (ERRORS_FOLDER, f"errors_{recipe_slug}.json"),
+    ]
+    for window in AnalysisWindow:
+        names.append((STATISTICS_FOLDER, f"statistics_{recipe_slug}_{window}.json"))
+
+    updated_times = [
+        results_files[folder][filename]
+        for folder, filename in names
+        if filename in results_files.get(folder, {})
+    ]
+    return max(updated_times) if updated_times else None
 
 
-def get_latest_analysis_start_time(experiment_slug):
-    recipe_slug = experiment_slug.replace("-", "_")
-    try:
-        metadata = get_metadata(recipe_slug)
-    except RuntimeError:
-        return None
-    except ValidationError as e:
-        sentry_sdk.capture_exception(e)
-        logger.warning(
-            f"Skipping {experiment_slug}, metadata failed schema validation: {e}"
-        )
-        return None
-    return _parse_analysis_start_time(metadata)
-
-
-def get_stored_analysis_start_time(experiment):
+def get_stored_results_update_time(experiment):
     results_data = experiment.results_data or {}
-    metadata = (results_data.get("v3") or {}).get("metadata")
-    return _parse_analysis_start_time(metadata)
+    source_updated_at = (results_data.get("v3") or {}).get("source_updated_at")
+    return datetime.fromisoformat(source_updated_at) if source_updated_at else None
 
 
 def expected_windows(experiment):
@@ -166,7 +162,7 @@ def expected_windows(experiment):
     return windows
 
 
-def has_missing_expected_results(experiment, results_filenames):
+def has_missing_expected_results(experiment, results_files):
     if experiment.computed_end_date and (
         experiment.computed_end_date
         + timedelta(days=NimbusExperiment.DAYS_ANALYSIS_BUFFER)
@@ -175,7 +171,7 @@ def has_missing_expected_results(experiment, results_filenames):
         return False
 
     recipe_slug = experiment.slug.replace("-", "_")
-    statistics_files = results_filenames[STATISTICS_FOLDER]
+    statistics_files = results_files[STATISTICS_FOLDER]
     return any(
         f"statistics_{recipe_slug}_{window}.json" not in statistics_files
         for window in expected_windows(experiment)

@@ -16,6 +16,7 @@ from .analysis import (
     HighwindWindow,
     HighwindWindowKind,
     HighwindWindowResult,
+    HighwindWinsorizeMode,
 )
 
 __all__ = [
@@ -36,4 +37,5 @@ __all__ = [
     "HighwindWindow",
     "HighwindWindowKind",
     "HighwindWindowResult",
+    "HighwindWinsorizeMode",
 ]
