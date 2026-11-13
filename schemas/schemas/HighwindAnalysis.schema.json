@@ -46,6 +46,16 @@
         "branch": {
           "type": "string"
         },
+        "clipped_share": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "n": {
           "type": "integer"
         },
@@ -492,11 +502,41 @@
           },
           "type": "array"
         },
+        "covariate_threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "is_summary": {
           "type": "boolean"
         },
+        "outcome_threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "window": {
           "$ref": "#/$defs/HighwindWindow"
+        },
+        "winsorize_mode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HighwindWinsorizeMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -506,6 +546,15 @@
         "comparisons"
       ],
       "type": "object"
+    },
+    "HighwindWinsorizeMode": {
+      "enum": [
+        "fraction",
+        "fixed",
+        "off",
+        "skipped"
+      ],
+      "type": "string"
     }
   }
 }

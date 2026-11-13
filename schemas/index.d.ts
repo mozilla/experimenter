@@ -70,4 +70,5 @@ export type {
   HighwindWindow,
   HighwindWindowKind,
   HighwindWindowResult,
+  HighwindWinsorizeMode,
 } from "./types/highwind.d.ts";

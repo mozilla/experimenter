@@ -12,6 +12,7 @@ from mozilla_nimbus_schemas.highwind import (
     HighwindInterval,
     HighwindLogLevel,
     HighwindWindowKind,
+    HighwindWinsorizeMode,
 )
 
 NULL_INTERVAL = {"point": None, "lower": None, "upper": None}
@@ -82,6 +83,7 @@ EXAMPLE_ANALYSIS = {
                                         "lower": 0.4,
                                         "upper": 0.6,
                                     },
+                                    "clipped_share": 0.0,
                                 },
                                 {
                                     "branch": "treatment",
@@ -91,6 +93,7 @@ EXAMPLE_ANALYSIS = {
                                         "lower": 0.5,
                                         "upper": 0.7,
                                     },
+                                    "clipped_share": 0.02,
                                 },
                             ],
                             "comparisons": [
@@ -114,6 +117,9 @@ EXAMPLE_ANALYSIS = {
                                     "error": None,
                                 }
                             ],
+                            "winsorize_mode": "fraction",
+                            "outcome_threshold": 12.5,
+                            "covariate_threshold": 10.0,
                         },
                         {
                             "window": WINDOW_NOT_STARTED,
@@ -247,12 +253,23 @@ def test_highwind_analysis_validates_example():
     assert summary.branches[1].value.point == 0.6
     assert summary.branches[1].value.lower == 0.5
     assert summary.branches[1].value.upper == 0.7
+    assert summary.branches[0].clipped_share == 0.0
+    assert summary.branches[1].clipped_share == 0.02
+    assert summary.winsorize_mode == HighwindWinsorizeMode.FRACTION
+    assert summary.outcome_threshold == 12.5
+    assert summary.covariate_threshold == 10.0
     assert summary.comparisons[0].relative.point == 10.0
     assert summary.comparisons[0].relative.lower == 1.0
     assert summary.comparisons[0].relative.upper == 20.0
     assert summary.comparisons[0].absolute.point == 0.1
     assert summary.comparisons[0].absolute.lower == 0.01
     assert summary.comparisons[0].absolute.upper == 0.2
+
+    not_started = windows[1]
+    assert not_started.winsorize_mode is None
+    assert not_started.outcome_threshold is None
+    assert not_started.covariate_threshold is None
+    assert not_started.branches[0].clipped_share is None
 
     assert analysis.errors[0].log_level == HighwindLogLevel.ERROR
     assert analysis.errors[1].window is None
@@ -286,6 +303,25 @@ def test_highwind_analysis_optional_descriptions():
 
     assert analysis.segments[0].description is None
     assert analysis.metrics[0].description is None
+
+
+def test_highwind_analysis_optional_winsorization_fields():
+    data = copy.deepcopy(EXAMPLE_ANALYSIS)
+    window = data["metrics"][0]["segments"][0]["windows"][0]
+    del window["winsorize_mode"]
+    del window["outcome_threshold"]
+    del window["covariate_threshold"]
+    del window["branches"][0]["clipped_share"]
+    del window["branches"][1]["clipped_share"]
+
+    analysis = HighwindAnalysis.model_validate(data)
+    summary = analysis.metrics[0].segments[0].windows[0]
+
+    assert summary.winsorize_mode is None
+    assert summary.outcome_threshold is None
+    assert summary.covariate_threshold is None
+    assert summary.branches[0].clipped_share is None
+    assert summary.branches[1].clipped_share is None
 
 
 @pytest.mark.parametrize(
@@ -334,6 +370,11 @@ def test_highwind_analysis_rejects_extra_fields(path):
             "sideways",
         ),
         (("errors", 0), "log_level", "INFO"),
+        (
+            ("metrics", 0, "segments", 0, "windows", 0),
+            "winsorize_mode",
+            "unknown_mode",
+        ),
     ],
 )
 def test_highwind_analysis_rejects_unknown_enum_values(path, key, value):

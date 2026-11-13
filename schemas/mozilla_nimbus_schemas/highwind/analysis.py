@@ -37,6 +37,13 @@ class HighwindDirection(str, Enum):
     NEUTRAL = "neutral"
 
 
+class HighwindWinsorizeMode(str, Enum):
+    FRACTION = "fraction"
+    FIXED = "fixed"
+    OFF = "off"
+    SKIPPED = "skipped"
+
+
 class HighwindWindow(HighwindModel):
     kind: HighwindWindowKind
     start_day: int
@@ -54,6 +61,7 @@ class HighwindBranchValue(HighwindModel):
     branch: str
     n: int
     value: HighwindInterval
+    clipped_share: float | None = None
 
 
 class HighwindComparison(HighwindModel):
@@ -73,6 +81,9 @@ class HighwindWindowResult(HighwindModel):
     is_summary: bool
     branches: list[HighwindBranchValue]
     comparisons: list[HighwindComparison]
+    winsorize_mode: HighwindWinsorizeMode | None = None
+    outcome_threshold: float | None = None
+    covariate_threshold: float | None = None
 
 
 class HighwindSegmentResult(HighwindModel):
