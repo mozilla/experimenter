@@ -118,8 +118,8 @@ EXAMPLE_ANALYSIS = {
                                 }
                             ],
                             "winsorize_mode": "fraction",
-                            "outcome_threshold": 12.5,
-                            "covariate_threshold": 10.0,
+                            "post_winsorize_threshold": 12.5,
+                            "pre_winsorize_threshold": 10.0,
                         },
                         {
                             "window": WINDOW_NOT_STARTED,
@@ -256,8 +256,8 @@ def test_highwind_analysis_validates_example():
     assert summary.branches[0].clipped_share == 0.0
     assert summary.branches[1].clipped_share == 0.02
     assert summary.winsorize_mode == HighwindWinsorizeMode.FRACTION
-    assert summary.outcome_threshold == 12.5
-    assert summary.covariate_threshold == 10.0
+    assert summary.post_winsorize_threshold == 12.5
+    assert summary.pre_winsorize_threshold == 10.0
     assert summary.comparisons[0].relative.point == 10.0
     assert summary.comparisons[0].relative.lower == 1.0
     assert summary.comparisons[0].relative.upper == 20.0
@@ -267,8 +267,8 @@ def test_highwind_analysis_validates_example():
 
     not_started = windows[1]
     assert not_started.winsorize_mode is None
-    assert not_started.outcome_threshold is None
-    assert not_started.covariate_threshold is None
+    assert not_started.post_winsorize_threshold is None
+    assert not_started.pre_winsorize_threshold is None
     assert not_started.branches[0].clipped_share is None
 
     assert analysis.errors[0].log_level == HighwindLogLevel.ERROR
@@ -309,8 +309,8 @@ def test_highwind_analysis_optional_winsorization_fields():
     data = copy.deepcopy(EXAMPLE_ANALYSIS)
     window = data["metrics"][0]["segments"][0]["windows"][0]
     del window["winsorize_mode"]
-    del window["outcome_threshold"]
-    del window["covariate_threshold"]
+    del window["post_winsorize_threshold"]
+    del window["pre_winsorize_threshold"]
     del window["branches"][0]["clipped_share"]
     del window["branches"][1]["clipped_share"]
 
@@ -318,10 +318,28 @@ def test_highwind_analysis_optional_winsorization_fields():
     summary = analysis.metrics[0].segments[0].windows[0]
 
     assert summary.winsorize_mode is None
-    assert summary.outcome_threshold is None
-    assert summary.covariate_threshold is None
+    assert summary.post_winsorize_threshold is None
+    assert summary.pre_winsorize_threshold is None
     assert summary.branches[0].clipped_share is None
     assert summary.branches[1].clipped_share is None
+
+
+@pytest.mark.parametrize(
+    "old_key,new_key",
+    [
+        ("outcome_threshold", "post_winsorize_threshold"),
+        ("covariate_threshold", "pre_winsorize_threshold"),
+        ("post_threshold", "post_winsorize_threshold"),
+        ("pre_threshold", "pre_winsorize_threshold"),
+    ],
+)
+def test_highwind_analysis_rejects_old_threshold_names(old_key, new_key):
+    data = copy.deepcopy(EXAMPLE_ANALYSIS)
+    window = data["metrics"][0]["segments"][0]["windows"][0]
+    window[old_key] = window.pop(new_key)
+
+    with pytest.raises(ValidationError, match=old_key):
+        HighwindAnalysis.model_validate(data)
 
 
 @pytest.mark.parametrize(
