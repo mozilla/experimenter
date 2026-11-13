@@ -945,6 +945,15 @@ features:
           Enables permissive guardrails for the summarizer.
         type: Boolean
         default: false
+  tab-groups-feature:
+    description: |
+      Enables Tab Groups views and interactions.
+    variables:
+      enabled:
+        description: |
+          Whether Tab Groups is enabled.
+        type: Boolean
+        default: false
   tab-scroll-refactor-feature:
     description: |
       The feature flag to manage the rollout of tab scroll refactor feature.

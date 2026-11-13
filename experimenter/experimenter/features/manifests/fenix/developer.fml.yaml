@@ -931,7 +931,7 @@ features:
       enabled:
         description: Whether the pairing sync card can be shown during initial onboarding.
         type: Boolean
-        default: false
+        default: true
   pdf-viewer:
     description: Feature for the PDF viewer tools for users on Firefox for Android.
     variables:

@@ -579,6 +579,16 @@ summarizer-permissive-guardrails-feature:
       type: boolean
       description: |
         Enables permissive guardrails for the summarizer.
+tab-groups-feature:
+  description: |
+    Enables Tab Groups views and interactions.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether Tab Groups is enabled.
 tab-scroll-refactor-feature:
   description: |
     The feature flag to manage the rollout of tab scroll refactor feature.
