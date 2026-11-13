@@ -565,7 +565,7 @@ class TestJEXLToSQL(TestCase):
         self.assertIn("= ''", result.sql)
 
     def test_not_preference_is_user_set(self):
-        result = jexl_to_sql("!('browser.startup.homepage'|preferenceIsUserSet)")
+        result = jexl_to_sql("!('nimbus.qa.pref-2'|preferenceIsUserSet)")
         self.assertIn("NOT", result.sql)
         self.assertIn(_USER_PREFS, result.sql)
 
@@ -590,6 +590,27 @@ class TestJEXLToSQL(TestCase):
             result.sql, "metrics.string.nimbus_targeting_context_locale = 'en-US'"
         )
         self.assertEqual(result.warnings, ["'browser.nova.enabled'|preferenceValue"])
+
+    @parameterized.expand(
+        [
+            ("bare", "'browser.startup.homepage'|preferenceIsUserSet"),
+            ("negated", "!('browser.startup.homepage'|preferenceIsUserSet)"),
+        ]
+    )
+    def test_pref_no_feature_sets_warns_by_name(self, _name, jexl):
+        result = jexl_to_sql(jexl)
+        self.assertIsNone(result.sql)
+        self.assertEqual(
+            result.warnings, ["'browser.startup.homepage'|preferenceIsUserSet"]
+        )
+
+    def test_pref_no_feature_sets_drops_only_its_own_clause(self):
+        result = jexl_to_sql(
+            "locale == 'en-US' && 'browser.startup.homepage'|preferenceIsUserSet"
+        )
+        self.assertEqual(
+            result.sql, "metrics.string.nimbus_targeting_context_locale = 'en-US'"
+        )
 
     def test_preference_is_user_set_keeps_raw_pref_name(self):
         # userSetPrefs stores raw names; only prefValues keys are normalized.
@@ -663,9 +684,9 @@ class TestJEXLToSQL(TestCase):
         self.assertIn("AS FLOAT64)", result.sql)
 
     def test_preference_is_user_set(self):
-        result = jexl_to_sql("'browser.newtabpage.enabled'|preferenceIsUserSet")
+        result = jexl_to_sql("'nimbus.qa.pref-2'|preferenceIsUserSet")
         self.assertIn(_USER_PREFS, result.sql)
-        self.assertIn("browser.newtabpage.enabled", result.sql)
+        self.assertIn("nimbus.qa.pref-2", result.sql)
         self.assertIn("IN UNNEST", result.sql)
         self.assertEqual(result.warnings, [])
 

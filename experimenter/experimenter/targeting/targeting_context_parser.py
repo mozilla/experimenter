@@ -60,6 +60,66 @@ class RecordedPrefs:
         return cls._desktop_prefs
 
 
+class SettablePrefs:
+    """The prefs a Nimbus feature can set, which the client reports as user-set.
+
+    Firefox builds nimbus_targeting_environment.user_set_prefs only from the
+    `setPref` entries in the feature manifests. A `preferenceIsUserSet` check on
+    any other pref is false for every client.
+    """
+
+    _desktop_prefs = None
+
+    _SET_PREF = re.compile(r"^(\s*)setPref:\s*(.*)$")
+    _PREF = re.compile(r"^\s*pref:\s*(\S+)")
+
+    @staticmethod
+    def _unquote(value):
+        return value.strip("'\"")
+
+    @classmethod
+    def _parse(cls, manifest_text):
+        # A text scan, not a YAML load: there is one large manifest per version.
+        # `setPref` is either `setPref: some.pref` or a block with a `pref:` key.
+        prefs = set()
+        lines = manifest_text.splitlines()
+        for index, line in enumerate(lines):
+            match = cls._SET_PREF.match(line)
+            if not match:
+                continue
+            indent, inline = len(match.group(1)), match.group(2).strip()
+            if inline:
+                prefs.add(cls._unquote(inline))
+                continue
+            for following in lines[index + 1 : index + 6]:
+                if (
+                    following.strip()
+                    and len(following) - len(following.lstrip()) <= indent
+                ):
+                    break
+                if pref := cls._PREF.match(following):
+                    prefs.add(cls._unquote(pref.group(1)))
+                    break
+        return prefs
+
+    @classmethod
+    def clear_cache(cls):
+        cls._desktop_prefs = None
+
+    @classmethod
+    def for_desktop(cls):
+        """Union across every manifest version, since the pool spans versions."""
+        if cls._desktop_prefs is None:
+            app_path = (
+                settings.FEATURE_MANIFESTS_PATH / NimbusConstants.Application.DESKTOP
+            )
+            prefs = set()
+            for path in app_path.glob("**/experimenter.yaml"):
+                prefs |= cls._parse(path.read_text())
+            cls._desktop_prefs = frozenset(prefs)
+        return cls._desktop_prefs
+
+
 class TargetingContextFields:
     _desktop_targeting_fields = None
     _fenix_targeting_fields = None
