@@ -688,6 +688,16 @@ pdfjs:
     open-in-app-button:
       type: boolean
       description: Open in app button
+picture-in-picture-window:
+  description: |
+    Feature that shows a video in picture-in-picture by cloning it.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, videos requested for picture-in-picture are cloned into a picture-in-picture window.
 pki:
   description: Certificate verification configuration
   hasExposure: true

@@ -1104,7 +1104,7 @@ features:
       enabled:
         description: If true, the OLED theme option is shown.
         type: Boolean
-        default: false
+        default: true
   onboarding:
     description: A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments.
     variables:
@@ -1152,6 +1152,15 @@ features:
         default: false
       open-in-app-button:
         description: Open in app button
+        type: Boolean
+        default: false
+  picture-in-picture-window:
+    description: |
+      Feature that shows a video in picture-in-picture by cloning it.
+    variables:
+      enabled:
+        description: |
+          If true, videos requested for picture-in-picture are cloned into a picture-in-picture window.
         type: Boolean
         default: false
   pki:
