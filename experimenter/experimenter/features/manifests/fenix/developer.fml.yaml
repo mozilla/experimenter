@@ -95,7 +95,7 @@ features:
       enabled:
         description: If true, the feature is enabled.
         type: Boolean
-        default: true
+        default: false
   collections-to-tab-groups-migration:
     description: Feature to migrate Collections to Tab Groups for users on Firefox for Android.
     variables:
@@ -900,7 +900,7 @@ features:
       enabled:
         description: If true, the OLED theme option is shown.
         type: Boolean
-        default: false
+        default: true
   onboarding:
     description: A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments.
     variables:
@@ -935,19 +935,32 @@ features:
   pdf-viewer:
     description: Feature for the PDF viewer tools for users on Firefox for Android.
     variables:
-      android-ui-tools:
-        description: If true, the Android PDF UI tools are shown.
-        type: Boolean
-        default: true
+      enable-pdf-signatures:
+        description: |
+          If true, the Android PDF UI tools are shown, the PDF.js editor is enabled, and the original PDF.js toolbar is hidden. When no value is set, the build default is used (currently enabled on Nightly).
+        type: Option<Boolean>
+        default: null
+        gecko-pref:
+          pref: pdfjs.enableAndroidEditing
+          branch: default
   pdfjs:
     description: PDF.js features
     variables:
       download-button:
         description: Download button
         type: Boolean
-        default: false
+        default: true
       open-in-app-button:
         description: Open in app button
+        type: Boolean
+        default: true
+  picture-in-picture-window:
+    description: |
+      Feature that shows a video in picture-in-picture by cloning it.
+    variables:
+      enabled:
+        description: |
+          If true, videos requested for picture-in-picture are cloned into a picture-in-picture window.
         type: Boolean
         default: false
   pki:
