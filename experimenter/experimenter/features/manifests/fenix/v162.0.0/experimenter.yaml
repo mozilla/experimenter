@@ -674,9 +674,13 @@ pdf-viewer:
   hasExposure: true
   exposureDescription: ''
   variables:
-    android-ui-tools:
+    enable-pdf-signatures:
       type: boolean
-      description: If true, the Android PDF UI tools are shown.
+      description: |
+        If true, the Android PDF UI tools are shown, the PDF.js editor is enabled, and the original PDF.js toolbar is hidden. When no value is set, the build default is used (currently enabled on Nightly).
+      setPref:
+        pref: pdfjs.enableAndroidEditing
+        branch: default
 pdfjs:
   description: PDF.js features
   hasExposure: true
@@ -688,6 +692,16 @@ pdfjs:
     open-in-app-button:
       type: boolean
       description: Open in app button
+picture-in-picture-window:
+  description: |
+    Feature that shows a video in picture-in-picture by cloning it.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, videos requested for picture-in-picture are cloned into a picture-in-picture window.
 pki:
   description: Certificate verification configuration
   hasExposure: true
