@@ -10,7 +10,7 @@
 **/.vscode/
 **/coverage/
 **/node_modules
-**/yarn-error.log
+**/npm-debug.log
 docs
 experimenter/legacy/legacy-ui/assets
 experimenter/nimbus-ui/build

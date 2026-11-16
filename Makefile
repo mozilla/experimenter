@@ -35,8 +35,8 @@ PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_TYPECHECK = pyright experimenter/
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 PYTHON_MIGRATE = python manage.py migrate
-ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui lint
-ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui format
+ESLINT_NIMBUS_UI = npm run lint --workspace=@experimenter/nimbus_ui
+ESLINT_FIX_NIMBUS_UI = npm run format --workspace=@experimenter/nimbus_ui
 DJLINT_CHECK = djlint --check experimenter/nimbus_ui/ experimenter/glean/
 DJLINT_FIX = djlint --reformat experimenter/nimbus_ui/ experimenter/glean/
 RUFF_CHECK = ruff check experimenter/ manifesttool/ tests/
@@ -166,7 +166,7 @@ kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune container
 	echo "All containers removed!"
 
 lint: build_test  ## Running linting on source code
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_RESULTS)" "$(ESLINT_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_RESULTS)" "$(RESULTS_SCHEMA_CHECK)") ${COLOR_CHECK}'; \
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)") ${COLOR_CHECK}'; \
 	status=$$?; \
 	$(COMPOSE_TEST) down; \
 	exit $$status
@@ -231,11 +231,8 @@ up_detached: build_dev cirrus_build
 generate_docs: build_dev
 	$(COMPOSE_RUN) --no-deps experimenter sh -c "$(GENERATE_DOCS)"
 
-generate_types: build_dev
-	$(COMPOSE_RUN) --no-deps experimenter sh -c "$(RESULTS_TYPES_GENERATE)"
-
 format: build_dev  ## Format source tree
-	$(COMPOSE_RUN) --no-deps experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_RESULTS)" "$(ESLINT_FIX_NIMBUS_UI)"'
+	$(COMPOSE_RUN) --no-deps experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_NIMBUS_UI)"'
 code_format: format
 
 makemigrations: build_dev
