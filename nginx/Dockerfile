@@ -1,4 +1,4 @@
-FROM nginx:1.31.7
+FROM nginx:1.31.8
 
 RUN rm /etc/nginx/nginx.conf
 COPY nginx.conf /etc/nginx/
