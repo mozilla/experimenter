@@ -14,7 +14,10 @@ from pyjexl.parser import (
 )
 
 from experimenter.experiments.jexl_utils import JEXLParser
-from experimenter.targeting.targeting_context_parser import RecordedPrefs
+from experimenter.targeting.targeting_context_parser import (
+    RecordedPrefs,
+    SettablePrefs,
+)
 
 _OS = "metrics.object.nimbus_targeting_context_os"
 _BS = "metrics.object.nimbus_targeting_context_browser_settings"
@@ -753,6 +756,11 @@ def _transform_to_sql(
         # user_set_prefs is a JSON array of pref names (using original dot notation)
         pref_name = _literal_value(node.subject)
         if pref_name:
+            # Firefox only reports a pref here if a Nimbus feature can set it. For
+            # any other pref this is false for every client, so warn instead.
+            if pref_name not in SettablePrefs.for_desktop():
+                _add_warning(warnings, f"'{pref_name}'|preferenceIsUserSet")
+                return None
             return f"'{pref_name}' IN UNNEST(JSON_VALUE_ARRAY({_USER_SET_PREFS_COL}))"
         _add_warning(warnings, "|preferenceIsUserSet")
         return None

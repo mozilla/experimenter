@@ -4,7 +4,10 @@ from django.test import TestCase
 from parameterized.parameterized import parameterized
 
 from experimenter.experiments.constants import NimbusConstants
-from experimenter.targeting.targeting_context_parser import TargetingContextFields
+from experimenter.targeting.targeting_context_parser import (
+    SettablePrefs,
+    TargetingContextFields,
+)
 from experimenter.targeting.tests import mock_targeting_manifests
 
 
@@ -173,3 +176,52 @@ class TestTargetingContextFields(TestCase):
         self.assertIsNone(TargetingContextFields._desktop_targeting_fields)
         self.assertEqual(TargetingContextFields._fenix_targeting_fields, ["fenix"])
         self.assertEqual(TargetingContextFields._ios_targeting_fields, ["ios"])
+
+
+class TestSettablePrefs(TestCase):
+    def setUp(self):
+        super().setUp()
+        SettablePrefs.clear_cache()
+
+    def test_parses_both_setpref_forms(self):
+        manifest = """
+features:
+  one:
+    variables:
+      block:
+        setPref:
+          branch: user
+          pref: some.block.pref
+      reversed:
+        setPref:
+          pref: "some.reversed.pref"
+          branch: default
+      inline:
+        setPref: some.inline.pref
+"""
+        self.assertEqual(
+            SettablePrefs._parse(manifest),
+            {"some.block.pref", "some.reversed.pref", "some.inline.pref"},
+        )
+
+    def test_a_block_without_a_pref_does_not_borrow_the_next_one(self):
+        manifest = """
+      first:
+        setPref:
+          branch: user
+      second:
+        setPref:
+          pref: the.second.pref
+"""
+        self.assertEqual(SettablePrefs._parse(manifest), {"the.second.pref"})
+
+    def test_reads_the_real_manifests(self):
+        prefs = SettablePrefs.for_desktop()
+        self.assertIn("nimbus.qa.pref-1", prefs)
+        self.assertNotIn("browser.startup.homepage", prefs)
+
+    def test_clear_cache_reloads(self):
+        first = SettablePrefs.for_desktop()
+        self.assertIs(SettablePrefs.for_desktop(), first)
+        SettablePrefs.clear_cache()
+        self.assertIsNot(SettablePrefs.for_desktop(), first)
