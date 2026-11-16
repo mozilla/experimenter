@@ -484,7 +484,6 @@ Tests are organized with pytest markers. Use `-m <marker>` in `PYTEST_ARGS` to r
 |--------|-------------|
 | `nimbus_ui` | UI-only tests (no external service integration) |
 | `desktop_enrollment` | Tests that integrate with Nimbus and external services |
-| `cirrus_enrollment` | Tests that integrate with the demo app and Cirrus |
 | `remote_settings_launch` | A single test for launching to Remote Settings |
 | `remote_settings_experiments` | Remote Settings tests for experiments |
 | `remote_settings_rollouts` | Remote Settings tests for rollouts (basic flows) |

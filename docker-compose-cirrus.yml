@@ -12,26 +12,3 @@ services:
     working_dir: /cirrus
     ports:
       - "8001:8001"
-
-  demo-app-server:
-    build:
-      context: ./demo-app/server
-      dockerfile: Dockerfile
-    ports:
-      - '3002:3002'
-    depends_on:
-      - cirrus
-    environment:
-      - CIRRUS=http://cirrus:8001
-
-  demo-app-frontend:
-    build:
-      context: ./demo-app/frontend
-      dockerfile: Dockerfile
-    ports:
-      - '8080:3000'
-    depends_on:
-      - demo-app-server
-    environment:
-      - DEMO_APP_SERVER=http://demo-app-server:3002
-    command: npm start

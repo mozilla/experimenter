@@ -351,10 +351,6 @@ cirrus_typecheck_createstub: cirrus_build
 cirrus_generate_docs: cirrus_build
 	$(CIRRUS_ENABLE) $(COMPOSE_RUN) cirrus sh -c '$(CIRRUS_GENERATE_DOCS)'
 
-build_demo_app:
-	$(CIRRUS_ENABLE) $(COMPOSE_INTEGRATION) build demo-app-frontend demo-app-server
-
-
 # nimbus schemas package
 SCHEMAS_ENV ?=  # This is empty by default
 SCHEMAS_VERSION = \$$(cat VERSION)
