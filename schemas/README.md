@@ -5,10 +5,9 @@ This directory contains a package of schemas published to various repositories f
 
 ## Installation/Usage
 ### Prerequisites
-- python ^3.10
-- poetry ^1.8.4
-- node ^16
-- yarn ^1.22
+- python
+- uv
+- node
 
 ### Common Operations
 From project root (i.e., parent to this directory)

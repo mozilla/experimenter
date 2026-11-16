@@ -379,7 +379,6 @@ SCHEMAS_FORMAT = ruff check --fix . && black .
 SCHEMAS_GENERATE = python generate_json_schema.py
 SCHEMAS_DIST_PYPI = uv build
 SCHEMAS_DEPLOY_PYPI = twine upload --skip-existing dist/*;
-SCHEMAS_DEPLOY_NPM = echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc;yarn publish --new-version ${SCHEMAS_VERSION} --access public;
 SCHEMAS_VERSION_PYPI = uv version ${SCHEMAS_VERSION};
 SCHEMAS_VERSION_NPM = npm version --allow-same-version ${SCHEMAS_VERSION};
 
@@ -406,9 +405,6 @@ schemas_generate: schemas_docker_build
 
 schemas_deploy_pypi: schemas_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_PYPI)"
-
-schemas_deploy_npm: schemas_build
-	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_NPM)"
 
 schemas_version_pypi: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_VERSION_PYPI)"
