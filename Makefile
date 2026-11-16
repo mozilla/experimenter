@@ -159,8 +159,8 @@ docker_prune:
 
 static_rm:  ## Remove statically generated files
 	rm -Rf experimenter/node_modules
-	rm -Rf experimenter/experimenter/nimbus-ui/node_modules/
-	rm -Rf experimenter/experimenter/nimbus-ui/build/
+	rm -Rf experimenter/experimenter/nimbus_ui/static/node_modules/
+	rm -Rf experimenter/experimenter/nimbus_ui/static/dist/
 
 kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune containers
 	echo "All containers removed!"
