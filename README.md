@@ -185,7 +185,6 @@ Notes:
         poetry shell
 
         yarn workspace @experimenter/nimbus-ui build
-        yarn workspace @experimenter/core build
 
         # run in separate shells (`poetry shell` in each)
         yarn workspace @experimenter/nimbus-ui start
@@ -586,7 +585,7 @@ For more detailed information on the Remote Settings integration please see the 
 
 Experimenter has two front-end UIs:
 
-- [`core`](./experimenter/experimenter/legacy/legacy-ui/core) is the legacy UI used for Experimenter intake which will remain until `nimbus-ui` supersedes it
+- [`legacy-ui`](./experimenter/experimenter/legacy/legacy-ui) serves the read-only legacy intake pages from vendored, frozen static assets
 - [`nimbus-ui`](./experimenter/experimenter/nimbus-ui) is the Nimbus Console UI for Experimenter that is actively being developed
 
 Learn more about the organization of these UIs [here](./experimenter/experimenter/legacy/legacy-ui/README.md).
