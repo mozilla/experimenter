@@ -20,7 +20,6 @@ services:
     depends_on:
       - nginx
       - kinto
-      - demo-app-frontend
     expose:
       - "4444"
     ports:
@@ -38,8 +37,3 @@ services:
     depends_on:
       - nginx
       - kinto
-  demo-app-frontend:
-    build:
-      context: ./demo-app/frontend
-      dockerfile: Dockerfile
-    command: /bin/true
