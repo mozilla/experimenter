@@ -23,12 +23,12 @@ class ExceptionUtilsTests(TestCase):
         [
             (
                 CalledProcessError(1, ["/bin/bogus"]),
-                "subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.\n",  # noqa: E501
+                "subprocess.CalledProcessError: Command ['/bin/bogus'] returned non-zero exit status 1.\n",  # noqa: E501
             ),
             (
                 CalledProcessError(1, ["/bin/bogus"], output=b"stdout"),
                 """\
-subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.
+subprocess.CalledProcessError: Command ['/bin/bogus'] returned non-zero exit status 1.
 
 stdout:
 -----
@@ -39,7 +39,7 @@ stdout
             (
                 CalledProcessError(1, ["/bin/bogus"], stderr=b"stderr"),
                 """\
-subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.
+subprocess.CalledProcessError: Command ['/bin/bogus'] returned non-zero exit status 1.
 
 stderr:
 -----
@@ -55,7 +55,7 @@ stderr
                     stderr=b"multi-line\nstderr\n",
                 ),
                 """\
-subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.
+subprocess.CalledProcessError: Command ['/bin/bogus'] returned non-zero exit status 1.
 
 stdout:
 -----
@@ -73,7 +73,7 @@ stderr
             (
                 CalledProcessError(1, ["/bin/bogus"], output=b"\xff", stderr=b"stderr"),
                 """\
-subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.
+subprocess.CalledProcessError: Command ['/bin/bogus'] returned non-zero exit status 1.
 
 stdout:
 -----
@@ -89,7 +89,7 @@ stderr
             (
                 CalledProcessError(2, ["/bin/bogus"], output=b"stdout", stderr=b"\xff"),
                 """\
-subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 2.
+subprocess.CalledProcessError: Command ['/bin/bogus'] returned non-zero exit status 2.
 
 stdout:
 -----
@@ -133,7 +133,7 @@ Traceback (most recent call last):
     raise CalledProcessError(
         1, ["/bin/bogus"], output=b"this is stdout", stderr=b"this\\nis\\nstderr\\n"
     )
-subprocess.CalledProcessError: Command '['/bin/bogus']' returned non-zero exit status 1.
+subprocess.CalledProcessError: Command ['/bin/bogus'] returned non-zero exit status 1.
 
 stdout:
 -----
