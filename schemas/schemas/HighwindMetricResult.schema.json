@@ -260,7 +260,10 @@
           },
           "type": "array"
         },
-        "covariate_threshold": {
+        "is_summary": {
+          "type": "boolean"
+        },
+        "post_winsorize_threshold": {
           "anyOf": [
             {
               "type": "number"
@@ -270,10 +273,7 @@
             }
           ]
         },
-        "is_summary": {
-          "type": "boolean"
-        },
-        "outcome_threshold": {
+        "pre_winsorize_threshold": {
           "anyOf": [
             {
               "type": "number"

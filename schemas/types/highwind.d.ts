@@ -57,8 +57,8 @@ export interface HighwindWindowResult {
   branches: HighwindBranchValue[];
   comparisons: HighwindComparison[];
   winsorize_mode?: HighwindWinsorizeMode | null;
-  outcome_threshold?: number | null;
-  covariate_threshold?: number | null;
+  post_winsorize_threshold?: number | null;
+  pre_winsorize_threshold?: number | null;
 }
 export interface HighwindWindow {
   kind: HighwindWindowKind;

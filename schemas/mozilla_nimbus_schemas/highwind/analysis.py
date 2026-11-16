@@ -82,8 +82,8 @@ class HighwindWindowResult(HighwindModel):
     branches: list[HighwindBranchValue]
     comparisons: list[HighwindComparison]
     winsorize_mode: HighwindWinsorizeMode | None = None
-    outcome_threshold: float | None = None
-    covariate_threshold: float | None = None
+    post_winsorize_threshold: float | None = None
+    pre_winsorize_threshold: float | None = None
 
 
 class HighwindSegmentResult(HighwindModel):
