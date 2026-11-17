@@ -13,7 +13,6 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 | Legacy Home     | [experimenter.services.mozilla.com][legacy_home_prod] | [stage.experimenter.nonprod.webservices.mozgcp.net][legacy_home_stage] | https://localhost                             |
 | Nimbus Home     | [/nimbus][nimbus_home_prod]                           | [/nimbus][nimbus_home_stage]                                       | [/nimbus][nimbus_home_local]                  |
 | Nimbus REST API | [/api/v6/experiments/][nimbus_rest_api_prod]          | [/api/v6/experiments/][nimbus_rest_api_stage]                      | [/api/v6/experiments/][nimbus_rest_api_local] |
-| GQL Playground  | [/api/v5/nimbus-api-graphql][gql_prod]                | [/api/v5/nimbus-api-graphql][gql_stage]                            | [/api/v5/nimbus-api-graphql][gql_local]       |
 | Remote Settings | [remote-settings.mozilla.org/v1/admin][rs_prod]       | [remote-settings.allizom.org/v1/admin][rs_stage]                   | http://localhost:8888/v1/admin                |
 
 [legacy_home_prod]: https://experimenter.services.mozilla.com/
@@ -24,9 +23,6 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
 [nimbus_rest_api_prod]: https://experimenter.services.mozilla.com/api/v6/experiments/
 [nimbus_rest_api_stage]: https://stage.experimenter.nonprod.webservices.mozgcp.net/api/v6/experiments/
 [nimbus_rest_api_local]: https://localhost/api/v6/experiments/
-[gql_prod]: https://experimenter.services.mozilla.com/api/v5/nimbus-api-graphql/
-[gql_stage]: https://stage.experimenter.nonprod.webservices.mozgcp.net/api/v5/nimbus-api-graphql/
-[gql_local]: https://localhost/api/v5/nimbus-api-graphql/
 [rs_prod]: https://remote-settings.mozilla.org/v1/admin/
 [rs_stage]: https://remote-settings.allizom.org/v1/admin/
 
@@ -335,11 +331,6 @@ Pull in the latest Kinto Docker image. Kinto is not automatically updated when n
 
 Run all test and lint suites, this is run in CI on all PRs and deploys.
 
-##### Helpful UI Testing Tips
-
-If you have a test failing to find an element (or finding too many, etc.) and the DOM is being cut off in the console output,
-you can increase how much is printed by locally editing the `DEBUG_PRINT_LIMIT=7000` in the `Makefile` (line starts with `JS_TEST_NIMBUS_UI`).
-
 #### make py_test
 
 Run only the python test suite.
@@ -573,18 +564,16 @@ Any change in remote settings requires two accounts:
 
 Any of the accounts above can be used for any of those two roles, but your local Experimenter will be configured to make its changes through the `experimenter` account, so that account can't also be used to approve/reject those changes, hence the existence of the `review` account.
 
-For more detailed information on the Remote Settings integration please see the [Kinto module documentation](experimenter/experimenter/kinto/README.md).
+For more detailed information on the Remote Settings integration please see the [Kinto module](experimenter/experimenter/kinto/).
 
 ## Frontend
 
 Experimenter has two front-end UIs:
 
-- [`legacy-ui`](./experimenter/experimenter/legacy/legacy-ui) serves the read-only legacy intake pages from vendored, frozen static assets
-- [`nimbus-ui`](./experimenter/experimenter/nimbus-ui) is the Nimbus Console UI for Experimenter that is actively being developed
+- [`nimbus_ui`](./experimenter/experimenter/nimbus_ui) is the Nimbus Console UI: Django templates and HTMX, with JS/CSS built by webpack
+- [`legacy-ui`](./experimenter/experimenter/legacy/legacy-ui) serves the read-only legacy intake pages from vendored, frozen static assets with no build step
 
-Learn more about the organization of these UIs [here](./experimenter/experimenter/legacy/legacy-ui/README.md).
-
-**Also see the [nimbus-ui README](https://github.com/mozilla/experimenter/tree/main/experimenter/experimenter/nimbus-ui) for relevent Nimbus documentation.**
+See the [legacy UI README](./experimenter/experimenter/legacy/legacy-ui/README.md) for more on the legacy UI.
 
 ## API
 
