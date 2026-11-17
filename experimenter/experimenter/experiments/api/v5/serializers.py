@@ -2000,6 +2000,93 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    @staticmethod
+    def _is_desktop_newtab_trainhop_feature(feature_config):
+        return feature_config.slug in (
+            NimbusConstants.DESKTOP_NEWTAB_TRAINHOP_SLUG,
+            NimbusConstants.DESKTOP_NEWTAB_ADDON_SLUG,
+        )
+
+    @staticmethod
+    def _branch_feature_value(branch, feature_config):
+        return next(
+            feature_value["value"]
+            for feature_value in branch.get("feature_values", [])
+            if feature_value["feature_config"] == feature_config
+        )
+
+    def _desktop_launched_nightly_beta_values(self, feature_config):
+        raw_values = (
+            NimbusBranchFeatureValue.objects.filter(
+                feature_config=feature_config,
+                branch__experiment__application=NimbusExperiment.Application.DESKTOP,
+                branch__experiment__status__in=[
+                    NimbusExperiment.Status.LIVE,
+                    NimbusExperiment.Status.COMPLETE,
+                ],
+                branch__experiment__channels__overlap=[
+                    NimbusExperiment.Channel.NIGHTLY,
+                    NimbusExperiment.Channel.BETA,
+                ],
+            )
+            .exclude(branch__experiment=self.instance)
+            .values_list("value", flat=True)
+        )
+
+        return {
+            json.dumps(json.loads(raw_value), sort_keys=True) for raw_value in raw_values
+        }
+
+    def _validate_desktop_release_nightly_beta_history(self, data):
+        if data.get("is_firefox_labs_opt_in"):
+            return data
+
+        if NimbusExperiment.Channel.RELEASE not in data.get("channels", []):
+            return data
+
+        feature_configs = [
+            feature_config
+            for feature_config in data.get("feature_configs", [])
+            if not self._is_desktop_messaging_feature(feature_config)
+            and not self._is_desktop_newtab_trainhop_feature(feature_config)
+        ]
+        if not feature_configs:
+            return data
+
+        branches = [
+            (
+                data.get("reference_branch", {}).get("name", ""),
+                data.get("reference_branch", {}),
+            ),
+            *(
+                (branch.get("name", ""), branch)
+                for branch in data.get("treatment_branches", [])
+            ),
+        ]
+
+        warnings = []
+        for feature_config in sorted(
+            feature_configs, key=lambda feature_config: feature_config.slug
+        ):
+            launched_values = self._desktop_launched_nightly_beta_values(feature_config)
+
+            for branch_name, branch in branches:
+                value = self._branch_feature_value(branch, feature_config)
+                canonical_value = json.dumps(json.loads(value), sort_keys=True)
+
+                if canonical_value not in launched_values:
+                    warnings.append(
+                        NimbusConstants.WARNING_DESKTOP_RELEASE_NIGHTLY_BETA_HISTORY.format(
+                            feature_slug=feature_config.slug,
+                            branch_name=branch_name,
+                        )
+                    )
+
+        if warnings:
+            self.warnings["nightly_beta_history"] = warnings
+
+        return data
+
     @classmethod
     def _validate_mobile_messaging(cls, value: str):
         json_value = None
@@ -2322,6 +2409,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_desktop_messaging_control_mismatch(data)
             data = self._validate_desktop_messaging_active_notifications(data)
             data = self._validate_desktop_messaging_frequency_group(data)
+            data = self._validate_desktop_release_nightly_beta_history(data)
         return data
 
 
