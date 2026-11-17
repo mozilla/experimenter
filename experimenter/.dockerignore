@@ -12,6 +12,5 @@
 **/node_modules
 **/npm-debug.log
 docs
-experimenter/legacy/legacy-ui/assets
 experimenter/served/
 Dockerfile
