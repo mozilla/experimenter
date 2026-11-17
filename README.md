@@ -43,7 +43,6 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
     On Linux:
 
     - Install [Docker](https://www.docker.com/)
-    - Install [yarn](https://classic.yarnpkg.com/lang/en/docs/install)
     - [Setup docker to run as non-root](https://docs.docker.com/engine/security/rootless/)
 
     On MacOS:
@@ -54,7 +53,6 @@ Check out the [🌩 **Nimbus Documentation Hub**](https://experimenter.info) or 
         - Memory: 50% of system memory
         - Swap: Max 4gb
         - Disk: 100gb+
-    - Install [yarn](https://github.com/yarnpkg)
 
     On Windows:
 
@@ -132,40 +130,39 @@ Notes:
 
 - [osx catalina, reinstall command line tools](https://medium.com/flawless-app-stories/gyp-no-xcode-or-clt-version-detected-macos-catalina-anansewaa-38b536389e8d)
 
-- Install [poetry](https://python-poetry.org/docs/#installation)
+- Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ##### Semi Dockerized Setup Steps
 
 1.  Pre reqs
     macOS instructions:
 
-        brew install postgresql llvm openssl yarn
+        brew install postgresql llvm openssl
 
         echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile
         export LIBRARY_PATH=$LIBRARY_PATH:/usr/local/opt/openssl/lib/
 
     Ubuntu 20.04 instructions:
 
-        # general deps (also see `poetry` link above)
-        sudo apt install postgresql llvm openssl yarn
+        # general deps (also see `uv` link above)
+        sudo apt install postgresql llvm openssl
 
-        # add'l deps* for poetry / python setup
+        # add'l deps* for python setup
         sudo apt install libpq5=12.9-0ubuntu0.20.04.1
         sudo apt install libpq-dev
 
     _\*Notes_
 
     - _the specific libpq5 version shown here is required for libpq-dev at time of writing_
-    - _`poetry install` (next step) requires python 3.9, but there are multiple options for resolving this, see [here](https://python-poetry.org/docs/managing-environments/#switching-between-environments)_
 
 2.  Install dependencies
 
         source .env
 
         cd experimenter
-        poetry install # see note above
+        uv sync
 
-        yarn install
+        npm install
 
 3.  env values
 
@@ -182,13 +179,11 @@ Notes:
 
         # in experimenter
 
-        poetry shell
+        npm run build --workspace=@experimenter/nimbus_ui
 
-        yarn workspace @experimenter/nimbus-ui build
-
-        # run in separate shells (`poetry shell` in each)
-        yarn workspace @experimenter/nimbus-ui start
-        ./manage.py runserver 0.0.0.0:7001
+        # run in separate shells
+        npm run watch --workspace=@experimenter/nimbus_ui
+        uv run ./manage.py runserver 0.0.0.0:7001
 
 _Pro-tip_: we have had at least one large code refactor. You can ignore specific large commits when blaming by setting the Git config's `ignoreRevsFile` to `.git-blame-ignore-revs`:
 
@@ -201,7 +196,7 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
 1. If using VSCode, configure workspace folders
 
    - Add `/experimenter/` and `/experimenter/experimenter` folders to your workspace (File -> Add Folder to Workspace -> `path/to/experimenter/experimenter`)
-   - From the `/experimenter/experimenter` folder, run `yarn install`
+   - From the `/experimenter/experimenter` folder, run `npm install`
 
      - Make sure you are using the correct version of node
 
@@ -320,11 +315,11 @@ Start a dev server listening on port 80 using the [Django runserver](https://doc
 
 #### make up_db
 
-Start postgresql, redis, autograph, kinto on their respective ports to allow running the Django runserver and yarn watchers locally (non containerized)
+Start postgresql, redis, autograph, kinto on their respective ports to allow running the Django runserver and npm watchers locally (non containerized)
 
 #### make up_django
 
-Start Django runserver, Celery worker, postgresql, redis, autograph, kinto on their respective ports to allow running the yarn watchers locally (non containerized)
+Start Django runserver, Celery worker, postgresql, redis, autograph, kinto on their respective ports to allow running the npm watchers locally (non containerized)
 
 #### make up_detached
 
@@ -413,18 +408,18 @@ experiment = NimbusExperimentFactory.create_with_status(NimbusExperiment.Status.
 nimbus_push_experiment_to_kinto(experiment.id)
 ```
 
-##### Helpful Yarn Tips
+##### Helpful npm Tips
 
-You can also interact with the yarn commands, such as checking TypeScript for Nimbus UI:
+You can also interact with the npm commands, such as linting Nimbus UI:
 
 ```sh
-yarn workspace @experimenter/nimbus-ui lint:tsc
+npm run lint --workspace=@experimenter/nimbus_ui
 ```
 
-Or the test suite for Nimbus UI:
+Or formatting it:
 
 ```sh
-yarn workspace @experimenter/nimbus-ui test:cov
+npm run format --workspace=@experimenter/nimbus_ui
 ```
 
 For a full reference of all the common commands that can be run inside the container, refer to [this section of the Makefile](https://github.com/mozilla/experimenter/blob/main/Makefile#L16-L38)
