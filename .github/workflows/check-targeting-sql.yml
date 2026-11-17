@@ -13,19 +13,19 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "experimenter/experimenter/experiments/jexl_to_sql.py experimenter/experimenter/experiments/constants.py experimenter/experimenter/experiments/models.py experimenter/experimenter/targeting/constants.py experimenter/experimenter/base/management/commands/export_targeting_sql.py experimenter/bin/validate_targeting_sql.py"
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
-      - uses: ./.github/actions/retry
+      - uses: $/.github/actions/retry
         if: steps.check-paths.outputs.should-run == 'true'
         with:
           label: Build experimenter test image
@@ -52,7 +52,7 @@ jobs:
 
       - name: Authenticate to GCP
         if: steps.gcp-credentials.outputs.available == 'true'
-        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        uses: google-github-actions/auth@v3.0.0
         id: auth
         with:
           workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
