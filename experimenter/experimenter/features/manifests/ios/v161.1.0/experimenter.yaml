@@ -674,6 +674,10 @@ tou-feature:
       type: int
       description: |
         Maximum number of ToU bottom sheet reminders that can be displayed
+    notification-timestamp:
+      type: int
+      description: |
+        The Unix timestamp in seconds when the notification banner should start appearing. 0 means the banner is not shown.
     status:
       type: boolean
       description: |
