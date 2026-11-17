@@ -1,6 +1,6 @@
 #-------------------------
 # System packages
-FROM python:3.15.0 AS system-builder
+FROM python:3.15.1 AS system-builder
 
 RUN apt-get update
 RUN apt-get --no-install-recommends install -y apt-utils ca-certificates parallel
