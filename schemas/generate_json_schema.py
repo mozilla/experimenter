@@ -282,7 +282,7 @@ def write_typescript_module(module_path: Path, module):
 
         subprocess.run(
             [
-                "yarn",
+                "npx",
                 "json2ts",
                 "-i",
                 str(schema_file_path),
