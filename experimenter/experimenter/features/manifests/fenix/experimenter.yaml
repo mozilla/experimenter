@@ -114,6 +114,16 @@ continuous-onboarding:
     enabled:
       type: boolean
       description: If true, the feature is enabled.
+credit-card-security-code:
+  description: |
+    Feature to save and autofill credit card security codes (CVV). Fenix passes the value to Gecko through the engine settings, so Gecko captures security codes exactly when Fenix shows them.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        If true, Gecko captures the security code from web forms, and the save credit card prompt shows the security code and lets the user save it.
 custom-review-prompt-ui:
   description: Feature that controls the custom UI for review prompt.
   hasExposure: true
