@@ -82,7 +82,6 @@ target/
 **/.idea/*
 
 # Hosted assets
-experimenter/experimenter/static/scripts/
 experimenter/experimenter/served/
 
 # Key files

@@ -26,9 +26,7 @@ Please note we have a [Code of Conduct](https://www.mozilla.org/en-US/about/gove
 
 1. Implement the code changes described by the issue. All Python code changes should
    be accompanied by any relevant tests, either by modifying existing ones or adding new
-   ones. Front-end changes (HTML/CSS/JS) that involve React code should create or update
-   any relevant JS tests. Infrastructure changes (Docker related things)
-   do not require tests.
+   ones. Infrastructure changes (Docker related things) do not require tests.
 
 1. When all your changes are complete to your satisfaction:
 
