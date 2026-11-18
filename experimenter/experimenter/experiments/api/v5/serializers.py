@@ -973,14 +973,15 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                 ),
             )
         else:
-            result.extend(
+            result.extend_with_result(
                 self._validate_feature_value_with_fml(
                     schemas_in_range,
                     NimbusFmlLoader.create_loader(application, channel),
                     feature_config,
                     feature_value,
+                    localizations,
+                    suppress_errors,
                 ),
-                suppress_errors,
             )
 
         return result
@@ -1180,6 +1181,50 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
     @classmethod
     def _validate_feature_value_with_fml(
+        cls,
+        schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
+        loader: NimbusFmlLoader,
+        feature_config: NimbusFeatureConfig,
+        value: str,
+        localizations: Optional[dict[str, Any]],
+        suppress_errors: bool,
+    ) -> ValidateFeatureResult:
+        result = cls.ValidateFeatureResult()
+
+        if not localizations:
+            result.extend(
+                cls._get_fml_errors(schemas_in_range, loader, feature_config, value),
+                suppress_errors,
+            )
+            return result
+
+        json_value = json.loads(value)
+        for language_code, substitutions in localizations.items():
+            try:
+                substituted_value = cls._substitute_localizations(
+                    json_value, substitutions, language_code
+                )
+            except LocalizationError as e:
+                result.append(str(e), suppress_errors)
+                continue
+
+            if fml_errors := cls._get_fml_errors(
+                schemas_in_range,
+                loader,
+                feature_config,
+                json.dumps(substituted_value),
+            ):
+                err_msg = (
+                    f"Schema validation errors occured during language "
+                    f"substitution for language {language_code}"
+                )
+                result.append(err_msg, suppress_errors)
+                result.extend(fml_errors, suppress_errors)
+
+        return result
+
+    @classmethod
+    def _get_fml_errors(
         cls,
         schemas_in_range: NimbusFeatureConfig.VersionedSchemaRange,
         loader: NimbusFmlLoader,
@@ -1540,18 +1585,25 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             return data
 
         application = data.get("application")
-        if application != NimbusExperiment.Application.DESKTOP:
+        application_config = NimbusExperiment.APPLICATION_CONFIGS[application]
+        localization_min_supported_version = (
+            application_config.localization_min_supported_version
+        )
+        if localization_min_supported_version is None:
             raise serializers.ValidationError(
                 {
                     "application": [
-                        "Localized experiments are only supported for Firefox Desktop."
+                        (
+                            "Localized experiments are only supported for Firefox "
+                            "Desktop, Firefox for Android, and Firefox for iOS."
+                        )
                     ]
                 }
             )
 
         min_version = data.get("firefox_min_version", "")
         supported_version = NimbusExperiment.Version.parse(
-            NimbusConstants.LOCALIZATION_SUPPORTED_VERSION[application]
+            localization_min_supported_version
         )
         if min_version == "" or (
             NimbusExperiment.Version.parse(min_version) < supported_version
@@ -1559,15 +1611,29 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {
                     "firefox_min_version": [
-                        NimbusConstants.ERROR_DESKTOP_LOCALIZATION_VERSION,
+                        NimbusConstants.ERROR_LOCALIZATION_VERSION.format(
+                            version=supported_version.major
+                        ),
                     ],
                 }
             )
 
-        experiment_locales = data.get("locales")
+        if application == NimbusExperiment.Application.DESKTOP:
+            field, label = "locales", "locale"
+        else:
+            field, label = "languages", "language"
+
+        experiment_locales = data.get(field)
         if not experiment_locales:
             raise serializers.ValidationError(
-                {"locales": ["Locales must not be empty for a localized experiment."]}
+                {
+                    field: [
+                        (
+                            f"{field.capitalize()} must not be empty for a "
+                            f"localized experiment."
+                        )
+                    ]
+                }
             )
 
         localizations_json = data.get("localizations")
@@ -1592,7 +1658,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     {
                         "localizations": [
                             (
-                                f"Experiment locale {locale_code} not present in "
+                                f"Experiment {label} {locale_code} not present in "
                                 f"localizations."
                             )
                         ]
@@ -1605,8 +1671,8 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
                     {
                         "localizations": [
                             (
-                                f"Localization locale {localization} does not exist in "
-                                f"experiment locales."
+                                f"Localization {label} {localization} does not exist in "
+                                f"experiment {field}."
                             )
                         ]
                     }

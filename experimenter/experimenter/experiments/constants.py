@@ -204,6 +204,7 @@ class ApplicationConfig:
     preview_collection: str
     kinto_collections_by_feature_id: Optional[dict[str, str]] = field(default=None)
     targeting_context_file_name: Optional[str] = field(default=None)
+    localization_min_supported_version: Optional[str] = field(default=None)
 
     #: The Firefox Labs configuration for the application.
     #:
@@ -302,6 +303,7 @@ APPLICATION_CONFIG_DESKTOP = ApplicationConfig(
             FirefoxLabs.Groups.NEWTAB_WIDGETS: Version.FIREFOX_151,
         },
     ),
+    localization_min_supported_version=Version.FIREFOX_113,
 )
 
 APPLICATION_CONFIG_FENIX = ApplicationConfig(
@@ -322,6 +324,7 @@ APPLICATION_CONFIG_FENIX = ApplicationConfig(
         min_supported_version=Version.FIREFOX_154,
         supported_description_links=FirefoxLabs.SDK_DESCRIPTION_LINKS,
     ),
+    localization_min_supported_version=Version.FIREFOX_162,
 )
 
 APPLICATION_CONFIG_IOS = ApplicationConfig(
@@ -338,6 +341,7 @@ APPLICATION_CONFIG_IOS = ApplicationConfig(
     is_web=False,
     preview_collection=settings.KINTO_COLLECTION_NIMBUS_PREVIEW,
     targeting_context_file_name="RecordedNimbusContext.swift",
+    localization_min_supported_version=Version.FIREFOX_162,
 )
 
 APPLICATION_CONFIG_MONITOR_WEB = ApplicationConfig(
@@ -686,10 +690,6 @@ class NimbusConstants:
         Application.DESKTOP: Version.FIREFOX_156,
     }
 
-    LOCALIZATION_SUPPORTED_VERSION = {
-        Application.DESKTOP: Version.FIREFOX_113,
-    }
-
     MIN_VERSIONED_FEATURE_VERSION = {
         Application.DESKTOP: Version.FIREFOX_120,
         Application.FENIX: Version.FIREFOX_116,
@@ -815,8 +815,8 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "rollout is live is not supported for {application} versions under {version}."
     )
 
-    ERROR_DESKTOP_LOCALIZATION_VERSION = (
-        "Firefox version must be at least 113 for localized experiments."
+    ERROR_LOCALIZATION_VERSION = (
+        "Firefox version must be at least {version} for localized experiments."
     )
 
     ERROR_FIRST_RUN_RELEASE_DATE = (
