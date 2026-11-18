@@ -1048,6 +1048,11 @@ features:
           Whether to show a drag handle on the prompt and allows users to use it to dismiss the prompt.
         type: Boolean
         default: true
+      enable-notification-redesign:
+        description: |
+          Whether to display the notification banner redesign. If false the previous design will be displayed.
+        type: Boolean
+        default: false
       max-reminders-count:
         description: |
           Maximum number of ToU bottom sheet reminders that can be displayed

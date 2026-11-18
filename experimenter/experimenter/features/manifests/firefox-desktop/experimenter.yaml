@@ -339,6 +339,12 @@ urlbar:
         pref: browser.urlbar.autoFill.dismissalBlockDurationMs
         branch: user
       description: Duration in ms to block an origin or URL after user dismissal.
+    contextMenuFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.contextMenu.featureGate
+      description: >-
+        Whether a user interaction, such as right-clicking a urlbar result,
+        opens the result's context menu.
     deduplicationEnabled:
       type: boolean
       setPref:
@@ -634,6 +640,12 @@ urlbar:
       description: >-
         When selecting and hovering over certain types of urlbar results,
         replace their URLs with strings that explain why they're shown.
+    resultTargetMenuFeatureGate:
+      type: boolean
+      fallbackPref: browser.urlbar.resultTargetMenu.featureGate
+      description: >-
+        Whether urlbar result menus offer "Open in New Tab", "Open in New
+        Window", etc.
     semanticHistoryEnable:
       type: boolean
       setPref:
@@ -2422,6 +2434,32 @@ autofill-credit-cards-rust-storage:
       setPref:
         branch: user
         pref: extensions.formautofill.creditCards.storage.rust.enabled
+
+autofill-credit-cards-drop-undecryptable:
+  description: >-
+    Leave saved credit cards whose number cannot be decrypted out of the
+    migration to the Rust autofill store, instead of failing the migration.
+  owner: dlee@mozilla.com
+  hasExposure: false
+  variables:
+    enabled:
+      description: >-
+        If true, a migration leaves out credit cards whose number cannot be
+        decrypted when another card's number decrypted in the same attempt, or
+        once afterAttempts attempts have failed and the last of them failed to
+        decrypt a card too. If false, such cards fail the migration.
+      type: boolean
+      setPref:
+        branch: user
+        pref: extensions.formautofill.creditCards.storage.rust.dropUndecryptable
+    afterAttempts:
+      description: >-
+        How many migration attempts must have failed before cards whose number
+        cannot be decrypted are left out even when no other card decrypted.
+      type: int
+      setPref:
+        branch: user
+        pref: extensions.formautofill.creditCards.storage.rust.dropUndecryptableAfterAttempts
 
 shellService:
   description: "Interface with OS, e.g., pinning and set default"
