@@ -189,6 +189,28 @@ _USER_MONTHLY_ACTIVITY_COL = (
     "metrics.object.nimbus_targeting_context_user_monthly_activity"
 )
 
+# The client sends [numberOfURLsVisited, date] pairs, and Glean records each as an
+# object, so mapToProperty('0') and ('1') read these keys.
+_MONTHLY_ACTIVITY_FIELDS = {"0": "numberOfURLsVisited", "1": "date"}
+
+
+def _monthly_activity_field(node) -> Optional[str]:
+    if (
+        isinstance(node, Transform)
+        and node.name == "mapToProperty"
+        and _identifier_path(node.subject) == "userMonthlyActivity"
+        and node.args
+    ):
+        return _MONTHLY_ACTIVITY_FIELDS.get(_literal_value(node.args[0]))
+    return None
+
+
+def _is_monthly_activity_item(node) -> bool:
+    return isinstance(node, FilterExpression) and bool(
+        _monthly_activity_field(node.subject)
+    )
+
+
 FENIX_APP = "fenix"
 IOS_APP = "ios"
 
@@ -450,6 +472,15 @@ def _node_to_sql(node, warnings: list[str], column_map: dict[str, str]) -> Optio
             and isinstance(node.expression.value, str)
         ):
             return _enrollment_branch_sql(node.expression.value)
+        # userMonthlyActivity|mapToProperty('1')[i] — Desktop only.
+        field = _monthly_activity_field(node.subject)
+        if field and column_map is JEXL_TO_BQ_COLUMN:
+            index = _node_to_sql(node.expression, warnings, column_map)
+            if index:
+                return (
+                    f"JSON_VALUE(JSON_QUERY_ARRAY({_USER_MONTHLY_ACTIVITY_COL})"
+                    f"[SAFE_OFFSET({index})], '$.{field}')"
+                )
         # addonsInfo.addons['addon-id'] — check addon ID membership in BQ array
         if subject_path == "addonsInfo.addons" and isinstance(node.expression, Literal):
             addon_id = node.expression.value
@@ -716,10 +747,17 @@ def _transform_to_sql(
             return column_map["profileAgeCreated"]
         if subject_path == "currentDate":
             return "UNIX_MILLIS(CURRENT_TIMESTAMP())"
+        if _is_monthly_activity_item(node.subject):
+            item = _node_to_sql(node.subject, warnings, column_map)
+            if item:
+                return f"UNIX_MILLIS(SAFE.TIMESTAMP({item}))"
         _add_warning(warnings, "|date")
         return None
 
     if node.name == "length":
+        # Mapping every item to one property keeps the array length.
+        if _monthly_activity_field(node.subject) and column_map is JEXL_TO_BQ_COLUMN:
+            return f"ARRAY_LENGTH(JSON_QUERY_ARRAY({_USER_MONTHLY_ACTIVITY_COL}))"
         # BigQuery has no JSON_ARRAY_LENGTH for STRING columns — metrics.object.*
         # columns are JSON strings, so use ARRAY_LENGTH(JSON_QUERY_ARRAY(...)).
         subject_sql = _node_to_sql(node.subject, warnings, column_map)
@@ -778,8 +816,8 @@ def _transform_to_sql(
     return None
 
 
-# Lookaround and backreferences: JavaScript has them, RE2 does not.
-_NON_RE2_REGEX = re.compile(r"\(\?<?[=!]|\\[1-9]|\\k<")
+# Lookaround, backreferences and \u escapes: JavaScript has them, RE2 does not.
+_NON_RE2_REGEX = re.compile(r"\(\?<?[=!]|\\[1-9]|\\k<|\\u")
 
 
 def _reg_exp_match_to_sql(

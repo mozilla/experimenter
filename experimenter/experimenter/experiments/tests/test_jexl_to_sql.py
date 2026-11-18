@@ -497,7 +497,7 @@ class TestJEXLToSQL(TestCase):
         [
             (
                 "transform_subject",
-                "locale == 'en-US' && userMonthlyActivity|mapToProperty('1')[0] != null",
+                "locale == 'en-US' && addonsInfo|mapToProperty('1')[0] != null",
                 "|mapToProperty",
             ),
             ("array_literal_subject", "['a','b'][0] == 'a'", "filter expression"),
@@ -506,6 +506,37 @@ class TestJEXLToSQL(TestCase):
     def test_filter_on_non_identifier_warns(self, _name, jexl, expected_warning):
         result = jexl_to_sql(jexl)
         self.assertIn(expected_warning, result.warnings)
+
+    def test_last_activity_date_in_millis(self):
+        result = jexl_to_sql(
+            "userMonthlyActivity|mapToProperty('1')[userMonthlyActivity|length - 1]|date"
+        )
+        self.assertEqual(
+            result.sql,
+            f"UNIX_MILLIS(SAFE.TIMESTAMP(JSON_VALUE(JSON_QUERY_ARRAY({_UMA})"
+            f"[SAFE_OFFSET((ARRAY_LENGTH(JSON_QUERY_ARRAY({_UMA})) - 1))], '$.date')))",
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_activity_item_by_position_and_length_of_mapped_array(self):
+        result = jexl_to_sql(
+            "userMonthlyActivity|mapToProperty('0')[0] > 5"
+            " && userMonthlyActivity|mapToProperty('1')|length >= 1"
+        )
+        self.assertIn("$.numberOfURLsVisited", result.sql)
+        self.assertIn(f"ARRAY_LENGTH(JSON_QUERY_ARRAY({_UMA})) >= 1", result.sql)
+        self.assertEqual(result.warnings, [])
+
+    def test_activity_item_on_an_unknown_property_warns(self):
+        result = jexl_to_sql("userMonthlyActivity|mapToProperty('2')[0] != null")
+        self.assertIsNone(result.sql)
+        self.assertIn("|mapToProperty", result.warnings)
+
+    def test_activity_item_is_desktop_only(self):
+        result = jexl_to_sql(
+            "userMonthlyActivity|mapToProperty('1')[0]|date > 0", app=FENIX_APP
+        )
+        self.assertIsNone(result.sql)
 
     def test_bare_enrollments_still_warns(self):
         """Only the supported forms translate; `enrollments` has no column of
@@ -621,6 +652,7 @@ class TestJEXLToSQL(TestCase):
         [
             ("lookahead", "locale|regExpMatch('a(?=b)')"),
             ("backreference", "locale|regExpMatch('(a)\\\\1')"),
+            ("unicode_escape", "locale|regExpMatch('\\\\u0041')"),
             ("global_flag", "locale|regExpMatch('a', 'g')"),
             ("pattern_not_a_string", "locale|regExpMatch(locale)"),
         ]
