@@ -582,6 +582,61 @@ class TestJEXLToSQL(TestCase):
         self.assertIsNone(result.sql)
         self.assertEqual(result.warnings, ["'browser.nova.enabled'|preferenceValue"])
 
+    def test_reg_exp_match_on_a_recorded_pref(self):
+        result = jexl_to_sql(
+            "'trailhead.firstrun.didSeeAboutWelcome'|preferenceValue('')"
+            "|regExpMatch('^a.*z$')"
+        )
+        self.assertTrue(result.sql.startswith("REGEXP_CONTAINS(COALESCE("))
+        self.assertTrue(result.sql.endswith(", ''), r'^a.*z$')"))
+        self.assertEqual(result.warnings, [])
+
+    def test_reg_exp_match_not_null_means_matched(self):
+        result = jexl_to_sql(
+            "'trailhead.firstrun.didSeeAboutWelcome'|preferenceValue('')"
+            "|regExpMatch('abc') != null"
+        )
+        self.assertTrue(result.sql.startswith("REGEXP_CONTAINS("))
+        self.assertNotIn("IS NOT NULL", result.sql)
+
+    def test_reg_exp_match_equals_null_means_not_matched(self):
+        result = jexl_to_sql(
+            "'trailhead.firstrun.didSeeAboutWelcome'|preferenceValue('')"
+            "|regExpMatch('abc') == null"
+        )
+        self.assertTrue(result.sql.startswith("NOT (REGEXP_CONTAINS("))
+
+    def test_not_reg_exp_match(self):
+        result = jexl_to_sql(
+            "!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue('')"
+            "|regExpMatch('abc'))"
+        )
+        self.assertTrue(result.sql.startswith("NOT (REGEXP_CONTAINS("))
+
+    def test_reg_exp_match_ignore_case_flag(self):
+        result = jexl_to_sql("locale|regExpMatch('^en', 'i')")
+        self.assertIn("r'(?i)^en'", result.sql)
+
+    @parameterized.expand(
+        [
+            ("lookahead", "locale|regExpMatch('a(?=b)')"),
+            ("backreference", "locale|regExpMatch('(a)\\\\1')"),
+            ("global_flag", "locale|regExpMatch('a', 'g')"),
+            ("pattern_not_a_string", "locale|regExpMatch(locale)"),
+        ]
+    )
+    def test_reg_exp_match_that_re2_cannot_run_warns(self, _name, jexl):
+        result = jexl_to_sql(jexl)
+        self.assertIsNone(result.sql)
+        self.assertEqual(result.warnings, ["|regExpMatch"])
+
+    def test_reg_exp_match_on_an_unrecorded_pref_still_warns_on_the_pref(self):
+        result = jexl_to_sql(
+            "'browser.nova.enabled'|preferenceValue('')|regExpMatch('x')"
+        )
+        self.assertIsNone(result.sql)
+        self.assertEqual(result.warnings, ["'browser.nova.enabled'|preferenceValue"])
+
     def test_unrecorded_pref_drops_only_its_own_clause(self):
         result = jexl_to_sql(
             "locale == 'en-US' && 'browser.nova.enabled'|preferenceValue"

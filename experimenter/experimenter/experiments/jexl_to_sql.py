@@ -590,7 +590,9 @@ def _binary_to_sql(
         # For all other expressions use IS NULL / IS NOT NULL.
         if right == "NULL" or left == "NULL":
             expr = left if right == "NULL" else right
-            is_filter_result = " IN UNNEST(" in expr.upper()
+            is_filter_result = " IN UNNEST(" in expr.upper() or expr.startswith(
+                "REGEXP_CONTAINS("
+            )
             if sql_op == "=":
                 return f"NOT ({expr})" if is_filter_result else f"{expr} IS NULL"
             if sql_op == "!=":
@@ -765,12 +767,48 @@ def _transform_to_sql(
         _add_warning(warnings, "|preferenceIsUserSet")
         return None
 
+    if node.name == "regExpMatch":
+        return _reg_exp_match_to_sql(node, warnings, column_map)
+
     if node.name == "versionCompare":
         _add_warning(warnings, "|versionCompare")
         return None
 
     _add_warning(warnings, f"|{node.name}")
     return None
+
+
+# JavaScript regex features that BigQuery's RE2 does not support.
+_NON_RE2_REGEX = re.compile(r"\(\?<?[=!]|\\[1-9]|\\k<")
+
+
+def _reg_exp_match_to_sql(
+    node: Transform, warnings: list[str], column_map: dict[str, str]
+) -> Optional[str]:
+    """subject|regExpMatch('pattern'[, 'i']) — true when the pattern matches.
+
+    JEXL returns the match or null. Both uses of the result, a truthiness test
+    and a comparison with null, only need to know whether it matched.
+    """
+    args = node.args
+    pattern = _literal_value(args[0]) if args else None
+    flags = _literal_value(args[1]) if len(args) > 1 else ""
+    if (
+        not isinstance(pattern, str)
+        or flags not in ("", "i")
+        or _NON_RE2_REGEX.search(pattern)
+        or ("'" in pattern and '"' in pattern)
+    ):
+        _add_warning(warnings, "|regExpMatch")
+        return None
+    subject = _node_to_sql(node.subject, warnings, column_map)
+    if subject is None:
+        return None
+    if flags == "i":
+        pattern = f"(?i){pattern}"
+    quote = '"' if "'" in pattern else "'"
+    # An unset value never matches, as with the empty-string default.
+    return f"REGEXP_CONTAINS(COALESCE({subject}, ''), r{quote}{pattern}{quote})"
 
 
 def _is_version_compare_node(node) -> bool:
@@ -959,6 +997,7 @@ def _is_boolean_sql(sql: str) -> bool:
         or sql.startswith("metrics.boolean.")
         or sql_upper.endswith(("AS BOOL)", "AS BOOLEAN)"))
         or " IN UNNEST(" in sql_upper
+        or sql_upper.startswith("REGEXP_CONTAINS(")
         or " IN (" in sql_upper  # X IN (list) returns BOOL
         or " IS NULL" in sql_upper
         or " IS NOT NULL" in sql_upper
