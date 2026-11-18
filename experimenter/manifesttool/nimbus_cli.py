@@ -84,7 +84,6 @@ def get_channels(app_config: AppConfig, fml_path: str, ref: Optional[Ref]) -> li
     output = nimbus_cli(
         [
             "fml",
-            "--",
             "channels",
             "--json",
             *_repo_path_cli_args(app_config.repo, ref, fml_path),
@@ -116,7 +115,6 @@ def download_single_file(
     nimbus_cli(
         [
             "fml",
-            "--",
             "single-file",
             "--lax-gecko-pref-validation",
             "--channel",
@@ -137,7 +135,6 @@ def generate_experimenter_yaml(
     nimbus_cli(
         [
             "fml",
-            "--",
             "generate-experimenter",
             "--lax-gecko-pref-validation",
             str(_get_fml_path(manifest_dir, app_config, channel, version)),
