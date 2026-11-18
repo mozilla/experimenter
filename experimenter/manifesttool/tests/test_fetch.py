@@ -101,7 +101,7 @@ def mock_download_single_file(
     ref: str,
     version: Optional[Version],
 ):
-    """A mock version of `nimbus fml -- single file`."""
+    """A mock version of `nimbus fml single-file`."""
     (manifest_dir / app_config.slug).mkdir(exist_ok=True)
     filename = _get_fml_path(manifest_dir, app_config, channel, version)
     with filename.open("w") as f:
