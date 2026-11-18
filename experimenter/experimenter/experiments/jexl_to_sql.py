@@ -778,18 +778,13 @@ def _transform_to_sql(
     return None
 
 
-# JavaScript regex features that BigQuery's RE2 does not support.
+# Lookaround and backreferences: JavaScript has them, RE2 does not.
 _NON_RE2_REGEX = re.compile(r"\(\?<?[=!]|\\[1-9]|\\k<")
 
 
 def _reg_exp_match_to_sql(
     node: Transform, warnings: list[str], column_map: dict[str, str]
 ) -> Optional[str]:
-    """subject|regExpMatch('pattern'[, 'i']) — true when the pattern matches.
-
-    JEXL returns the match or null. Both uses of the result, a truthiness test
-    and a comparison with null, only need to know whether it matched.
-    """
     args = node.args
     pattern = _literal_value(args[0]) if args else None
     flags = _literal_value(args[1]) if len(args) > 1 else ""
@@ -807,7 +802,7 @@ def _reg_exp_match_to_sql(
     if flags == "i":
         pattern = f"(?i){pattern}"
     quote = '"' if "'" in pattern else "'"
-    # An unset value never matches, as with the empty-string default.
+    # COALESCE: an unset value is treated as an empty string, so it never matches.
     return f"REGEXP_CONTAINS(COALESCE({subject}, ''), r{quote}{pattern}{quote})"
 
 
@@ -997,11 +992,10 @@ def _is_boolean_sql(sql: str) -> bool:
         or sql.startswith("metrics.boolean.")
         or sql_upper.endswith(("AS BOOL)", "AS BOOLEAN)"))
         or " IN UNNEST(" in sql_upper
-        or sql_upper.startswith("REGEXP_CONTAINS(")
         or " IN (" in sql_upper  # X IN (list) returns BOOL
         or " IS NULL" in sql_upper
         or " IS NOT NULL" in sql_upper
-        or sql_upper.startswith("NOT (")
+        or sql_upper.startswith(("NOT (", "REGEXP_CONTAINS("))
         or " AND " in sql_upper
         or " OR " in sql_upper
         or " = " in sql
