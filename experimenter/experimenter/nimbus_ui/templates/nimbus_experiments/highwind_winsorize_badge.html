@@ -1,0 +1,12 @@
+{% load nimbus_extras %}
+
+{% comment %} How a window's values were clipped before the statistics ran {% endcomment %}
+{% with label=NimbusUIConstants.HIGHWIND_WINSORIZE_LABELS|dict_get:mode %}
+  <span class="badge rounded-pill border border-1 d-inline-flex align-items-center gap-1 {% if mode == 'off' %}bg-body-secondary text-body-secondary border-secondary-subtle{% else %}bg-primary-subtle text-primary-emphasis border-primary-subtle{% endif %}"
+        data-bs-toggle="tooltip"
+        data-bs-title="{{ label.1 }}">
+    <i class="fa-solid fa-scissors"></i>
+    {{ label.0 }}
+    {% if post_threshold != None %}({{ post_threshold|floatformat:precision }}){% endif %}
+  </span>
+{% endwith %}

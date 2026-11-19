@@ -147,11 +147,27 @@
         Every metric is reported per analysis window. A window covers a span of days since
         enrolment, and each one moves through these statuses as the experiment runs.
       </p>
-      <div class="row row-cols-1 row-cols-lg-2 g-2 mb-0">
+      <div class="row row-cols-1 row-cols-lg-2 g-2 mb-4">
         {% for state, label in NimbusUIConstants.HIGHWIND_STATE_LABELS.items %}
           <div class="col d-flex align-items-start gap-2">
             <span class="flex-shrink-0">
               {% include "nimbus_experiments/highwind_state_badge.html" with state=state %}
+
+            </span>
+            <small class="text-muted">{{ label.1 }}</small>
+          </div>
+        {% endfor %}
+      </div>
+      <p class="text-muted">
+        A metric whose values run to extremes can be clipped before the statistics run, so
+        that a handful of units cannot carry the result. Each metric says which of these
+        applied, and the threshold it was clipped at.
+      </p>
+      <div class="row row-cols-1 row-cols-lg-2 g-2 mb-0">
+        {% for mode, label in NimbusUIConstants.HIGHWIND_WINSORIZE_LABELS.items %}
+          <div class="col d-flex align-items-start gap-2">
+            <span class="flex-shrink-0">
+              {% include "nimbus_experiments/highwind_winsorize_badge.html" with mode=mode %}
 
             </span>
             <small class="text-muted">{{ label.1 }}</small>

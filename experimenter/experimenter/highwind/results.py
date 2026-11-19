@@ -42,6 +42,25 @@ def as_fraction(interval):
     }
 
 
+def winsorization(window_result):
+    # Absent on a window the job has not computed, so there is nothing to report.
+    mode = (window_result or {}).get("winsorize_mode")
+    if not mode:
+        return None
+    return {
+        "mode": mode,
+        "post_threshold": window_result.get("post_winsorize_threshold"),
+        "pre_threshold": window_result.get("pre_winsorize_threshold"),
+        # Only the branches that lost values to the threshold, which is what says how
+        # much the clipping actually did.
+        "clipped": [
+            {"branch": branch["branch"], "share": branch["clipped_share"]}
+            for branch in window_result.get("branches") or []
+            if branch.get("clipped_share")
+        ],
+    }
+
+
 def parse_date(value):
     # An ISO date string, which the date filter cannot format on its own.
     return dt.date.fromisoformat(value) if value else None
@@ -259,6 +278,7 @@ class HighwindResultsManager:
                     "state": self.get_state(cells),
                     "precision": self.get_precision(cells),
                     "is_summary": window_result.get("is_summary", False),
+                    "winsorization": winsorization(window_result),
                 }
             )
         return windows
@@ -282,6 +302,7 @@ class HighwindResultsManager:
                     "cells": cells,
                     "bar_geometry": self.bar_geometry(cells),
                     "precision": self.get_precision(cells),
+                    "winsorization": winsorization(window_result),
                     "state": self.get_state(cells),
                     # Only a settled summary is worth calling the most recent matured
                     # window; anything else has not matured yet.

@@ -1,7 +1,11 @@
 import datetime as dt
 
 from django.test import TestCase
-from mozilla_nimbus_schemas.highwind import HighwindCellState, HighwindDirection
+from mozilla_nimbus_schemas.highwind import (
+    HighwindCellState,
+    HighwindDirection,
+    HighwindWinsorizeMode,
+)
 
 from experimenter.experiments.tests.factories import NimbusExperimentFactory
 from experimenter.highwind.results import HighwindResultsManager, MetricDirection
@@ -274,3 +278,71 @@ class TestHighwindMetricDirection(TestCase):
         [result] = self.manager([build_metric(windows=[window])]).get_metrics()
 
         self.assertEqual(result["direction"], MetricDirection.MIXED)
+
+
+class TestHighwindWinsorization(TestCase):
+    def manager(self, metrics):
+        experiment = NimbusExperimentFactory.create()
+        experiment.analysis_data = build_analysis_data(metrics=metrics)
+        return HighwindResultsManager(experiment)
+
+    def metric_with_window(self, **kwargs):
+        [result] = self.manager(
+            [build_metric(windows=[build_window(**kwargs)])]
+        ).get_metrics()
+        return result
+
+    def test_a_clipped_window_reports_its_mode_and_both_thresholds(self):
+        result = self.metric_with_window(
+            winsorize_mode=HighwindWinsorizeMode.FRACTION,
+            post_winsorize_threshold=12.5,
+            pre_winsorize_threshold=9.25,
+        )
+
+        self.assertEqual(
+            result["winsorization"],
+            {
+                "mode": HighwindWinsorizeMode.FRACTION,
+                "post_threshold": 12.5,
+                "pre_threshold": 9.25,
+                "clipped": [],
+            },
+        )
+
+    def test_an_unclipped_window_reports_off_with_no_thresholds(self):
+        result = self.metric_with_window(winsorize_mode=HighwindWinsorizeMode.OFF)
+
+        self.assertEqual(result["winsorization"]["mode"], HighwindWinsorizeMode.OFF)
+        self.assertIsNone(result["winsorization"]["post_threshold"])
+        self.assertIsNone(result["winsorization"]["pre_threshold"])
+
+    def test_a_blob_without_the_fields_reports_no_winsorization(self):
+        # Blobs written before the fields existed, which the schema still accepts.
+        result = self.metric_with_window(winsorize_mode=None)
+
+        self.assertIsNone(result["winsorization"])
+
+    def test_only_the_branches_that_lost_values_are_reported(self):
+        window = build_window(
+            winsorize_mode=HighwindWinsorizeMode.FRACTION,
+            post_winsorize_threshold=12.5,
+            clipped_share=0.004,
+        )
+        window.branches[1].clipped_share = 0.0
+
+        [result] = self.manager([build_metric(windows=[window])]).get_metrics()
+
+        self.assertEqual(
+            result["winsorization"]["clipped"],
+            [{"branch": REFERENCE, "share": 0.004}],
+        )
+
+    def test_each_window_carries_its_own_winsorization(self):
+        result = self.metric_with_window(
+            winsorize_mode=HighwindWinsorizeMode.FIXED,
+            post_winsorize_threshold=40.0,
+        )
+
+        [window] = result["windows"]
+        self.assertEqual(window["winsorization"]["mode"], HighwindWinsorizeMode.FIXED)
+        self.assertEqual(window["winsorization"]["post_threshold"], 40.0)
