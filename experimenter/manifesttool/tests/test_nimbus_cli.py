@@ -67,7 +67,6 @@ class NimbusCliTests(TestCase):
             [
                 "/application-services/bin/nimbus-cli",
                 "fml",
-                "--",
                 "channels",
                 "--json",
                 *(
@@ -122,7 +121,6 @@ class NimbusCliTests(TestCase):
                 [
                     "/application-services/bin/nimbus-cli",
                     "fml",
-                    "--",
                     "single-file",
                     "--lax-gecko-pref-validation",
                     "--channel",
@@ -171,7 +169,6 @@ class NimbusCliTests(TestCase):
                 [
                     "/application-services/bin/nimbus-cli",
                     "fml",
-                    "--",
                     "generate-experimenter",
                     "--lax-gecko-pref-validation",
                     str(manifest_dir / fml_path),

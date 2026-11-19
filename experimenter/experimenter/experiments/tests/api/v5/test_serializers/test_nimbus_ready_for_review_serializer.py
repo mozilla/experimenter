@@ -321,6 +321,11 @@ class TestNimbusReviewSerializerSingleFeature(
             NimbusExperimentFactory.Lifecycles.CREATED,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_114,
             application=application,
+            channels=(
+                [NimbusExperiment.Channel.NIGHTLY]
+                if application == NimbusExperiment.Application.DESKTOP
+                else []
+            ),
             is_rollout=True,
             is_sticky=True,
         )
@@ -363,6 +368,11 @@ class TestNimbusReviewSerializerSingleFeature(
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
+            channels=(
+                [NimbusExperiment.Channel.NIGHTLY]
+                if application == NimbusExperiment.Application.DESKTOP
+                else []
+            ),
             firefox_min_version=NimbusExperiment.Version.FIREFOX_116,
             is_rollout=True,
             is_sticky=True,
@@ -1245,7 +1255,7 @@ class TestNimbusReviewSerializerSingleFeature(
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[NimbusExperiment.Channel.RELEASE],
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             warn_feature_schema=True,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
@@ -1346,7 +1356,7 @@ class TestNimbusReviewSerializerSingleFeature(
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[NimbusExperiment.Channel.RELEASE],
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             warn_feature_schema=True,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
@@ -1400,7 +1410,7 @@ class TestNimbusReviewSerializerSingleFeature(
             status=NimbusExperiment.Status.DRAFT,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[NimbusExperiment.Channel.RELEASE],
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             warn_feature_schema=True,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
@@ -3681,7 +3691,7 @@ class TestNimbusReviewSerializerSingleFeature(
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[NimbusExperiment.Channel.RELEASE],
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             warn_feature_schema=suppress_errors,
             feature_configs=[
                 NimbusFeatureConfigFactory.create(
@@ -4167,7 +4177,7 @@ class TestNimbusReviewSerializerSingleFeature(
             application=NimbusExperiment.Application.DESKTOP,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_129,
             firefox_max_version=NimbusExperiment.Version.NO_VERSION,
-            channels=[NimbusExperiment.Channel.RELEASE],
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             feature_configs=[prefflips_feature],
         )
 
@@ -4959,6 +4969,433 @@ class TestNimbusReviewSerializerSingleFeature(
             },
         )
 
+    def test_nightly_beta_history_warns_without_launched_match(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps({"enabled": True}))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertEqual(
+            serializer.warnings["nightly_beta_history"],
+            [
+                NimbusConstants.WARNING_DESKTOP_RELEASE_NIGHTLY_BETA_HISTORY.format(
+                    feature_slug=feature_config.slug,
+                    branch_name="Control",
+                )
+            ],
+        )
+
+    @parameterized.expand(
+        [
+            (NimbusExperiment.Channel.NIGHTLY,),
+            (NimbusExperiment.Channel.BETA,),
+        ]
+    )
+    def test_nightly_beta_history_no_warning_with_live_match(self, channel):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+        value = {"enabled": True}
+
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[channel],
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        other.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(value))
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(value))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("nightly_beta_history", serializer.warnings)
+
+    def test_nightly_beta_history_no_warning_with_complete_match(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+        value = {"enabled": True}
+
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE_WITHOUT_PAUSE,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.BETA],
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        other.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(value))
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(value))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("nightly_beta_history", serializer.warnings)
+
+    @parameterized.expand(
+        [
+            (NimbusExperimentFactory.Lifecycles.CREATED,),
+            (NimbusExperimentFactory.Lifecycles.PREVIEW,),
+        ]
+    )
+    def test_nightly_beta_history_warns_when_only_match_is_not_launched(self, lifecycle):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+        value = {"enabled": True}
+
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            lifecycle,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        other.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(value))
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(value))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertIn("nightly_beta_history", serializer.warnings)
+
+    @parameterized.expand(
+        [
+            ("different_value", {"enabled": True}, {"enabled": False}),
+            ("superset_value", {"enabled": True}, {"enabled": True, "rollout": "x"}),
+        ]
+    )
+    def test_nightly_beta_history_warns_on_non_exact_value_match(
+        self, _, launched_value, branch_value
+    ):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        other.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(launched_value))
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(branch_value))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertIn("nightly_beta_history", serializer.warnings)
+
+    def test_nightly_beta_history_no_warning_when_key_order_differs(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        other.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps({"a": 1, "b": 2}))
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps({"b": 2, "a": 1}))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("nightly_beta_history", serializer.warnings)
+
+    def test_nightly_beta_history_no_warning_when_channels_exclude_release(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        other.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps({"enabled": True}))
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.BETA],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps({"enabled": False}))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("nightly_beta_history", serializer.warnings)
+
+    def test_nightly_beta_history_no_warning_for_firefox_labs_opt_in(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_137,
+            feature_configs=[feature_config],
+            is_rollout=True,
+            is_firefox_labs_opt_in=True,
+            firefox_labs_title="title",
+            firefox_labs_description="desc",
+            firefox_labs_group=FirefoxLabs.Groups.CUSTOMIZE_BROWSING,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps({"enabled": True}))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("nightly_beta_history", serializer.warnings)
+
+    @parameterized.expand(
+        [
+            ("cfr",),
+            (NimbusConstants.DESKTOP_FXMS_MESSAGE_SLUG,),
+            (NimbusConstants.DESKTOP_NEWTAB_TRAINHOP_SLUG,),
+            (NimbusConstants.DESKTOP_NEWTAB_ADDON_SLUG,),
+        ]
+    )
+    def test_nightly_beta_history_excludes_messaging_and_newtab_trainhop_features(
+        self, feature_slug
+    ):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug=feature_slug,
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps({"enabled": True}))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("nightly_beta_history", serializer.warnings)
+
+    def test_nightly_beta_history_warns_for_other_newtab_trainhop_feature(self):
+        feature_slug = "newtabTrainhopFirstStartup"
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug=feature_slug,
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps({"enabled": True}))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertEqual(
+            serializer.warnings["nightly_beta_history"],
+            [
+                NimbusConstants.WARNING_DESKTOP_RELEASE_NIGHTLY_BETA_HISTORY.format(
+                    feature_slug=feature_slug,
+                    branch_name="Control",
+                )
+            ],
+        )
+
+    def test_nightly_beta_history_only_warns_for_mismatched_branch(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+        matching_value = {"enabled": True}
+
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        other.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(matching_value))
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=False,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(matching_value))
+        for branch in experiment.treatment_branches:
+            branch.feature_values.filter(feature_config=feature_config).update(
+                value=json.dumps({"enabled": False})
+            )
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertEqual(
+            serializer.warnings["nightly_beta_history"],
+            [
+                NimbusConstants.WARNING_DESKTOP_RELEASE_NIGHTLY_BETA_HISTORY.format(
+                    feature_slug=feature_config.slug,
+                    branch_name="Treatment",
+                )
+            ],
+        )
+
+    def test_nightly_beta_history_not_evaluated_for_non_desktop(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.FENIX,
+            channel=NimbusExperiment.Channel.RELEASE,
+            channels=[],
+            firefox_min_version=NimbusExperiment.MIN_REQUIRED_VERSION,
+        )
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("nightly_beta_history", serializer.warnings)
+
 
 @mock_targeting_manifests
 class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
@@ -5114,7 +5551,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[NimbusExperiment.Channel.RELEASE],
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             firefox_min_version=min_version,
             firefox_max_version=max_version,
             feature_configs=[feature],
@@ -6077,7 +6514,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[NimbusExperiment.Channel.RELEASE],
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             firefox_min_version=min_version,
             firefox_max_version=max_version,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ATTRIBUTION_MEDIUM_EMAIL,
@@ -6111,7 +6548,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
             channel=NimbusExperiment.Channel.NO_CHANNEL,
-            channels=[NimbusExperiment.Channel.RELEASE],
+            channels=[NimbusExperiment.Channel.NIGHTLY],
             firefox_min_version=NimbusExperiment.Version.FIREFOX_119,
             firefox_max_version=NimbusExperiment.Version.FIREFOX_119,
             targeting_config_slug=NimbusExperiment.TargetingConfig.ATTRIBUTION_MEDIUM_EMAIL,
@@ -6170,7 +6607,7 @@ class VersionedFeatureValidationTests(MockFmlErrorMixin, TestCase):
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=app,
             channels=(
-                [NimbusExperiment.Channel.RELEASE]
+                [NimbusExperiment.Channel.NIGHTLY]
                 if app == NimbusExperiment.Application.DESKTOP
                 else []
             ),

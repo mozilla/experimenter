@@ -187,6 +187,7 @@ Optional - We expect this to <describe impact> on <core metric>.
         "messaging_control_mismatch",
         "messaging_active_notifications",
         "messaging_frequency_group",
+        "nightly_beta_history",
     }
 
     REVIEW_WARNING_LEARN_MORE = {

@@ -35,8 +35,8 @@ PYTHON_TEST = pytest --cov --cov-report term-missing
 PYTHON_TYPECHECK = pyright experimenter/
 PYTHON_CHECK_MIGRATIONS = python manage.py makemigrations --check --dry-run --noinput
 PYTHON_MIGRATE = python manage.py migrate
-ESLINT_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui lint
-ESLINT_FIX_NIMBUS_UI = yarn workspace @experimenter/nimbus_ui format
+ESLINT_NIMBUS_UI = npm run lint --workspace=@experimenter/nimbus_ui
+ESLINT_FIX_NIMBUS_UI = npm run format --workspace=@experimenter/nimbus_ui
 DJLINT_CHECK = djlint --check experimenter/nimbus_ui/ experimenter/glean/
 DJLINT_FIX = djlint --reformat experimenter/nimbus_ui/ experimenter/glean/
 RUFF_CHECK = ruff check experimenter/ manifesttool/ tests/
@@ -159,14 +159,14 @@ docker_prune:
 
 static_rm:  ## Remove statically generated files
 	rm -Rf experimenter/node_modules
-	rm -Rf experimenter/experimenter/nimbus-ui/node_modules/
-	rm -Rf experimenter/experimenter/nimbus-ui/build/
+	rm -Rf experimenter/experimenter/nimbus_ui/static/node_modules/
+	rm -Rf experimenter/experimenter/nimbus_ui/static/dist/
 
 kill: compose_stop compose_rm docker_prune  ## Stop, remove, and prune containers
 	echo "All containers removed!"
 
 lint: build_test  ## Running linting on source code
-	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_RESULTS)" "$(ESLINT_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)" "$(JS_TEST_RESULTS)" "$(RESULTS_SCHEMA_CHECK)") ${COLOR_CHECK}'; \
+	$(COMPOSE_TEST_RUN) experimenter sh -c '$(WAIT_FOR_DB) (${PARALLEL} "$(PYTHON_CHECK_MIGRATIONS)" "$(CHECK_DOCS)" "$(RUFF_FORMAT_CHECK)" "$(RUFF_CHECK)" "$(DJLINT_CHECK)" "$(ESLINT_NIMBUS_UI)" "$(PYTHON_TYPECHECK)" "$(PYTHON_TEST)") ${COLOR_CHECK}'; \
 	status=$$?; \
 	$(COMPOSE_TEST) down; \
 	exit $$status
@@ -231,11 +231,8 @@ up_detached: build_dev cirrus_build
 generate_docs: build_dev
 	$(COMPOSE_RUN) --no-deps experimenter sh -c "$(GENERATE_DOCS)"
 
-generate_types: build_dev
-	$(COMPOSE_RUN) --no-deps experimenter sh -c "$(RESULTS_TYPES_GENERATE)"
-
 format: build_dev  ## Format source tree
-	$(COMPOSE_RUN) --no-deps experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_RESULTS)" "$(ESLINT_FIX_NIMBUS_UI)"'
+	$(COMPOSE_RUN) --no-deps experimenter sh -c '${PARALLEL} "$(RUFF_FIX);$(DJLINT_FIX);$(RUFF_FORMAT_FIX)" "$(ESLINT_FIX_NIMBUS_UI)"'
 code_format: format
 
 makemigrations: build_dev
@@ -373,7 +370,6 @@ SCHEMAS_FORMAT = ruff check --fix . && black .
 SCHEMAS_GENERATE = python generate_json_schema.py
 SCHEMAS_DIST_PYPI = uv build
 SCHEMAS_DEPLOY_PYPI = twine upload --skip-existing dist/*;
-SCHEMAS_DEPLOY_NPM = echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc;yarn publish --new-version ${SCHEMAS_VERSION} --access public;
 SCHEMAS_VERSION_PYPI = uv version ${SCHEMAS_VERSION};
 SCHEMAS_VERSION_NPM = npm version --allow-same-version ${SCHEMAS_VERSION};
 
@@ -400,9 +396,6 @@ schemas_generate: schemas_docker_build
 
 schemas_deploy_pypi: schemas_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_PYPI)"
-
-schemas_deploy_npm: schemas_build
-	$(SCHEMAS_RUN) "$(SCHEMAS_DEPLOY_NPM)"
 
 schemas_version_pypi: schemas_docker_build
 	$(SCHEMAS_RUN) "$(SCHEMAS_VERSION_PYPI)"

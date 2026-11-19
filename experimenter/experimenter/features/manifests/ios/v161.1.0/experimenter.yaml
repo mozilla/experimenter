@@ -670,10 +670,18 @@ tou-feature:
       type: boolean
       description: |
         Whether to show a drag handle on the prompt and allows users to use it to dismiss the prompt.
+    enable-notification-redesign:
+      type: boolean
+      description: |
+        Whether to display the notification banner redesign. If false the previous design will be displayed.
     max-reminders-count:
       type: int
       description: |
         Maximum number of ToU bottom sheet reminders that can be displayed
+    notification-timestamp:
+      type: int
+      description: |
+        The Unix timestamp in seconds when the notification banner should start appearing. 0 means the banner is not shown.
     status:
       type: boolean
       description: |

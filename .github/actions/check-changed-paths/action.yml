@@ -60,7 +60,7 @@ runs:
         PATTERNS="$INPUT_PATHS"
 
         if [[ "$INPUT_INTEGRATION" == "true" ]]; then
-          PATTERNS="$PATTERNS experimenter/tests/integration/ experimenter/tests/pytest.ini experimenter/tests/pyproject.toml experimenter/tests/uv.lock experimenter/Dockerfile experimenter/pyproject.toml experimenter/uv.lock experimenter/package.json experimenter/yarn.lock"
+          PATTERNS="$PATTERNS experimenter/tests/integration/ experimenter/tests/pytest.ini experimenter/tests/pyproject.toml experimenter/tests/uv.lock experimenter/Dockerfile experimenter/pyproject.toml experimenter/uv.lock experimenter/package.json experimenter/package-lock.json"
         fi
 
         for pattern in $PATTERNS; do

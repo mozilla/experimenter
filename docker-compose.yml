@@ -19,13 +19,12 @@ services:
       - media_volume:/experimenter/experimenter/media
       - nimbus_ui_volume:/experimenter/experimenter/nimbus_ui/static/dist/
       - /experimenter/experimenter/glean/generated/
-      - /experimenter/experimenter/nimbus_ui/static/node_modules/
       - /experimenter/experimenter/served/
       - /experimenter/node_modules/
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
     command: bash -c "python bin/setup_kinto.py;/experimenter/bin/wait-for-it.sh db:5432 -- python /experimenter/manage.py runserver 0:7001"
 
-  yarn-nimbus_ui:
+  nimbus_ui-watch:
     image: experimenter:dev
     env_file: .env
     stdin_open: true
@@ -36,11 +35,10 @@ services:
       - media_volume:/experimenter/experimenter/media
       - nimbus_ui_volume:/experimenter/experimenter/nimbus_ui/static/dist/
       - /experimenter/experimenter/glean/generated/
-      - /experimenter/experimenter/nimbus_ui/static/node_modules/
       - /experimenter/experimenter/served/
       - /experimenter/node_modules/
       - ${GOOGLE_ADC_FILE}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
-    command: bash -c "FORCE_COLOR=true yarn workspace @experimenter/nimbus_ui watch | cat"
+    command: bash -c "FORCE_COLOR=true npm run watch --workspace=@experimenter/nimbus_ui | cat"
 
   worker:
     image: experimenter:dev

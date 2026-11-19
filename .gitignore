@@ -82,9 +82,7 @@ target/
 **/.idea/*
 
 # Hosted assets
-experimenter/experimenter/static/scripts/
 experimenter/experimenter/served/
-experimenter/experimenter/reporting/reporting-ui/assets/
 
 # Key files
 *.pem

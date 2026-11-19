@@ -28,9 +28,18 @@ jobs:
       - name: Check for version change
         if: steps.check-paths.outputs.should-run == 'true'
         id: version-check
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
         run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "Manual run, publishing without a version check"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           get_version() { sed -n 's/^version *= *"\(.*\)"/\1/p' | head -1; }
-          old=$(git show HEAD~1:schemas/pyproject.toml 2>/dev/null | get_version)
+          git fetch --depth=1 origin "$BEFORE_SHA"
+          old=$(git show "$BEFORE_SHA:schemas/pyproject.toml" 2>/dev/null | get_version)
           new=$(get_version < schemas/pyproject.toml)
           if [ "$old" != "$new" ]; then
             echo "Version changed: '$old' -> '$new'"
@@ -69,5 +78,10 @@ jobs:
           if [ "$PKG_VERSION" != "$FILE_VERSION" ]; then
             echo "package.json version ($PKG_VERSION) does not match VERSION ($FILE_VERSION); run 'make schemas_version' and commit" >&2
             exit 1
+          fi
+          PKG_NAME="$(node -p "require('./package.json').name")"
+          if npm view "$PKG_NAME@$PKG_VERSION" version >/dev/null 2>&1; then
+            echo "$PKG_NAME@$PKG_VERSION is already on npm, skipping"
+            exit 0
           fi
           npm publish --access public --provenance

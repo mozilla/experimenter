@@ -1001,6 +1001,11 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "group such as cfr, or check the user's messaging preference in their "
         "targeting."
     )
+    WARNING_DESKTOP_RELEASE_NIGHTLY_BETA_HISTORY = (
+        "The {feature_slug} value in the {branch_name} branch has not run in a "
+        "Nightly or Beta delivery. Values launching to Release should run on "
+        "Nightly or Beta first."
+    )
     OBSERVATION = "Observation"
     ENROLLMENT = "Enrollment"
 

@@ -5,29 +5,6 @@
   "workspaces": [
     "experimenter/nimbus_ui/static"
   ],
-  "resolutions": {
-    "ansi-regex": "^5.0.1",
-    "browserslist": "^4.16.5",
-    "glob-parent": "^5.1.2",
-    "immer": "^9.0.6",
-    "is-svg": "^4.2.2",
-    "node-notifier": "^8.0.1",
-    "normalize-url": "^4.5.1",
-    "nth-check": "^2.0.1",
-    "object-path": "^0.11.5",
-    "prismjs": "^1.23.0",
-    "react-dev-utils": "^11.0.4",
-    "serialize-javascript": "^3.1.0",
-    "set-value": "^4.0.1",
-    "sockjs": "^0.3.20",
-    "ssri": "^8.0.1",
-    "tar": "^6.1.2",
-    "trim-newlines": "^3.0.1",
-    "trim": "^0.0.3",
-    "ws": "^7.4.6",
-    "yargs-parser": "^13.1.2",
-    "@lezer/common": "^1.2.0"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mozilla/experimenter.git"

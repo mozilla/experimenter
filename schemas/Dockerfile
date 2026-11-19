@@ -1,12 +1,9 @@
 #-------------------------
 # System packages
-FROM python:3.15.0 AS system-builder
+FROM python:3.15.1 AS system-builder
 
-RUN install -d /etc/apt/keyrings && \
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg -o /etc/apt/keyrings/yarn.asc
-RUN echo "deb [signed-by=/etc/apt/keyrings/yarn.asc] https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN apt-get update
-RUN apt-get --no-install-recommends install -y apt-utils ca-certificates yarn parallel
+RUN apt-get --no-install-recommends install -y apt-utils ca-certificates parallel
 
 # Install nvm with node and npm
 ENV NODE_VERSION=24.14.0
@@ -48,8 +45,8 @@ WORKDIR /schemas
 
 # Node packages for legacy and nimbus ui
 COPY ./package.json /schemas/package.json
-COPY ./yarn.lock /schemas/yarn.lock
-RUN yarn install --frozen-lockfile
+COPY ./package-lock.json /schemas/package-lock.json
+RUN npm ci
 
 
 # Dev image

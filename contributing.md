@@ -26,9 +26,7 @@ Please note we have a [Code of Conduct](https://www.mozilla.org/en-US/about/gove
 
 1. Implement the code changes described by the issue. All Python code changes should
    be accompanied by any relevant tests, either by modifying existing ones or adding new
-   ones. Front-end changes (HTML/CSS/JS) that involve React code should create or update
-   any relevant JS tests. Infrastructure changes (Docker related things)
-   do not require tests.
+   ones. Infrastructure changes (Docker related things) do not require tests.
 
 1. When all your changes are complete to your satisfaction:
 
@@ -156,17 +154,17 @@ If a Dependabot PR fails the CI checks you can either investigate the failure an
 
 Dependabot will also produce [Security Advisories](https://github.com/mozilla/experimenter/security/dependabot) for packages that have registered [CVE](https://en.wikipedia.org/wiki/Common_Vulnerabilities_and_Exposures) numbers. These can not be resolved automatically. To resolve the security warnings:
 
-1. Copy the **Remediation** version from the security warning into the `"resolutions"` section of `experimenter/package.json`, example:
+1. Copy the **Remediation** version from the security warning into the `"overrides"` section of `experimenter/package.json`, example:
 
    ```js
-   "resolutions": {
+   "overrides": {
      "postcss": "^7.0.36",
    ```
 
-1. Update the `yarn.lock` file by running
+1. Update the `package-lock.json` file by running
 
    ```sh
-   yarn install
+   npm install
    ```
 
 1. Commit your changes in a PR titled `chore(deps): Security <list affected packages>`

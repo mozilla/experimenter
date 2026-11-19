@@ -1,12 +1,9 @@
 #-------------------------
 # System packages
-FROM python:3.14-trixie AS system-builder
+FROM python:3.15-trixie AS system-builder
 
-RUN install -d /etc/apt/keyrings && \
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg -o /etc/apt/keyrings/yarn.asc
-RUN echo "deb [signed-by=/etc/apt/keyrings/yarn.asc] https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 RUN apt-get update
-RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgresql-client yarn parallel
+RUN apt-get --no-install-recommends install -y apt-utils ca-certificates postgresql-client parallel
 
 # Install nvm with node and npm
 ENV NODE_VERSION=24.14.0
@@ -52,10 +49,9 @@ WORKDIR /experimenter
 
 # Node packages for nimbus ui
 COPY ./package.json /experimenter/package.json
-COPY ./yarn.lock /experimenter/yarn.lock
+COPY ./package-lock.json /experimenter/package-lock.json
 COPY ./experimenter/nimbus_ui/static/package.json /experimenter/experimenter/nimbus_ui/static/package.json
-RUN python3 -m pip install setuptools
-RUN yarn install --frozen-lockfile
+RUN npm ci
 COPY ./experimenter/nimbus_ui/ /experimenter/experimenter/nimbus_ui/
 
 
@@ -74,7 +70,6 @@ COPY --from=python-builder /experimenter/experimenter/glean/generated/ /experime
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Node packages
-COPY --from=node-builder /experimenter/experimenter/nimbus_ui/static/node_modules/ /experimenter/experimenter/nimbus_ui/static/node_modules/
 COPY --from=node-builder /experimenter/node_modules/ /experimenter/node_modules/
 
 # Rust packages
@@ -99,12 +94,12 @@ FROM test AS ui
 
 # Build nimbus_ui assets
 COPY ./experimenter/nimbus_ui/ /experimenter/experimenter/nimbus_ui/
-RUN yarn workspace @experimenter/nimbus_ui build
+RUN npm run build --workspace=@experimenter/nimbus_ui
 
 
 # Deploy image
 #-------------------------
-FROM python:3.14-slim AS deploy
+FROM python:3.15-slim AS deploy
 
 # Create a non-root user with UID 10001
 RUN groupadd -g 10001 app && \
