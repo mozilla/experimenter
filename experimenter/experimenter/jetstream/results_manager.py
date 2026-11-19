@@ -537,21 +537,12 @@ class ExperimentResultsManager:
             formatted_metrics.sort(key=lambda m: m["friendly_name"])
             return formatted_metrics
 
-        for slug in self.experiment.primary_outcomes:
+        for slug in self.experiment.outcomes:
             outcome = Outcomes.get_by_slug_and_application(
                 slug, self.experiment.application
             )
             metric_areas[outcome.friendly_name if outcome else slug] = {
-                "label_details": NimbusUIConstants.MetricAreaType.PRIMARY,
-                "metrics": get_outcome_metrics(outcome.metrics if outcome else []),
-            }
-
-        for slug in self.experiment.secondary_outcomes:
-            outcome = Outcomes.get_by_slug_and_application(
-                slug, self.experiment.application
-            )
-            metric_areas[outcome.friendly_name if outcome else slug] = {
-                "label_details": NimbusUIConstants.MetricAreaType.USER_SELECTED_SECONDARY,
+                "label_details": NimbusUIConstants.MetricAreaType.USER_SELECTED,
                 "metrics": get_outcome_metrics(outcome.metrics if outcome else []),
             }
 

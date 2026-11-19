@@ -99,11 +99,11 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "name": "",
                 "newtab_addon_min_version": "",
                 "next_steps": None,
+                "outcomes": [],
                 "owner": owner.email,
                 "parent": None,
                 "population_percent": "0.0000",
                 "prevent_pref_conflicts": False,
-                "primary_outcomes": [],
                 "project_impact": None,
                 "projects": [],
                 "proposed_duration": NimbusExperiment.DEFAULT_PROPOSED_DURATION,
@@ -133,7 +133,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "rollout_phase": None,
                 "rollout_phase_next": None,
                 "rollout_plan_name": "",
-                "secondary_outcomes": [],
                 "segments": [],
                 "slug": "",
                 "status": NimbusExperiment.Status.DRAFT,
@@ -157,8 +156,8 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
         application = NimbusExperiment.Application.DESKTOP
         feature_config = NimbusFeatureConfigFactory.create()
         project = ProjectFactory.create()
-        primary_outcome = Outcomes.by_application(application)[0].slug
-        secondary_outcome = Outcomes.by_application(application)[1].slug
+        outcome_1 = Outcomes.by_application(application)[0].slug
+        outcome_2 = Outcomes.by_application(application)[1].slug
         segment = Segments.by_application(application, mock_get_segments())[0].slug
         parent_experiment = NimbusExperimentFactory.create()
         subscriber = UserFactory.create()
@@ -178,8 +177,7 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 application=application,
                 feature_configs=[feature_config],
                 projects=[project],
-                primary_outcomes=[primary_outcome],
-                secondary_outcomes=[secondary_outcome],
+                outcomes=[outcome_1, outcome_2],
                 segments=[segment],
                 subscribers=[subscriber],
                 parent=parent_experiment,
@@ -249,11 +247,11 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "name": experiment.name,
                 "newtab_addon_min_version": experiment.newtab_addon_min_version,
                 "next_steps": None,
+                "outcomes": [outcome_1, outcome_2],
                 "owner": experiment.owner.email,
                 "parent": parent_experiment.slug,
                 "population_percent": str(experiment.population_percent),
                 "prevent_pref_conflicts": False,
-                "primary_outcomes": [primary_outcome],
                 "project_impact": None,
                 "projects": [project.slug],
                 "proposed_duration": experiment.proposed_duration,
@@ -281,7 +279,6 @@ class TestNimbusExperimentChangeLogSerializer(TestCase):
                 "rollout_phase": experiment.rollout_phase,
                 "rollout_phase_next": experiment.rollout_phase_next,
                 "rollout_plan_name": experiment.rollout_plan_name,
-                "secondary_outcomes": [secondary_outcome],
                 "segments": [segment],
                 "slug": experiment.slug,
                 "status": experiment.status,

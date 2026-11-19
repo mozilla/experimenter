@@ -251,15 +251,9 @@ class NimbusExperimentSerializer(serializers.ModelSerializer):
         )
 
     def get_outcomes(self, obj):
-        prioritized_outcomes = (
-            ("primary", obj.primary_outcomes),
-            ("secondary", obj.secondary_outcomes),
-        )
-        return [
-            {"slug": slug, "priority": priority}
-            for (priority, outcomes) in prioritized_outcomes
-            for slug in outcomes
-        ]
+        # Jetstream still reads a priority here, and resolves every outcome the same
+        # way whichever it is.
+        return [{"slug": slug, "priority": "primary"} for slug in obj.outcomes]
 
     def get_segments(self, obj):
         return [{"slug": slug} for slug in obj.segments]

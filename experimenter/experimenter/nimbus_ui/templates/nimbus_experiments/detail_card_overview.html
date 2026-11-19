@@ -37,20 +37,9 @@
         <td colspan="3">{{ experiment.hypothesis }}</td>
       </tr>
       <tr>
-        <th>Primary Outcomes</th>
+        <th>Outcomes</th>
         <td colspan="3">
-          {% for outcome, url in primary_outcome_links %}
-            <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
-            {% if not forloop.last %},{% endif %}
-          {% empty %}
-            <span class="text-danger">Not set</span>
-          {% endfor %}
-        </td>
-      </tr>
-      <tr>
-        <th>Secondary Outcomes</th>
-        <td colspan="3">
-          {% for outcome, url in secondary_outcome_links %}
+          {% for outcome, url in outcome_links %}
             <a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ outcome.title|remove_underscores }}</a>
             {% if not forloop.last %},{% endif %}
           {% empty %}

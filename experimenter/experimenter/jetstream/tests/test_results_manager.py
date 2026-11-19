@@ -30,8 +30,7 @@ class TestExperimentResultsManager(TestCase):
         )
         self.experiment = NimbusExperimentFactory.create(
             application=NimbusExperiment.Application.DESKTOP,
-            primary_outcomes=[self.desktop_outcome_1.slug],
-            secondary_outcomes=[],
+            outcomes=[self.desktop_outcome_1.slug],
         )
         self.experiment.delete_branches()
         self.experiment.reference_branch = NimbusBranchFactory.create(

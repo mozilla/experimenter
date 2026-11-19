@@ -1411,13 +1411,7 @@
             "format": "date-time",
             "nullable": true
           },
-          "primary_outcomes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "secondary_outcomes": {
+          "outcomes": {
             "type": "array",
             "items": {
               "type": "string"
