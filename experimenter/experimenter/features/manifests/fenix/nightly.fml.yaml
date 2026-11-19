@@ -330,14 +330,6 @@ features:
         description: If true, Homepage Customization is enabled.
         type: Boolean
         default: false
-  homepage-hide-frecent-top-sites:
-    description: Hides frecent top sites on the homepage.
-    variables:
-      enabled:
-        description: |
-          Whether or not to hide frecent top sites on the homepage.
-        type: Boolean
-        default: false
   homepage-opening-screen-default:
     description: Configure the default option for the homepage opening screen.
     variables:
