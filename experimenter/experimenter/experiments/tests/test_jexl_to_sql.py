@@ -497,7 +497,7 @@ class TestJEXLToSQL(TestCase):
         [
             (
                 "transform_subject",
-                "locale == 'en-US' && userMonthlyActivity|mapToProperty('1')[0] != null",
+                "locale == 'en-US' && addonsInfo|mapToProperty('1')[0] != null",
                 "|mapToProperty",
             ),
             ("array_literal_subject", "['a','b'][0] == 'a'", "filter expression"),
@@ -506,6 +506,37 @@ class TestJEXLToSQL(TestCase):
     def test_filter_on_non_identifier_warns(self, _name, jexl, expected_warning):
         result = jexl_to_sql(jexl)
         self.assertIn(expected_warning, result.warnings)
+
+    def test_last_activity_date_in_millis(self):
+        result = jexl_to_sql(
+            "userMonthlyActivity|mapToProperty('1')[userMonthlyActivity|length - 1]|date"
+        )
+        self.assertEqual(
+            result.sql,
+            f"UNIX_MILLIS(SAFE.TIMESTAMP(JSON_VALUE(JSON_QUERY_ARRAY({_UMA})"
+            f"[SAFE_OFFSET((ARRAY_LENGTH(JSON_QUERY_ARRAY({_UMA})) - 1))], '$.date')))",
+        )
+        self.assertEqual(result.warnings, [])
+
+    def test_activity_item_by_position_and_length_of_mapped_array(self):
+        result = jexl_to_sql(
+            "userMonthlyActivity|mapToProperty('0')[0] > 5"
+            " && userMonthlyActivity|mapToProperty('1')|length >= 1"
+        )
+        self.assertIn("$.numberOfURLsVisited", result.sql)
+        self.assertIn(f"ARRAY_LENGTH(JSON_QUERY_ARRAY({_UMA})) >= 1", result.sql)
+        self.assertEqual(result.warnings, [])
+
+    def test_activity_item_on_an_unknown_property_warns(self):
+        result = jexl_to_sql("userMonthlyActivity|mapToProperty('2')[0] != null")
+        self.assertIsNone(result.sql)
+        self.assertIn("|mapToProperty", result.warnings)
+
+    def test_activity_item_is_desktop_only(self):
+        result = jexl_to_sql(
+            "userMonthlyActivity|mapToProperty('1')[0]|date > 0", app=FENIX_APP
+        )
+        self.assertIsNone(result.sql)
 
     def test_bare_enrollments_still_warns(self):
         """Only the supported forms translate; `enrollments` has no column of
@@ -579,6 +610,62 @@ class TestJEXLToSQL(TestCase):
     )
     def test_unrecorded_pref_warns_by_name(self, _name, jexl):
         result = jexl_to_sql(jexl)
+        self.assertIsNone(result.sql)
+        self.assertEqual(result.warnings, ["'browser.nova.enabled'|preferenceValue"])
+
+    def test_reg_exp_match_on_a_recorded_pref(self):
+        result = jexl_to_sql(
+            "'trailhead.firstrun.didSeeAboutWelcome'|preferenceValue('')"
+            "|regExpMatch('^a.*z$')"
+        )
+        self.assertTrue(result.sql.startswith("REGEXP_CONTAINS(COALESCE("))
+        self.assertTrue(result.sql.endswith(", ''), r'^a.*z$')"))
+        self.assertEqual(result.warnings, [])
+
+    def test_reg_exp_match_not_null_means_matched(self):
+        result = jexl_to_sql(
+            "'trailhead.firstrun.didSeeAboutWelcome'|preferenceValue('')"
+            "|regExpMatch('abc') != null"
+        )
+        self.assertTrue(result.sql.startswith("REGEXP_CONTAINS("))
+        self.assertNotIn("IS NOT NULL", result.sql)
+
+    def test_reg_exp_match_equals_null_means_not_matched(self):
+        result = jexl_to_sql(
+            "'trailhead.firstrun.didSeeAboutWelcome'|preferenceValue('')"
+            "|regExpMatch('abc') == null"
+        )
+        self.assertTrue(result.sql.startswith("NOT (REGEXP_CONTAINS("))
+
+    def test_not_reg_exp_match(self):
+        result = jexl_to_sql(
+            "!('trailhead.firstrun.didSeeAboutWelcome'|preferenceValue('')"
+            "|regExpMatch('abc'))"
+        )
+        self.assertTrue(result.sql.startswith("NOT (REGEXP_CONTAINS("))
+
+    def test_reg_exp_match_ignore_case_flag(self):
+        result = jexl_to_sql("locale|regExpMatch('^en', 'i')")
+        self.assertIn("r'(?i)^en'", result.sql)
+
+    @parameterized.expand(
+        [
+            ("lookahead", "locale|regExpMatch('a(?=b)')"),
+            ("backreference", "locale|regExpMatch('(a)\\\\1')"),
+            ("unicode_escape", "locale|regExpMatch('\\\\u0041')"),
+            ("global_flag", "locale|regExpMatch('a', 'g')"),
+            ("pattern_not_a_string", "locale|regExpMatch(locale)"),
+        ]
+    )
+    def test_reg_exp_match_that_re2_cannot_run_warns(self, _name, jexl):
+        result = jexl_to_sql(jexl)
+        self.assertIsNone(result.sql)
+        self.assertEqual(result.warnings, ["|regExpMatch"])
+
+    def test_reg_exp_match_on_an_unrecorded_pref_still_warns_on_the_pref(self):
+        result = jexl_to_sql(
+            "'browser.nova.enabled'|preferenceValue('')|regExpMatch('x')"
+        )
         self.assertIsNone(result.sql)
         self.assertEqual(result.warnings, ["'browser.nova.enabled'|preferenceValue"])
 
