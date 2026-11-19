@@ -841,6 +841,11 @@ features:
           Shows the redesigned opt-in as a sheet over the browser.
         type: Boolean
         default: true
+      return-to-answer-enabled:
+        description: |
+          Keeps the Quick Answers session alive when a citation is tapped and shows a pill to return to it.
+        type: Boolean
+        default: false
   recent-searches-feature:
     description: |
       Enables recent searches.

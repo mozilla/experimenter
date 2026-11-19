@@ -325,15 +325,6 @@ homepage-customization:
     enabled:
       type: boolean
       description: If true, Homepage Customization is enabled.
-homepage-hide-frecent-top-sites:
-  description: Hides frecent top sites on the homepage.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to hide frecent top sites on the homepage.
 homepage-opening-screen-default:
   description: Configure the default option for the homepage opening screen.
   hasExposure: true

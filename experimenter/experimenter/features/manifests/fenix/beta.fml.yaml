@@ -330,14 +330,6 @@ features:
         description: If true, Homepage Customization is enabled.
         type: Boolean
         default: false
-  homepage-hide-frecent-top-sites:
-    description: Hides frecent top sites on the homepage.
-    variables:
-      enabled:
-        description: |
-          Whether or not to hide frecent top sites on the homepage.
-        type: Boolean
-        default: false
   homepage-opening-screen-default:
     description: Configure the default option for the homepage opening screen.
     variables:
@@ -764,7 +756,7 @@ features:
       enabled:
         description: If true, listen to page will be enabled
         type: Boolean
-        default: false
+        default: true
   lna-blocking:
     description: Feature that allows blocking local network or device access.
     variables:
