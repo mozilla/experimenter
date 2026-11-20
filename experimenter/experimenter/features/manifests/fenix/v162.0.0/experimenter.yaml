@@ -650,6 +650,23 @@ onboarding:
     order:
       type: json
       description: Determines the order of the onboarding page panels
+onboarding-haptics:
+  description: Feature to enable haptic feedback during onboarding.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature is enabled.
+onboarding-kit-animation:
+  description: |
+    Feature to show the animated kit illustration instead of the static one on the onboarding terms of use page.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the feature is enabled.
 one-click-search:
   description: Enable/disable the one click search feature.
   hasExposure: true

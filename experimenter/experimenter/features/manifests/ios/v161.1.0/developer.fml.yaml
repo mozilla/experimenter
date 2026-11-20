@@ -980,6 +980,15 @@ features:
           Enables permissive guardrails for the summarizer.
         type: Boolean
         default: true
+  sync-string-updates-feature:
+    description: |
+      Controls the string updates across sync-related screens
+    variables:
+      enabled:
+        description: |
+          Whether the updated sync strings are enabled
+        type: Boolean
+        default: false
   tab-groups-feature:
     description: |
       Enables Tab Groups views and interactions.
