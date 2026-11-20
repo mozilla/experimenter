@@ -4339,6 +4339,52 @@ class TestNimbusExperiment(TestCase):
             experiment.review_warnings,
         )
 
+    def test_review_warnings_messaging_required_frequency_group(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            slug="spotlight",
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[
+                NimbusVersionedSchemaFactory.build(
+                    version=None, schema=None, has_remote_schema=True
+                ),
+            ],
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+        )
+        experiment.reference_branch.feature_values.update(value=json.dumps({}))
+        for branch in experiment.treatment_branches:
+            branch.feature_values.update(
+                value=json.dumps(
+                    {
+                        "id": "welcome-1",
+                        "template": "feature_callout",
+                        "content": {"id": "welcome-1"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                        "groups": ["wrong-group"],
+                    }
+                )
+            )
+
+        self.assertIn(
+            {
+                "label": (
+                    "The spotlight message welcome-1 is not in the cfr frequency "
+                    "group, which its template, trigger or action calls for. Add it "
+                    "to cfr so it shares a frequency cap with similar messages."
+                ),
+                "detail": None,
+                "learn_more_url": None,
+            },
+            experiment.review_warnings,
+        )
+
     def test_audience_overlap_warnings_renders_each_warning_once(self):
         feature = NimbusFeatureConfigFactory.create(
             slug="duplicate-rollout-feature",

@@ -2000,6 +2000,115 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
+    @classmethod
+    def _desktop_message_action_types(cls, value):
+        action_types = set()
+
+        if isinstance(value, dict):
+            action = value.get("action")
+            if isinstance(action, dict) and isinstance(action.get("type"), str):
+                action_types.add(action["type"])
+
+            actions = value.get("actions")
+            if isinstance(actions, list):
+                action_types.update(
+                    entry["type"]
+                    for entry in actions
+                    if isinstance(entry, dict) and isinstance(entry.get("type"), str)
+                )
+
+            for nested_value in value.values():
+                action_types.update(cls._desktop_message_action_types(nested_value))
+        elif isinstance(value, list):
+            for item in value:
+                action_types.update(cls._desktop_message_action_types(item))
+
+        return action_types
+
+    @classmethod
+    def _desktop_message_required_groups(cls, message):
+        required_groups = set()
+
+        template = message.get("template")
+        required_groups.update(
+            NimbusConstants.DESKTOP_MESSAGING_REQUIRED_GROUPS_BY_TEMPLATE.get(
+                template, ()
+            )
+        )
+
+        targeting = message.get("targeting")
+        if isinstance(targeting, str):
+            for (
+                substring,
+                groups,
+            ) in NimbusConstants.DESKTOP_MESSAGING_REQUIRED_GROUPS_BY_TARGETING.items():
+                if substring in targeting:
+                    required_groups.update(groups)
+
+        trigger = message.get("trigger")
+        if isinstance(trigger, dict):
+            required_groups.update(
+                NimbusConstants.DESKTOP_MESSAGING_REQUIRED_GROUPS_BY_TRIGGER.get(
+                    trigger.get("id"), ()
+                )
+            )
+
+        for action_type in cls._desktop_message_action_types(message.get("content")):
+            required_groups.update(
+                NimbusConstants.DESKTOP_MESSAGING_REQUIRED_GROUPS_BY_ACTION_TYPE.get(
+                    action_type, ()
+                )
+            )
+
+        return required_groups
+
+    def _validate_desktop_messaging_required_frequency_group(self, data):
+        branches = [data.get("reference_branch", {}), *data.get("treatment_branches", [])]
+
+        warnings = []
+        for feature_config in sorted(
+            data.get("feature_configs", []),
+            key=lambda feature_config: feature_config.slug,
+        ):
+            if not self._is_desktop_messaging_feature(feature_config):
+                continue
+
+            message_ids_by_group = {}
+            for branch in branches:
+                for message in self._branch_desktop_messages(branch, feature_config):
+                    if not message.get("template"):
+                        continue
+
+                    groups = message.get("groups")
+                    if not (isinstance(groups, list) and groups):
+                        continue
+
+                    for required_group in self._desktop_message_required_groups(message):
+                        if required_group not in groups:
+                            message_ids_by_group.setdefault(required_group, set()).add(
+                                message["id"]
+                            )
+
+            for group in sorted(message_ids_by_group):
+                message_ids = sorted(message_ids_by_group[group])
+                warning = (
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR
+                    if len(message_ids) == 1
+                    else (NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_PLURAL)
+                )
+                warnings.append(
+                    warning.format(
+                        feature_slug=feature_config.slug,
+                        message_ids=", ".join(message_ids),
+                        group=group,
+                    )
+                )
+
+        if warnings:
+            self.warnings["messaging_required_frequency_group"] = warnings
+
+        return data
+
     @staticmethod
     def _is_desktop_newtab_trainhop_feature(feature_config):
         return feature_config.slug in (
@@ -2409,6 +2518,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_desktop_messaging_control_mismatch(data)
             data = self._validate_desktop_messaging_active_notifications(data)
             data = self._validate_desktop_messaging_frequency_group(data)
+            data = self._validate_desktop_messaging_required_frequency_group(data)
             data = self._validate_desktop_release_nightly_beta_history(data)
         return data
 
