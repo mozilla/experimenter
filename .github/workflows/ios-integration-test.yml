@@ -27,30 +27,30 @@ jobs:
       IOS_CHANNEL: developer
       IOS_RECIPE_PATH: ${{ github.workspace }}/ios_recipe.json
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "experimenter/experimenter/experiments/ experimenter/experimenter/targeting/ experimenter/experimenter/features/ experimenter/tests/firefox_ios_main_build.env application-services/"
           integration: true
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
       - name: Set up Python
         if: steps.check-paths.outputs.should-run == 'true'
-        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: "3.12"
 
       - name: Install uv
         if: steps.check-paths.outputs.should-run == 'true'
-        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        uses: astral-sh/setup-uv@v10.3.3
 
-      - uses: ./.github/actions/retry
+      - uses: $/.github/actions/retry
         if: steps.check-paths.outputs.should-run == 'true'
         with:
           label: Bring up Experimenter stack
@@ -73,7 +73,7 @@ jobs:
 
       - name: Upload recipe artifact
         if: steps.check-paths.outputs.should-run == 'true'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: ios-recipe
           path: ${{ github.workspace }}/ios_recipe.json
@@ -93,7 +93,7 @@ jobs:
       IOS_SIMULATOR: "iPhone 17"
       IOS_RECIPE_PATH: ${{ github.workspace }}/ios_recipe.json
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
 
       - name: Read firefox-ios SHA
         run: |
@@ -106,14 +106,14 @@ jobs:
 
       - name: Restore cached Fennec build
         id: fennec-cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@v6.1.0
         with:
           path: ${{ runner.temp }}/FennecCache/Client.app
           key: ios-fennec-${{ env.FIREFOX_IOS_SHA }}-xcode${{ env.XCODE_VERSION }}-ios${{ env.IOS_VERSION }}-${{ hashFiles('.github/workflows/ios-integration-test.yml') }}
 
       - name: Checkout firefox-ios
         if: steps.fennec-cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           repository: mozilla-mobile/firefox-ios
           ref: ${{ env.FIREFOX_IOS_SHA }}
@@ -208,18 +208,18 @@ jobs:
           sudo bash /tmp/install-nimbus-cli.sh --directory /usr/local/bin
 
       - name: Set up Python
-        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: "3.12"
 
       - name: Install uv
-        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        uses: astral-sh/setup-uv@v10.3.3
 
       - name: Install test deps
         run: uv sync --project experimenter/tests --no-install-project
 
       - name: Download recipe artifact
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        uses: actions/download-artifact@v8.0.2
         with:
           name: ios-recipe
           path: ${{ github.workspace }}
@@ -240,7 +240,7 @@ jobs:
       - name: Save Fennec build to cache
         # Main only, so PR and merge queue runs can read it; after the test, so only a working build is cached.
         if: success() && steps.fennec-cache.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/save@v6.1.0
         with:
           path: ${{ runner.temp }}/FennecCache/Client.app
           key: ${{ steps.fennec-cache.outputs.cache-primary-key }}

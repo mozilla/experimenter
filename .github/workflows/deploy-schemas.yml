@@ -16,11 +16,11 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 2
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "schemas/"
@@ -49,7 +49,7 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: ./.github/actions/retry
+      - uses: $/.github/actions/retry
         if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
         with:
           label: Build schemas
@@ -59,12 +59,12 @@ jobs:
 
       - name: Upload to PyPI
         if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
-        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
+        uses: pypa/gh-action-pypi-publish@v1.14.3
         with:
           packages-dir: schemas/dist/
           skip-existing: true
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - uses: actions/setup-node@v7.1.0
         if: steps.check-paths.outputs.should-run == 'true' && steps.version-check.outputs.changed == 'true'
         with:
           node-version: 24
