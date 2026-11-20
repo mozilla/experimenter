@@ -87,6 +87,23 @@ TEST_LOCALIZATIONS = """\
 }
 """
 
+TEST_LOCALIZATIONS_MOBILE = """\
+{
+    "en": {
+        "foo-string": "More en text",
+        "bar-string": "en text"
+    },
+    "es": {
+        "foo-string": "es text",
+        "bar-string": "More es text"
+    },
+    "fr": {
+        "foo-string": "fr text",
+        "bar-string": "More fr text"
+    }
+}
+"""
+
 _UNSET = object()
 
 
