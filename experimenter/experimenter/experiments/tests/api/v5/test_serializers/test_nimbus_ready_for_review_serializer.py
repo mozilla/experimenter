@@ -2789,6 +2789,481 @@ class TestNimbusReviewSerializerSingleFeature(
             ],
         )
 
+    @parameterized.expand(
+        [
+            ("feature_callout", "cfr"),
+            ("spotlight", "eco"),
+            ("newtab_message", "hnt-message"),
+            ("smart_window_newtab_promo", "smart-window-message"),
+        ]
+    )
+    def test_messaging_required_group_warning_for_template(self, template, group):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "id": "treatment-message",
+                        "template": template,
+                        "content": {"id": "treatment-message"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                        "groups": ["wrong-group"],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_required_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                    group=group,
+                )
+            ],
+        )
+
+    def test_messaging_required_group_warning_for_ai_window_targeting(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "id": "treatment-message",
+                        "template": "cfr_doorhanger",
+                        "content": {"id": "treatment-message"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "isAIWindow",
+                        "groups": ["wrong-group"],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_required_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                    group="smart-window-message",
+                )
+            ],
+        )
+
+    def test_messaging_required_group_warning_for_background_task_trigger(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "id": "treatment-message",
+                        "template": "cfr_doorhanger",
+                        "content": {"id": "treatment-message"},
+                        "trigger": {"id": "backgroundTask"},
+                        "targeting": "true",
+                        "groups": ["wrong-group"],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_required_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                    group="background-task-message",
+                )
+            ],
+        )
+
+    @parameterized.expand(
+        [
+            ("SET_DEFAULT_BROWSER", "set-to-default"),
+            ("SET_DEFAULT_BROWSER_OPEN_WITH", "set-to-default"),
+            ("PIN_FIREFOX_TO_TASKBAR", "pin-to-taskbar"),
+            ("PIN_FIREFOX_TO_START_MENU", "pin-to-taskbar"),
+            ("CREATE_TASKBAR_TAB", "taskbar-tabs-messages"),
+            ("PIN_TASKBAR_TAB", "taskbar-tabs-messages"),
+        ]
+    )
+    def test_messaging_required_group_warning_for_button_action(self, action_type, group):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "id": "treatment-message",
+                        "template": "cfr_doorhanger",
+                        "content": {
+                            "id": "treatment-message",
+                            "buttons": {
+                                "primary": {"action": {"type": action_type}},
+                            },
+                        },
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                        "groups": ["wrong-group"],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_required_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                    group=group,
+                )
+            ],
+        )
+
+    def test_messaging_required_group_warning_for_nested_screen_button_action(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "id": "treatment-message",
+                        "template": "cfr_doorhanger",
+                        "content": {
+                            "id": "treatment-message",
+                            "screens": [
+                                {
+                                    "id": "SCREEN_ONE",
+                                    "content": {
+                                        "primary_button": {
+                                            "action": {
+                                                "type": "PIN_FIREFOX_TO_START_MENU"
+                                            },
+                                        },
+                                    },
+                                },
+                            ],
+                        },
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                        "groups": ["wrong-group"],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_required_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                    group="pin-to-taskbar",
+                )
+            ],
+        )
+
+    def test_messaging_required_group_warning_for_multi_action_nested_action(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "id": "treatment-message",
+                        "template": "cfr_doorhanger",
+                        "content": {
+                            "id": "treatment-message",
+                            "primary_button": {
+                                "action": {
+                                    "type": "MULTI_ACTION",
+                                    "data": {
+                                        "actions": [
+                                            {"type": "CREATE_TASKBAR_TAB"},
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                        "groups": ["wrong-group"],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_required_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                    group="taskbar-tabs-messages",
+                )
+            ],
+        )
+
+    def test_messaging_required_group_warning_for_pin_and_default_missing_both(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "id": "treatment-message",
+                        "template": "cfr_doorhanger",
+                        "content": {
+                            "id": "treatment-message",
+                            "primary_button": {
+                                "action": {"type": "PIN_AND_DEFAULT"},
+                            },
+                        },
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                        "groups": ["wrong-group"],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_required_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                    group="pin-to-taskbar",
+                ),
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                    group="set-to-default",
+                ),
+            ],
+        )
+
+    def test_messaging_required_group_no_warning_with_required_group_present(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "id": "treatment-message",
+                        "template": "feature_callout",
+                        "content": {"id": "treatment-message"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                        "groups": ["cfr"],
+                    },
+                )
+            }
+        )
+
+        self.assertNotIn("messaging_required_frequency_group", warnings)
+
+    def test_messaging_required_group_no_warning_without_groups(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "id": "treatment-message",
+                        "template": "feature_callout",
+                        "content": {"id": "treatment-message"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                    },
+                )
+            }
+        )
+
+        self.assertNotIn("messaging_required_frequency_group", warnings)
+
+    def test_messaging_required_group_no_warning_without_template(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "id": "control-message",
+                        "trigger": {"id": "backgroundTask"},
+                        "targeting": "true",
+                        "groups": ["wrong-group"],
+                    },
+                )
+            }
+        )
+
+        self.assertNotIn("messaging_required_frequency_group", warnings)
+
+    def test_messaging_required_group_no_warning_for_non_messaging_feature(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "some-other-feature": (
+                    {},
+                    {
+                        "id": "treatment-message",
+                        "template": "feature_callout",
+                        "content": {"id": "treatment-message"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                        "groups": ["wrong-group"],
+                    },
+                )
+            }
+        )
+
+        self.assertNotIn("messaging_required_frequency_group", warnings)
+
+    def test_messaging_required_group_warning_for_rollout(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {
+                        "id": "treatment-message",
+                        "template": "feature_callout",
+                        "content": {"id": "treatment-message"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                        "groups": ["wrong-group"],
+                    },
+                    {},
+                )
+            },
+            is_rollout=True,
+        )
+
+        self.assertEqual(
+            warnings["messaging_required_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-message",
+                    group="cfr",
+                )
+            ],
+        )
+
+    def test_messaging_required_group_warning_multi_lists_offenders_only(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "template": "multi",
+                        "messages": [
+                            {
+                                "id": "treatment-a",
+                                "template": "feature_callout",
+                                "content": {"id": "treatment-a"},
+                                "trigger": {"id": "defaultBrowserCheck"},
+                                "targeting": "true",
+                                "groups": ["wrong-group"],
+                            },
+                            {
+                                "id": "treatment-b",
+                                "template": "feature_callout",
+                                "content": {"id": "treatment-b"},
+                                "trigger": {"id": "defaultBrowserCheck"},
+                                "targeting": "true",
+                                "groups": ["cfr"],
+                            },
+                            {
+                                "id": "treatment-c",
+                                "template": "feature_callout",
+                                "content": {"id": "treatment-c"},
+                                "trigger": {"id": "defaultBrowserCheck"},
+                                "targeting": "true",
+                                "groups": ["wrong-group"],
+                            },
+                        ],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_required_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_PLURAL.format(
+                    feature_slug="spotlight",
+                    message_ids="treatment-a, treatment-c",
+                    group="cfr",
+                )
+            ],
+        )
+
+    def test_messaging_required_group_warning_wording_singular(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "id": "welcome-1",
+                        "template": "feature_callout",
+                        "content": {"id": "welcome-1"},
+                        "trigger": {"id": "defaultBrowserCheck"},
+                        "targeting": "true",
+                        "groups": ["wrong-group"],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_required_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR.format(
+                    feature_slug="spotlight",
+                    message_ids="welcome-1",
+                    group="cfr",
+                )
+            ],
+        )
+
+    def test_messaging_required_group_warning_wording_plural(self):
+        warnings = self._messaging_control_warnings(
+            {
+                "spotlight": (
+                    {},
+                    {
+                        "template": "multi",
+                        "messages": [
+                            {
+                                "id": "a",
+                                "template": "feature_callout",
+                                "content": {"id": "a"},
+                                "trigger": {"id": "defaultBrowserCheck"},
+                                "targeting": "true",
+                                "groups": ["wrong-group"],
+                            },
+                            {
+                                "id": "b",
+                                "template": "feature_callout",
+                                "content": {"id": "b"},
+                                "trigger": {"id": "defaultBrowserCheck"},
+                                "targeting": "true",
+                                "groups": ["wrong-group"],
+                            },
+                        ],
+                    },
+                )
+            }
+        )
+
+        self.assertEqual(
+            warnings["messaging_required_frequency_group"],
+            [
+                NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_PLURAL.format(
+                    feature_slug="spotlight",
+                    message_ids="a, b",
+                    group="cfr",
+                )
+            ],
+        )
+
     def test_substitute_localizations(self):
         value = {
             "foo": {
