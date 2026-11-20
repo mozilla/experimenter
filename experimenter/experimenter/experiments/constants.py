@@ -573,6 +573,27 @@ class NimbusConstants:
         "userPrefs.cfrAddons",
         "messaging-system.askForFeedback",
     )
+    DESKTOP_MESSAGING_REQUIRED_GROUPS_BY_TEMPLATE = {
+        "feature_callout": ("cfr",),
+        "spotlight": ("eco",),
+        "newtab_message": ("hnt-message",),
+        "smart_window_newtab_promo": ("smart-window-message",),
+    }
+    DESKTOP_MESSAGING_REQUIRED_GROUPS_BY_TARGETING = {
+        "isAIWindow": ("smart-window-message",),
+    }
+    DESKTOP_MESSAGING_REQUIRED_GROUPS_BY_TRIGGER = {
+        "backgroundTask": ("background-task-message",),
+    }
+    DESKTOP_MESSAGING_REQUIRED_GROUPS_BY_ACTION_TYPE = {
+        "SET_DEFAULT_BROWSER": ("set-to-default",),
+        "SET_DEFAULT_BROWSER_OPEN_WITH": ("set-to-default",),
+        "PIN_FIREFOX_TO_TASKBAR": ("pin-to-taskbar",),
+        "PIN_FIREFOX_TO_START_MENU": ("pin-to-taskbar",),
+        "PIN_AND_DEFAULT": ("pin-to-taskbar", "set-to-default"),
+        "CREATE_TASKBAR_TAB": ("taskbar-tabs-messages",),
+        "PIN_TASKBAR_TAB": ("taskbar-tabs-messages",),
+    }
 
     MOBILE_MESSAGING_SLUG = "messaging"
     MOBILE_MESSAGING_MESSAGES_FIELD = "messages"
@@ -1000,6 +1021,16 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         "nothing caps how often they show alongside other messages. Add them to a "
         "group such as cfr, or check the user's messaging preference in their "
         "targeting."
+    )
+    WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR = (
+        "The {feature_slug} message {message_ids} is not in the {group} frequency "
+        "group, which its template, trigger or action calls for. Add it to {group} "
+        "so it shares a frequency cap with similar messages."
+    )
+    WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_PLURAL = (
+        "The {feature_slug} messages {message_ids} are not in the {group} frequency "
+        "group, which their template, trigger or action calls for. Add them to "
+        "{group} so they share a frequency cap with similar messages."
     )
     WARNING_DESKTOP_RELEASE_NIGHTLY_BETA_HISTORY = (
         "The {feature_slug} value in the {branch_name} branch has not run in a "
