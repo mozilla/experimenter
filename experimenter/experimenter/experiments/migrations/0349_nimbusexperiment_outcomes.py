@@ -16,15 +16,6 @@ def merge_outcomes(apps, schema_editor):
         experiment.save(update_fields=["outcomes"])
 
 
-def split_outcomes(apps, schema_editor):
-    # The split is not recorded anywhere, so everything comes back as primary.
-    NimbusExperiment = apps.get_model("experiments", "NimbusExperiment")
-
-    for experiment in NimbusExperiment.objects.exclude(outcomes=[]):
-        experiment.primary_outcomes = experiment.outcomes
-        experiment.save(update_fields=["primary_outcomes"])
-
-
 class Migration(migrations.Migration):
     dependencies = [
         ("experiments", "0348_backfill_enrollment_end_dates"),
@@ -41,7 +32,8 @@ class Migration(migrations.Migration):
                 verbose_name="Outcomes",
             ),
         ),
-        migrations.RunPython(merge_outcomes, split_outcomes),
+        # Nothing records which outcomes were primary, so there is nothing to put back.
+        migrations.RunPython(merge_outcomes, migrations.RunPython.noop),
         migrations.RemoveField(
             model_name="nimbusexperiment",
             name="primary_outcomes",

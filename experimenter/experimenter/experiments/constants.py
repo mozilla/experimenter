@@ -767,7 +767,6 @@ Optional - We believe this outcome will <describe impact> on <core metric>
         },
     ]
 
-    MAX_PRIMARY_OUTCOMES = 2
     DEFAULT_PROPOSED_DURATION = 28
     DEFAULT_PROPOSED_ENROLLMENT = 7
 
