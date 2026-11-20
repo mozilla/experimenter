@@ -632,6 +632,10 @@ features:
         description: If true, the IP Protection onboarding bottom sheet is shown to the user.
         type: Boolean
         default: true
+      use-gpi-when-signed-out:
+        description: If true, IP Protection may authenticate signed-out users with Google Play Integrity (GPI).
+        type: Boolean
+        default: false
   isolated-content-processes:
     description: Feature that controls content process isolation.
     variables:
@@ -1072,6 +1076,21 @@ features:
         - sync
         - tcp
         - privacy-notice
+  onboarding-haptics:
+    description: Feature to enable haptic feedback during onboarding.
+    variables:
+      enabled:
+        description: If true, the feature is enabled.
+        type: Boolean
+        default: false
+  onboarding-kit-animation:
+    description: |
+      Feature to show the animated kit illustration instead of the static one on the onboarding terms of use page.
+    variables:
+      enabled:
+        description: If true, the feature is enabled.
+        type: Boolean
+        default: false
   one-click-search:
     description: Enable/disable the one click search feature.
     variables:
