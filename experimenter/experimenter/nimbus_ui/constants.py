@@ -692,16 +692,10 @@ Optional - We expect this to <describe impact> on <core metric>.
     }
 
     class MetricAreaType:
-        PRIMARY = {
-            "label": "Primary Metric",
+        USER_SELECTED = {
+            "label": "User-Selected Metric",
             "badge": "bg-primary",
-            "tooltip": "The primary metrics expected to be impacted by this experiment",
-        }
-        USER_SELECTED_SECONDARY = {
-            "label": "User-Selected Secondary Metric",
-            "badge": "bg-primary-subtle text-dark",
-            "tooltip": """Additional metrics selected by the experiment owner for
-            context. Not expected to be impacted as primary metrics.""",
+            "tooltip": "Metrics selected by the experiment owner for this experiment",
         }
         DEFAULT_SECONDARY = {
             "label": "Default Secondary Metric",

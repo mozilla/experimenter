@@ -1,7 +1,6 @@
 import datetime as dt
 import json
 import random
-from itertools import chain
 
 from django.utils import timezone
 from mozilla_nimbus_schemas.highwind import (
@@ -232,7 +231,7 @@ def build_random_analysis_data(experiment):
     treatments = [slug for slug in branches if slug != reference]
 
     outcome_metrics = []
-    for slug in chain(experiment.primary_outcomes, experiment.secondary_outcomes):
+    for slug in experiment.outcomes:
         outcome = Outcomes.get_by_slug_and_application(slug, experiment.application)
         outcome_metrics.extend(outcome.metrics if outcome else [])
 

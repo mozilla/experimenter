@@ -37,8 +37,8 @@
           </div>
           <div class="row">
             <div class="col">
-              <label for="primary_outcomes" class="form-label">
-                Primary Outcomes
+              <label for="outcomes" class="form-label">
+                Outcomes
                 <a target="_blank"
                    href="{{ NimbusUIConstants.METRICS_PAGE_LINKS.metrics_hub_url }}">
                   <i class="fa-regular fa-circle-question"
@@ -48,34 +48,8 @@
                 </a>
                 {% if form.is_bound %}<i class="fa-solid fa-check text-success"></i>{% endif %}
               </label>
-              <div class="rounded border border-1 p-0 {% if form.is_bound %}border-success{% endif %}">
-                {{ form.primary_outcomes }}
-              </div>
-              {% for error in validation_errors.primary_outcomes %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
-              <p class="form-text">
-                Select the user action or feature that you are measuring with this experiment. You may select up to 2 primary outcomes.
-              </p>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col">
-              <label for="secondary_outcomes" class="form-label">
-                Secondary Outcomes
-                <a target="_blank"
-                   href="{{ NimbusUIConstants.METRICS_PAGE_LINKS.metrics_hub_url }}">
-                  <i class="fa-regular fa-circle-question"
-                     data-bs-toggle="tooltip"
-                     data-bs-placement="top"
-                     data-bs-title="Specific metrics that you are interested in observing in your experiment but they don't affect the results of your experiment."></i>
-                </a>
-                {% if form.is_bound %}<i class="fa-solid fa-check text-success"></i>{% endif %}
-              </label>
-              <div class="rounded border border-1 p-0 {% if form.is_bound %}border-success{% endif %}">
-                {{ form.secondary_outcomes }}
-              </div>
-              {% for error in validation_errors.secondary_outcomes %}
-                <div class="form-text text-danger">{{ error }}</div>
-              {% endfor %}
+              <div class="rounded border border-1 p-0 {% if form.is_bound %}border-success{% endif %}">{{ form.outcomes }}</div>
+              {% for error in validation_errors.outcomes %}<div class="form-text text-danger">{{ error }}</div>{% endfor %}
               <p class="form-text">Select the user action or feature that you are measuring with this experiment.</p>
             </div>
           </div>

@@ -162,3 +162,77 @@ class TestBackfillEnrollmentEndDatesMigration(MigratorTestCase):
 
         unmatched_paused = NimbusExperiment.objects.get(slug="unmatched-paused")
         self.assertIsNone(unmatched_paused._enrollment_end_date)
+
+
+class TestMergeOutcomesMigration(MigratorTestCase):
+    migrate_from = (
+        "experiments",
+        "0348_backfill_enrollment_end_dates",
+    )
+    migrate_to = (
+        "experiments",
+        "0349_nimbusexperiment_outcomes",
+    )
+
+    def prepare(self):
+        User = self.old_state.apps.get_model("auth", "User")
+        NimbusExperiment = self.old_state.apps.get_model(
+            "experiments", "NimbusExperiment"
+        )
+
+        owner, _ = User.objects.get_or_create(
+            username="test@example.com",
+            defaults={"email": "test@example.com"},
+        )
+
+        NimbusExperiment.objects.create(
+            slug="both-set",
+            name="Both set",
+            application="firefox-desktop",
+            owner=owner,
+            primary_outcomes=["primary-one", "primary-two"],
+            secondary_outcomes=["secondary-one"],
+        )
+        NimbusExperiment.objects.create(
+            slug="overlapping",
+            name="The same outcome in both fields",
+            application="firefox-desktop",
+            owner=owner,
+            primary_outcomes=["shared"],
+            secondary_outcomes=["shared", "secondary-one"],
+        )
+        NimbusExperiment.objects.create(
+            slug="secondary-only",
+            name="Secondary only",
+            application="firefox-desktop",
+            owner=owner,
+            primary_outcomes=[],
+            secondary_outcomes=["secondary-one"],
+        )
+        NimbusExperiment.objects.create(
+            slug="no-outcomes",
+            name="No outcomes",
+            application="firefox-desktop",
+            owner=owner,
+            primary_outcomes=[],
+            secondary_outcomes=[],
+        )
+
+    def test_migration(self):
+        NimbusExperiment = self.new_state.apps.get_model(
+            "experiments", "NimbusExperiment"
+        )
+
+        self.assertEqual(
+            NimbusExperiment.objects.get(slug="both-set").outcomes,
+            ["primary-one", "primary-two", "secondary-one"],
+        )
+        self.assertEqual(
+            NimbusExperiment.objects.get(slug="overlapping").outcomes,
+            ["shared", "secondary-one"],
+        )
+        self.assertEqual(
+            NimbusExperiment.objects.get(slug="secondary-only").outcomes,
+            ["secondary-one"],
+        )
+        self.assertEqual(NimbusExperiment.objects.get(slug="no-outcomes").outcomes, [])

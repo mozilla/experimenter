@@ -60,8 +60,7 @@ class TestNimbusExperimentAdminForm(TestCase):
     def test_form_saves_outcomes(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
-            primary_outcomes=[],
-            secondary_outcomes=[],
+            outcomes=[],
         )
         form = NimbusExperimentAdminForm(
             instance=experiment,
@@ -77,14 +76,12 @@ class TestNimbusExperimentAdminForm(TestCase):
                 "total_enrolled_clients": experiment.total_enrolled_clients,
                 "application": experiment.application,
                 "hypothesis": experiment.hypothesis,
-                "primary_outcomes": "outcome1, outcome2",
-                "secondary_outcomes": "outcome3, outcome4",
+                "outcomes": "outcome1, outcome2",
             },
         )
         self.assertTrue(form.is_valid(), form.errors)
         experiment = form.save()
-        self.assertEqual(experiment.primary_outcomes, ["outcome1", "outcome2"])
-        self.assertEqual(experiment.secondary_outcomes, ["outcome3", "outcome4"])
+        self.assertEqual(experiment.outcomes, ["outcome1", "outcome2"])
 
     def test_form_saves_segments(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(

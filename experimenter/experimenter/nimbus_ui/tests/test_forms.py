@@ -894,8 +894,7 @@ class TestMetricsForm(RequestFormTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            primary_outcomes=[],
-            secondary_outcomes=[],
+            outcomes=[],
             segments=[],
         )
         existing_changes = list(experiment.changes.values_list("id", flat=True))
@@ -908,16 +907,14 @@ class TestMetricsForm(RequestFormTestCase):
         segment = segments[0]
 
         data = {
-            "primary_outcomes": [outcome1.slug],
-            "secondary_outcomes": [outcome2.slug],
+            "outcomes": [outcome1.slug, outcome2.slug],
             "segments": [segment.slug],
         }
         form = MetricsForm(data=data, instance=experiment, request=self.request)
         self.assertTrue(form.is_valid(), form.errors)
 
         experiment = form.save()
-        self.assertEqual(experiment.primary_outcomes, [outcome1.slug])
-        self.assertEqual(experiment.secondary_outcomes, [outcome2.slug])
+        self.assertEqual(experiment.outcomes, [outcome1.slug, outcome2.slug])
         self.assertEqual(experiment.segments, [segment.slug])
 
         changelog = experiment.changes.exclude(id__in=existing_changes).get()
@@ -931,8 +928,7 @@ class TestMetricsForm(RequestFormTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=NimbusExperiment.Application.DESKTOP,
-            primary_outcomes=[],
-            secondary_outcomes=[],
+            outcomes=[],
             segments=[],
         )
 
@@ -946,14 +942,12 @@ class TestMetricsForm(RequestFormTestCase):
         segment = segments[0]
 
         data = {
-            "primary_outcomes": [outcome1],
-            "secondary_outcomes": [outcome2],
+            "outcomes": [outcome1, outcome2],
             "segments": [segment.slug],
         }
         form = MetricsForm(data=data, instance=experiment, request=self.request)
         self.assertFalse(form.is_valid(), form.errors)
-        self.assertIn("primary_outcomes", form.errors)
-        self.assertIn("secondary_outcomes", form.errors)
+        self.assertIn("outcomes", form.errors)
         self.assertIn("segments", form.errors)
 
 
