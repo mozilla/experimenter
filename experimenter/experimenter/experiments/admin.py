@@ -30,6 +30,7 @@ from experimenter.experiments.models import (
     NimbusFeatureConfig,
     NimbusFeatureVersion,
     NimbusIsolationGroup,
+    NimbusRolloutPhase,
     NimbusVersionedSchema,
     Tag,
 )
@@ -242,6 +243,13 @@ class NimbusDocumentationLinkInlineAdmin(
     extra = 1
 
 
+class NimbusRolloutPhaseInlineAdmin(
+    NoDeleteAdminMixin, admin.TabularInline[NimbusRolloutPhase]
+):
+    model = NimbusRolloutPhase
+    extra = 0
+
+
 class NimbusExperimentBucketRangeInlineAdmin(
     ReadOnlyAdminMixin, admin.StackedInline[NimbusBucketRange]
 ):
@@ -335,6 +343,7 @@ class NimbusExperimentAdmin(
     inlines = (
         NimbusDocumentationLinkInlineAdmin,
         NimbusBranchInlineAdmin,
+        NimbusRolloutPhaseInlineAdmin,
         NimbusExperimentBucketRangeInlineAdmin,
     )
     list_display = (
