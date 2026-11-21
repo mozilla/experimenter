@@ -135,7 +135,7 @@ deeplink-optimization-refactor-feature:
     enabled:
       type: boolean
       description: |
-        Variable description
+        Whether the deeplink optimization feature is enabled.
 download-live-activities-feature:
   description: |
     Download Live Activities Feature
