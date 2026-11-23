@@ -7,6 +7,8 @@ features:
   ad-blocker-feature:
     description: |
       The feature flag to manage the roll out of the Ad Blocker badge in the Site Menu and the corresponding Block Ads toggle in Browsing settings.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       badge-enabled:
         description: |
@@ -20,6 +22,8 @@ features:
         default: true
   address-autofill-edit:
     description: This property defines if the address editing is enabled in Settings
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       status:
         description: If true, we will allow user to edit the address
@@ -28,6 +32,8 @@ features:
   address-bar-gesture-to-open-tab-tray-feature:
     description: |
       Decides if the address bar interactive gesture to open the tab tray is enabled
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled_closetab:
         description: |
@@ -47,6 +53,8 @@ features:
   ai-kill-switch-feature:
     description: |
       Configuration feature for AI features
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -56,6 +64,8 @@ features:
   background-audio-feature:
     description: |
       The feature flag to manage the roll out of background audio playback, allowing media to continue playing when the app is backgrounded.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       default-on:
         description: |
@@ -70,6 +80,8 @@ features:
   bookmarks-search-feature:
     description: |
       Configuration feature for the bookmarks search bar
+    contacts:
+    - fx-ios@mozilla.com
     variables:
       enabled:
         description: |
@@ -79,6 +91,8 @@ features:
   browser-data-transfer-feature:
     description: |
       Controls importing browsing data from, and exporting it to, another browser on the device.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       export-enabled:
         description: |
@@ -93,6 +107,8 @@ features:
   cellular-data-restricted-error-page-feature:
     description: |
       Controls restricted cellular data guidance on error pages
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -102,6 +118,8 @@ features:
   check-for-reinstalls-feature:
     description: |
       Controls app reinstallation checks.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -111,6 +129,8 @@ features:
   configuration-profile-feature:
     description: |
       Offers to open configuration profiles (.mobileconfig) in Safari so iOS can install them
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -120,6 +140,8 @@ features:
   custom-reader-mode-scheme-feature:
     description: |
       Use a custom WKURLSchemeHandler for reader mode
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -129,15 +151,20 @@ features:
   deeplink-optimization-refactor-feature:
     description: |
       The feature flag to manage the rollout of deeplink optimization feature.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
-          Variable description
+          Whether the deeplink optimization feature is enabled.
         type: Boolean
         default: true
   download-live-activities-feature:
     description: |
       Download Live Activities Feature
+    no-lint:
+    - MISSING_CONTACTS
+    - TERSE_DESCRIPTION
     variables:
       enabled:
         description: |
@@ -147,6 +174,8 @@ features:
   firefox-jp-guide-default-site:
     description: |
       This feature is for managing the visibility of the Firefox Japanese Guide default suggested site shortcut
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -155,6 +184,8 @@ features:
         default: false
   firefox-suggest-feature:
     description: Configuration for the Firefox Suggest feature.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       available-suggestions-types:
         description: |
@@ -171,6 +202,8 @@ features:
         default: false
   glean-server-knobs:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
+    contacts:
+    - glean-team@mozilla.com
     variables:
       delay-ping-lifetime-io:
         description: Glean will delay io for ping lifetime metrics
@@ -199,6 +232,8 @@ features:
   google-lens-feature:
     description: |
       The feature flag to manage the rollout of Google Lens.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -213,6 +248,10 @@ features:
   homepage-redesign-feature:
     description: |
       This feature is for managing the roll out of the Homepage New Tab Redesign feature.
+    contacts:
+    - fkio@mozilla.com
+    - gbuciu@mozilla.com
+    - jhall@mozilla.com
     variables:
       add-shortcut-tile:
         description: |
@@ -247,6 +286,9 @@ features:
   homepage-tracker-blocker-module-feature:
     description: |
       Controls the Tracker Blocker module feature
+    contacts:
+    - gbuciu@mozilla.com
+    - jhall@mozilla.com
     variables:
       enabled:
         description: |
@@ -256,6 +298,8 @@ features:
   hosted-summarizer-feature:
     description: |
       This feature enables the hosted summarizer feature.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -275,6 +319,8 @@ features:
   https-upgrade-feature:
     description: |
       This feature enables automatic https upgrade. This is only available for 18.2+.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -284,6 +330,8 @@ features:
   improved-app-store-review-trigger-feature:
     description: |
       The feature flag to manage the App Store review request trigger.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -293,6 +341,10 @@ features:
   merge-windows-feature:
     description: |
       This property determines whether the "Combine Windows" home screen Quick Action is offered on iPad when two or more windows are open
+    contacts:
+    - fx-ios@mozilla.com
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -306,8 +358,6 @@ features:
     - name: User documentation
       url: https://experimenter.info/messaging/mobile-messaging
     contacts:
-    - jhugman@mozilla.com
-    - brennie@mozilla.com
     - gbuciu@mozilla.com
     - wteichmann@mozilla.com
     events:
@@ -448,6 +498,8 @@ features:
   microsurvey-feature:
     description: |
       A feature that shows the microsurvey for users to interact with and submit responses.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -457,6 +509,8 @@ features:
   multi-day-onboarding-feature:
     description: |
       Multi-day progressive onboarding
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       useMultiDayOnboarding:
         description: |
@@ -466,6 +520,8 @@ features:
   native-error-page-feature:
     description: |
       This feature is for managing the roll out of the native error page feature
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -475,6 +531,8 @@ features:
   new-bookmark-folder-tree-feature:
     description: |
       This property determines weather we show the new bookmark folder tree UI
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -484,6 +542,8 @@ features:
   nova-design-feature:
     description: |
       The feature flag to manage the rollout of Nova design.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -498,6 +558,9 @@ features:
   onboarding-framework-feature:
     description: |
       The new onboarding framework feature that will allow onboarding to be experimentable through initial experiments.
+    no-lint:
+    - MISSING_CONTACTS
+    - DEEP_NESTING
     variables:
       cards:
         description: |
@@ -800,6 +863,8 @@ features:
   privacy-dashboard-feature:
     description: |
       The Privacy Dashboard feature from homepage
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -809,6 +874,8 @@ features:
   quick-answers-feature:
     description: |
       The feature flag to manage the roll out of the quick answers feature.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -838,6 +905,8 @@ features:
   recent-searches-feature:
     description: |
       Enables recent searches.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -851,6 +920,9 @@ features:
   relay-integration-feature:
     description: |
       This feature is for managing the roll out of Relay email masking integration in iOS
+    contacts:
+    - mreagan@mozilla.com
+    - nfurlan@mozilla.com
     variables:
       enabled:
         description: |
@@ -860,6 +932,8 @@ features:
   report-broken-site-feature:
     description: |
       In-app Report Broken Site (WebCompat) reporter
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -869,6 +943,8 @@ features:
   search:
     description: |
       Configuring the functionality to do with search. This will be separated into smaller sub-features in later releases.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       awesome-bar:
         description: Configuring the awesome bar.
@@ -880,6 +956,9 @@ features:
   search-config-v3-feature:
     description: |
       Feature flag to manage rollout of search-config-v3, the new search engine configuration with per-access-point partner codes
+    contacts:
+    - mreagan@mozilla.com
+    - nfurlan@mozilla.com
     variables:
       enabled:
         description: |
@@ -889,6 +968,9 @@ features:
   sent-from-firefox-feature:
     description: |
       Adds additional promo text to links shared to WhatsApp.
+    contacts:
+    - isabella@mozilla.com
+    - nfurlan@mozilla.com
     variables:
       enabled:
         description: |
@@ -902,6 +984,8 @@ features:
         default: true
   spotlight-search:
     description: Add pages as items findable with Spotlight.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: If this is true, then on each page load adds a new item to Spotlight.
@@ -924,6 +1008,8 @@ features:
         default: text-excerpt
   start-at-home-feature:
     description: This feature is for experimenting with opening screen
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       setting:
         description: This property provides a default setting for the start at home feature
@@ -932,6 +1018,8 @@ features:
   summarizer-app-attest-auth-feature:
     description: |
       This feature enables app attest authentication for the summarizer.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -941,6 +1029,8 @@ features:
   summarizer-language-expansion-feature:
     description: |
       The feature flag to manage the rollout of the summarizer language expansion.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -963,6 +1053,8 @@ features:
   summarizer-permissive-guardrails-feature:
     description: |
       This feature enables permissive guardrails for the summarizer.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -972,6 +1064,8 @@ features:
   sync-string-updates-feature:
     description: |
       Controls the string updates across sync-related screens
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -981,6 +1075,8 @@ features:
   tab-groups-feature:
     description: |
       Enables Tab Groups views and interactions.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -990,6 +1086,8 @@ features:
   tab-scroll-refactor-feature:
     description: |
       The feature flag to manage the rollout of tab scroll refactor feature.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -999,6 +1097,8 @@ features:
   tab-tray-ui-experiments:
     description: |
       The tab tray will undergo some UI experimentation to test potential improvements.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -1018,6 +1118,8 @@ features:
   toolbar-refactor-feature:
     description: |
       This feature is for managing the roll out of the Toolbar refactor feature
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       layout:
         description: |
@@ -1042,6 +1144,8 @@ features:
   tos-feature:
     description: |
       This feature is for managing the roll out of the ToS (Term of Service) implementation
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       status:
         description: |
@@ -1051,6 +1155,8 @@ features:
   tou-feature:
     description: |
       This feature is for managing the rollout of the Terms of Use (ToU) implementation.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       content-option:
         description: |
@@ -1085,6 +1191,8 @@ features:
   translations-feature:
     description: |
       Enables translations feature.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -1099,6 +1207,8 @@ features:
   trending-searches-feature:
     description: |
       Enables trending searches.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -1112,6 +1222,8 @@ features:
   vpn-feature:
     description: |
       Configuration feature for VPN
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -1121,6 +1233,8 @@ features:
   wallpaper-engagement-sheet-feature:
     description: |
       Controls the wallpaper engagement bottom sheet shown on the homepage when new wallpapers are available. Only meant to be used with rollouts.
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -1135,6 +1249,8 @@ features:
   wayback-machine-feature:
     description: |
       This property determines whether we show the wayback entry point on the native error pages
+    no-lint:
+    - MISSING_CONTACTS
     variables:
       enabled:
         description: |
@@ -1144,6 +1260,8 @@ features:
   web-view-document-fetch-refactor-feature:
     description: |
       Determines whether we read PDF and document data for sharing directly from the authenticated WebView, rather than re-downloading via URLSession.
+    contacts:
+    - mreagan@mozilla.com
     variables:
       enabled:
         description: |
