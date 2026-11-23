@@ -6344,6 +6344,17 @@ WINDOWS_AND_MAC_EXISTING_USERS_NOT_SYNCING = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+WREXHAM_REPACK_USERS = NimbusTargetingConfig(
+    name="Existing users of the Wrexham partner repack.",
+    slug="wrexham_repack_users",
+    description=("Existing users of the Wrexham partner repack."),
+    targeting=("distributionId == 'wrexham-001'"),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 
 class TargetingConstants:
     TARGETING_CONFIGS = {
