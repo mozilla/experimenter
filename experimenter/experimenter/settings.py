@@ -96,7 +96,6 @@ INSTALLED_APPS = [
     # Experimenter
     "experimenter.addons",
     "experimenter.base",
-    "experimenter.catalog",
     "experimenter.changelog",
     "experimenter.experiments",
     "experimenter.features",
@@ -104,6 +103,7 @@ INSTALLED_APPS = [
     "experimenter.highwind",
     "experimenter.jetstream",
     "experimenter.kinto",
+    "experimenter.metrics",
     "experimenter.legacy.legacy_experiments",
     "experimenter.legacy.notifications",
     "experimenter.openidc",

@@ -1,0 +1,11 @@
+[metrics.active_hours]
+friendly_name = "Active hours"
+data_source = "clients_daily"
+aggregation = "sum"
+column = "active_hours_sum"
+
+[metrics.days_of_use]
+friendly_name = "Days of use"
+data_source = "clients_daily"
+aggregation = "count"
+column = "submission_date"
