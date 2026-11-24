@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.12, <4"
 resolution-markers = [
     "python_full_version >= '3.13'",
@@ -819,7 +819,7 @@ requires-dist = [
     { name = "markdown2", specifier = "==2.5.0" },
     { name = "markus", specifier = "==3.0.0" },
     { name = "mock", specifier = "==4.0.3" },
-    { name = "mozilla-metric-config-parser", specifier = ">=2024.11.1,<2025" },
+    { name = "mozilla-metric-config-parser", specifier = ">=2026.11.11,<2027" },
     { name = "mozilla-nimbus-schemas", specifier = ">=3006.1.0,<3007" },
     { name = "nh3", specifier = ">=0.3,<0.4" },
     { name = "packaging", specifier = "==21.3" },
@@ -1397,7 +1397,7 @@ wheels = [
 
 [[package]]
 name = "mozilla-metric-config-parser"
-version = "2024.11.1"
+version = "2026.11.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -1410,7 +1410,7 @@ dependencies = [
     { name = "requests" },
     { name = "toml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/de/cf/e26886c5131a76d3974e7b0f32a76de90389f2fa0943c01d597dc9d4c2ea/mozilla_metric_config_parser-2024.11.1.tar.gz", hash = "sha256:4f972b669cdaefc1ff5e7372a93bbd23151d7bbdf8f3dbe2b4c3ff4ab61b33bb", size = 53858, upload-time = "2024-11-15T19:41:36.819Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/83/df/f88f8f13753b9da4c1b31186e84853beee888222038a98fa66399bd0697c/mozilla_metric_config_parser-2026.11.11.tar.gz", hash = "sha256:99cdac0534af4961c22eeafe37c67425e63ab4e6ae766b02687f3cc2cf6258d1", size = 90345, upload-time = "2026-11-24T15:43:14.216Z" }
 
 [[package]]
 name = "mozilla-nimbus-schemas"

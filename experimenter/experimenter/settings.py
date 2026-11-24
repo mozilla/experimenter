@@ -96,6 +96,7 @@ INSTALLED_APPS = [
     # Experimenter
     "experimenter.addons",
     "experimenter.base",
+    "experimenter.catalog",
     "experimenter.changelog",
     "experimenter.experiments",
     "experimenter.features",
@@ -595,6 +596,9 @@ METRIC_HUB_FEATMON_DESKTOP_PATH = (
 )
 
 METRIC_HUB_SEGMENTS_PATH_DEFAULT = BASE_DIR / "segments" / "metric-hub-main"
+
+# The same checkout the segments read, which carries metric-hub's nimbus/ section.
+METRIC_HUB_NIMBUS_PATH = BASE_DIR / "segments" / "metric-hub-main"
 METRIC_HUB_METRICS_PATH_DEFAULT = (
     BASE_DIR / "metrics" / "metric-hub-main" / "jetstream" / "defaults"
 )
