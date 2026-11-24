@@ -39,15 +39,18 @@
 
               {% endif %}
             </div>
-            {% if metric.winsorization.pre_threshold != None or metric.winsorization.clipped %}
-              <small class="text-muted d-block mt-2">
-                {% if metric.winsorization.pre_threshold != None %}
-                  CUPED's pre-enrolment value was clipped at {{ metric.winsorization.pre_threshold|floatformat:metric.precision }}.
-                {% endif %}
-                {% for clipped in metric.winsorization.clipped %}
-                  <span class="me-2">{{ clipped.share|to_percentage:2 }} of {{ clipped.branch }} clipped.</span>
-                {% endfor %}
-              </small>
+            {% if metric.winsorization %}
+              {% with label=NimbusUIConstants.HIGHWIND_WINSORIZE_LABELS|dict_get:metric.winsorization.mode %}
+                <small class="text-muted d-block mt-2">
+                  {{ label.1 }}
+                  {% if metric.winsorization.pre_threshold != None %}
+                    CUPED's pre-enrolment value was clipped at {{ metric.winsorization.pre_threshold|floatformat:metric.precision }}.
+                  {% endif %}
+                  {% for clipped in metric.winsorization.clipped %}
+                    <span class="me-2">{{ clipped.share|to_percentage:2 }} of {{ clipped.branch }} clipped.</span>
+                  {% endfor %}
+                </small>
+              {% endwith %}
             {% endif %}
             <div class="row row-cols-4 g-3 mt-1">
               <div class="col">

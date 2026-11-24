@@ -5418,6 +5418,8 @@ class TestHighwindResultsGrid(AuthTestCase):
         self.assertContains(response, "12.50")
         self.assertContains(response, "9.25")
         self.assertContains(response, "0.40% of")
+        # The detail view says what the mode means, rather than the page explaining it.
+        self.assertContains(response, "Values above the reference branch")
 
     def test_an_unclipped_metric_says_it_was_not_clipped(self):
         experiment = self.create_experiment(
@@ -5428,7 +5430,7 @@ class TestHighwindResultsGrid(AuthTestCase):
 
         self.assertContains(response, "Not clipped")
 
-    def test_a_blob_without_winsorization_shows_no_badge_for_the_metric(self):
+    def test_a_blob_without_winsorization_says_nothing_about_clipping(self):
         experiment = self.create_experiment(
             lambda ref, treat: [
                 highwind_metric("days_of_use", ref, treat, winsorize_mode=None)
@@ -5437,8 +5439,8 @@ class TestHighwindResultsGrid(AuthTestCase):
 
         response = self.get_page(experiment)
 
-        # Only the legend's own badges, one per mode, and none against the metric.
-        self.assertEqual(response.content.decode().count("fa-scissors"), 4)
+        self.assertNotContains(response, "fa-scissors")
+        self.assertNotContains(response, "Not clipped")
 
     def test_an_errored_cell_shows_the_message(self):
         experiment = self.create_experiment(
