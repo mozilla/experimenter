@@ -193,19 +193,12 @@ class NimbusFirefoxLabsCreateView(NimbusExperimentsCreateView):
 
 def build_experiment_context(experiment):
     outcome_doc_base_url = "https://mozilla.github.io/metric-hub/outcomes/"
-    primary_outcome_links = [
+    outcome_links = [
         (
             outcome,
             f"{outcome_doc_base_url}{experiment.application.replace('-', '_')}/{outcome}",
         )
-        for outcome in experiment.primary_outcomes
-    ]
-    secondary_outcome_links = [
-        (
-            outcome,
-            f"{outcome_doc_base_url}{experiment.application.replace('-', '_')}/{outcome}",
-        )
-        for outcome in experiment.secondary_outcomes
+        for outcome in experiment.outcomes
     ]
 
     segment_doc_base_url = "https://mozilla.github.io/metric-hub/segments/"
@@ -223,8 +216,7 @@ def build_experiment_context(experiment):
     context = {
         "RISK_QUESTIONS": RISK_QUESTIONS,
         "EXTERNAL_URLS": EXTERNAL_URLS,
-        "primary_outcome_links": primary_outcome_links,
-        "secondary_outcome_links": secondary_outcome_links,
+        "outcome_links": outcome_links,
         "segment_links": segment_links,
         "uses_secure_collection": experiment.uses_secure_collection,
     }

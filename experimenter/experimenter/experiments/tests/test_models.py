@@ -5678,8 +5678,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.channel, NimbusExperiment.Channel.NO_CHANNEL)
         self.assertEqual(child.channels, [])
         self.assertEqual(child.hypothesis, NimbusExperiment.HYPOTHESIS_DEFAULT)
-        self.assertEqual(child.primary_outcomes, [])
-        self.assertEqual(child.secondary_outcomes, [])
+        self.assertEqual(child.outcomes, [])
         self.assertEqual(child.segments, [])
         self.assertEqual(child.feature_configs.count(), 0)
         self.assertEqual(
@@ -5816,8 +5815,7 @@ class TestNimbusExperiment(TestCase):
         self.assertEqual(child.firefox_min_version, parent.firefox_min_version)
         self.assertEqual(child.firefox_max_version, parent.firefox_max_version)
         self.assertEqual(child.risk_mitigation_link, parent.risk_mitigation_link)
-        self.assertEqual(child.primary_outcomes, parent.primary_outcomes)
-        self.assertEqual(child.secondary_outcomes, parent.secondary_outcomes)
+        self.assertEqual(child.outcomes, parent.outcomes)
         self.assertEqual(child.segments, parent.segments)
         self.assertEqual(child.targeting_config_slug, parent.targeting_config_slug)
         self.assertIsNone(child.risk_ai)
@@ -8452,6 +8450,26 @@ class TestNimbusRolloutPhase(TestCase):
             list(cloned.rollout_phases.values_list("population_percent", flat=True)),
             [Decimal("10.0000"), Decimal("100.0000")],
         )
+
+    def test_clone_clears_rollout_phase_actual_start_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            start_date=datetime.date(2025, 12, 1),
+            actual_start_date=datetime.date(2025, 12, 15),
+        )
+
+        cloned = experiment.clone("Cloned Schedule", experiment.owner)
+        phase = cloned.rollout_phases.get()
+        phase.start_date = datetime.date(2026, 12, 15)
+        phase.save()
+
+        phase.refresh_from_db()
+        self.assertIsNone(phase.actual_start_date)
+        self.assertEqual(phase.effective_start_date, datetime.date(2026, 12, 15))
 
 
 class TestNimbusRolloutPlanTemplate(TestCase):

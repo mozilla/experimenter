@@ -335,8 +335,7 @@ class NimbusExperimentYamlSerializer(serializers.ModelSerializer):
             "_enrollment_end_date",
             "_end_date",
             "published_date",
-            "primary_outcomes",
-            "secondary_outcomes",
+            "outcomes",
             "segments",
             "risk_flags",
             "documentation_links",
@@ -634,12 +633,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         allow_empty=False,
         error_messages={"empty": NimbusConstants.ERROR_REQUIRED_FEATURE_CONFIG},
     )
-    primary_outcomes = serializers.ListField(
-        child=serializers.CharField(), required=False
-    )
-    secondary_outcomes = serializers.ListField(
-        child=serializers.CharField(), required=False
-    )
+    outcomes = serializers.ListField(child=serializers.CharField(), required=False)
     risk_partner_related = serializers.BooleanField(
         required=True,
         allow_null=False,
@@ -2177,24 +2171,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
-    def _validate_primary_secondary_outcomes(self, data):
-        primary_outcomes = set(data.get("primary_outcomes", []))
-        secondary_outcomes = set(data.get("secondary_outcomes", []))
-
-        if primary_outcomes.intersection(secondary_outcomes):
-            raise serializers.ValidationError(
-                {
-                    "primary_outcomes": [
-                        NimbusExperiment.ERROR_PRIMARY_SECONDARY_OUTCOMES_INTERSECTION
-                    ],
-                    "secondary_outcomes": [
-                        NimbusExperiment.ERROR_PRIMARY_SECONDARY_OUTCOMES_INTERSECTION
-                    ],
-                }
-            )
-
-        return data
-
     def _validate_firefox_labs(self, data):
         if not data.get("is_firefox_labs_opt_in"):
             return data
@@ -2397,7 +2373,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         data = self._validate_sticky_enrollment(data)
         data = self._validate_proposed_release_date(data)
         data = self._validate_feature_value_variables(data)
-        data = self._validate_primary_secondary_outcomes(data)
         data = self._validate_firefox_labs(data)
         data = self._validate_targeting_configs(data)
         if application == NimbusExperiment.Application.DESKTOP:

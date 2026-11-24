@@ -371,15 +371,10 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
     hypothesis = models.TextField(
         "Hypothesis", default=NimbusConstants.HYPOTHESIS_DEFAULT
     )
-    primary_outcomes = ArrayField(
+    outcomes = ArrayField(
         models.CharField(max_length=255),
         default=list,
-        verbose_name="Primary Outcomes",
-    )
-    secondary_outcomes = ArrayField(
-        models.CharField(max_length=255),
-        default=list,
-        verbose_name="Secondary Outcomes",
+        verbose_name="Outcomes",
     )
     segments = ArrayField(
         models.CharField(max_length=255),
@@ -3060,6 +3055,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for phase in self.rollout_phases.all():
             phase.id = None
             phase.experiment = cloned
+            phase.actual_start_date = None
             phase.save()
 
         for (

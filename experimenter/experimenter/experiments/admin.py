@@ -291,8 +291,7 @@ class NimbusExperimentAdminForm(forms.ModelForm):
     channels = forms.MultipleChoiceField(
         choices=NimbusExperiment.Channel.choices, required=False
     )
-    primary_outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
-    secondary_outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
+    outcomes = pgforms.SimpleArrayField(forms.CharField(), required=False)
     segments = pgforms.SimpleArrayField(forms.CharField(), required=False)
     targeting_config_slug = forms.ChoiceField(
         choices=NimbusExperiment.TargetingConfig.choices, required=False

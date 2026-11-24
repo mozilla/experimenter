@@ -1264,8 +1264,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.experiment = NimbusExperimentFactory.create(
             slug="test-experiment",
             application="firefox-desktop",
-            primary_outcomes=["outcome1", "outcome2"],
-            secondary_outcomes=["outcome3", "outcome4"],
+            outcomes=["outcome1", "outcome2", "outcome3", "outcome4"],
             segments=["segment1", "segment2"],
             risk_brand=True,
             qa_status="NOT_SET",
@@ -1299,7 +1298,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         response = self.client.get(
             reverse("nimbus-ui-detail", kwargs={"slug": self.experiment.slug}),
         )
-        expected_primary_links = [
+        expected_outcome_links = [
             (
                 "outcome1",
                 "https://mozilla.github.io/metric-hub/outcomes/firefox_desktop/outcome1",
@@ -1308,8 +1307,6 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
                 "outcome2",
                 "https://mozilla.github.io/metric-hub/outcomes/firefox_desktop/outcome2",
             ),
-        ]
-        expected_secondary_links = [
             (
                 "outcome3",
                 "https://mozilla.github.io/metric-hub/outcomes/firefox_desktop/outcome3",
@@ -1330,12 +1327,7 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
             ),
         ]
 
-        self.assertEqual(
-            response.context["primary_outcome_links"], expected_primary_links
-        )
-        self.assertEqual(
-            response.context["secondary_outcome_links"], expected_secondary_links
-        )
+        self.assertEqual(response.context["outcome_links"], expected_outcome_links)
         self.assertEqual(response.context["segment_links"], expected_segment_links)
 
     @parameterized.expand(
@@ -1621,31 +1613,6 @@ class NimbusExperimentDetailViewTest(AuthTestCase):
         self.assertIn("validation_errors", response.context)
         self.assertEqual(
             set(response.context["invalid_pages"]), {"overview", "branches", "audience"}
-        )
-        self.assertFalse(
-            response.context["is_ready_to_launch"],
-            "`is_ready_to_launch` should be False when the review serializer is invalid",
-        )
-
-    def test_ready_is_false_if_review_serializer_invalid_for_metrics(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
-            primary_outcomes=["outcome"],
-            secondary_outcomes=["outcome"],
-        )
-
-        response = self.client.get(
-            reverse("nimbus-ui-detail", kwargs={"slug": experiment.slug})
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("validation_errors", response.context)
-        self.assertEqual(
-            set(response.context["invalid_pages"]),
-            {"metrics"},
-            response.context["validation_errors"],
         )
         self.assertFalse(
             response.context["is_ready_to_launch"],
@@ -2832,8 +2799,7 @@ class TestMetricsUpdateView(AuthTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             application=application,
-            primary_outcomes=[],
-            secondary_outcomes=[],
+            outcomes=[],
             segments=[],
         )
         outcomes = Outcomes.by_application(application)
@@ -2847,43 +2813,22 @@ class TestMetricsUpdateView(AuthTestCase):
         response = self.client.post(
             reverse("nimbus-ui-update-metrics", kwargs={"slug": experiment.slug}),
             {
-                "primary_outcomes": [outcome1.slug],
-                "secondary_outcomes": [outcome2.slug],
+                "outcomes": [outcome1.slug, outcome2.slug],
                 "segments": [segment1.slug, segment2.slug],
             },
         )
 
         self.assertEqual(response.status_code, 200)
         experiment = NimbusExperiment.objects.get(slug=experiment.slug)
-        self.assertEqual(experiment.primary_outcomes, [outcome1.slug])
-        self.assertEqual(experiment.secondary_outcomes, [outcome2.slug])
+        self.assertEqual(experiment.outcomes, [outcome1.slug, outcome2.slug])
         self.assertEqual(experiment.segments, [segment1.slug, segment2.slug])
-
-    def test_invalid_metrics_page_with_show_errors(self):
-        experiment = NimbusExperimentFactory.create_with_lifecycle(
-            NimbusExperimentFactory.Lifecycles.CREATED,
-            targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
-            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
-            primary_outcomes=["outcome"],
-            secondary_outcomes=["outcome"],
-            segments=[],
-        )
-
-        url = reverse("nimbus-ui-update-metrics", kwargs={"slug": experiment.slug})
-        response = self.client.get(f"{url}?show_errors=true")
-
-        self.assertEqual(response.status_code, 200)
-        validation_errors = response.context["validation_errors"]
-        self.assertIn("primary_outcomes", validation_errors)
-        self.assertIn("secondary_outcomes", validation_errors)
 
     def test_invalid_metrics_page_without_show_errors(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
             targeting_config_slug=NimbusExperiment.TargetingConfig.NO_TARGETING,
             firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
-            primary_outcomes=["outcome"],
-            secondary_outcomes=["outcome"],
+            outcomes=["outcome"],
             segments=[],
         )
 
@@ -4226,8 +4171,7 @@ class TestResultsView(AuthTestCase):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
             application=NimbusExperiment.Application.DESKTOP,
-            primary_outcomes=[],
-            secondary_outcomes=[],
+            outcomes=[],
             is_rollout=False,
         )
         experiment.delete_branches()
@@ -4776,8 +4720,7 @@ class TestResultsView(AuthTestCase):
         )
         experiment = NimbusExperimentFactory.create(
             application=application,
-            primary_outcomes=[desktop_outcome_1.slug],
-            secondary_outcomes=[],
+            outcomes=[desktop_outcome_1.slug],
         )
         experiment.delete_branches()
         experiment.reference_branch = NimbusBranchFactory.create(
@@ -4844,8 +4787,7 @@ class TestResultsView(AuthTestCase):
         outcome_2 = Outcomes.get_by_slug_and_application("desktop_outcome_2", application)
         experiment = NimbusExperimentFactory.create(
             application=application,
-            primary_outcomes=[outcome_1.slug],
-            secondary_outcomes=[outcome_2.slug],
+            outcomes=[outcome_1.slug, outcome_2.slug],
         )
 
         response = self.client.get(
@@ -4853,8 +4795,7 @@ class TestResultsView(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        self.assertIn("primary_outcome_links", response.context["experiment_context"])
-        self.assertIn("secondary_outcome_links", response.context["experiment_context"])
+        self.assertIn("outcome_links", response.context["experiment_context"])
 
     @parameterized.expand(
         [

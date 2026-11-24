@@ -6,7 +6,6 @@ import random
 from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum
-from itertools import chain
 
 import factory
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -564,7 +563,7 @@ def build_random_monitoring_data(branches):
     }
 
 
-def build_random_results_data(primary_outcomes, secondary_outcomes, application):
+def build_random_results_data(outcomes, application):
     control_enrollment_pop = random.randint(100000, 150000)
     control_exposure_pop = random.randint(50000, 100000)
     treatment_enrollment_pop = random.randint(100000, 150000)
@@ -572,7 +571,7 @@ def build_random_results_data(primary_outcomes, secondary_outcomes, application)
 
     outcome_metrics = []
 
-    for outcome_slug in chain(primary_outcomes, secondary_outcomes):
+    for outcome_slug in outcomes:
         outcome = Outcomes.get_by_slug_and_application(outcome_slug, application)
 
         outcome_metrics.extend(outcome.metrics if outcome else [])
@@ -931,11 +930,8 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
     )
     hypothesis = factory.LazyAttribute(lambda o: faker.text(1000))
     targeting_config_slug = NimbusExperiment.TargetingConfig.NO_TARGETING
-    primary_outcomes = factory.LazyAttribute(
-        lambda o: random_slice([oc.slug for oc in Outcomes.all()[:2]])
-    )
-    secondary_outcomes = factory.LazyAttribute(
-        lambda o: random_slice([oc.slug for oc in Outcomes.all()[2:]])
+    outcomes = factory.LazyAttribute(
+        lambda o: random_slice([oc.slug for oc in Outcomes.all()[:4]])
     )
     segments = factory.LazyAttribute(
         lambda o: random_slice([s.slug for s in Segments.all(mock_get_segments())])
@@ -1140,8 +1136,7 @@ class NimbusExperimentFactory(factory.django.DjangoModelFactory):
             experiment.results_data = results_data
         else:
             experiment.results_data = build_random_results_data(
-                experiment.primary_outcomes,
-                experiment.secondary_outcomes,
+                experiment.outcomes,
                 experiment.application,
             )
 

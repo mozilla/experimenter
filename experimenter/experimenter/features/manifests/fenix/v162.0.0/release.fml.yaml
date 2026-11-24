@@ -1072,6 +1072,29 @@ features:
         - sync
         - tcp
         - privacy-notice
+  onboarding-haptics:
+    description: Feature to enable haptic feedback during onboarding.
+    variables:
+      enabled:
+        description: If true, the feature is enabled.
+        type: Boolean
+        default: false
+  onboarding-kit-animation:
+    description: |
+      Feature to show the animated kit illustration instead of the static one on the onboarding terms of use page.
+    variables:
+      enabled:
+        description: If true, the feature is enabled.
+        type: Boolean
+        default: false
+  onboarding-notification-prompt:
+    description: |
+      Feature to show the system notification permission prompt when a user finishes onboarding.
+    variables:
+      enabled:
+        description: If true, the notification permission is requested when onboarding is finished.
+        type: Boolean
+        default: false
   one-click-search:
     description: Enable/disable the one click search feature.
     variables:

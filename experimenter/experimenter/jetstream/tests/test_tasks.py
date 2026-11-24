@@ -65,12 +65,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         ]
     )
     def test_valid_results_data_parsed_and_stored(self, lifecycle):
-        primary_outcomes = ["default-browser"]
-        secondary_outcomes = ["secondary_outcome"]
+        outcomes = ["default-browser"]
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            primary_outcomes=primary_outcomes,
-            secondary_outcomes=secondary_outcomes,
+            outcomes=outcomes,
         )
         experiment.reference_branch.slug = "control"
         experiment.reference_branch.save()
@@ -87,7 +85,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             SEGMENT_DATA,
             DAILY_EXPOSURES_DATA,
             SEGMENT_EXPOSURES_DATA,
-        ) = JetstreamTestData.get_test_data(primary_outcomes)
+        ) = JetstreamTestData.get_test_data(outcomes)
 
         FULL_DATA = {
             "v3": {
@@ -871,12 +869,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         ]
     )
     def test_no_changelog_when_only_timestamps_changed(self, lifecycle):
-        primary_outcomes = ["default-browser"]
-        secondary_outcomes = ["secondary_outcome"]
+        outcomes = ["default-browser"]
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            primary_outcomes=primary_outcomes,
-            secondary_outcomes=secondary_outcomes,
+            outcomes=outcomes,
         )
 
         old_data = {
@@ -944,12 +940,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         ]
     )
     def test_no_changelog_when_results_data_unchanged(self, lifecycle):
-        primary_outcomes = ["default-browser"]
-        secondary_outcomes = ["secondary_outcome"]
+        outcomes = ["default-browser"]
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            primary_outcomes=primary_outcomes,
-            secondary_outcomes=secondary_outcomes,
+            outcomes=outcomes,
         )
         experiment.reference_branch.slug = "control"
         experiment.reference_branch.save()
@@ -966,7 +960,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             _,
             _,
             _,
-        ) = JetstreamTestData.get_test_data(primary_outcomes)
+        ) = JetstreamTestData.get_test_data(outcomes)
 
         FULL_DATA = {
             "v3": {
@@ -1019,10 +1013,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         ]
     )
     def test_complete_results_data_missing_weekly(self, lifecycle):
-        primary_outcomes = ["default-browser"]
+        outcomes = ["default-browser"]
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            primary_outcomes=primary_outcomes,
+            outcomes=outcomes,
         )
 
         def mock_jetstream_data_by_window(_, window):
@@ -1263,8 +1257,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
 
     def test_metric_errors_before_analysis_start_time_are_excluded(self):
         experiment = NimbusExperimentFactory.create(
-            primary_outcomes=[],
-            secondary_outcomes=[],
+            outcomes=[],
         )
         fresh_error = {
             "exception": "(<class 'MetricException'>)",
@@ -1340,12 +1333,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         ]
     )
     def test_partial_exposures_results_data_parsed_and_stored(self, lifecycle):
-        primary_outcomes = []
-        secondary_outcomes = []
+        outcomes = []
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            primary_outcomes=primary_outcomes,
-            secondary_outcomes=secondary_outcomes,
+            outcomes=outcomes,
         )
         experiment.reference_branch.slug = "control"
         experiment.reference_branch.save()
@@ -1366,7 +1357,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             # WEEKLY_EXPOSURES_SEGMENT_DATA,
             # OVERALL_EXPOSURES_DATA,
             # OVERALL_EXPOSURES_SEGMENT_DATA,
-        ) = JetstreamTestData.get_partial_exposures_test_data(primary_outcomes)
+        ) = JetstreamTestData.get_partial_exposures_test_data(outcomes)
 
         FULL_DATA = {
             "v3": {
@@ -1426,12 +1417,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         self,
         lifecycle,
     ):
-        primary_outcomes = ["default-browser"]
-        secondary_outcomes = ["secondary_outcome"]
+        outcomes = ["default-browser"]
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            primary_outcomes=primary_outcomes,
-            secondary_outcomes=secondary_outcomes,
+            outcomes=outcomes,
         )
         experiment.reference_branch.slug = "control"
         experiment.reference_branch.save()
@@ -1448,7 +1437,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             SEGMENT_DATA,
             _,
             _,
-        ) = ZeroJetstreamTestData.get_test_data(primary_outcomes)
+        ) = ZeroJetstreamTestData.get_test_data(outcomes)
 
         FULL_DATA = {
             "v3": {
@@ -1809,12 +1798,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
     def test_results_data_with_null_conversion_percent(
         self, lifecycle, mock_get_metadata
     ):
-        primary_outcomes = ["default-browser"]
-        secondary_outcomes = ["secondary_outcome"]
+        outcomes = ["default-browser"]
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            primary_outcomes=primary_outcomes,
-            secondary_outcomes=secondary_outcomes,
+            outcomes=outcomes,
             results_data=None,
         )
         experiment.reference_branch.slug = "control"
@@ -1832,7 +1819,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             _,
             _,
             _,
-        ) = NonePointJetstreamTestData.get_test_data(primary_outcomes)
+        ) = NonePointJetstreamTestData.get_test_data(outcomes)
 
         class File:
             def __init__(self, filename):
@@ -1876,12 +1863,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
     def test_results_data_with_pairwise_branch_comparisons(
         self, lifecycle, mock_get_metadata
     ):
-        primary_outcomes = ["default-browser"]
-        secondary_outcomes = ["secondary_outcome"]
+        outcomes = ["default-browser"]
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            primary_outcomes=primary_outcomes,
-            secondary_outcomes=secondary_outcomes,
+            outcomes=outcomes,
             results_data=None,
         )
         experiment.reference_branch.slug = "control"
@@ -3230,10 +3215,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         ]
     )
     def test_results_data_null(self, lifecycle, offset):
-        primary_outcome = "default-browser"
+        outcome = "default-browser"
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            primary_outcomes=[primary_outcome],
+            outcomes=[outcome],
             end_date=datetime.date.today() - datetime.timedelta(days=offset),
         )
 
@@ -3375,12 +3360,10 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
         ]
     )
     def test_invalid_exposure_data_does_not_override_other_metrics(self, lifecycle):
-        primary_outcomes = ["default-browser"]
-        secondary_outcomes = ["secondary_outcome"]
+        outcomes = ["default-browser"]
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             lifecycle,
-            primary_outcomes=primary_outcomes,
-            secondary_outcomes=secondary_outcomes,
+            outcomes=outcomes,
         )
 
         (
@@ -3392,7 +3375,7 @@ class TestFetchJetstreamDataTask(MockSizingDataMixin, TestCase):
             SEGMENT_DATA,
             _,
             _,
-        ) = JetstreamTestData.get_test_data(primary_outcomes)
+        ) = JetstreamTestData.get_test_data(outcomes)
 
         OTHER_METRICS = {
             Group.OTHER.value: {

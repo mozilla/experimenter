@@ -180,8 +180,7 @@ def has_missing_expected_results(experiment, results_files):
 
 def get_results_metrics_map(
     data: JetstreamData,
-    primary_outcome_slugs: list[str],
-    secondary_outcome_slugs: list[str],
+    outcome_slugs: list[str],
     outcomes_metadata,
 ):
     # A mapping of metric label to relevant statistic. This is
@@ -196,12 +195,12 @@ def get_results_metrics_map(
         Metric.DAILY_ACTIVE_USERS: {Statistic.PER_CLIENT_DAU_IMPACT},
     }
     primary_metrics_set: set[str] = set()
-    primary_outcome_metrics: list[OutcomeMetric] = list(
+    outcome_metrics: list[OutcomeMetric] = list(
         chain.from_iterable(
             [
                 outcome.metrics
                 for outcome in Outcomes.all()
-                if outcome.slug in primary_outcome_slugs
+                if outcome.slug in outcome_slugs
             ]
         )
     )
@@ -220,15 +219,12 @@ def get_results_metrics_map(
             )
         )
 
-    for metric in primary_outcome_metrics:
+    for metric in outcome_metrics:
         # validate against jetstream metadata unless we couldn't get it
         if bypass_jetstream_check or metric.slug in metrics_set_from_jetstream:
             results_metrics_map[metric.slug] = ALL_STATISTICS
 
             primary_metrics_set.add(metric.slug)
-
-    for outcome_slug in secondary_outcome_slugs:
-        results_metrics_map[outcome_slug] = ALL_STATISTICS
 
     other_metrics_map, other_metrics = get_other_metrics_names_and_map(
         data, results_metrics_map
@@ -241,8 +237,7 @@ def get_results_metrics_map(
 def get_other_metrics_names_and_map(
     data: JetstreamData, results_metrics_map: dict[str, set[Statistic]]
 ):
-    # These are metrics sent from Jetstream that are not explicitly chosen
-    # by users to be either primary or secondary
+    # These are metrics sent from Jetstream that are not in any outcome the user chose
     other_metrics_names = {}
     other_metrics_map = {}
 
@@ -354,8 +349,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                 other_metrics,
             ) = get_results_metrics_map(
                 data,
-                experiment.primary_outcomes,
-                experiment.secondary_outcomes,
+                experiment.outcomes,
                 outcomes_metadata,
             )
 
@@ -421,8 +415,7 @@ def get_experiment_data(experiment: NimbusExperiment):
                 other_metrics,
             ) = get_results_metrics_map(
                 data,
-                experiment.primary_outcomes,
-                experiment.secondary_outcomes,
+                experiment.outcomes,
                 outcomes_metadata,
             )
 

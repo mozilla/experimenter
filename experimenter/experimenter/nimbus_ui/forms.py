@@ -1032,19 +1032,13 @@ class BranchScreenshotDeleteForm(NimbusBranchesForm):
 
 
 class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
-    primary_outcomes = forms.MultipleChoiceField(
-        required=False, widget=MultiSelectWidget(attrs={"data-max-options": 2})
-    )
-    secondary_outcomes = forms.MultipleChoiceField(
-        required=False, widget=MultiSelectWidget()
-    )
+    outcomes = forms.MultipleChoiceField(required=False, widget=MultiSelectWidget())
     segments = forms.MultipleChoiceField(required=False, widget=MultiSelectWidget())
 
     class Meta:
         model = NimbusExperiment
         fields = [
-            "primary_outcomes",
-            "secondary_outcomes",
+            "outcomes",
             "segments",
         ]
 
@@ -1056,8 +1050,7 @@ class MetricsForm(NimbusChangeLogFormMixin, forms.ModelForm):
                 for o in Outcomes.by_application(self.instance.application)
             ]
         )
-        self.fields["primary_outcomes"].choices = application_outcomes
-        self.fields["secondary_outcomes"].choices = application_outcomes
+        self.fields["outcomes"].choices = application_outcomes
 
         application_segments = sorted(
             [

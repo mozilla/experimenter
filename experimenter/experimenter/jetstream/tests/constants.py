@@ -344,7 +344,7 @@ class JetstreamTestData:
         formatted_daily_data,
         overall_data,
         weekly_data,
-        primary_outcome,
+        outcome,
         analysis_basis,
     ):
         primary_metrics = ["default_browser_action"]
@@ -397,7 +397,7 @@ class JetstreamTestData:
         formatted_daily_data,
         overall_data,
         weekly_data,
-        primary_outcome,
+        outcome,
         analysis_basis,
     ):
         primary_metrics = ["mozilla_default_browser"]
@@ -450,16 +450,16 @@ class JetstreamTestData:
         formatted_daily_data,
         overall_data,
         weekly_data,
-        primary_outcomes,
+        outcomes,
         analysis_basis,
     ):
-        for primary_outcome in primary_outcomes:
+        for outcome in outcomes:
             cls.add_outcome_data(
                 data,
                 formatted_daily_data,
                 overall_data,
                 weekly_data,
-                primary_outcome,
+                outcome,
                 analysis_basis,
             )
 
@@ -468,12 +468,12 @@ class JetstreamTestData:
                 formatted_daily_data,
                 overall_data,
                 weekly_data,
-                primary_outcome,
+                outcome,
                 analysis_basis,
             )
 
     @classmethod
-    def get_test_data(cls, primary_outcomes):
+    def get_test_data(cls, outcomes):
         DATA_IDENTITY_ROW = cls.get_identity_row()
 
         CONTROL_DATA_ROW = DATA_IDENTITY_ROW.model_copy()
@@ -1008,7 +1008,7 @@ class JetstreamTestData:
             FORMATTED_DAILY_DATA,
             OVERALL_DATA,
             WEEKLY_DATA,
-            primary_outcomes,
+            outcomes,
             AnalysisBasis.ENROLLMENTS,
         )
         cls.add_all_outcome_data(
@@ -1016,7 +1016,7 @@ class JetstreamTestData:
             FORMATTED_DAILY_DATA,
             OVERALL_DATA,
             WEEKLY_DATA,
-            primary_outcomes,
+            outcomes,
             AnalysisBasis.EXPOSURES,
         )
 
@@ -1032,7 +1032,7 @@ class JetstreamTestData:
         )
 
     @classmethod
-    def get_partial_exposures_test_data(cls, primary_outcomes):
+    def get_partial_exposures_test_data(cls, outcomes):
         # similar to above but missing weekly retention metric for exposures
         DATA_IDENTITY_ROW = cls.get_identity_row()
 
@@ -1410,7 +1410,7 @@ class JetstreamTestData:
             FORMATTED_DAILY_DATA,
             OVERALL_DATA,
             WEEKLY_DATA,
-            primary_outcomes,
+            outcomes,
             AnalysisBasis.ENROLLMENTS,
         )
         cls.add_all_outcome_data(
@@ -1418,7 +1418,7 @@ class JetstreamTestData:
             FORMATTED_DAILY_DATA,
             OVERALL_DATA,
             WEEKLY_DATA,
-            primary_outcomes,
+            outcomes,
             AnalysisBasis.EXPOSURES,
         )
 
@@ -1638,7 +1638,7 @@ class ZeroJetstreamTestData(JetstreamTestData):
         formatted_daily_data,
         overall_data,
         weekly_data,
-        primary_outcome,
+        outcome,
         analysis_basis,
     ):
         primary_metrics = ["default_browser_action"]

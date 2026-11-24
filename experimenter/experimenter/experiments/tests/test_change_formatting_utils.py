@@ -279,11 +279,11 @@ class TestChangeFormattingMethod(TestCase):
         old_value_outcomes = []
         new_value_outcomes = ["test-outcome"]
 
-        experiment.primary_outcomes = new_value_outcomes
+        experiment.outcomes = new_value_outcomes
         experiment.save()
 
         generate_nimbus_changelog(
-            experiment, self.user, "primary outcomes were added", timestamp_outcomes
+            experiment, self.user, "outcomes were added", timestamp_outcomes
         )
 
         old_value_segments = []
@@ -303,7 +303,7 @@ class TestChangeFormattingMethod(TestCase):
         comparison_log_outcomes = changelogs[0]
         comparison_log_segments = changelogs[1]
 
-        field_name_outcomes = "primary_outcomes"
+        field_name_outcomes = "outcomes"
         field_diff_outcomes = {
             "old_value": old_value_outcomes,
             "new_value": new_value_outcomes,
@@ -391,7 +391,7 @@ class TestChangeFormattingMethod(TestCase):
         experiment.save()
 
         generate_nimbus_changelog(
-            experiment, self.user, "primary outcomes were added", timestamp_2
+            experiment, self.user, "outcomes were added", timestamp_2
         )
 
         changelogs = list(

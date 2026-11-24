@@ -3271,6 +3271,29 @@ LAPSED_USER_WINDOWS_ONLY = NimbusTargetingConfig(
     application_choice_names=(Application.DESKTOP.name,),
 )
 
+RESURRECTED_USER_WINDOWS_PREVIOUS_SESSION_28_DAYS = NimbusTargetingConfig(
+    name="Resurrected Windows users (previous session ended 28 or more days ago)",
+    slug="resurrected_user_previous_session_28_days_windows",
+    description=(
+        "Users with a profile age of at least 28 days, on Windows 10 or later, "
+        "whose previous session ended 28 or more days ago. Requires Firefox 160+"
+    ),
+    targeting=f"""
+    (
+        {PROFILE28DAYS}
+        &&
+        (os.isWindows && os.windowsVersion >= 10)
+        &&
+        (previousSessionEnd > 0
+         && previousSessionEnd <= currentDate|date - (86400000 * 28))
+    )
+    """,
+    desktop_telemetry="",
+    sticky_required=True,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
 LAPSED_USER_WINDOWS_ONLY_NO_DEFAULT_PROMPT = NimbusTargetingConfig(
     name="Lapsed Windows users (No activity in the past 28 days), no default prompt",
     slug="lapsed_user_28_days_windows_no_default_prompt",
@@ -6338,6 +6361,17 @@ WINDOWS_AND_MAC_EXISTING_USERS_NOT_SYNCING = NimbusTargetingConfig(
         f"{PROFILE28DAYS} && {NO_ENTERPRISE_MAC_WINDOWS_ONLY.targeting} && "
         "isFxAEnabled && !usesFirefoxSync"
     ),
+    desktop_telemetry="",
+    sticky_required=False,
+    is_first_run_required=False,
+    application_choice_names=(Application.DESKTOP.name,),
+)
+
+WREXHAM_REPACK_USERS = NimbusTargetingConfig(
+    name="Existing users of the Wrexham partner repack.",
+    slug="wrexham_repack_users",
+    description=("Existing users of the Wrexham partner repack."),
+    targeting=("distributionId == 'wrexham-001'"),
     desktop_telemetry="",
     sticky_required=False,
     is_first_run_required=False,
