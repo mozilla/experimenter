@@ -8451,6 +8451,26 @@ class TestNimbusRolloutPhase(TestCase):
             [Decimal("10.0000"), Decimal("100.0000")],
         )
 
+    def test_clone_clears_rollout_phase_actual_start_date(self):
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            is_rollout=True,
+        )
+        NimbusRolloutPhaseFactory.create(
+            experiment=experiment,
+            start_date=datetime.date(2025, 12, 1),
+            actual_start_date=datetime.date(2025, 12, 15),
+        )
+
+        cloned = experiment.clone("Cloned Schedule", experiment.owner)
+        phase = cloned.rollout_phases.get()
+        phase.start_date = datetime.date(2026, 12, 15)
+        phase.save()
+
+        phase.refresh_from_db()
+        self.assertIsNone(phase.actual_start_date)
+        self.assertEqual(phase.effective_start_date, datetime.date(2026, 12, 15))
+
 
 class TestNimbusRolloutPlanTemplate(TestCase):
     def test_str(self):

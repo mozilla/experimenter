@@ -3055,6 +3055,7 @@ class NimbusExperiment(NimbusConstants, TargetingConstants, FilterMixin, models.
         for phase in self.rollout_phases.all():
             phase.id = None
             phase.experiment = cloned
+            phase.actual_start_date = None
             phase.save()
 
         for (
