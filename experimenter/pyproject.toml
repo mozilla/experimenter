@@ -38,7 +38,7 @@ dependencies = [
     "glean-parser==18.2.0",
     "google-cloud-storage>=3.17.0,<4",
     "gunicorn==23.0.0",
-    "humanize>=4.16.0,<5",
+    "humanize>=4.17.0,<5",
     "inflection>=0.5.1,<0.6",
     "ipdb==0.13.9",
     "jsonschema>=4.26.0,<5",
