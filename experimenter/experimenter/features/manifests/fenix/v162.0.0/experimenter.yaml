@@ -667,6 +667,15 @@ onboarding-kit-animation:
     enabled:
       type: boolean
       description: If true, the feature is enabled.
+onboarding-notification-prompt:
+  description: |
+    Feature to show the system notification permission prompt when a user finishes onboarding.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the notification permission is requested when onboarding is finished.
 one-click-search:
   description: Enable/disable the one click search feature.
   hasExposure: true

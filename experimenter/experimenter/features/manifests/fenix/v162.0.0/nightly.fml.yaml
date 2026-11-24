@@ -1133,6 +1133,14 @@ features:
         description: If true, the feature is enabled.
         type: Boolean
         default: true
+  onboarding-notification-prompt:
+    description: |
+      Feature to show the system notification permission prompt when a user finishes onboarding.
+    variables:
+      enabled:
+        description: If true, the notification permission is requested when onboarding is finished.
+        type: Boolean
+        default: true
   one-click-search:
     description: Enable/disable the one click search feature.
     variables:

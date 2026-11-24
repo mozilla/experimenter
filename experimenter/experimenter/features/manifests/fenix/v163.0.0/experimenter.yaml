@@ -368,7 +368,8 @@ homescreen:
   variables:
     sections-enabled:
       type: json
-      description: This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
+      description: |
+        This property provides a lookup table of whether or not the given section should be enabled. If the section is enabled, it should be toggleable in the settings screen, and on by default.
 import-bookmarks:
   description: A feature that lets users import bookmarks from another browser.
   hasExposure: true
@@ -488,14 +489,6 @@ lna-blocking:
       type: boolean
       description: |
         Whether or not to turn on local network / device access blocking
-longfox:
-  description: Flag to enable Longfox for users on Firefox Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, users will see a CTA for launching Longfox on the home screen.
 marketing-onboarding-card:
   description: A temporary feature to control the marketing onboarding card shown during the onboarding flow.
   hasExposure: true
@@ -505,8 +498,7 @@ marketing-onboarding-card:
       type: boolean
       description: If false, the marketing onboarding card will never be shown.
 messaging:
-  description: |
-    The in-app messaging system.
+  description: The in-app messaging system.
   hasExposure: true
   exposureDescription: ''
   variables:
@@ -624,7 +616,8 @@ nimbus-system:
         The minimum interval in minutes between fetching experiment
         recipes in the foreground.
 nimbus-validation:
-  description: A feature that does not correspond to an application feature suitable for showing that Nimbus is working. This should never be used in production.
+  description: |
+    A feature that does not correspond to an application feature suitable for showing that Nimbus is working. This should never be used in production.
   hasExposure: true
   exposureDescription: ''
   variables:
@@ -637,16 +630,9 @@ nimbus-validation:
     settings-title:
       type: string
       description: The title of displayed in the Settings screen and app menu.
-oled-theme:
-  description: Feature to provide the OLED theme option for users on Firefox for Android.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, the OLED theme option is shown.
 onboarding:
-  description: A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments.
+  description: |
+    A feature that configures the new user onboarding page. Note that onboarding is a **first run** feature, and should only be modified by first run experiments.
   hasExposure: true
   exposureDescription: ''
   variables:
@@ -670,6 +656,15 @@ onboarding-kit-animation:
     enabled:
       type: boolean
       description: If true, the feature is enabled.
+onboarding-notification-prompt:
+  description: |
+    Feature to show the system notification permission prompt when a user finishes onboarding.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: If true, the notification permission is requested when onboarding is finished.
 one-click-search:
   description: Enable/disable the one click search feature.
   hasExposure: true
@@ -703,16 +698,16 @@ pdf-viewer:
         pref: pdfjs.enableAndroidEditing
         branch: default
 pdfjs:
-  description: PDF.js features
+  description: Configuration for pdf.js in Gecko.
   hasExposure: true
   exposureDescription: ''
   variables:
     download-button:
       type: boolean
-      description: Download button
+      description: Display the download button.
     open-in-app-button:
       type: boolean
-      description: Open in app button
+      description: Display the "open in app" button.
 picture-in-picture-window:
   description: |
     Feature that shows a video in picture-in-picture by cloning it.
@@ -982,6 +977,15 @@ tab-groups-live-reorder:
       type: boolean
       description: |
         Whether or not to enable live reorder for tab groups drag and drop.
+tab-groups-menu:
+  description: Control whether Tab Group options are shown in the browser menu.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Whether or not to show Tab Group options in the browser menu.
 tab-groups-onboarding:
   description: Control the visibility of onboarding for tab groups.
   hasExposure: true
