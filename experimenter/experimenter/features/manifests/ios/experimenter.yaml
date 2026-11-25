@@ -737,6 +737,10 @@ vpn-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+    onboarding-sheet:
+      type: boolean
+      description: |
+        Shows the VPN onboarding sheet the first time a website is opened.
 wallpaper-engagement-sheet-feature:
   description: |
     Controls the wallpaper engagement bottom sheet shown on the homepage when new wallpapers are available. Only meant to be used with rollouts.
