@@ -1513,15 +1513,6 @@ features:
         description: If true, shake to summarize will be enabled
         type: Boolean
         default: true
-  show-more-shortcuts:
-    description: Feature to show expand/collapse buttons for shortcuts on the homepage.
-    no-lint:
-    - MISSING_CONTACTS
-    variables:
-      enabled:
-        description: If true, show the expand/collapse buttons on the homepage.
-        type: Boolean
-        default: true
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     contacts:

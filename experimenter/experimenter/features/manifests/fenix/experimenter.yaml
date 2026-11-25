@@ -921,14 +921,6 @@ shake-to-summarize:
     enabled:
       type: boolean
       description: If true, shake to summarize will be enabled
-show-more-shortcuts:
-  description: Feature to show expand/collapse buttons for shortcuts on the homepage.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, show the expand/collapse buttons on the homepage.
 splash-screen:
   description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
   hasExposure: true
