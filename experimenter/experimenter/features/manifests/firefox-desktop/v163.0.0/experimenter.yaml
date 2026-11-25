@@ -839,14 +839,6 @@ urlbar:
         will be able to click the "Show less frequently" command for weather
         suggestions. If undefined or zero, the user will be able to click the
         command without any limit.
-    weatherUiTreatment:
-      type: int
-      fallbackPref: browser.urlbar.weather.uiTreatment
-      description: >-
-        The UI treatment to use for weather suggestions. Possible values:
-        0: (default) Simplest UI with current temperature and location
-        1: Simpler UI, adds current conditions, high/low, and URL
-        2: Full UI, adds forecast
     wikipediaFeatureGate:
       type: boolean
       fallbackPref: browser.urlbar.wikipedia.featureGate
@@ -3725,6 +3717,12 @@ networkPrioritization:
       setPref:
         branch: default
         pref: "network.http.priority_header.enabled"
+    h3SendInitialPriorityUpdate:
+      description: Whether a PRIORIY_UPDATE frame should be sent on the Http/3 control stream at the beginning of each request.
+      type: boolean
+      setPref:
+        branch: default
+        pref: "network.http.http3.send_initial_priority_update"
     fetchPriority:
       description: Whether fetch priority is enabled
       type: boolean
@@ -3755,18 +3753,12 @@ networkPrioritization:
       setPref:
         branch: default
         pref: "network.http.http3.send_background_tabs_deprioritization"
-    documentPriorityIncremental:
-      description: Sets the incremental flag on the Priority header for document requests
+    priorityIncrementalByDefault:
+      description: Set the incremental flag by default based on the content policy type.
       type: boolean
       setPref:
         branch: default
-        pref: "dom.document_priority.incremental"
-    imagePriorityIncremental:
-      description: Sets the incremental flag on the Priority header for image requests
-      type: boolean
-      setPref:
-        branch: default
-        pref: "image.priority.incremental"
+        pref: "network.http.priority.incremental_by_default"
     imageAdjustLayoutPriority:
       description: Whether the network request priority should be adjusted according the layout and view frame position of each particular image.
       type: boolean
