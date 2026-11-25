@@ -5163,6 +5163,10 @@ def highwind_metric(
     relative=None,
     error=None,
     matures_on="2026-10-08",
+    winsorize_mode="off",
+    post_winsorize_threshold=None,
+    pre_winsorize_threshold=None,
+    clipped_share=None,
 ):
     value = {"point": 1.0, "lower": 0.5, "upper": 1.5}
     return {
@@ -5181,9 +5185,22 @@ def highwind_metric(
                             "matures_on": matures_on,
                         },
                         "is_summary": True,
+                        "winsorize_mode": winsorize_mode,
+                        "post_winsorize_threshold": post_winsorize_threshold,
+                        "pre_winsorize_threshold": pre_winsorize_threshold,
                         "branches": [
-                            {"branch": reference, "n": 100, "value": value},
-                            {"branch": treatment, "n": 200, "value": value},
+                            {
+                                "branch": reference,
+                                "n": 100,
+                                "value": value,
+                                "clipped_share": clipped_share,
+                            },
+                            {
+                                "branch": treatment,
+                                "n": 200,
+                                "value": value,
+                                "clipped_share": clipped_share,
+                            },
                         ],
                         "comparisons": [
                             {
@@ -5320,6 +5337,51 @@ class TestHighwindResultsGrid(AuthTestCase):
         response = self.get_page(experiment)
 
         self.assertContains(response, "Insufficient data")
+
+    def test_a_clipped_metric_shows_its_threshold_and_what_it_cost(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric(
+                    "uri_count",
+                    ref,
+                    treat,
+                    winsorize_mode="fraction",
+                    post_winsorize_threshold=12.5,
+                    pre_winsorize_threshold=9.25,
+                    clipped_share=0.004,
+                )
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "Clipped at a quantile")
+        self.assertContains(response, "12.50")
+        self.assertContains(response, "9.25")
+        self.assertContains(response, "0.40% of")
+        # The detail view says what the mode means, rather than the page explaining it.
+        self.assertContains(response, "Values above the reference branch")
+
+    def test_an_unclipped_metric_says_it_was_not_clipped(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertContains(response, "Not clipped")
+
+    def test_a_blob_without_winsorization_says_nothing_about_clipping(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [
+                highwind_metric("days_of_use", ref, treat, winsorize_mode=None)
+            ]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertNotContains(response, "fa-scissors")
+        self.assertNotContains(response, "Not clipped")
 
     def test_an_errored_cell_shows_the_message(self):
         experiment = self.create_experiment(

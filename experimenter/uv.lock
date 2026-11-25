@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.12, <4"
 resolution-markers = [
     "python_full_version >= '3.13'",
@@ -820,7 +820,7 @@ requires-dist = [
     { name = "markus", specifier = "==3.0.0" },
     { name = "mock", specifier = "==4.0.3" },
     { name = "mozilla-metric-config-parser", specifier = ">=2024.11.1,<2025" },
-    { name = "mozilla-nimbus-schemas", specifier = ">=3006.1.0,<3007" },
+    { name = "mozilla-nimbus-schemas", specifier = ">=3007.0.0,<3008" },
     { name = "nh3", specifier = ">=0.3,<0.4" },
     { name = "packaging", specifier = "==21.3" },
     { name = "parameterized", specifier = "==0.9.0" },
@@ -1414,7 +1414,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/de/cf/e26886c5131a76d39
 
 [[package]]
 name = "mozilla-nimbus-schemas"
-version = "3006.1.0"
+version = "3007.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonschema" },
@@ -1422,9 +1422,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/df/f8/76c069acae66d776649cc1a8269adcb6157677bca9271862ae26ecb53df6/mozilla_nimbus_schemas-3006.1.0.tar.gz", hash = "sha256:d928299c9222afcde14bacbf1b9a22bae07c548a67025eb81dd25e21c2654d97", size = 38387, upload-time = "2026-11-13T18:39:22.681Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/da/97/d33b5b3c8c5680872ba9c025c4c35808427a730cb82d6c04040f3320fae6/mozilla_nimbus_schemas-3007.0.0.tar.gz", hash = "sha256:442025787e3290e3f896b6e4ae93717ac29c040600949e6ceffb9d9518430918", size = 38477, upload-time = "2026-11-17T19:03:29.853Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/f7/63a087fbab79b1c8071e82647c5c5230e3f0f9cc2c80875162c94aa20349/mozilla_nimbus_schemas-3006.1.0-py3-none-any.whl", hash = "sha256:3260213ad2da3f87756ccf095570e7454b2da9bb57ff878d9c86f25db9f7c472", size = 84274, upload-time = "2026-11-13T18:39:21.104Z" },
+    { url = "https://files.pythonhosted.org/packages/6a/43/34d07df013bc99435b394ceea4c3d65d73b68cd00df703b1e9e1ef129381/mozilla_nimbus_schemas-3007.0.0-py3-none-any.whl", hash = "sha256:f10878e5da1eb48ed8782c56b5b63fb32eff42abc0fa8e9a7ebc4e502ea32d7a", size = 84330, upload-time = "2026-11-17T19:03:28.46Z" },
 ]
 
 [[package]]
