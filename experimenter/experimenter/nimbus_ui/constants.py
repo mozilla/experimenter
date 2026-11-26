@@ -423,6 +423,37 @@ Optional - We expect this to <describe impact> on <core metric>.
         ),
     }
 
+    # How each window's values were clipped before the statistics ran. The job derives
+    # the threshold from the reference branch, so it belongs with the window rather than
+    # with the metric's definition.
+    HIGHWIND_WINSORIZE_LABELS = {
+        "off": (
+            "Not clipped",
+            "Every value was used as recorded.",
+        ),
+        "fraction": (
+            "Clipped at a quantile",
+            (
+                "Values above the reference branch's cut point were replaced by it, in "
+                "every branch, before the statistics ran."
+            ),
+        ),
+        "fixed": (
+            "Clipped at a fixed bound",
+            (
+                "Values above a bound set on the metric, scaled to the window's length, "
+                "were replaced by it before the statistics ran."
+            ),
+        ),
+        "skipped": (
+            "Clipping skipped",
+            (
+                "This metric is configured to be clipped, but the reference branch held "
+                "too few units to derive a threshold, so nothing was clipped."
+            ),
+        ),
+    }
+
     HIGHWIND_VALIDATION_MESSAGE = """Do not rely on these results. They come from an
     analysis pipeline that is still being validated against Jetstream, and any figure on
     this page may change or turn out to be wrong. Jetstream remains the system of

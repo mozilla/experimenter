@@ -20,6 +20,7 @@ from mozilla_nimbus_schemas.highwind import (
     HighwindWindow,
     HighwindWindowKind,
     HighwindWindowResult,
+    HighwindWinsorizeMode,
 )
 from polyfactory.factories.pydantic_factory import ModelFactory
 
@@ -133,6 +134,10 @@ def build_window(
     relative=1.0,
     spread=None,
     error=None,
+    winsorize_mode=HighwindWinsorizeMode.OFF,
+    post_winsorize_threshold=None,
+    pre_winsorize_threshold=None,
+    clipped_share=None,
 ):
     # A treatment's own value moves by the relative change it reports, so the branch
     # figures and the change shown beside them agree.
@@ -149,15 +154,22 @@ def build_window(
             matures_on=dt.date.fromisoformat(matures_on) if matures_on else None,
         ),
         is_summary=is_summary,
+        winsorize_mode=winsorize_mode,
+        post_winsorize_threshold=post_winsorize_threshold,
+        pre_winsorize_threshold=pre_winsorize_threshold,
         branches=[
             HighwindBranchValueFactory.build(
-                branch=reference, n=100, value=build_interval(value, spread)
+                branch=reference,
+                n=100,
+                value=build_interval(value, spread),
+                clipped_share=clipped_share,
             ),
             *[
                 HighwindBranchValueFactory.build(
                     branch=treatment,
                     n=100,
                     value=build_interval(treatment_value(), spread),
+                    clipped_share=clipped_share,
                 )
                 for treatment in treatments
             ],
@@ -277,6 +289,19 @@ def random_windows(reference, treatments):
     )
     spread = abs(value) * 0.02
 
+    # Half the metrics are clipped, as a mix of guardrails and plain metrics would be.
+    clipped = random.choice([True, False])
+    winsorize = (
+        {
+            "winsorize_mode": HighwindWinsorizeMode.FRACTION,
+            "post_winsorize_threshold": round(value * 3, 3),
+            "pre_winsorize_threshold": round(value * 2.5, 3),
+            "clipped_share": round(random.uniform(0.001, 0.01), 5),
+        }
+        if clipped
+        else {"winsorize_mode": HighwindWinsorizeMode.OFF}
+    )
+
     windows = [
         build_window(
             end_day=end_day,
@@ -291,6 +316,7 @@ def random_windows(reference, treatments):
             # Zero variance is insufficient data, not an error, so an errored cell here
             # is something that actually failed.
             error="query failed" if state == HighwindCellState.ERROR else None,
+            **winsorize,
         )
         for end_day in (6, 13, 20)
     ]
@@ -304,6 +330,8 @@ def random_windows(reference, treatments):
             treatments=treatments,
             value=None,
             relative=None,
+            # The job writes no winsorization for a window it has not computed.
+            winsorize_mode=None,
         )
     )
     windows.extend(
@@ -319,6 +347,7 @@ def random_windows(reference, treatments):
             value=round(value / 3, 3),
             spread=round(spread, 3) or None,
             relative=round(relative, 2),
+            **winsorize,
         )
         for start_day in (0, 7, 14)
     )

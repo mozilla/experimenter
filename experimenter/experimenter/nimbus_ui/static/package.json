@@ -32,7 +32,7 @@
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.5.7",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "sass": "^1.108.1",
     "sass-loader": "12.6.0",
     "style-loader": "3.3.1",

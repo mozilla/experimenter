@@ -820,7 +820,7 @@ requires-dist = [
     { name = "markus", specifier = "==3.0.0" },
     { name = "mock", specifier = "==4.0.3" },
     { name = "mozilla-metric-config-parser", specifier = ">=2026.11.11,<2027" },
-    { name = "mozilla-nimbus-schemas", specifier = ">=3006.1.0,<3007" },
+    { name = "mozilla-nimbus-schemas", specifier = ">=3007.0.0,<3008" },
     { name = "nh3", specifier = ">=0.3,<0.4" },
     { name = "packaging", specifier = "==21.3" },
     { name = "parameterized", specifier = "==0.9.0" },
@@ -842,7 +842,7 @@ requires-dist = [
     { name = "ruff", specifier = ">=0.17.0,<0.18" },
     { name = "scipy", specifier = ">=1.18.1,<2" },
     { name = "sentry-sdk", specifier = ">=2.75.0,<3" },
-    { name = "slack-sdk", specifier = ">=3.46.0,<4" },
+    { name = "slack-sdk", specifier = ">=3.47.0,<4" },
     { name = "sqlparse", specifier = "==0.6.0" },
     { name = "tblib", specifier = "==1.7.0" },
     { name = "toml", specifier = ">=0.10.2,<0.11" },
@@ -1397,7 +1397,7 @@ wheels = [
 
 [[package]]
 name = "mozilla-metric-config-parser"
-version = "2026.11.11"
+version = "2026.11.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -1410,11 +1410,11 @@ dependencies = [
     { name = "requests" },
     { name = "toml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/83/df/f88f8f13753b9da4c1b31186e84853beee888222038a98fa66399bd0697c/mozilla_metric_config_parser-2026.11.11.tar.gz", hash = "sha256:99cdac0534af4961c22eeafe37c67425e63ab4e6ae766b02687f3cc2cf6258d1", size = 90345, upload-time = "2026-11-24T15:43:14.216Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6b/7c/50a7d05ade316e3dc0ac409b7739881e19d34eb99e48160720105414da03/mozilla_metric_config_parser-2026.11.13.tar.gz", hash = "sha256:425b231ccadd4dee06972240d7b01d9f1d3e9cbc836808bbdd77ab48e97f384f", size = 93747, upload-time = "2026-11-26T16:12:01.11Z" }
 
 [[package]]
 name = "mozilla-nimbus-schemas"
-version = "3006.1.0"
+version = "3007.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jsonschema" },
@@ -1422,9 +1422,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/df/f8/76c069acae66d776649cc1a8269adcb6157677bca9271862ae26ecb53df6/mozilla_nimbus_schemas-3006.1.0.tar.gz", hash = "sha256:d928299c9222afcde14bacbf1b9a22bae07c548a67025eb81dd25e21c2654d97", size = 38387, upload-time = "2026-11-13T18:39:22.681Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/da/97/d33b5b3c8c5680872ba9c025c4c35808427a730cb82d6c04040f3320fae6/mozilla_nimbus_schemas-3007.0.0.tar.gz", hash = "sha256:442025787e3290e3f896b6e4ae93717ac29c040600949e6ceffb9d9518430918", size = 38477, upload-time = "2026-11-17T19:03:29.853Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/78/f7/63a087fbab79b1c8071e82647c5c5230e3f0f9cc2c80875162c94aa20349/mozilla_nimbus_schemas-3006.1.0-py3-none-any.whl", hash = "sha256:3260213ad2da3f87756ccf095570e7454b2da9bb57ff878d9c86f25db9f7c472", size = 84274, upload-time = "2026-11-13T18:39:21.104Z" },
+    { url = "https://files.pythonhosted.org/packages/6a/43/34d07df013bc99435b394ceea4c3d65d73b68cd00df703b1e9e1ef129381/mozilla_nimbus_schemas-3007.0.0-py3-none-any.whl", hash = "sha256:f10878e5da1eb48ed8782c56b5b63fb32eff42abc0fa8e9a7ebc4e502ea32d7a", size = 84330, upload-time = "2026-11-17T19:03:28.46Z" },
 ]
 
 [[package]]
@@ -2547,11 +2547,11 @@ wheels = [
 
 [[package]]
 name = "slack-sdk"
-version = "3.46.0"
+version = "3.47.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7a/43/9eb4f5172ec64d8c25f9fa397d3ca283782d356a60809e4b68ade81fde1a/slack_sdk-3.46.0.tar.gz", hash = "sha256:25215ca293d2954ed759b87573b4c833cb3f82ebff371355936515c688411dbb", size = 266040, upload-time = "2026-10-30T05:08:27.384Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2e/0c/133eb1a6ccf5854bafd908f2dc5bf9d5c28e8531eefb9edad954d5fa45cb/slack_sdk-3.47.0.tar.gz", hash = "sha256:824e91a94a5b72a65531e8db0dd63dc4dc6bbad1a219b19582b48d5661c1c707", size = 274403, upload-time = "2026-11-13T08:45:17.62Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a3/5c/0be529c9a48ccd7b452c6ca47ad1ab5e5e2f7f2cf53d8f34970aebffd0e8/slack_sdk-3.46.0-py2.py3-none-any.whl", hash = "sha256:6286d89da97ea193c853609131515e6f1b3edf86866d6e5aad0dba9dcf1cb72d", size = 325190, upload-time = "2026-10-30T05:08:25.985Z" },
+    { url = "https://files.pythonhosted.org/packages/12/c3/4de4ce25fdbbd3f4060cb220aa13a814b972e7c6184deae1e03665225861/slack_sdk-3.47.0-py2.py3-none-any.whl", hash = "sha256:8cfab3224d149962ef4313c1430d9ff65b8c3baf09f25988a920858ffa90aaa9", size = 333533, upload-time = "2026-11-13T08:45:15.979Z" },
 ]
 
 [[package]]
