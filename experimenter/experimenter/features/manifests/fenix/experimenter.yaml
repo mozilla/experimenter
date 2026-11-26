@@ -921,14 +921,6 @@ shake-to-summarize:
     enabled:
       type: boolean
       description: If true, shake to summarize will be enabled
-show-more-shortcuts:
-  description: Feature to show expand/collapse buttons for shortcuts on the homepage.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: If true, show the expand/collapse buttons on the homepage.
 splash-screen:
   description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
   hasExposure: true
@@ -960,15 +952,6 @@ suppress-sponsored-top-sites:
     enabled:
       type: boolean
       description: If true, new users won’t see sponsored tiles for 14 days.
-tab-groups:
-  description: Control the visibility of the tab groups feature.
-  hasExposure: true
-  exposureDescription: ''
-  variables:
-    enabled:
-      type: boolean
-      description: |
-        Whether or not to enable the tab groups feature.
 tab-groups-drag-and-drop:
   description: Control the visibility of drag and drop for tab groups.
   hasExposure: true

@@ -737,6 +737,10 @@ vpn-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+    leak-guard-toast:
+      type: boolean
+      description: |
+        Shows a toast when the proxy leak guard blocks content that would bypass the VPN.
     onboarding-sheet:
       type: boolean
       description: |
