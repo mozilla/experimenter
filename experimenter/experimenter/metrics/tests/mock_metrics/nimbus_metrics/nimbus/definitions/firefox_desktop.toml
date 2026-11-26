@@ -15,3 +15,9 @@ friendly_name = "Pinned to taskbar"
 data_source = "clients_daily"
 aggregation = "any"
 column = "is_pinned"
+
+[metrics.ad_click_rate]
+friendly_name = "Ad click rate"
+aggregation = "ratio"
+numerator = "ad_clicks"
+denominator = "search_count"

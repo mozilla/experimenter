@@ -58,6 +58,9 @@ class NimbusMetric:
     slug: str
     friendly_name: str
     description: str | None = None
+    # How a unit's rows become one value. The results page reads this to tell a ratio,
+    # which is reported with a headline rather than as a stack of windows alone.
+    aggregation: str | None = None
 
 
 @dataclass
@@ -109,6 +112,9 @@ class NimbusMetrics:
                         slug=name,
                         friendly_name=metric.friendly_name or name,
                         description=metric.description,
+                        aggregation=(
+                            metric.aggregation.value if metric.aggregation else None
+                        ),
                     )
                 if config.kind == NimbusConfigKind.DEFAULTS:
                     guardrails.extend(_metric_names(config))

@@ -25,6 +25,7 @@ class TestNimbusMetrics(TestCase):
             [metric.slug for metric in metrics.metrics],
             [
                 "active_hours",
+                "ad_click_rate",
                 "ad_clicks",
                 "days_of_use",
                 "first_run_retention",
@@ -46,6 +47,23 @@ class TestNimbusMetrics(TestCase):
         [search_count] = [metric for metric in metrics if metric.slug == "search_count"]
 
         self.assertEqual(search_count.friendly_name, "search_count")
+
+    def test_a_metric_records_the_aggregation_it_declares(self):
+        metrics = {
+            metric.slug: metric.aggregation
+            for metric in NimbusMetrics.by_application(DESKTOP).metrics
+        }
+
+        self.assertEqual(metrics["uri_count"], "sum")
+        self.assertEqual(metrics["days_of_use"], "count")
+        self.assertEqual(metrics["is_pinned"], "any")
+
+    def test_a_ratio_metric_is_recorded_as_one(self):
+        # What the results page reads to decide a metric gets a headline.
+        metrics = NimbusMetrics.by_application(DESKTOP).metrics
+        [ad_click_rate] = [m for m in metrics if m.slug == "ad_click_rate"]
+
+        self.assertEqual(ad_click_rate.aggregation, "ratio")
 
     def test_the_guardrails_are_the_metrics_in_the_defaults_file(self):
         metrics = NimbusMetrics.by_application(DESKTOP)
