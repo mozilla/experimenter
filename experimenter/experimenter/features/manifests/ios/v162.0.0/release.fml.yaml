@@ -125,7 +125,7 @@ features:
         description: |
           Whether app reinstallation checks are enabled.
         type: Boolean
-        default: false
+        default: true
   configuration-profile-feature:
     description: |
       Offers to open configuration profiles (.mobileconfig) in Safari so iOS can install them
@@ -1209,6 +1209,11 @@ features:
       enabled:
         description: |
           Whether or not this feature is enabled
+        type: Boolean
+        default: false
+      leak-guard-toast:
+        description: |
+          Shows a toast when the proxy leak guard blocks content that would bypass the VPN.
         type: Boolean
         default: false
       onboarding-sheet:
