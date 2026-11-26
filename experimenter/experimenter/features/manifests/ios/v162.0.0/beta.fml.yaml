@@ -125,7 +125,7 @@ features:
         description: |
           Whether app reinstallation checks are enabled.
         type: Boolean
-        default: false
+        default: true
   configuration-profile-feature:
     description: |
       Offers to open configuration profiles (.mobileconfig) in Safari so iOS can install them
@@ -200,6 +200,22 @@ features:
           Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
         type: Boolean
         default: false
+  fox-dash-feature:
+    description: |
+      The feature flag to manage the Fox Dash easter egg, opened by long pressing the homepage logo.
+    no-lint:
+    - MISSING_CONTACTS
+    variables:
+      enabled:
+        description: |
+          Enables the feature.
+        type: Boolean
+        default: false
+      theme:
+        description: |
+          The visual theme the game is shown with.
+        type: FoxDashTheme
+        default: normal
   glean-server-knobs:
     description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
     contacts:
@@ -1229,12 +1245,17 @@ features:
         description: |
           Whether or not this feature is enabled
         type: Boolean
-        default: false
+        default: true
+      leak-guard-toast:
+        description: |
+          Shows a toast when the proxy leak guard blocks content that would bypass the VPN.
+        type: Boolean
+        default: true
       onboarding-sheet:
         description: |
           Shows the VPN onboarding sheet the first time a website is opened.
         type: Boolean
-        default: false
+        default: true
   wallpaper-engagement-sheet-feature:
     description: |
       Controls the wallpaper engagement bottom sheet shown on the homepage when new wallpapers are available. Only meant to be used with rollouts.
@@ -1281,6 +1302,13 @@ enums:
         description: The next eligible message should be shown.
       show-none:
         description: The surface should show no message.
+  FoxDashTheme:
+    description: The visual theme of the Fox Dash game.
+    variants:
+      christmas:
+        description: Icy night skies, snowfall, and festive sprites.
+      normal:
+        description: The regular look.
   IconType:
     description: The icon that will be added to the item in the device's search engine.
     variants:

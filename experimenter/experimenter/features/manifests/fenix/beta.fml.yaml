@@ -914,6 +914,7 @@ features:
         - notification
         - survey
         - microsurvey
+        - settings_vpn
         string-alias: SurfaceName
       actions:
         description: A growable map of action URLs.
@@ -921,6 +922,7 @@ features:
         default:
           OPEN_URL: ://open
           ENABLE_PRIVATE_BROWSING: ://enable_private_browsing
+          FXA_BEGIN_AUTH: ://fxa_begin_auth
           INSTALL_SEARCH_WIDGET: ://install_search_widget
           MAKE_DEFAULT_BROWSER: ://make_default_browser
           VIEW_BOOKMARKS: ://urls_bookmarks
@@ -974,6 +976,39 @@ features:
             exclude-if-any:
             - I_AM_DEFAULT_BROWSER
             action: MAKE_DEFAULT_BROWSER
+          vpn-gpi-sign-in-upsell:
+            title: ip_protection_settings_message_gpi_upsell_title
+            text: VPN_MESSAGE_EMPTY_BODY
+            button-label: ip_protection_settings_message_gpi_upsell_action
+            settings-vpn-config:
+              title-args:
+              - fxa_data_limit_gb
+            surface: settings_vpn
+            action: FXA_BEGIN_AUTH
+            action-params:
+              entry_point: vpn_integration_android_settings_upsell
+              service: vpn
+            style: SETTINGS_CARD_PERSISTENT
+            trigger-if-all:
+            - VPN_READY
+            - VPN_AUTH_PROVIDER_GPI
+          vpn-gpi-usage-reset-upsell:
+            title: ip_protection_settings_message_gpi_reset_upsell_title
+            text: ip_protection_settings_message_gpi_reset_upsell_message
+            button-label: ip_protection_settings_message_gpi_upsell_action
+            settings-vpn-config:
+              title-args:
+              - gpi_data_limit_gb
+            surface: settings_vpn
+            action: FXA_BEGIN_AUTH
+            action-params:
+              entry_point: vpn_integration_android_settings_upsell
+              service: vpn
+            style: SETTINGS_CARD_HIGH_PRIORITY
+            trigger-if-all:
+            - VPN_READY
+            - VPN_AUTH_PROVIDER_GPI
+            - VPN_RESET_PROMPT_PENDING
         string-alias: MessageKey
       notification-config:
         description: Configuration of the notification worker for all notification messages.
@@ -1010,6 +1045,15 @@ features:
           MICROSURVEY:
             priority: 50
             max-display-count: 5
+          SETTINGS_CARD:
+            priority: 50
+            max-display-count: 1
+          SETTINGS_CARD_PERSISTENT:
+            priority: 50
+            max-display-count: 10000
+          SETTINGS_CARD_HIGH_PRIORITY:
+            priority: 60
+            max-display-count: 1
         string-alias: StyleName
       triggers:
         description: |
@@ -1053,6 +1097,10 @@ features:
           PERFORMED_A_SEARCH_AGAIN_RECENTLY: '''performed_search''|eventSum(''Years'', 4, 0) >= 2 && ''performed_search''|eventLastSeen(''Minutes'') < 1'
           FXA_CURRENTLY_SIGNED_IN: is_fxa_signed_in == true
           FXA_MORE_THAN_1_DEVICE: fxa_connected_devices > 1
+          VPN_READY: triggerContext.vpn.is_ready_to_use == true
+          VPN_AUTH_PROVIDER_GPI: triggerContext.vpn.auth_provider == 'gpi'
+          VPN_AUTH_PROVIDER_FXA: triggerContext.vpn.auth_provider == 'fxa'
+          VPN_RESET_PROMPT_PENDING: triggerContext.vpn.usage_reset_prompt_pending == true && triggerContext.vpn.is_enabled == false
           FXA_SIGNED_IN: '''sync_auth.sign_in''|eventLastSeen(''Years'', 0) <= 4'
           FXA_NOT_SIGNED_IN: '''sync_auth.sign_in''|eventLastSeen(''Years'', 0) > 4'
           USER_INFREQUENT: '''app_opened''|eventCountNonZero(''Days'', 28) >= 1 && ''app_opened''|eventCountNonZero(''Days'', 28) < 7'
@@ -1504,24 +1552,6 @@ features:
         description: The collection used for the setup checklist.
         type: SetupChecklistType
         default: collection-1
-  shake-to-summarize:
-    description: A feature that can summarize the content of a page when you shake the screen.
-    no-lint:
-    - MISSING_CONTACTS
-    variables:
-      enabled:
-        description: If true, shake to summarize will be enabled
-        type: Boolean
-        default: true
-  show-more-shortcuts:
-    description: Feature to show expand/collapse buttons for shortcuts on the homepage.
-    no-lint:
-    - MISSING_CONTACTS
-    variables:
-      enabled:
-        description: If true, show the expand/collapse buttons on the homepage.
-        type: Boolean
-        default: true
   splash-screen:
     description: A feature that extends splash screen duration, allowing additional data fetching time for the app's initial run.
     contacts:
@@ -1558,16 +1588,6 @@ features:
         description: If true, new users won’t see sponsored tiles for 14 days.
         type: Boolean
         default: false
-  tab-groups:
-    description: Control the visibility of the tab groups feature.
-    no-lint:
-    - MISSING_CONTACTS
-    variables:
-      enabled:
-        description: |
-          Whether or not to enable the tab groups feature.
-        type: Boolean
-        default: true
   tab-groups-drag-and-drop:
     description: Control the visibility of drag and drop for tab groups.
     no-lint:
@@ -2027,6 +2047,10 @@ objects:
         description: Optional configuration data for a microsurvey.
         type: Option<MicrosurveyConfig>
         default: null
+      settings-vpn-config:
+        description: Optional configuration data for the settings VPN message.
+        type: Option<SettingsVpnMessageConfig>
+        default: null
       style:
         description: |
           The style as described in a `StyleData` from the styles table.
@@ -2143,6 +2167,14 @@ objects:
         description: The title text displayed to the user.
         type: Text
         default: ''
+  SettingsVpnMessageConfig:
+    description: Formatting config & options for the VPN settings message.
+    fields:
+      title-args:
+        description: |
+          Argument keys for the title format string, in positional order. The arguments are defined in the nimbus messages and substituted programmatically in the VpnSettingsMessage.
+        type: List<String>
+        default: []
   StyleData:
     description: |
       A group of properties (predominantly visual) to describe the style of the message.
