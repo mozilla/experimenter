@@ -169,6 +169,23 @@ firefox-suggest-feature:
       type: boolean
       description: |
         Whether the feature is enabled. When Firefox Suggest is enabled, Firefox will download and store new search suggestions in the background, and show additional Search settings to control which suggestions appear in the awesomebar. When Firefox Suggest is disabled, Firefox will not download new suggestions, and hide the additional Search settings.
+fox-dash-feature:
+  description: |
+    The feature flag to manage the Fox Dash easter egg, opened by long pressing the homepage logo.
+  hasExposure: true
+  exposureDescription: ''
+  variables:
+    enabled:
+      type: boolean
+      description: |
+        Enables the feature.
+    theme:
+      type: string
+      description: |
+        The visual theme the game is shown with.
+      enum:
+      - christmas
+      - normal
 glean-server-knobs:
   description: A feature that provides server-side configurations for Glean metrics (aka Server Knobs).
   hasExposure: true
@@ -737,6 +754,10 @@ vpn-feature:
       type: boolean
       description: |
         Whether or not this feature is enabled
+    leak-guard-toast:
+      type: boolean
+      description: |
+        Shows a toast when the proxy leak guard blocks content that would bypass the VPN.
     onboarding-sheet:
       type: boolean
       description: |
