@@ -2027,9 +2027,14 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             .values_list("value", flat=True)
         )
 
-        return {
-            json.dumps(json.loads(raw_value), sort_keys=True) for raw_value in raw_values
-        }
+        launched_values = set()
+        for raw_value in raw_values:
+            try:
+                launched_values.add(json.dumps(json.loads(raw_value), sort_keys=True))
+            except (TypeError, ValueError):
+                continue
+
+        return launched_values
 
     def _validate_desktop_release_nightly_beta_history(self, data):
         if data.get("is_firefox_labs_opt_in"):

@@ -5382,6 +5382,129 @@ class TestNimbusReviewSerializerSingleFeature(
             ],
         )
 
+    def test_nightly_beta_history_ignores_empty_launched_value(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        other.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value="")
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps({"enabled": True}))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertIn("nightly_beta_history", serializer.warnings)
+
+    def test_nightly_beta_history_ignores_non_json_launched_value(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+
+        other = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        other.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value="not json")
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps({"enabled": True}))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertIn("nightly_beta_history", serializer.warnings)
+
+    def test_nightly_beta_history_no_warning_when_unparseable_value_has_matching_sibling(
+        self,
+    ):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP,
+            schemas=[NimbusVersionedSchemaFactory.build(version=None, schema=None)],
+        )
+        matching_value = {"enabled": True}
+
+        unparseable = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.NIGHTLY],
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        unparseable.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value="")
+
+        matching = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.LIVE_ENROLLING,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.BETA],
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        matching.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(matching_value))
+
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            channel=NimbusExperiment.Channel.NO_CHANNEL,
+            channels=[NimbusExperiment.Channel.RELEASE],
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_120,
+            feature_configs=[feature_config],
+            is_rollout=True,
+        )
+        experiment.reference_branch.feature_values.filter(
+            feature_config=feature_config
+        ).update(value=json.dumps(matching_value))
+
+        serializer = self.get_review_serializer(experiment)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertNotIn("nightly_beta_history", serializer.warnings)
+
     def test_nightly_beta_history_not_evaluated_for_non_desktop(self):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.CREATED,
