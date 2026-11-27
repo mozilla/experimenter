@@ -7,3 +7,9 @@ mock_valid_metrics = override_settings(
         Path(__file__).parent.absolute() / "mock_metrics" / "valid_metrics"
     ),
 )
+
+mock_nimbus_metrics = override_settings(
+    METRIC_HUB_NIMBUS_PATH=(
+        Path(__file__).parent.absolute() / "mock_metrics" / "nimbus_metrics"
+    ),
+)

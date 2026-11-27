@@ -1,0 +1,9 @@
+[metrics.search_count]
+data_source = "clients_daily"
+aggregation = "sum"
+column = "sap"
+
+[metrics.ad_clicks]
+data_source = "clients_daily"
+aggregation = "sum"
+column = "ad_clicks"

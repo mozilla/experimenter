@@ -1,0 +1,5 @@
+[metrics.first_run_retention]
+friendly_name = "First run retention"
+data_source = "clients_daily"
+aggregation = "any"
+column = "retained"

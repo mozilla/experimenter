@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     "experimenter.highwind",
     "experimenter.jetstream",
     "experimenter.kinto",
+    "experimenter.metrics",
     "experimenter.legacy.legacy_experiments",
     "experimenter.legacy.notifications",
     "experimenter.openidc",
@@ -595,6 +596,9 @@ METRIC_HUB_FEATMON_DESKTOP_PATH = (
 )
 
 METRIC_HUB_SEGMENTS_PATH_DEFAULT = BASE_DIR / "segments" / "metric-hub-main"
+
+# metric-hub's nimbus section, in the checkout the metrics are read from.
+METRIC_HUB_NIMBUS_PATH = BASE_DIR / "metrics" / "metric-hub-main"
 METRIC_HUB_METRICS_PATH_DEFAULT = (
     BASE_DIR / "metrics" / "metric-hub-main" / "jetstream" / "defaults"
 )

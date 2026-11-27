@@ -116,6 +116,11 @@ experimenter/experimenter/segments/metric-hub-main/*
 experimenter/experimenter/segments/metric-hub-main/jetstream/*
 !experimenter/experimenter/segments/metric-hub-main/jetstream/definitions/
 experimenter/experimenter/segments/metric-hub.zip
+experimenter/experimenter/metrics/metric-hub-main/*
+!experimenter/experimenter/metrics/metric-hub-main/nimbus/
+!experimenter/experimenter/metrics/metric-hub-main/jetstream/
+experimenter/experimenter/metrics/metric-hub-main/jetstream/*
+!experimenter/experimenter/metrics/metric-hub-main/jetstream/defaults/
 
 # Versioning assets generated on build
 **/commit-description.txt

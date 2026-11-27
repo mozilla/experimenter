@@ -1,0 +1,23 @@
+[data_sources.clients_daily]
+from_expression = "mozdata.telemetry.clients_daily"
+submission_date_column = "submission_date"
+client_id_column = "client_id"
+
+[metrics.uri_count]
+friendly_name = "URIs visited"
+description = "URIs visited per client."
+data_source = "clients_daily"
+aggregation = "sum"
+column = "uri_count"
+
+[metrics.is_pinned]
+friendly_name = "Pinned to taskbar"
+data_source = "clients_daily"
+aggregation = "any"
+column = "is_pinned"
+
+[metrics.ad_click_rate]
+friendly_name = "Ad click rate"
+aggregation = "ratio"
+numerator = "ad_clicks"
+denominator = "search_count"

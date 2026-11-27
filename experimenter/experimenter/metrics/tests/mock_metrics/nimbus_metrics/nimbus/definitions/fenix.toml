@@ -1,0 +1,10 @@
+[data_sources.baseline]
+from_expression = "mozdata.fenix.baseline"
+submission_date_column = "submission_date"
+client_id_column = "client_id"
+
+[metrics.fenix_uri_count]
+friendly_name = "URIs visited"
+data_source = "baseline"
+aggregation = "sum"
+column = "uri_count"
