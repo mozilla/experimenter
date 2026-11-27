@@ -1,0 +1,131 @@
+[metrics.form_autofill_address_fields_filled]
+friendly_name = "Address autofill: gross auto-filled fields"
+description = """
+    Per client: the number of address form fields Firefox auto-filled, summed
+    over every address form the client interacted with.
+
+    Only fields whose type Firefox had to *infer* are counted -- i.e. fields
+    identified by the regex heuristics, by Fathom, or by the ML field
+    classifier. Fields carrying an explicit `autocomplete` attribute are
+    excluded, since their type needs no inference and is therefore unaffected
+    by changes to the field classifier.
+
+    This is the gross figure: it equals
+    `form_autofill_address_fields_modified` +
+    `form_autofill_address_fields_net_kept`.
+"""
+category = "autofill"
+data_source = "form_autofill_forms"
+aggregation = "sum_where"
+column = "autofilled_fields"
+cumulative_window = 7
+repeat_windows = true
+
+[[metrics.form_autofill_address_fields_filled.where]]
+column = "form_type"
+op = "="
+value = "address"
+
+[metrics.form_autofill_address_fields_modified]
+friendly_name = "Address autofill: modified auto-filled fields"
+description = """
+    Per client: of the address fields Firefox auto-filled, the number the user
+    subsequently edited (a `filled_modified_address_form` event named the
+    field). Counted once per field per form interaction, however many times the
+    user edited it.
+
+    A field the user edits is one autofill got wrong, so this is the error
+    count against `form_autofill_address_fields_filled`.
+"""
+category = "autofill"
+data_source = "form_autofill_forms"
+aggregation = "sum_where"
+column = "modified_fields"
+cumulative_window = 7
+repeat_windows = true
+
+[[metrics.form_autofill_address_fields_modified.where]]
+column = "form_type"
+op = "="
+value = "address"
+
+[metrics.form_autofill_address_fields_net_kept]
+friendly_name = "Address autofill: net kept auto-filled fields"
+description = """
+    Per client: the number of auto-filled address fields the user left
+    untouched -- auto-filled and never subsequently edited. This is the
+    user-accepted yield of address autofill, and the counterpart to
+    `form_autofill_address_fields_modified`.
+"""
+category = "autofill"
+data_source = "form_autofill_forms"
+aggregation = "sum_where"
+column = "net_kept_fields"
+cumulative_window = 7
+repeat_windows = true
+
+[[metrics.form_autofill_address_fields_net_kept.where]]
+column = "form_type"
+op = "="
+value = "address"
+
+[metrics.form_autofill_credit_card_fields_filled]
+friendly_name = "Credit card autofill: gross auto-filled fields"
+description = """
+    Per client: the number of credit card form fields Firefox auto-filled,
+    summed over every credit card form the client interacted with. Same
+    inferred-field rule as `form_autofill_address_fields_filled`; note that
+    Fathom accounts for roughly half of all auto-filled credit card fields, so
+    excluding it here would halve this metric.
+
+    Equals `form_autofill_credit_card_fields_modified` +
+    `form_autofill_credit_card_fields_net_kept`.
+"""
+category = "autofill"
+data_source = "form_autofill_forms"
+aggregation = "sum_where"
+column = "autofilled_fields"
+cumulative_window = 7
+repeat_windows = true
+
+[[metrics.form_autofill_credit_card_fields_filled.where]]
+column = "form_type"
+op = "="
+value = "credit_card"
+
+[metrics.form_autofill_credit_card_fields_modified]
+friendly_name = "Credit card autofill: modified auto-filled fields"
+description = """
+    Per client: of the credit card fields Firefox auto-filled, the number the
+    user subsequently edited (a `filled_modified_cc_form_v2` event named the
+    field). Counted once per field per form interaction.
+"""
+category = "autofill"
+data_source = "form_autofill_forms"
+aggregation = "sum_where"
+column = "modified_fields"
+cumulative_window = 7
+repeat_windows = true
+
+[[metrics.form_autofill_credit_card_fields_modified.where]]
+column = "form_type"
+op = "="
+value = "credit_card"
+
+[metrics.form_autofill_credit_card_fields_net_kept]
+friendly_name = "Credit card autofill: net kept auto-filled fields"
+description = """
+    Per client: the number of auto-filled credit card fields the user left
+    untouched -- auto-filled and never subsequently edited.
+"""
+category = "autofill"
+data_source = "form_autofill_forms"
+aggregation = "sum_where"
+column = "net_kept_fields"
+cumulative_window = 7
+repeat_windows = true
+
+[[metrics.form_autofill_credit_card_fields_net_kept.where]]
+column = "form_type"
+op = "="
+value = "credit_card"

@@ -1,0 +1,256 @@
+[metrics.active_hours]
+friendly_name = "Active hours"
+description = """
+    Measures the amount of time (in 5-second increments) during which
+    Firefox received user input from a keyboard or mouse. The Firefox
+    window does not need to be focused.
+"""
+data_source = "clients_daily"
+aggregation = "sum"
+column = "active_hours_sum"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.uri_count]
+friendly_name = "URIs visited"
+description = """
+    Counts the total number of URIs visited.
+    Includes within-page navigation events (e.g. to anchors).
+"""
+category = "performance"
+data_source = "clients_daily"
+aggregation = "sum"
+column = "scalar_parent_browser_engagement_total_uri_count_sum"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.search_count]
+friendly_name = "SAP searches in Glean"
+description = """
+    Counts the number of searches a user performed through Firefox's
+    Search Access Points.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+data_source = "search_clients_engines_sources_daily"
+aggregation = "sum"
+column = "sap"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.tagged_search_count]
+friendly_name = "Tagged SAP searches"
+description = """
+    Counts the number of searches a user performed through Firefox's
+    Search Access Points that were submitted with a partner code
+    and were potentially revenue-generating.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+data_source = "search_clients_engines_sources_daily"
+aggregation = "sum"
+column = "tagged_sap"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.tagged_follow_on_search_count]
+friendly_name = "Tagged follow-on searches"
+description = """
+    Counts the number of follow-on searches with a Mozilla partner tag.
+    These are additional searches that users performed from a search engine
+    results page after executing a tagged search through a SAP.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+data_source = "search_clients_engines_sources_daily"
+aggregation = "sum"
+column = "tagged_follow_on"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.ad_clicks]
+friendly_name = "Ad clicks"
+description = """
+    Counts clicks on ads on search engine result pages with a Mozilla
+    partner tag.
+"""
+category = "search"
+data_source = "search_clients_engines_sources_daily"
+aggregation = "sum"
+column = "ad_click"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.searches_with_ads]
+friendly_name = "Search result pages with ads"
+description = """
+    Counts search result pages served with advertising.
+    Users may not actually see these ads thanks to e.g. ad-blockers.
+    Learn more in the
+    [search analysis documentation](https://mozilla-private.report/search-analysis-docs/book/in_content_searches.html).
+"""
+category = "search"
+data_source = "search_clients_engines_sources_daily"
+aggregation = "sum"
+column = "search_with_ads"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.organic_search_count]
+friendly_name = "Organic searches"
+description = """
+    Counts organic searches, which are searches that are _not_ performed
+    through a Firefox SAP and which are not monetizable.
+    Learn more in the
+    [search data documentation](https://docs.telemetry.mozilla.org/datasets/search.html).
+"""
+category = "search"
+data_source = "search_clients_engines_sources_daily"
+aggregation = "sum"
+column = "organic"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.days_of_use]
+friendly_name = "Days of use"
+description = "The number of days in the interval that each client sent a main ping."
+data_source = "clients_daily"
+aggregation = "count"
+column = "submission_date"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.qualified_cumulative_days_of_use]
+friendly_name = "QCDOU"
+description = """
+    The number of days in the interval that each client sent a main ping,
+    given that the client had >0 active hours and >0 URIs loaded.
+"""
+data_source = "clients_daily"
+aggregation = "count_where"
+cumulative_window = 7
+repeat_windows = true
+
+[[metrics.qualified_cumulative_days_of_use.where]]
+column = "active_hours_sum"
+op = ">"
+value = 0
+
+[[metrics.qualified_cumulative_days_of_use.where]]
+column = "scalar_parent_browser_engagement_total_uri_count_normal_and_private_mode_sum"
+op = ">"
+value = 0
+
+[metrics.client_level_daily_active_users_v2]
+friendly_name = "Firefox Desktop Client-Level DAU"
+description = """
+    Client-level DAU. The logic is
+    [detailed on the Confluence DAU page](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric)
+    and is automatically cross-checked, actively monitored, and change controlled.
+    This metric needs to be aggregated by `submission_date`. If it is not aggregated by `submission_date`, it is
+    similar to a "days of use" metric, and not DAU.
+"""
+owner = ["bochocki@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+data_source = "firefox_desktop_active_users_view"
+aggregation = "count_where"
+column = "is_dau"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.daily_active_users_per_1000_clients_legacy]
+friendly_name = "DAU per 1,000 clients"
+description = """
+    This metric uses our [canonical, supported definition of Daily Active Users
+    (DAU)](https://mozilla-hub.atlassian.net/wiki/spaces/DATA/pages/314704478/Daily+Active+Users+DAU+Metric), expressed in a format
+    suited for use in experiments. In an experimental comparison, it describes the *additional (incremental) DAU* seen on each day from a treatment.
+    
+    The units are expressed in terms of thousands of clients enrolled or exposed, so the effect can be scaled to either the observed
+    or expected rollout population as needed to estimate absolute DAU impact.
+
+    Effects are averaged to a per-day basis over each analysis period. Since feature changes often show a strong "novelty effect", this 
+    metric is best interpreted over Week 4 or later, in order to better estimate what the lasting steady-state effects are.
+"""
+owner = ["bochocki@mozilla.com", "bbaird@mozilla.com", "firefox-kpi@mozilla.com"]
+deprecated = false
+data_source = "firefox_desktop_active_users_view"
+aggregation = "count_where"
+column = "is_dau"
+scale = 1000
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.is_default_browser]
+friendly_name = "Is Default Browser"
+description = """
+Was Firefox the default browser at any point during the interval?
+"""
+data_source = "clients_daily"
+aggregation = "any"
+column = "is_default_browser"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.is_pinned]
+friendly_name = "Is Pinned (Windows Taskbar)"
+description = """
+Was Firefox pinned to the Windows Taskbar at any point during the interval?
+"""
+data_source = "clients_daily"
+aggregation = "any"
+column = "scalar_parent_os_environment_is_taskbar_pinned"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.retained]
+friendly_name = "Retained"
+description = """
+    Records whether a client submitted any pings (i.e. used Firefox).
+
+    Note: As of June 2026, this metric is being deprecated in favor of "Retained (DAU)", which better matches the conventional 
+    definition of Retention based on "active" instead of "seen" now recommended by Data Science team and used for reporting in
+    other contexts. 
+"""
+deprecated = true
+data_source = "clients_daily"
+aggregation = "sum"
+column = "pings_aggregated_by_this_row"
+threshold = { op = ">", value = 0 }
+incremental_window = 7
+repeat_windows = true
+
+[metrics.retained_dau]
+friendly_name = "Retained (DAU)"
+description = """
+    Whether the client had at least one DAU-qualifying day in the analysis window (is_dau = TRUE on any day).
+
+    Conventionally expressed as a percentage rate: The percentage of clients from the originating cohort that were then active in the later period. 
+    
+    Most typically, this is measured as Week 2 Retention in order to balance timeliness and accuracy. 
+    But when time permits, Data Science recommends using Week 4 Retention as more representative of long-term effects.
+"""
+data_source = "firefox_desktop_active_users_view"
+aggregation = "any"
+column = "is_dau"
+incremental_window = 7
+repeat_windows = true
+
+[metrics.active_in_last_3_days_legacy]
+friendly_name = "First 3 Days Retention"
+description = """
+    Whether an enrolled client qualified as DAU on at least one of the three days
+    ending on the analysis day. Read at day 4 in Experimenter, this covers the three
+    days immediately after enrollment, a critical window for new-profile engagement
+    and activation and a more robust signal than retention on exactly the third day.
+    Uses Legacy telemetry.
+"""
+data_source = "firefox_desktop_active_users_view"
+aggregation = "recency_within"
+column = "days_active_bits"
+within_days = 3
+incremental_window = 7
+repeat_windows = true
+

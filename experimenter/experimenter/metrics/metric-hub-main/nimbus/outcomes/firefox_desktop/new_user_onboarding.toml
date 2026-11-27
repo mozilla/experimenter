@@ -1,0 +1,15 @@
+[metrics.active_in_last_3_days]
+friendly_name = "First 3 Days Retention (Glean)"
+description = """
+    Whether an enrolled client qualified as DAU on at least one of the three days
+    ending on the analysis day. Read at day 4 in Experimenter, this covers the three
+    days immediately after enrollment, a critical window for new-profile engagement
+    and activation and a more robust signal than retention on exactly the third day.
+"""
+data_source = "firefox_desktop_baseline_active_users_view"
+aggregation = "recency_within"
+column = "days_since_desktop_active"
+encoding = "days"
+within_days = 3
+incremental_window = 7
+repeat_windows = true

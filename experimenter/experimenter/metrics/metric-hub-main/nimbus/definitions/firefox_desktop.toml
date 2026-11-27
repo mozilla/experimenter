@@ -1,0 +1,194 @@
+[metrics.any_organic_content_clicks]
+friendly_name = "Any organic Content Clicks"
+description = """
+Client had any Content clicks during the experiment.
+"""
+data_source = "newtab_clients_daily"
+aggregation = "any"
+cumulative_window = 7
+repeat_windows = true
+
+[[metrics.any_organic_content_clicks.where]]
+column = "organic_content_click_count"
+op = ">"
+value = 0
+
+[metrics.any_sponsored_tiles_dismissals]
+friendly_name = "Any Sponsored Tiles Dismissed"
+description = "Clients that dismissed any sponsored tiles"
+data_source = "newtab_clients_daily"
+aggregation = "any"
+cumulative_window = 7
+repeat_windows = true
+
+[[metrics.any_sponsored_tiles_dismissals.where]]
+column = "sponsored_topsite_dismissal_count"
+op = ">"
+value = 0
+
+[metrics.newtab_ad_clicks]
+friendly_name = "Newtab Ad Clicks"
+description = """
+Count of searches performed on the New Tab that resulted in an ad click
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "search_ad_click_count"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.newtab_any_searches]
+friendly_name = "Any Newtab Searches"
+description = """
+Client performed any Newtab Handoff searches during the experiment
+"""
+data_source = "newtab_clients_daily"
+aggregation = "any"
+cumulative_window = 7
+repeat_windows = true
+
+[[metrics.newtab_any_searches.where]]
+column = "search_interaction_count"
+op = ">"
+value = 0
+
+[metrics.newtab_engaged_visits]
+friendly_name = "Newtab Engaged Visit Count"
+description = """
+Count of New Tab visits with any engagement
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "any_engagement_visits"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.newtab_organic_topsite_clicks_v2]
+friendly_name = "Newtab Organic Tile Clicks"
+description = """
+Count of New Tab organic tile clicks across all positions.
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "organic_topsite_click_count"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.newtab_organic_topsite_impressions_v2]
+friendly_name = "Newtab Organic Tile Impressions"
+description = """
+Count of New Tab organic tile impressions across all positions.
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "organic_topsite_impression_count"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.newtab_searches]
+friendly_name = "Newtab Handoff Searches"
+description = """
+Count of searches performed on the New Tab and handed off to the urlbar
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "search_interaction_count"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.newtab_searches_with_ads]
+friendly_name = "Newtab Searches with Ads"
+description = """
+Count of searches performed on the New Tab that resulted in an ad impression on the SERP
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "search_ad_impression_count"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.newtab_visits]
+friendly_name = "Newtab Visit Count"
+description = """
+Count of New Tab visits
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "all_visits"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.organic_content_clicks]
+friendly_name = "Organic Content Clicks"
+description = """
+Count of clicks on Organic content.
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "organic_content_click_count"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.organic_content_impressions]
+friendly_name = "Organic Content Impressions"
+description = """
+Count of impressions on Organic content.
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "organic_content_impression_count"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.sponsored_content_clicks]
+friendly_name = "Sponsored Content Clicks"
+description = """
+Count of clicks on Sponsored content.
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "sponsored_content_click_count"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.sponsored_content_impressions]
+friendly_name = "Sponsored Content Impressions"
+description = """
+Count of impressions of Sponsored Content.
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "sponsored_content_impression_count"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.sponsored_tile_clicks]
+friendly_name = "Sponsored Tile Clicks"
+description = """
+Count of clicks of Sponsored Tiles (aka Sponsored Topsites on New Tab) across all positions.
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "sponsored_topsite_click_count"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.sponsored_tile_impressions]
+friendly_name = "Sponsored Tile Impressions"
+description = """
+Count of impressions of Sponsored Tiles (aka Sponsored Topsites on New Tab) across all positions.
+"""
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "sponsored_topsite_impression_count"
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.sponsored_tiles_dismissals]
+friendly_name = "Sponsored Tiles Dismissals Count"
+description = "Count of sponsored tiles dismissals in all positions"
+data_source = "newtab_clients_daily"
+aggregation = "sum"
+column = "sponsored_topsite_dismissal_count"
+cumulative_window = 7
+repeat_windows = true

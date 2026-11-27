@@ -2,6 +2,7 @@
 daily = ["retained"]
 weekly = ["retained", "active_hours", "days_of_use"]
 overall = ["active_hours", "days_of_use"]
+preenrollment_weekly = ["active_hours", "days_of_use"]
 
 [metrics.retained]
 select_expression = "COALESCE(COUNT(document_id), 0) > 0"
@@ -15,12 +16,12 @@ binomial = {}
 
 [metrics.active_hours.statistics]
 deciles = {}
-bootstrap_mean = {}
+linear_model_mean = { drop_highest = 0.005, covariate_adjustment = { period = "preenrollment_week" } }
 
 ##
 
 
 [metrics.days_of_use.statistics]
 deciles = {}
-bootstrap_mean = { drop_highest = 0 }
+linear_model_mean = { drop_highest = 0.0, covariate_adjustment = { period = "preenrollment_week" } }
 empirical_cdf = {}

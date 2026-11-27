@@ -1,52 +1,37 @@
 [metrics]
-daily = ["retained", "client_level_daily_active_users_v2"]
-weekly = [
-    "retained",
+daily = [
     "active_hours",
+    "active_in_last_3_days",
+    "client_level_daily_active_users_v2",
+    "retained",
+    "search_count",
+    "total_uri_count",
+]
+weekly = [
+    "active_hours",
+    "client_level_daily_active_users_v2",
     "days_of_use",
+    "retained",
     "search_count",
     "serp_ad_clicks",
-    "client_level_daily_active_users_v2",
+    "total_uri_count",
 ]
 overall = [
     "active_hours",
+    "client_level_daily_active_users_v2",
     "days_of_use",
     "search_count",
     "serp_ad_clicks",
-    "client_level_daily_active_users_v2",
+    "total_uri_count",
 ]
 
 preenrollment_weekly = [
     "active_hours",
+    "client_level_daily_active_users_v2",
     "days_of_use",
     "search_count",
     "serp_ad_clicks",
-    "client_level_daily_active_users_v2",
-]
-
-preenrollment_days28 = [
-    "active_hours",
-    "days_of_use",
-    "search_count",
-    "serp_ad_clicks",
-    "client_level_daily_active_users_v2",
-]
-
-[metrics.areas]
-
-engagement = [
-  "active_hours",
-]
-
-kpi = [
-  "client_level_daily_active_users_v2",
-  "days_of_use",
-  "retained",
-  "search_count"
-]
-
-search_ads = [
-  "serp_ad_clicks"
+    "total_uri_count",
 ]
 
 [metrics.retained]
@@ -56,20 +41,27 @@ data_source = "baseline"
 [metrics.retained.statistics]
 binomial = {}
 
+[metrics.active_in_last_3_days.statistics]
+binomial = {}
+
 ##
 
 [metrics.active_hours.statistics]
 deciles = {}
-bootstrap_mean = {}
 [metrics.active_hours.statistics.linear_model_mean]
+drop_highest = 0.005
 [metrics.active_hours.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+# no_clip version of mean_lm is the same as mean_lm but with `drop_highest = 0.0` as the default
+[metrics.active_hours.statistics.linear_model_mean_no_clip]
+drop_highest = 0.0
+[metrics.active_hours.statistics.linear_model_mean_no_clip.covariate_adjustment]
 period = "preenrollment_week"
 
 ##
 
 [metrics.days_of_use.statistics]
 deciles = {}
-bootstrap_mean = { drop_highest = 0 }
 empirical_cdf = {}
 [metrics.days_of_use.statistics.linear_model_mean]
 drop_highest = 0.0
@@ -80,9 +72,14 @@ period = "preenrollment_week"
 
 [metrics.search_count.statistics]
 deciles = {}
-bootstrap_mean = {}
 [metrics.search_count.statistics.linear_model_mean]
+drop_highest = 0.005
 [metrics.search_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+# no_clip version of mean_lm is the same as mean_lm but with `drop_highest = 0.0` as the default
+[metrics.search_count.statistics.linear_model_mean_no_clip]
+drop_highest = 0.0
+[metrics.search_count.statistics.linear_model_mean_no_clip.covariate_adjustment]
 period = "preenrollment_week"
 
 ##
@@ -95,10 +92,34 @@ data_source = "mobile_search_clients_engines_sources_daily"
 
 [metrics.serp_ad_clicks.statistics]
 deciles = {}
-bootstrap_mean = {}
 [metrics.serp_ad_clicks.statistics.linear_model_mean]
+drop_highest = 0.005
 [metrics.serp_ad_clicks.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+# no_clip version of mean_lm is the same as mean_lm but with `drop_highest = 0.0` as the default
+[metrics.serp_ad_clicks.statistics.linear_model_mean_no_clip]
+drop_highest = 0.0
+[metrics.serp_ad_clicks.statistics.linear_model_mean_no_clip.covariate_adjustment]
 period = "preenrollment_week"
 
 [metrics.client_level_daily_active_users_v2.statistics.per_client_dau_impact]
+drop_highest = 0.0
 pre_treatments = ['normalize_over_analysis_period']
+
+[metrics.total_uri_count]
+friendly_name = "Total URI Count"
+select_expression = "{{agg_sum('metrics.counter.tabs_normal_and_private_uri_count')}}"
+data_source = "metrics"
+description = "Total number of URIs visited by each client."
+
+[metrics.total_uri_count.statistics]
+deciles = {}
+[metrics.total_uri_count.statistics.linear_model_mean]
+drop_highest = 0.005
+[metrics.total_uri_count.statistics.linear_model_mean.covariate_adjustment]
+period = "preenrollment_week"
+# no_clip version of mean_lm is the same as mean_lm but with `drop_highest = 0.0` as the default
+[metrics.total_uri_count.statistics.linear_model_mean_no_clip]
+drop_highest = 0.0
+[metrics.total_uri_count.statistics.linear_model_mean_no_clip.covariate_adjustment]
+period = "preenrollment_week"
