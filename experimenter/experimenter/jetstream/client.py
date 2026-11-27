@@ -7,6 +7,7 @@ from itertools import chain
 from pathlib import Path
 from typing import Any
 
+from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.core.files.storage import storages
 from django.utils import timezone
@@ -49,11 +50,18 @@ ALL_STATISTICS = {
 }
 
 analysis_storage = storages["analysis"]
+logger = get_task_logger(__name__)
 
 
 def load_data_from_gcs(path):
     if analysis_storage.exists(path):
-        return json.loads(analysis_storage.open(path).read())
+        try:
+            return json.loads(analysis_storage.open(path).read())
+        except json.JSONDecodeError as e:
+            logger.error(f"Malformed JSON in analysis bucket at path {path}: {e}")
+            raise RuntimeError(
+                f"Could not find data in analysis bucket at path {path}"
+            ) from e
     else:
         raise RuntimeError(f"Could not find data in analysis bucket at path {path}")
 
