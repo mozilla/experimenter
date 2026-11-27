@@ -34,6 +34,7 @@ from experimenter.jetstream.client import (
     get_results_files,
     get_stored_results_update_time,
     has_missing_expected_results,
+    load_data_from_gcs,
 )
 from experimenter.jetstream.models import AnalysisWindow, Group, Metric
 from experimenter.jetstream.tests import mock_valid_outcomes
@@ -4368,6 +4369,48 @@ class TestGetEnrollmentFunnelData(TestCase):
 
         with self.assertRaises(RuntimeError):
             get_enrollment_funnel_data()
+
+
+class TestLoadDataFromGcs(TestCase):
+    def test_returns_parsed_json(self):
+        class File:
+            def read(self):
+                return json.dumps({"key": "value"})
+
+        with (
+            patch("experimenter.jetstream.client.analysis_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
+        ):
+            mock_open.return_value = File()
+            mock_exists.return_value = True
+
+            result = load_data_from_gcs("statistics/statistics_test_daily.json")
+
+        self.assertEqual(result, {"key": "value"})
+
+    def test_raises_runtime_error_when_file_missing(self):
+        with patch(
+            "experimenter.jetstream.client.analysis_storage.exists"
+        ) as mock_exists:
+            mock_exists.return_value = False
+
+            with self.assertRaises(RuntimeError):
+                load_data_from_gcs("statistics/statistics_test_daily.json")
+
+    def test_raises_runtime_error_on_malformed_json(self):
+        class File:
+            def read(self):
+                return "not valid json"
+
+        with (
+            patch("experimenter.jetstream.client.analysis_storage.open") as mock_open,
+            patch("experimenter.jetstream.client.analysis_storage.exists") as mock_exists,
+        ):
+            mock_open.return_value = File()
+            mock_exists.return_value = True
+
+            with self.assertRaises(RuntimeError):
+                load_data_from_gcs("statistics/statistics_test_daily.json")
 
 
 class TestGetFeatmonSlugs(TestCase):
