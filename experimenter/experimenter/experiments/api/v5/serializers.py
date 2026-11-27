@@ -16,8 +16,13 @@ from django.utils.text import slugify
 from mozilla_nimbus_schemas.experimenter_apis.experiments.experiments import (
     ExperimentLocalizations,
 )
+from pydantic import ValidationError as PydanticValidationError
 from rest_framework import serializers
 
+from experimenter.experiments.api.v5.desktop_messaging import (
+    DesktopMessage,
+    DesktopMultiMessage,
+)
 from experimenter.experiments.constants import (
     FirefoxLabs,
     NimbusConstants,
@@ -1800,18 +1805,21 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
     @staticmethod
     def _desktop_messages(value):
         json_value = json.loads(value)
-        messages = [json_value]
-        if (
-            isinstance(json_value, dict)
-            and json_value.get("template")
-            == NimbusConstants.DESKTOP_MESSAGING_MULTI_TEMPLATE
-        ):
-            messages = json_value.get("messages") or []
-        return [
-            message
-            for message in messages
-            if isinstance(message, dict) and message.get("id")
-        ]
+        if not isinstance(json_value, dict):
+            return []
+
+        try:
+            if (
+                json_value.get("template")
+                == NimbusConstants.DESKTOP_MESSAGING_MULTI_TEMPLATE
+            ):
+                messages = DesktopMultiMessage.model_validate(json_value).messages or []
+            else:
+                messages = [DesktopMessage.model_validate(json_value)]
+        except PydanticValidationError:
+            return []
+
+        return [message for message in messages if message.id]
 
     @classmethod
     def _branch_desktop_messages(cls, branch, feature_config):
@@ -1824,8 +1832,9 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def _desktop_messages_match(message, other_message):
-        return message.get("trigger") == other_message.get("trigger") and (
-            message.get("targeting") == other_message.get("targeting")
+        return (
+            message.trigger == other_message.trigger
+            and message.targeting == other_message.targeting
         )
 
     def _validate_desktop_messaging_control_message(self, data):
@@ -1878,7 +1887,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
             unmatched_ids = sorted(
                 {
-                    message["id"]
+                    message.id
                     for branch in treatment_branches
                     for message in self._branch_desktop_messages(branch, feature_config)
                     if not any(
@@ -1914,15 +1923,15 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
             message_ids = sorted(
                 {
-                    message["id"]
+                    message.id
                     for branch in branches
                     for message in self._branch_desktop_messages(branch, feature_config)
-                    if message.get("template")
-                    and message["template"]
+                    if message.template
+                    and message.template
                     not in NimbusConstants.DESKTOP_MESSAGING_SKIPPED_TEMPLATES
                     and (
-                        not isinstance(message.get("targeting"), str)
-                        or "activeNotifications" not in message["targeting"]
+                        message.targeting is None
+                        or "activeNotifications" not in message.targeting
                     )
                 }
             )
@@ -1940,20 +1949,6 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         return data
 
-    @staticmethod
-    def _desktop_message_has_frequency_group_or_preference_check(message):
-        groups = message.get("groups")
-        if isinstance(groups, list) and groups:
-            return True
-
-        targeting = message.get("targeting")
-        return isinstance(targeting, str) and any(
-            preference_check in targeting
-            for preference_check in (
-                NimbusConstants.DESKTOP_MESSAGING_FREQUENCY_GROUP_PREFERENCE_CHECKS
-            )
-        )
-
     def _validate_desktop_messaging_frequency_group(self, data):
         branches = [data.get("reference_branch", {}), *data.get("treatment_branches", [])]
 
@@ -1967,13 +1962,11 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
             message_ids = sorted(
                 {
-                    message["id"]
+                    message.id
                     for branch in branches
                     for message in self._branch_desktop_messages(branch, feature_config)
-                    if message.get("template")
-                    and not self._desktop_message_has_frequency_group_or_preference_check(
-                        message
-                    )
+                    if message.template
+                    and not message.has_frequency_group_or_preference_check()
                 }
             )
             if message_ids:
@@ -1991,6 +1984,49 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
 
         if warnings:
             self.warnings["messaging_frequency_group"] = warnings
+
+        return data
+
+    def _validate_desktop_messaging_required_frequency_group(self, data):
+        branches = [data.get("reference_branch", {}), *data.get("treatment_branches", [])]
+
+        warnings = []
+        for feature_config in sorted(
+            data.get("feature_configs", []),
+            key=lambda feature_config: feature_config.slug,
+        ):
+            if not self._is_desktop_messaging_feature(feature_config):
+                continue
+
+            message_ids_by_group = {}
+            for branch in branches:
+                for message in self._branch_desktop_messages(branch, feature_config):
+                    if not message.template or not message.groups:
+                        continue
+
+                    for required_group in message.required_groups():
+                        if required_group not in message.groups:
+                            message_ids_by_group.setdefault(required_group, set()).add(
+                                message.id
+                            )
+
+            for group in sorted(message_ids_by_group):
+                message_ids = sorted(message_ids_by_group[group])
+                warning = (
+                    NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_SINGULAR
+                    if len(message_ids) == 1
+                    else (NimbusConstants.WARNING_DESKTOP_MESSAGING_REQUIRED_GROUP_PLURAL)
+                )
+                warnings.append(
+                    warning.format(
+                        feature_slug=feature_config.slug,
+                        message_ids=", ".join(message_ids),
+                        group=group,
+                    )
+                )
+
+        if warnings:
+            self.warnings["messaging_required_frequency_group"] = warnings
 
         return data
 
@@ -2389,6 +2425,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
             data = self._validate_desktop_messaging_control_mismatch(data)
             data = self._validate_desktop_messaging_active_notifications(data)
             data = self._validate_desktop_messaging_frequency_group(data)
+            data = self._validate_desktop_messaging_required_frequency_group(data)
             data = self._validate_desktop_release_nightly_beta_history(data)
         return data
 
