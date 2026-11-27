@@ -24,16 +24,16 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "cirrus/ application-services/"
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
       - name: Run Cirrus tests and linting
@@ -57,19 +57,19 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "experimenter/ application-services/"
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
-      - uses: ./.github/actions/retry
+      - uses: $/.github/actions/retry
         if: steps.check-paths.outputs.should-run == 'true'
         with:
           label: Build experimenter test image
@@ -89,19 +89,19 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "experimenter/experimenter/features/manifests/ experimenter/manifesttool/ application-services/"
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
-      - uses: ./.github/actions/retry
+      - uses: $/.github/actions/retry
         if: steps.check-paths.outputs.should-run == 'true'
         with:
           label: Build experimenter dev image
@@ -129,16 +129,16 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "schemas/"
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
       - name: Run schemas tests and linting
@@ -161,20 +161,20 @@ jobs:
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m desktop_enrollment --reruns 1 --rerun-show-tracebacks --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "experimenter/experimenter/ experimenter/tests/firefox_desktop_release_build.env experimenter/tests/nimbus_integration_tests.sh application-services/"
           integration: true
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
-      - uses: ./.github/actions/run-integration-test
+      - uses: $/.github/actions/run-integration-test
         if: steps.check-paths.outputs.should-run == 'true'
         with:
           artifact-name: desktop-enrollment-${{ matrix.split }}-test-report
@@ -203,20 +203,20 @@ jobs:
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m run_targeting -n 4 --reruns 1 --rerun-show-tracebacks --splits 2 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "experimenter/experimenter/experiments/ experimenter/experimenter/targeting/ experimenter/tests/nimbus_integration_tests.sh ${{ matrix.extra_paths }}"
           integration: true
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
-      - uses: ./.github/actions/run-integration-test
+      - uses: $/.github/actions/run-integration-test
         if: steps.check-paths.outputs.should-run == 'true'
         with:
           make-args: FIREFOX_CHANNEL=${{ matrix.channel }}
@@ -238,20 +238,20 @@ jobs:
       PYTEST_ARGS: -m nimbus_ui --reruns 1 --rerun-show-tracebacks --splits 4 --split ${{ matrix.split }} --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "experimenter/experimenter/ experimenter/tests/firefox_desktop_release_build.env experimenter/tests/nimbus_integration_tests.sh application-services/"
           integration: true
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
-      - uses: ./.github/actions/run-integration-test
+      - uses: $/.github/actions/run-integration-test
         if: steps.check-paths.outputs.should-run == 'true'
         with:
           make-args: ENABLE_NEW_DELIVERY_MENU=1
@@ -279,20 +279,20 @@ jobs:
       PYTEST_ARGS: -k FIREFOX_DESKTOP -m ${{ matrix.marker }} --reruns 1 --rerun-show-tracebacks --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "experimenter/experimenter/ experimenter/tests/firefox_desktop_release_build.env experimenter/tests/nimbus_integration_tests.sh application-services/"
           integration: true
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
-      - uses: ./.github/actions/run-integration-test
+      - uses: $/.github/actions/run-integration-test
         if: steps.check-paths.outputs.should-run == 'true'
         with:
           artifact-name: remote-settings-all-${{ matrix.marker }}-test-report
@@ -309,20 +309,20 @@ jobs:
       PYTEST_ARGS: -m remote_settings_launch --reruns 1 --rerun-show-tracebacks --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "experimenter/experimenter/ experimenter/tests/firefox_desktop_release_build.env experimenter/tests/nimbus_integration_tests.sh application-services/"
           integration: true
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
-      - uses: ./.github/actions/run-integration-test
+      - uses: $/.github/actions/run-integration-test
         if: steps.check-paths.outputs.should-run == 'true'
         with:
           artifact-name: remote-settings-launch-test-report
@@ -339,20 +339,20 @@ jobs:
       PYTEST_ARGS: -m experimenter_cirrus --reruns 1 --base-url https://nginx/nimbus/
       PYTEST_BASE_URL: https://nginx/nimbus/
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/check-changed-paths
+      - uses: $/.github/actions/check-changed-paths
         id: check-paths
         with:
           paths: "experimenter/experimenter/ cirrus/ application-services/"
           integration: true
 
-      - uses: ./.github/actions/setup-cached-build
+      - uses: $/.github/actions/setup-cached-build
         if: steps.check-paths.outputs.should-run == 'true'
 
-      - uses: ./.github/actions/run-integration-test
+      - uses: $/.github/actions/run-integration-test
         if: steps.check-paths.outputs.should-run == 'true'
         with:
           artifact-name: experimenter-cirrus-test-report
