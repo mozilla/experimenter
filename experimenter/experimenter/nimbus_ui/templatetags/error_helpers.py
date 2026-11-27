@@ -20,6 +20,8 @@ def get_branch_errors(validation_errors, is_reference, branch_index):
     if is_reference:
         return validation_errors.get("reference_branch", {})
     treatment_branches = validation_errors.get("treatment_branches", [])
+    if isinstance(treatment_branches, dict):
+        return treatment_branches.get(branch_index, {})
     try:
         return treatment_branches[branch_index]
     except (IndexError, TypeError):

@@ -2360,6 +2360,34 @@ class TestBranchesUpdateViews(AuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_get_with_show_errors_handles_partial_treatment_branch_errors(self):
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=NimbusExperiment.Application.DESKTOP
+        )
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            feature_configs=[feature_config],
+        )
+        NimbusBranchFactory.create(experiment=experiment, name="Treatment B")
+        second_treatment_feature_value = experiment.branches.get(
+            name="Treatment B"
+        ).feature_values.get()
+        second_treatment_feature_value.value = ""
+        second_treatment_feature_value.save()
+
+        response = self.client.get(
+            f"{reverse('nimbus-ui-update-branches', kwargs={'slug': experiment.slug})}"
+            "?show_errors=true"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        validation_errors = response.context["validation_errors"]
+        self.assertEqual(
+            validation_errors["treatment_branches"][1],
+            {"feature_values": {0: {"value": ["This field may not be blank."]}}},
+        )
+
     @parameterized.expand(
         [
             (NimbusExperimentFactory.Lifecycles.PREVIEW,),
