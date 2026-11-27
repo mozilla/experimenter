@@ -1567,7 +1567,7 @@ class NimbusReviewSerializer(serializers.ModelSerializer):
         localizations_json = data.get("localizations")
         try:
             localizations = json.loads(localizations_json)
-        except json.decoder.JSONDecodeError as e:
+        except (json.decoder.JSONDecodeError, TypeError) as e:
             raise serializers.ValidationError(
                 {"localizations": [f"Invalid JSON: {e}"]}
             ) from e
