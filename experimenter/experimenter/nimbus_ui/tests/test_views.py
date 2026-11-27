@@ -45,6 +45,8 @@ from experimenter.kinto.tasks import (
     nimbus_check_kinto_push_queue_by_collection,
     nimbus_synchronize_preview_experiments_in_kinto,
 )
+from experimenter.metrics import NimbusMetrics
+from experimenter.metrics.tests import mock_nimbus_metrics
 from experimenter.nimbus_ui.constants import TYPE_ICON_MAP, NimbusUIConstants
 from experimenter.nimbus_ui.filtersets import (
     FeaturesPageSortChoices,
@@ -5235,15 +5237,22 @@ def highwind_metric_with_windows(slug, reference, treatment, specs):
     return metric
 
 
+@mock_nimbus_metrics
 class TestHighwindResultsGrid(AuthTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         Outcomes.clear_cache()
 
+    def setUp(self):
+        super().setUp()
+        NimbusMetrics.clear_cache()
+        self.addCleanup(NimbusMetrics.clear_cache)
+
     def create_experiment(self, metrics):
         experiment = NimbusExperimentFactory.create_with_lifecycle(
             NimbusExperimentFactory.Lifecycles.ENDING_APPROVE_APPROVE,
+            application=NimbusExperiment.Application.DESKTOP,
         )
         branches = list(experiment.get_sorted_branches())
         self.reference = branches[0].slug
@@ -5319,7 +5328,7 @@ class TestHighwindResultsGrid(AuthTestCase):
 
         response = self.get_page(experiment)
 
-        self.assertContains(response, "Matures Dec. 1, 2026")
+        self.assertContains(response, "The first matures Dec. 1, 2026")
 
     def test_a_cell_with_too_little_data_says_so(self):
         experiment = self.create_experiment(
@@ -5438,7 +5447,8 @@ class TestHighwindResultsGrid(AuthTestCase):
 
         response = self.get_page(experiment)
 
-        cells = {cell["branch"]: cell for cell in response.context["metrics"][0]["cells"]}
+        window = response.context["metrics"][0]["windows"][0]
+        cells = {cell["branch"]: cell for cell in window["cells"]}
         self.assertTrue(cells[self.reference]["is_reference"])
         self.assertIsNone(cells[self.reference]["relative"])
 
@@ -5481,28 +5491,28 @@ class TestHighwindResultsGrid(AuthTestCase):
         # The breakdown uses the same cards as the results page, not a bespoke table.
         self.assertNotContains(response, "<thead>")
 
-    def test_the_breakdown_marks_the_window_shown_in_the_grid(self):
+    def test_a_ratio_opens_with_its_headline_window(self):
         experiment = self.create_experiment(
-            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+            lambda ref, treat: [highwind_metric("ad_click_rate", ref, treat)]
         )
 
         response = self.get_page(experiment)
 
-        self.assertContains(response, "Shown in the grid")
-
-    def test_the_breakdown_opens_with_the_matured_window_overview(self):
-        experiment = self.create_experiment(
-            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
-        )
-
-        response = self.get_page(experiment)
-
-        self.assertContains(response, "Most recent matured window")
+        self.assertContains(response, "Headline")
         self.assertContains(response, "Value")
         self.assertContains(response, "Relative change")
         self.assertTemplateUsed(response, "common/metric_popout_card.html")
 
-    def test_the_overview_relative_bar_has_geometry_to_draw_with(self):
+    def test_a_metric_that_is_not_a_ratio_has_no_headline(self):
+        experiment = self.create_experiment(
+            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+        )
+
+        response = self.get_page(experiment)
+
+        self.assertNotContains(response, "Headline")
+
+    def test_a_windows_relative_bar_has_geometry_to_draw_with(self):
         # The shared relative card renders an empty line without these.
         experiment = self.create_experiment(
             lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
@@ -5510,7 +5520,7 @@ class TestHighwindResultsGrid(AuthTestCase):
 
         response = self.get_page(experiment)
 
-        geometry = response.context["metrics"][0]["bar_geometry"]
+        geometry = response.context["metrics"][0]["windows"][0]["bar_geometry"]
         self.assertIn(self.treatment, geometry)
         self.assertEqual(
             set(geometry[self.treatment]),
@@ -5573,30 +5583,15 @@ class TestHighwindResultsGrid(AuthTestCase):
         self.assertNotContains(response, "fa-up-long")
         self.assertNotContains(response, "fa-down-long")
 
-    def test_the_summary_is_only_called_matured_once_it_settles(self):
-        settled = self.create_experiment(
-            lambda ref, treat: [
-                highwind_metric("days_of_use", ref, treat, state="confident")
-            ]
-        )
-        unsettled = self.create_experiment(
-            lambda ref, treat: [
-                highwind_metric("days_of_use", ref, treat, state="insufficient_data")
-            ]
-        )
-
-        self.assertContains(self.get_page(settled), "Most recent matured window")
-        self.assertNotContains(self.get_page(unsettled), "Most recent matured window")
-
     def test_shows_the_absolute_shift_against_the_reference(self):
         experiment = self.create_experiment(
-            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+            lambda ref, treat: [highwind_metric("ad_click_rate", ref, treat)]
         )
 
         response = self.get_page(experiment)
 
         self.assertContains(response, "Absolute shift")
-        cells = response.context["metrics"][0]["cells"]
+        cells = response.context["metrics"][0]["windows"][0]["cells"]
         treatment = next(cell for cell in cells if not cell["is_reference"])
         self.assertIsNotNone(treatment["absolute_shift"])
 
@@ -5671,7 +5666,7 @@ class TestHighwindResultsGrid(AuthTestCase):
     def test_the_window_badge_says_which_kind_it_is(self):
         experiment = self.create_experiment(
             lambda ref, treat: [
-                highwind_metric("days_of_use", ref, treat, start_day=0, end_day=6)
+                highwind_metric("ad_click_rate", ref, treat, start_day=0, end_day=6)
             ]
         )
 
@@ -5682,7 +5677,7 @@ class TestHighwindResultsGrid(AuthTestCase):
 
     def test_the_value_column_is_not_called_a_count(self):
         experiment = self.create_experiment(
-            lambda ref, treat: [highwind_metric("days_of_use", ref, treat)]
+            lambda ref, treat: [highwind_metric("ad_click_rate", ref, treat)]
         )
 
         response = self.get_page(experiment)
