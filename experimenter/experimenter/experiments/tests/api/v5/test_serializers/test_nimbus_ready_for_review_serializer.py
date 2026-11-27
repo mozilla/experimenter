@@ -2923,6 +2923,34 @@ class TestNimbusReviewSerializerSingleFeature(
             serializer.errors["localizations"][0].startswith("Invalid JSON: ")
         )
 
+    def test_localized_with_null_localizations(self):
+        locale_en_us = LocaleFactory.create(code="en-US")
+        experiment = NimbusExperimentFactory.create_with_lifecycle(
+            NimbusExperimentFactory.Lifecycles.CREATED,
+            application=NimbusExperiment.Application.DESKTOP,
+            locales=[locale_en_us],
+            is_localized=True,
+            localizations=None,
+            is_sticky=True,
+            firefox_min_version=NimbusExperiment.Version.FIREFOX_113,
+        )
+        serializer = NimbusReviewSerializer(
+            experiment,
+            data=NimbusReviewSerializer(
+                experiment,
+                context={"user": self.user},
+            ).data,
+            context={"user": self.user},
+            partial=True,
+        )
+        self.assertFalse(serializer.is_valid())
+
+        self.assertEqual(list(serializer.errors.keys()), ["localizations"])
+        self.assertEqual(len(serializer.errors["localizations"]), 1)
+        self.assertTrue(
+            serializer.errors["localizations"][0].startswith("Invalid JSON: ")
+        )
+
     def test_localized_with_invalid_localization_locales(self):
         locale_en_us = LocaleFactory.create(code="en-US")
         locale_en_ca = LocaleFactory.create(code="en-CA")
