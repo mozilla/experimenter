@@ -6766,6 +6766,106 @@ class TestNimbusFeaturesView(AuthTestCase):
         self.assertEqual(feature_schemas[3]["current_json"], schema_120)
         self.assertEqual(feature_schemas[3]["previous_json"], '"{}"')
 
+    def test_features_view_handles_null_schema(self):
+        application = NimbusExperiment.Application.DESKTOP
+
+        version_122 = NimbusFeatureVersion.objects.create(major=122, minor=0, patch=0)
+        version_121 = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
+
+        schema_122 = '{"field1": "value1"}'
+
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=application,
+            slug="test-feature-null-schema",
+        )
+
+        feature_config.schemas.all().delete()
+
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_121,
+            schema=None,
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_122,
+            schema=schema_122,
+        )
+
+        NimbusExperimentFactory.create(
+            name="Experiment with Null Schema Feature",
+            application=application,
+            feature_configs=[feature_config],
+            qa_status=NimbusExperiment.QAStatus.GREEN,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": feature_config.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        feature_schemas = response.context["feature_schemas"]
+
+        self.assertEqual(len(feature_schemas), 2)
+        self.assertEqual(feature_schemas[0]["current_json"], schema_122)
+        self.assertEqual(feature_schemas[0]["previous_json"], '"{}"')
+        self.assertEqual(feature_schemas[1]["current_json"], '"{}"')
+        self.assertEqual(feature_schemas[1]["previous_json"], '"{}"')
+
+    def test_features_view_handles_unparseable_schema(self):
+        application = NimbusExperiment.Application.DESKTOP
+
+        version_122 = NimbusFeatureVersion.objects.create(major=122, minor=0, patch=0)
+        version_121 = NimbusFeatureVersion.objects.create(major=121, minor=0, patch=0)
+
+        schema_122 = '{"field1": "value1"}'
+
+        feature_config = NimbusFeatureConfigFactory.create(
+            application=application,
+            slug="test-feature-invalid-schema",
+        )
+
+        feature_config.schemas.all().delete()
+
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_121,
+            schema="not valid json",
+        )
+        NimbusVersionedSchemaFactory.create(
+            feature_config=feature_config,
+            version=version_122,
+            schema=schema_122,
+        )
+
+        NimbusExperimentFactory.create(
+            name="Experiment with Invalid Schema Feature",
+            application=application,
+            feature_configs=[feature_config],
+            qa_status=NimbusExperiment.QAStatus.GREEN,
+        )
+
+        response = self.client.get(
+            reverse("nimbus-ui-features"),
+            {
+                "application": application.value,
+                "feature_configs": feature_config.id,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        feature_schemas = response.context["feature_schemas"]
+
+        self.assertEqual(len(feature_schemas), 2)
+        self.assertEqual(feature_schemas[0]["current_json"], schema_122)
+        self.assertEqual(feature_schemas[0]["previous_json"], '"{}"')
+        self.assertEqual(feature_schemas[1]["current_json"], '"{}"')
+        self.assertEqual(feature_schemas[1]["previous_json"], '"{}"')
+
     def test_features_view_feature_changes_loads_feature_versions(self):
         application = NimbusExperiment.Application.DESKTOP
 

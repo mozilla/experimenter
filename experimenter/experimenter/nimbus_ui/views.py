@@ -1154,13 +1154,19 @@ class NimbusFeaturesView(TemplateView):
             )
 
             schema_cache = []
+            schema_texts = []
             for schema in schemas:
-                schema_cache.append(json.loads(schema.schema))
+                try:
+                    schema_cache.append(json.loads(schema.schema))
+                    schema_texts.append(schema.schema)
+                except (TypeError, ValueError):
+                    schema_cache.append({})
+                    schema_texts.append('"{}"')
 
             # Pair each schema with its previous version
             for i, schema in enumerate(schemas):
-                current_json = schema.schema
-                previous_json = schemas[i + 1].schema if i + 1 < len(schemas) else '"{}"'
+                current_json = schema_texts[i]
+                previous_json = schema_texts[i + 1] if i + 1 < len(schemas) else '"{}"'
 
                 if i + 1 < len(schemas):
                     diff = DeepDiff(
