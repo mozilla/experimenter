@@ -1,17 +1,26 @@
 import datetime as dt
 from enum import Enum
 
-from mozilla_nimbus_schemas.highwind import HighwindCellState, HighwindDirection
+from mozilla_nimbus_schemas.highwind import (
+    HighwindCellState,
+    HighwindDirection,
+    HighwindWindowKind,
+)
 
+from experimenter.metrics import NimbusMetrics
 from experimenter.nimbus_ui.constants import METRICS_MIN_BOUNDS_WIDTH
 
 # The segment the job writes for every enrolled unit. The Highwind page has no segment
 # selector, so this is the one whose branch counts the overview shows.
 ALL_ENROLLED = "all_enrolled"
 
-# A window counts as matured once its comparisons settle, which is also what the job uses
-# to decide which window to mark as the summary.
+# A window counts as matured once its comparisons settle.
 SETTLED_STATES = {HighwindCellState.FORMING, HighwindCellState.CONFIDENT}
+
+# The aggregation a metric declares when it divides one metric by another. Every window
+# of a ratio is comparable with the one before it, so a ratio gets a headline where the
+# others are read a window at a time.
+RATIO_AGGREGATION = "ratio"
 
 
 class MetricDirection(str, Enum):
@@ -133,24 +142,20 @@ class HighwindResultsManager:
                 return segment
         return None
 
-    def get_summary_window(self, metric, segment_slug=ALL_ENROLLED):
-        # The job marks this: the largest settled cumulative window, or the latest
-        # settled one for a metric declaring only disjoint windows. Reading the flag keeps
-        # that rule in the job rather than restating it here, where it could drift.
-        segment = self.get_segment_result(metric, segment_slug) or {}
-        for window in segment.get("windows") or []:
-            if window.get("is_summary"):
-                return window
-        return None
-
     def summarise_window(self, window_result):
-        window = (window_result or {}).get("window")
-        if not window:
-            return None
+        # Every window the job reports carries one, so there is no absent case.
+        window = window_result["window"]
+        span_days = window["end_day"] - window["start_day"] + 1
         return {
             **window,
-            # The template shows the span where the Jetstream page shows its OVERALL tag.
-            "span_days": window["end_day"] - window["start_day"] + 1,
+            "span_days": span_days,
+            # How the stack names each row. A cumulative window always starts at
+            # enrolment, so its span says everything; a disjoint one needs both ends.
+            "label": (
+                f"first {span_days} days"
+                if window["kind"] == HighwindWindowKind.CUMULATIVE
+                else f"days {window['start_day']}\u2013{window['end_day']}"
+            ),
             "matures_on": parse_date(window.get("matures_on")),
         }
 
@@ -186,9 +191,7 @@ class HighwindResultsManager:
             )
         return cells
 
-    def bar_geometry(self, cells):
-        # The same maths the Jetstream view does for its relative change bar, scaled
-        # against the widest interval on this metric so the bars are comparable.
+    def relative_extreme(self, cells):
         bounds = [
             bound
             for cell in cells
@@ -196,10 +199,15 @@ class HighwindResultsManager:
             for bound in (cell["relative"]["lower"], cell["relative"]["upper"])
             if bound is not None
         ]
-        if not bounds:
-            return {}
+        return max((abs(bound) for bound in bounds), default=None)
 
-        extreme = max(abs(bound) for bound in bounds)
+    def bar_geometry(self, cells, extreme):
+        # The same maths the Jetstream view does for its relative change bar. The scale
+        # is passed in rather than taken from these cells, so every window of a metric
+        # draws against its widest interval: one that narrows draws a shorter bar
+        # instead of being redrawn to fill the same width.
+        if extreme is None:
+            return {}
         confidence_range = round(extreme * 100 * 1000) / 10
         full_width = confidence_range * 2 if confidence_range else 1
 
@@ -277,43 +285,91 @@ class HighwindResultsManager:
                     "cells": cells,
                     "state": self.get_state(cells),
                     "precision": self.get_precision(cells),
-                    "is_summary": window_result.get("is_summary", False),
                     "winsorization": winsorization(window_result),
                 }
             )
         return windows
 
+    def has_headline(self, aggregation):
+        # A ratio's windows all measure the same thing, so one of them can speak for
+        # the metric. Every other shape is read a window at a time. Kept apart from
+        # the rule below so another shape can qualify without restating it.
+        return aggregation == RATIO_AGGREGATION
+
+    def headline_window(self, windows):
+        # Taken from the windows that run from enrolment, so a single week never
+        # speaks for the metric: the deepest confident one, or the deepest still
+        # forming when none has settled. An errored or starved window answers
+        # nothing, so it is never the headline.
+        cumulative = [
+            window
+            for window in windows
+            if window["kind"] == HighwindWindowKind.CUMULATIVE
+        ]
+        for state in (HighwindCellState.CONFIDENT, HighwindCellState.FORMING):
+            settled = [window for window in cumulative if window["state"] == state]
+            if settled:
+                return max(settled, key=lambda window: window["end_day"])
+        return None
+
+    def aggregations(self):
+        # How each metric is computed, which the blob does not carry. Matched by slug
+        # against the application's own catalog.
+        catalog = NimbusMetrics.by_application(self.experiment.application)
+        return {metric.slug: metric.aggregation for metric in catalog.metrics}
+
     def get_metrics(self, segment_slug=ALL_ENROLLED):
+        aggregations = self.aggregations()
         metrics = []
 
         for metric in self.analysis.get("metrics") or []:
-            window_result = self.get_summary_window(metric, segment_slug)
-            window = self.summarise_window(window_result)
-            cells = self.get_cells(window_result)
-            states = {cell["state"] for cell in cells}
+            slug = metric.get("slug")
+            windows = self.get_all_windows(metric, segment_slug)
+            cells = [cell for window in windows for cell in window["cells"]]
 
+            extreme = self.relative_extreme(cells)
+            precision = self.get_precision(cells)
+            for window in windows:
+                window["bar_geometry"] = self.bar_geometry(window["cells"], extreme)
+                window["precision"] = precision
+
+            has_headline = self.has_headline(aggregations.get(slug))
             metrics.append(
                 {
-                    "slug": metric.get("slug"),
-                    "friendly_name": metric.get("friendly_name") or metric.get("slug"),
+                    "slug": slug,
+                    "friendly_name": metric.get("friendly_name") or slug,
                     "description": metric.get("description"),
-                    "window": window,
-                    "windows": self.get_all_windows(metric, segment_slug),
-                    "cells": cells,
-                    "bar_geometry": self.bar_geometry(cells),
-                    "precision": self.get_precision(cells),
-                    "winsorization": winsorization(window_result),
+                    "windows": windows,
+                    "precision": precision,
                     "state": self.get_state(cells),
-                    # Only a settled summary is worth calling the most recent matured
-                    # window; anything else has not matured yet.
-                    "is_settled": bool(states & SETTLED_STATES),
-                    # An errored or insufficient cell still renders a row saying so.
+                    "has_headline": has_headline,
+                    # Clipping is set on the metric, so every window it applies to
+                    # reports the same mode.
+                    "winsorization": next(
+                        (
+                            window["winsorization"]
+                            for window in windows
+                            if window["winsorization"]
+                        ),
+                        None,
+                    ),
+                    "headline": (self.headline_window(windows) if has_headline else None),
+                    # A window that has not started renders a row saying so, so a metric
+                    # with nothing but those has nothing to draw.
                     "has_results": bool(
                         cells and self.get_state(cells) != HighwindCellState.NOT_STARTED
                     ),
-                    # The job falls back to the first window when nothing has settled, so
-                    # this is the date an unmatured metric is waiting on.
-                    "matures_on": (window or {}).get("matures_on"),
+                    # The next window to mature, which is what an unstarted metric waits
+                    # on.
+                    "matures_on": min(
+                        (
+                            window["matures_on"]
+                            for window in windows
+                            if window["state"] == HighwindCellState.NOT_STARTED
+                            and window["matures_on"]
+                        ),
+                        default=None,
+                    ),
                     "direction": self.get_direction(cells),
                     "has_confident_change": any(
                         cell["state"] == HighwindCellState.CONFIDENT

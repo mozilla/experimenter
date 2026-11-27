@@ -1,0 +1,23 @@
+{% load nimbus_extras %}
+
+{% comment %} One window's result for one branch, however it turned out {% endcomment %}
+{% if cell.state == "error" %}
+  <div class="p-3 bg-warning-subtle text-warning-emphasis text-center d-flex flex-column align-items-center justify-content-center rounded-3"
+       style="height: 100px">
+    <span class="fw-semibold">{{ NimbusUIConstants.METRIC_ERRORS_TITLE }}</span>
+    {% if cell.error %}<small>{{ cell.error }}</small>{% endif %}
+  </div>
+{% elif cell.state == "insufficient_data" %}
+  <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center rounded-3"
+       style="height: 100px">
+    <span>Insufficient data</span>
+  </div>
+{% elif cell.state == "not_started" %}
+  <div class="p-3 bg-body-tertiary text-muted text-center d-flex align-items-center justify-content-center rounded-3"
+       style="height: 100px">
+    <span>Not started</span>
+  </div>
+{% else %}
+  {% include "common/metric_card.html" with slug=cell.branch reference_branch=reference_branch absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction percentage=cell.relative.point lower_percent=cell.relative.lower upper_percent=cell.relative.upper precision=window.precision %}
+
+{% endif %}

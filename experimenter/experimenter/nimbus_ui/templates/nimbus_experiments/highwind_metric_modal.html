@@ -20,42 +20,36 @@
       </div>
       <div class="modal-body d-flex flex-column gap-4">
         {% if metric.description %}<p class="text-muted mb-0">{{ metric.description }}</p>{% endif %}
-        {% comment %} The popout's Overview, from the marked window rather than an overall one {% endcomment %}
-        {% if metric.has_results %}
+        {% if metric.winsorization %}
+          {% with label=NimbusUIConstants.HIGHWIND_WINSORIZE_LABELS|dict_get:metric.winsorization.mode %}
+            <div>
+              {% include "nimbus_experiments/highwind_winsorize_badge.html" with mode=metric.winsorization.mode post_threshold=metric.winsorization.post_threshold precision=metric.precision %}
+
+              <small class="text-muted d-block mt-2">
+                {{ label.1 }}
+                {% if metric.winsorization.pre_threshold != None %}
+                  CUPED's pre-enrolment value was clipped at {{ metric.winsorization.pre_threshold|floatformat:metric.precision }}.
+                {% endif %}
+                {% for clipped in metric.winsorization.clipped %}
+                  <span class="me-2">{{ clipped.share|to_percentage:2 }} of {{ clipped.branch }} clipped.</span>
+                {% endfor %}
+              </small>
+            </div>
+          {% endwith %}
+        {% endif %}
+        {% comment %} A ratio's headline window, the only metric with one {% endcomment %}
+        {% if metric.headline %}
           <div class="border border-1 rounded py-4 px-5 rounded-4">
             <div class="d-flex align-items-center gap-2">
-              <h2 class="fs-6 fw-bold mb-0">
-                {% if metric.is_settled %}
-                  Most recent matured window
-                {% else %}
-                  Earliest window
-                {% endif %}
-              </h2>
-              {% include "nimbus_experiments/highwind_window_badge.html" with window=metric.window %}
-              {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.state %}
+              <h2 class="fs-6 fw-bold mb-0">Headline</h2>
+              {% include "nimbus_experiments/highwind_window_badge.html" with window=metric.headline %}
+              {% include "nimbus_experiments/highwind_state_badge.html" with state=metric.headline.state %}
 
-              {% if metric.winsorization %}
-                {% include "nimbus_experiments/highwind_winsorize_badge.html" with mode=metric.winsorization.mode post_threshold=metric.winsorization.post_threshold precision=metric.precision %}
-
-              {% endif %}
             </div>
-            {% if metric.winsorization %}
-              {% with label=NimbusUIConstants.HIGHWIND_WINSORIZE_LABELS|dict_get:metric.winsorization.mode %}
-                <small class="text-muted d-block mt-2">
-                  {{ label.1 }}
-                  {% if metric.winsorization.pre_threshold != None %}
-                    CUPED's pre-enrolment value was clipped at {{ metric.winsorization.pre_threshold|floatformat:metric.precision }}.
-                  {% endif %}
-                  {% for clipped in metric.winsorization.clipped %}
-                    <span class="me-2">{{ clipped.share|to_percentage:2 }} of {{ clipped.branch }} clipped.</span>
-                  {% endfor %}
-                </small>
-              {% endwith %}
-            {% endif %}
             <div class="row row-cols-4 g-3 mt-1">
               <div class="col">
                 <p class="fw-bold text-center">Branches</p>
-                {% for cell in metric.cells %}
+                {% for cell in metric.headline.cells %}
                   <div class="p-3 mb-3 d-flex flex-column justify-content-center text-center align-items-center"
                        style="height: 75px">
                     {% if cell.is_reference %}<small class="text-muted">Baseline</small>{% endif %}
@@ -65,14 +59,14 @@
               </div>
               <div class="col">
                 <p class="fw-bold text-center">Value</p>
-                {% for cell in metric.cells %}
+                {% for cell in metric.headline.cells %}
                   {% include "common/metric_popout_card.html" with type="absolute" absolute_lower=cell.absolute.lower absolute_upper=cell.absolute.upper significance=cell.direction reference_branch=reference_branch branch_slug=cell.branch precision=metric.precision %}
 
                 {% endfor %}
               </div>
               <div class="col">
                 <p class="fw-bold text-center">Absolute shift</p>
-                {% for cell in metric.cells %}
+                {% for cell in metric.headline.cells %}
                   <div class="p-3 mb-3 d-flex flex-column justify-content-center text-center align-items-center"
                        style="height: 75px">
                     {% if cell.is_reference %}
@@ -89,8 +83,8 @@
               <div class="col">
                 <p class="fw-bold text-center">Relative change</p>
                 <div class="d-flex flex-column">
-                  {% for cell in metric.cells %}
-                    {% include "common/metric_popout_card.html" with type="relative" significance=cell.direction reference_branch=reference_branch branch_slug=cell.branch branch_relative_ui_properties=metric.bar_geometry|dict_get:cell.branch lower_relative=cell.relative.lower upper_relative=cell.relative.upper %}
+                  {% for cell in metric.headline.cells %}
+                    {% include "common/metric_popout_card.html" with type="relative" significance=cell.direction reference_branch=reference_branch branch_slug=cell.branch branch_relative_ui_properties=metric.headline.bar_geometry|dict_get:cell.branch lower_relative=cell.relative.lower upper_relative=cell.relative.upper %}
 
                   {% endfor %}
                 </div>
@@ -114,8 +108,6 @@
                         <small class="text-muted">{{ window.span_days }} day{{ window.span_days|pluralize }}</small>
                         {% if window.state == "not_started" and window.matures_on %}
                           <small class="text-body-tertiary">Matures {{ window.matures_on|date:"N j" }}</small>
-                        {% elif window.is_summary %}
-                          <small class="text-body-tertiary">Shown in the grid</small>
                         {% endif %}
                         {% if window.winsorization.post_threshold != None %}
                           <small class="text-body-tertiary">Clipped at {{ window.winsorization.post_threshold|floatformat:window.precision }}</small>

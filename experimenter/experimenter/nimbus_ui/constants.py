@@ -423,6 +423,12 @@ Optional - We expect this to <describe impact> on <core metric>.
         ),
     }
 
+    HIGHWIND_HEADLINE_TOOLTIP = (
+        "This metric's windows all measure the same thing, so the deepest confident "
+        "one is the best answer so far. Where none is confident, the most recently "
+        "matured window stands in."
+    )
+
     # How each window's values were clipped before the statistics ran. The job derives
     # the threshold from the reference branch, so it belongs with the window rather than
     # with the metric's definition.
