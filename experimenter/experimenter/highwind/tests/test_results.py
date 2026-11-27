@@ -4,6 +4,7 @@ from django.test import TestCase
 from mozilla_nimbus_schemas.highwind import (
     HighwindCellState,
     HighwindDirection,
+    HighwindWindowKind,
     HighwindWinsorizeMode,
 )
 
@@ -259,13 +260,13 @@ class TestHighwindHeadline(HighwindResultsTestCase):
     def test_a_metric_that_is_not_a_ratio_has_no_headline(self):
         result = self.metric_with_window(slug=COUNT_METRIC)
 
-        self.assertFalse(result["is_ratio"])
+        self.assertFalse(result["has_headline"])
         self.assertIsNone(result["headline"])
 
     def test_a_metric_missing_from_the_catalog_has_no_headline(self):
         result = self.metric_with_window(slug="not_in_the_catalog")
 
-        self.assertFalse(result["is_ratio"])
+        self.assertFalse(result["has_headline"])
         self.assertIsNone(result["headline"])
 
     def test_a_ratios_headline_is_its_deepest_confident_window(self):
@@ -278,11 +279,44 @@ class TestHighwindHeadline(HighwindResultsTestCase):
             ]
         )
 
-        self.assertTrue(result["is_ratio"])
+        self.assertTrue(result["has_headline"])
         self.assertEqual(result["headline"]["end_day"], 13)
         self.assertEqual(result["headline"]["state"], HighwindCellState.CONFIDENT)
 
-    def test_with_nothing_confident_the_headline_is_the_latest_matured_window(self):
+    def test_a_single_week_never_speaks_for_the_metric(self):
+        # A disjoint window can be the deepest confident one, but it covers a week
+        # rather than everything since enrolment, so it is not the headline.
+        result = self.ratio_with_windows(
+            [
+                build_window(end_day=6, state=HighwindCellState.CONFIDENT),
+                build_window(end_day=13, state=HighwindCellState.FORMING),
+                build_window(
+                    kind=HighwindWindowKind.DISJOINT,
+                    start_day=7,
+                    end_day=13,
+                    state=HighwindCellState.CONFIDENT,
+                ),
+            ]
+        )
+
+        self.assertEqual(result["headline"]["kind"], HighwindWindowKind.CUMULATIVE)
+        self.assertEqual(result["headline"]["end_day"], 6)
+
+    def test_a_window_that_answered_nothing_is_never_the_headline(self):
+        # The deepest window that started, but an errored or starved one has no
+        # result to show, so the deepest forming window stands in.
+        result = self.ratio_with_windows(
+            [
+                build_window(end_day=6, state=HighwindCellState.FORMING),
+                build_window(end_day=13, state=HighwindCellState.INSUFFICIENT_DATA),
+                build_window(end_day=20, state=HighwindCellState.ERROR),
+            ]
+        )
+
+        self.assertEqual(result["headline"]["end_day"], 6)
+        self.assertEqual(result["headline"]["state"], HighwindCellState.FORMING)
+
+    def test_with_nothing_confident_the_headline_is_the_deepest_forming_window(self):
         result = self.ratio_with_windows(
             [
                 build_window(end_day=6, state=HighwindCellState.FORMING),

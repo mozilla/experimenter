@@ -290,21 +290,27 @@ class HighwindResultsManager:
             )
         return windows
 
+    def has_headline(self, aggregation):
+        # A ratio's windows all measure the same thing, so one of them can speak for
+        # the metric. Every other shape is read a window at a time. Kept apart from
+        # the rule below so another shape can qualify without restating it.
+        return aggregation == RATIO_AGGREGATION
+
     def headline_window(self, windows):
-        # Only a ratio gets one: its windows measure the same thing, so the deepest
-        # confident one is the best answer so far. The others are each their own result.
-        confident = [
-            window for window in windows if window["state"] == HighwindCellState.CONFIDENT
-        ]
-        matured = [
+        # Taken from the windows that run from enrolment, so a single week never
+        # speaks for the metric: the deepest confident one, or the deepest still
+        # forming when none has settled. An errored or starved window answers
+        # nothing, so it is never the headline.
+        cumulative = [
             window
             for window in windows
-            if window["state"] != HighwindCellState.NOT_STARTED
+            if window["kind"] == HighwindWindowKind.CUMULATIVE
         ]
-        candidates = confident or matured
-        if not candidates:
-            return None
-        return max(candidates, key=lambda window: window["end_day"])
+        for state in (HighwindCellState.CONFIDENT, HighwindCellState.FORMING):
+            settled = [window for window in cumulative if window["state"] == state]
+            if settled:
+                return max(settled, key=lambda window: window["end_day"])
+        return None
 
     def aggregations(self):
         # How each metric is computed, which the blob does not carry. Matched by slug
@@ -327,7 +333,7 @@ class HighwindResultsManager:
                 window["bar_geometry"] = self.bar_geometry(window["cells"], extreme)
                 window["precision"] = precision
 
-            is_ratio = aggregations.get(slug) == RATIO_AGGREGATION
+            has_headline = self.has_headline(aggregations.get(slug))
             metrics.append(
                 {
                     "slug": slug,
@@ -336,7 +342,7 @@ class HighwindResultsManager:
                     "windows": windows,
                     "precision": precision,
                     "state": self.get_state(cells),
-                    "is_ratio": is_ratio,
+                    "has_headline": has_headline,
                     # Clipping is set on the metric, so every window it applies to
                     # reports the same mode.
                     "winsorization": next(
@@ -347,7 +353,7 @@ class HighwindResultsManager:
                         ),
                         None,
                     ),
-                    "headline": self.headline_window(windows) if is_ratio else None,
+                    "headline": (self.headline_window(windows) if has_headline else None),
                     # A window that has not started renders a row saying so, so a metric
                     # with nothing but those has nothing to draw.
                     "has_results": bool(
