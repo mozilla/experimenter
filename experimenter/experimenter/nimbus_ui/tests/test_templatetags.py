@@ -115,6 +115,36 @@ class TestGetBranchErrorsTag(TestCase):
         context = Context({"validation_errors": validation_errors})
         self.assertEqual(template.render(context), "{}")
 
+    def test_get_treatment_branch_errors_dict_missing_branch(self):
+        template = Template(
+            "{% load error_helpers %}"
+            "{% get_branch_errors validation_errors False 0 as errors %}"
+            "{{ errors }}"
+        )
+        validation_errors = {
+            "treatment_branches": {
+                1: {"description": ["Treatment B error"]},
+                2: {"description": ["Treatment C error"]},
+            },
+        }
+        context = Context({"validation_errors": validation_errors})
+        self.assertEqual(template.render(context), "{}")
+
+    def test_get_treatment_branch_errors_dict_with_int_key(self):
+        template = Template(
+            "{% load error_helpers %}"
+            "{% get_branch_errors validation_errors False 1 as errors %}"
+            "{{ errors.description.0 }}"
+        )
+        validation_errors = {
+            "treatment_branches": {
+                1: {"description": ["Treatment B error"]},
+                2: {"description": ["Treatment C error"]},
+            },
+        }
+        context = Context({"validation_errors": validation_errors})
+        self.assertEqual(template.render(context), "Treatment B error")
+
     def test_get_branch_errors_feature_values(self):
         template = Template(
             "{% load error_helpers %}"
