@@ -1,0 +1,365 @@
+# Example nimbus/definitions metric definitions. Copy this file, rename it to
+# <application>.toml (e.g. firefox_desktop.toml), and replace the metrics below.
+#
+# The application is inferred from the filename stem. Do not add it inside the file.
+# The only top-level tables are [metrics] and [data_sources]. A data source used only by
+# metrics here can be declared under [data_sources.<name>] instead of definitions/.
+# Any key not shown in this file is rejected, including select_expression.
+
+# ---------------------------------------------------------------------------
+# sum: the sum of a column
+# ---------------------------------------------------------------------------
+
+# The table key is the metric name. It may also be defined in definitions/.
+[metrics.active_hours]
+# Optional: display name on the results page.
+friendly_name = "Active hours"
+# Optional: display description on the results page.
+description = "Time during which Firefox received user input."
+# Optional: category used to group metrics in the documentation.
+category = "performance"
+# Optional: owner email address, or a list of them.
+owner = ["example@mozilla.com", "team@mozilla.com"]
+# Optional: one of gold, silver, bronze.
+level = "gold"
+# Optional: marks the metric as deprecated. Default: false.
+deprecated = false
+# Required: a data source defined in definitions/<application>.toml.
+data_source = "clients_daily"
+# Required: one of sum, sum_where, count, count_where, any, recency_within.
+aggregation = "sum"
+# Required for sum: a plain column name, never an expression.
+column = "active_hours_sum"
+# Optional: cumulative windows of 7 days, counted from enrollment.
+cumulative_window = 7
+# Optional: repeat the windows for the length of the experiment. Default: false.
+repeat_windows = true
+
+# Optional: statistics, one table per statistic holding its parameters.
+# Nothing reads this field yet.
+[metrics.active_hours.statistics.linear_model_mean]
+
+# ---------------------------------------------------------------------------
+# sum_where: the sum of a column over rows matching conditions
+# ---------------------------------------------------------------------------
+
+[metrics.example_sum_where]
+data_source = "clients_daily"
+aggregation = "sum_where"
+# Required for sum_where: a plain column name, the value to sum. There is no
+# column shorthand, since column already names the summed value.
+column = "example_column"
+cumulative_window = 7
+repeat_windows = true
+
+# Required for sum_where: at least one condition, like count_where and any.
+[[metrics.example_sum_where.where]]
+column = "example_condition_column"
+op = "="
+value = "example_value"
+
+# ---------------------------------------------------------------------------
+# sum with a threshold: 0/1
+# ---------------------------------------------------------------------------
+
+[metrics.retained]
+friendly_name = "Retained"
+data_source = "clients_daily"
+aggregation = "sum"
+column = "pings_aggregated_by_this_row"
+# Optional: compares the aggregated value; the result is 1 if it holds, else 0.
+threshold = { op = ">", value = 0 }
+# Optional: back-to-back 7-day windows, each covering only its own days.
+incremental_window = 7
+repeat_windows = true
+
+# ---------------------------------------------------------------------------
+# count: rows where the column is not null
+# ---------------------------------------------------------------------------
+
+[metrics.days_of_use]
+friendly_name = "Days of use"
+data_source = "clients_daily"
+aggregation = "count"
+# Required for count: rows where this column is not null are counted.
+column = "submission_date"
+cumulative_window = 7
+repeat_windows = true
+
+# ---------------------------------------------------------------------------
+# count_where with conditions
+# ---------------------------------------------------------------------------
+
+[metrics.qualified_cumulative_days_of_use]
+friendly_name = "Qualified cumulative days of use"
+data_source = "clients_daily"
+# count_where takes either `column` or `where`, not both.
+# `column` names a boolean column and counts the rows where it is true.
+# `where` is a list of conditions and counts the rows where all of them hold.
+aggregation = "count_where"
+cumulative_window = 7
+repeat_windows = true
+
+# Each [[...where]] table is one condition. A row matches when all of them hold.
+[[metrics.qualified_cumulative_days_of_use.where]]
+# Required: a plain column name.
+column = "active_hours_sum"
+# Operators: >, >=, <, <=, =, !=, IS NULL, IS NOT NULL.
+op = ">"
+# Required for comparison operators. A null column never matches a comparison.
+value = 0
+
+[[metrics.qualified_cumulative_days_of_use.where]]
+column = "scalar_parent_browser_engagement_total_uri_count_normal_and_private_mode_sum"
+op = ">"
+value = 0
+
+# ---------------------------------------------------------------------------
+# count_where with string, null and boolean conditions
+# ---------------------------------------------------------------------------
+
+[metrics.release_default_browser_days_with_search_engine]
+data_source = "clients_daily"
+aggregation = "count_where"
+# One 3-day cumulative window, not repeated.
+cumulative_window = 3
+
+[[metrics.release_default_browser_days_with_search_engine.where]]
+column = "normalized_channel"
+op = "="
+# Values may be numbers, strings or booleans.
+value = "release"
+
+[[metrics.release_default_browser_days_with_search_engine.where]]
+column = "default_search_engine"
+# IS NULL and IS NOT NULL take no value.
+op = "IS NOT NULL"
+
+[[metrics.release_default_browser_days_with_search_engine.where]]
+# No op: tests a boolean column for true.
+column = "is_default_browser"
+
+# ---------------------------------------------------------------------------
+# any with the column shorthand: 0/1
+# ---------------------------------------------------------------------------
+
+[metrics.is_default_browser]
+friendly_name = "Is default browser"
+data_source = "clients_daily"
+aggregation = "any"
+# Shorthand for a single condition testing this boolean column for true.
+column = "is_default_browser"
+cumulative_window = 7
+repeat_windows = true
+
+# ---------------------------------------------------------------------------
+# count_where with scale
+# ---------------------------------------------------------------------------
+
+[metrics.default_browser_days_per_1000]
+data_source = "clients_daily"
+aggregation = "count_where"
+column = "is_default_browser"
+# Optional: multiplies the final value, after any threshold.
+scale = 1000
+# Optional: direction of improvement on the results page. Default: true.
+bigger_is_better = true
+cumulative_window = 7
+repeat_windows = true
+
+# ---------------------------------------------------------------------------
+# recency_within: 0/1
+# ---------------------------------------------------------------------------
+
+[metrics.active_in_last_3_days_legacy]
+friendly_name = "Active in the last 3 days"
+data_source = "firefox_desktop_active_users_view"
+aggregation = "recency_within"
+# Required for recency_within: a 28-day activity bit pattern column.
+column = "days_active_bits"
+# Required for recency_within, and only allowed there: a positive number of days.
+within_days = 3
+incremental_window = 7
+repeat_windows = true
+# Set to false when a lower value is an improvement.
+bigger_is_better = true
+
+# ---------------------------------------------------------------------------
+# keep_nulls: whether a unit with no rows stays null
+# ---------------------------------------------------------------------------
+
+[metrics.example_sum_keep_nulls]
+data_source = "clients_daily"
+aggregation = "sum"
+column = "example_column"
+# Optional: false (default) defaults a unit with no rows to 0 (sum, sum_where)
+# or FALSE (any); true leaves it null. Valid for sum, sum_where and any.
+keep_nulls = true
+cumulative_window = 7
+repeat_windows = true
+
+# ---------------------------------------------------------------------------
+# recency_within with encoding: the column is already a days-since-active count
+# ---------------------------------------------------------------------------
+
+[metrics.active_in_last_3_days]
+data_source = "firefox_desktop_baseline_active_users_view"
+aggregation = "recency_within"
+column = "days_since_desktop_active"
+# Optional: bits28 (default) decodes a 28-day activity bit pattern; days means
+# the column already holds the number of days since the unit was last active.
+encoding = "days"
+within_days = 3
+
+# ---------------------------------------------------------------------------
+# data_sources: a data source used only by nimbus/ metrics, declared here
+# instead of in definitions/<application>.toml
+# ---------------------------------------------------------------------------
+
+[data_sources.example_events]
+from_expression = "(SELECT * FROM telemetry.example_events)"
+submission_date_column = "submission_date"
+
+[metrics.example_data_source_metric]
+data_source = "example_events"
+aggregation = "any"
+
+[[metrics.example_data_source_metric.where]]
+column = "event_name"
+op = "="
+value = "example_event"
+
+# ---------------------------------------------------------------------------
+# column forms: a keyed-map extraction or a JSON field extraction, in place of
+# a plain column name
+# ---------------------------------------------------------------------------
+
+[metrics.crlite_use_counter]
+data_source = "clients_daily"
+aggregation = "sum"
+# A table with map (and optionally key) in place of a plain column name:
+# mozfun.map.get_key(map, key). Omit key for mozfun.map.extract_keyed_scalar_sum(map).
+column = { map = "metrics.labeled_counter.cert_verifier_cert_revocation_mechanisms", key = "CRLite" }
+
+[metrics.pin_prompt_accepted]
+data_source = "clients_daily"
+aggregation = "any"
+
+[[metrics.pin_prompt_accepted.where]]
+column = "event_category"
+op = "="
+value = "taskbar"
+
+[[metrics.pin_prompt_accepted.where]]
+# A table with json and path in place of a plain column name: JSON_VALUE(json, path).
+column = { json = "event_extra", path = "result" }
+op = "="
+value = "success_pinned"
+
+# ---------------------------------------------------------------------------
+# LIKE and IN operators
+# ---------------------------------------------------------------------------
+
+[metrics.pip_disabled]
+data_source = "clients_daily"
+aggregation = "count_where"
+threshold = { op = ">", value = 0 }
+
+[[metrics.pip_disabled.where]]
+column = "event_category"
+op = "="
+value = "pictureinpicture"
+
+[[metrics.pip_disabled.where]]
+column = "event_name"
+# Optional: LIKE matches the pattern. IN (below) matches one of a list of values.
+op = "LIKE"
+value = "%disable%"
+
+[metrics.pin_prompt_shown]
+data_source = "clients_daily"
+aggregation = "any"
+
+[[metrics.pin_prompt_shown.where]]
+column = "event_category"
+op = "="
+value = "taskbar"
+
+[[metrics.pin_prompt_shown.where]]
+column = { json = "event_extra", path = "result" }
+op = "IN"
+value = ["success_pinned", "success_rejected"]
+
+# ---------------------------------------------------------------------------
+# OR within a condition
+# ---------------------------------------------------------------------------
+
+[metrics.site_breakage_uses]
+data_source = "clients_daily"
+aggregation = "any"
+
+[[metrics.site_breakage_uses.where]]
+# A table with one key, any_of, a list of at least two clauses OR'd together.
+# This condition still AND's with the rest of where, same as any other condition.
+any_of = [
+  { column = "event_name", op = "=", value = "send" },
+  { column = "event_name", op = "=", value = "send_more_info" },
+]
+
+# ---------------------------------------------------------------------------
+# ratio: one metric divided by another
+# ---------------------------------------------------------------------------
+
+[metrics.example_ratio_clicks]
+data_source = "clients_daily"
+aggregation = "sum"
+column = "example_click_count"
+
+[metrics.example_ratio_impressions]
+data_source = "clients_daily"
+aggregation = "sum"
+column = "example_impression_count"
+
+[metrics.example_ratio]
+friendly_name = "Example click-through rate"
+description = "Example ratio of clicks to impressions."
+# Required: a metric declared in nimbus/ for this application. Neither
+# numerator nor denominator may itself be a ratio.
+numerator = "example_ratio_clicks"
+# Required: a metric declared in nimbus/ for this application, distinct from
+# numerator.
+denominator = "example_ratio_impressions"
+# A ratio takes no data_source, column, where or other aggregation field,
+# including winsorize_quantile and winsorize_threshold.
+aggregation = "ratio"
+
+# ---------------------------------------------------------------------------
+# winsorize_quantile: the cut point Highwind clips the upper tail at, Highwind-only
+# ---------------------------------------------------------------------------
+
+[metrics.example_winsorized_sum]
+data_source = "clients_daily"
+aggregation = "sum"
+column = "example_column"
+# Optional: 0 < q <= 1. Omit to use Highwind's own default; 1 turns
+# winsorization off explicitly. At most one of winsorize_quantile or
+# winsorize_threshold may be set. Not valid on a yes/no metric (any,
+# recency_within, or anything with a threshold) or a ratio. No effect on
+# generated SQL.
+winsorize_quantile = 0.995
+cumulative_window = 7
+repeat_windows = true
+
+# ---------------------------------------------------------------------------
+# winsorize_threshold: a fixed upper bound per 7 days, Highwind-only
+# ---------------------------------------------------------------------------
+
+[metrics.example_winsorized_sum_with_threshold]
+data_source = "clients_daily"
+aggregation = "sum"
+column = "example_other_column"
+# Optional: a fixed upper bound per 7 days. Same restrictions as
+# winsorize_quantile.
+winsorize_threshold = 500
+cumulative_window = 7
+repeat_windows = true

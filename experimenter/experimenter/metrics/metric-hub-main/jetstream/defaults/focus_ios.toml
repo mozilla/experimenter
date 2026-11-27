@@ -3,7 +3,6 @@ daily = ["retained"]
 weekly = ["retained", "active_hours", "days_of_use"]
 overall = ["active_hours", "days_of_use"]
 preenrollment_weekly = ["active_hours", "days_of_use"]
-preenrollment_days28 = ["active_hours", "days_of_use"]
 
 [metrics.retained]
 select_expression = "COALESCE(COUNT(document_id), 0) > 0"
@@ -16,8 +15,8 @@ binomial = {}
 
 [metrics.active_hours.statistics]
 deciles = {}
-bootstrap_mean = {}
 [metrics.active_hours.statistics.linear_model_mean]
+drop_highest = 0.005
 [metrics.active_hours.statistics.linear_model_mean.covariate_adjustment]
 period = "preenrollment_week"
 
@@ -25,7 +24,6 @@ period = "preenrollment_week"
 
 [metrics.days_of_use.statistics]
 deciles = {}
-bootstrap_mean = { drop_highest = 0 }
 empirical_cdf = {}
 [metrics.days_of_use.statistics.linear_model_mean]
 drop_highest = 0.0
@@ -33,4 +31,5 @@ drop_highest = 0.0
 period = "preenrollment_week"
 
 [metrics.client_level_daily_active_users_v2.statistics.per_client_dau_impact]
+drop_highest = 0.0
 pre_treatments = ['normalize_over_analysis_period']

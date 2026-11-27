@@ -14,12 +14,6 @@ preenrollment_weekly = [
   "search_count",
   "serp_ad_clicks",
 ]
-preenrollment_days28 = [
-  "active_hours",
-  "days_of_use",
-  "search_count",
-  "serp_ad_clicks",
-]
 
 [metrics.retained]
 select_expression = "COALESCE(COUNT(document_id), 0) > 0"
@@ -32,8 +26,8 @@ binomial = {}
 
 [metrics.active_hours.statistics]
 deciles = {}
-bootstrap_mean = {}
 [metrics.active_hours.statistics.linear_model_mean]
+drop_highest = 0.005
 [metrics.active_hours.statistics.linear_model_mean.covariate_adjustment]
 period = "preenrollment_week"
 
@@ -41,7 +35,6 @@ period = "preenrollment_week"
 
 [metrics.days_of_use.statistics]
 deciles = {}
-bootstrap_mean = { drop_highest = 0 }
 empirical_cdf = {}
 [metrics.days_of_use.statistics.linear_model_mean]
 drop_highest = 0.0
@@ -52,8 +45,8 @@ period = "preenrollment_week"
 
 [metrics.search_count.statistics]
 deciles = {}
-bootstrap_mean = {}
 [metrics.search_count.statistics.linear_model_mean]
+drop_highest = 0.005
 [metrics.search_count.statistics.linear_model_mean.covariate_adjustment]
 period = "preenrollment_week"
 
@@ -67,13 +60,14 @@ data_source = "mobile_search_clients_engines_sources_daily"
 
 [metrics.serp_ad_clicks.statistics]
 deciles = {}
-bootstrap_mean = {}
 [metrics.serp_ad_clicks.statistics.linear_model_mean]
+drop_highest = 0.005
 [metrics.serp_ad_clicks.statistics.linear_model_mean.covariate_adjustment]
 period = "preenrollment_week"
 ##
 
 [metrics.client_level_daily_active_users_v2.statistics.per_client_dau_impact]
+drop_highest = 0.0
 pre_treatments = ['normalize_over_analysis_period']
 
 [data_sources.mobile_search_clients_engines_sources_daily]

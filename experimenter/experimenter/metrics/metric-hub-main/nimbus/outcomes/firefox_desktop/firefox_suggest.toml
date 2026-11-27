@@ -1,0 +1,30 @@
+[metrics.urlbar_impressions_suggest]
+friendly_name = "Urlbar search sessions"
+description = "The number of times a user exits the urlbar dropdown menu, either by abandoning the urlbar, engaging with a urlbar result, or selecting an annoyance signal that closes the urlbar dropdown menu"
+data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
+aggregation = "sum"
+column = "urlbar_impressions"
+keep_nulls = true
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.urlbar_annoyances]
+friendly_name = "Urlbar annoyances"
+description = "Count of clicks on annoyance signals across all results shown in the urlbar dropdown menu"
+bigger_is_better = false
+data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
+aggregation = "sum"
+column = "urlbar_annoyances"
+keep_nulls = true
+cumulative_window = 7
+repeat_windows = true
+
+[metrics.urlbar_clicks]
+friendly_name = "Urlbar engagements"
+description = "Count of clicks on any result shown in the urlbar dropdown menu"
+data_source = "urlbar_events_daily_engagement_by_product_result_type_v1"
+aggregation = "sum"
+column = "urlbar_clicks"
+keep_nulls = true
+cumulative_window = 7
+repeat_windows = true
